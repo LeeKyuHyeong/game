@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('랭킹')}"></head>
+<body class="admin-page">
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+    <main class="main-content">
+        <header class="content-header">
+            <h1>🏆 랭킹</h1>
+        </header>
+
+        <div class="period-tabs">
+            <a th:href="@{/admin/history/ranking(period='daily')}"
+               th:classappend="${period == 'daily'} ? 'active'" class="period-tab">오늘</a>
+            <a th:href="@{/admin/history/ranking(period='weekly')}"
+               th:classappend="${period == 'weekly'} ? 'active'" class="period-tab">이번 주</a>
+            <a th:href="@{/admin/history/ranking(period='all')}"
+               th:classappend="${period == 'all'} ? 'active'" class="period-tab">전체</a>
+        </div>
+
+        <div class="ranking-container">
+            <div class="top-three" th:if="${#lists.size(rankings) >= 3}">
+                <div class="rank-card second">
+                    <div class="rank-medal">🥈</div>
+                    <div class="rank-number">2</div>
+                    <div class="rank-nickname" th:text="${rankings[1].nickname}"></div>
+                    <div class="rank-score" th:text="${rankings[1].totalScore} + '점'"></div>
+                    <div class="rank-info" th:text="'정답률 ' + ${#numbers.formatDecimal(rankings[1].accuracyRate, 0, 1)} + '%'"></div>
+                </div>
+                <div class="rank-card first">
+                    <div class="rank-medal">🥇</div>
+                    <div class="rank-number">1</div>
+                    <div class="rank-nickname" th:text="${rankings[0].nickname}"></div>
+                    <div class="rank-score" th:text="${rankings[0].totalScore} + '점'"></div>
+                    <div class="rank-info" th:text="'정답률 ' + ${#numbers.formatDecimal(rankings[0].accuracyRate, 0, 1)} + '%'"></div>
+                </div>
+                <div class="rank-card third">
+                    <div class="rank-medal">🥉</div>
+                    <div class="rank-number">3</div>
+                    <div class="rank-nickname" th:text="${rankings[2].nickname}"></div>
+                    <div class="rank-score" th:text="${rankings[2].totalScore} + '점'"></div>
+                    <div class="rank-info" th:text="'정답률 ' + ${#numbers.formatDecimal(rankings[2].accuracyRate, 0, 1)} + '%'"></div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table ranking-table">
+                    <thead>
+                    <tr>
+                        <th>순위</th>
+                        <th>별명</th>
+                        <th>점수</th>
+                        <th>정답</th>
+                        <th>정답률</th>
+                        <th>게임유형</th>
+                        <th>플레이 시간</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="rank, idx : ${rankings}" th:classappend="${idx.index < 3} ? 'top-rank'">
+                        <td>
+                            <span class="rank-num" th:text="${idx.index + 1}"></span>
+                        </td>
+                        <td th:text="${rank.nickname}"></td>
+                        <td class="score-cell" th:text="${rank.totalScore}"></td>
+                        <td th:text="${rank.correctCount} + '/' + ${rank.completedRounds}"></td>
+                        <td th:text="${#numbers.formatDecimal(rank.accuracyRate, 0, 1)} + '%'"></td>
+                        <td>
+                                    <span class="type-badge small" th:classappend="${rank.gameType.name()}"
+                                          th:text="${rank.gameType.name() == 'SOLO_HOST'} ? '진행용' : '맞추기'"></span>
+                        </td>
+                        <td th:text="${#temporals.format(rank.startedAt, 'MM-dd HH:mm')}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(rankings)}">
+                        <td colspan="7" class="empty-row">랭킹 데이터가 없습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+</body>
+</html>

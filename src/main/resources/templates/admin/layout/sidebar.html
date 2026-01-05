@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="sidebar">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>🎵 Song Quiz</h2>
+            <span>관리자</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/song" class="nav-item" th:classappend="${menu == 'song'} ? 'active'">
+                <span class="nav-icon">🎶</span>
+                <span>노래 관리</span>
+            </a>
+            <a href="/admin/genre" class="nav-item" th:classappend="${menu == 'genre'} ? 'active'">
+                <span class="nav-icon">🏷️</span>
+                <span>장르 관리</span>
+            </a>
+            <a href="/admin/history" class="nav-item" th:classappend="${menu == 'history'} ? 'active'">
+                <span class="nav-icon">📊</span>
+                <span>게임 이력</span>
+            </a>
+            <a href="/admin/history/ranking" class="nav-item" th:classappend="${menu == 'ranking'} ? 'active'">
+                <span class="nav-icon">🏆</span>
+                <span>랭킹</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/" class="home-btn">홈으로</a>
+            <a href="/admin/logout" class="logout-btn">로그아웃</a>
+        </div>
+    </aside>
+</th:block>
+</html>

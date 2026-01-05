@@ -45,6 +45,7 @@ public class AdminSongController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", songPage.getTotalPages());
         model.addAttribute("totalItems", songPage.getTotalElements());
+        model.addAttribute("menu", "song");
 
         return "admin/song/list";
     }
@@ -109,7 +110,6 @@ public class AdminSongController {
 
             if (mp3File != null && !mp3File.isEmpty()) {
                 String filePath = songService.saveFile(mp3File);
-
                 if (id != null && song.getFilePath() != null) {
                     songService.deleteFile(song.getFilePath());
                 }

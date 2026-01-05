@@ -42,6 +42,7 @@ public class AdminGenreController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", genrePage.getTotalPages());
         model.addAttribute("totalItems", genrePage.getTotalElements());
+        model.addAttribute("menu", "genre");
 
         return "admin/genre/list";
     }

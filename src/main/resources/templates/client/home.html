@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('Song Quiz - 노래 맞추기 게임')}"></head>
+<body class="client-page">
+<div class="client-container">
+    <header class="client-header">
+        <h1>🎵 Song Quiz</h1>
+        <p>노래를 듣고 제목을 맞춰보세요!</p>
+    </header>
+
+    <main class="client-main">
+        <div class="game-modes">
+            <div class="mode-card">
+                <div class="mode-icon">🎤</div>
+                <h2>솔로 게임</h2>
+                <p>혼자서 노래 맞추기에 도전!</p>
+                <div class="mode-options">
+                    <a href="/game/solo/host" class="btn btn-mode">게임 진행용</a>
+                    <a href="/game/solo/guess" class="btn btn-mode primary">내가 맞추기</a>
+                </div>
+            </div>
+
+            <div class="mode-card coming-soon">
+                <div class="mode-icon">👥</div>
+                <h2>멀티 게임</h2>
+                <p>친구들과 함께 대결!</p>
+                <div class="mode-options">
+                    <span class="coming-badge">Coming Soon</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="client-footer">
+        <a href="/admin/login" class="admin-link">관리자</a>
+    </footer>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/client/home.js}"></script>
+</body>
+</html>

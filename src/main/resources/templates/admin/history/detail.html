@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('게임 상세')}"></head>
+<body class="admin-page">
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+    <main class="main-content">
+        <header class="content-header">
+            <div class="header-left">
+                <a href="/admin/history" class="back-btn">← 목록</a>
+                <h1>게임 상세</h1>
+            </div>
+        </header>
+
+        <div class="detail-container">
+            <div class="detail-section">
+                <h3>기본 정보</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>별명</label>
+                        <span th:text="${session.nickname}"></span>
+                    </div>
+                    <div class="info-item">
+                        <label>게임유형</label>
+                        <span class="type-badge" th:classappend="${session.gameType.name()}"
+                              th:text="${session.gameType.name() == 'SOLO_HOST'} ? '게임진행용' : '내가맞추기'"></span>
+                    </div>
+                    <div class="info-item">
+                        <label>게임모드</label>
+                        <span th:switch="${session.gameMode.name()}">
+                                <span th:case="'RANDOM'">전체 랜덤</span>
+                                <span th:case="'GENRE_PER_ROUND'">라운드별 장르 선택</span>
+                                <span th:case="'FIXED_GENRE'">고정 장르</span>
+                            </span>
+                    </div>
+                    <div class="info-item">
+                        <label>상태</label>
+                        <span class="game-status" th:classappend="${session.status.name()}"
+                              th:switch="${session.status.name()}">
+                                <span th:case="'PLAYING'">진행중</span>
+                                <span th:case="'COMPLETED'">완료</span>
+                                <span th:case="'ABANDONED'">중도포기</span>
+                            </span>
+                    </div>
+                    <div class="info-item">
+                        <label>시작시간</label>
+                        <span th:text="${#temporals.format(session.startedAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                    </div>
+                    <div class="info-item">
+                        <label>종료시간</label>
+                        <span th:text="${session.endedAt != null} ? ${#temporals.format(session.endedAt, 'yyyy-MM-dd HH:mm:ss')} : '-'"></span>
+                    </div>
+                    <div class="info-item">
+                        <label>플레이 시간</label>
+                        <span th:text="${session.playTimeSeconds} + '초'"></span>
+                    </div>
+                    <div class="info-item">
+                        <label>세션 UUID</label>
+                        <span class="uuid" th:text="${session.sessionUuid} ?: '-'"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3>게임 결과</h3>
+                <div class="result-cards">
+                    <div class="result-card">
+                        <div class="result-value" th:text="${session.totalScore}">0</div>
+                        <div class="result-label">총점</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-value">
+                            <span th:text="${session.completedRounds}">0</span>/<span th:text="${session.totalRounds}">0</span>
+                        </div>
+                        <div class="result-label">완료 라운드</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-value">
+                            <span th:text="${session.correctCount}">0</span>/<span th:text="${session.completedRounds}">0</span>
+                        </div>
+                        <div class="result-label">정답</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-value" th:text="${#numbers.formatDecimal(session.accuracyRate, 0, 1)} + '%'">0%</div>
+                        <div class="result-label">정답률</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-value" th:text="${session.skipCount} ?: 0">0</div>
+                        <div class="result-label">스킵</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3>게임 설정</h3>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label>제한시간</label>
+                        <span th:text="${settings.timeLimit} + '초'"></span>
+                    </div>
+                    <div class="setting-item">
+                        <label>힌트 사용</label>
+                        <span th:text="${settings.hintEnabled} ? '가능' : '불가'"></span>
+                    </div>
+                    <div class="setting-item">
+                        <label>힌트 타입</label>
+                        <span th:switch="${settings.hintType}">
+                                <span th:case="'INITIAL'">초성</span>
+                                <span th:case="'YEAR'">연도</span>
+                                <span th:case="'ARTIST'">아티스트</span>
+                                <span th:case="*" th:text="${settings.hintType}"></span>
+                            </span>
+                    </div>
+                    <div class="setting-item">
+                        <label>스킵 허용</label>
+                        <span th:text="${settings.skipAllowed} ? '가능 (' + ${settings.maxSkips} + '회)' : '불가'"></span>
+                    </div>
+                    <div class="setting-item" th:if="${settings.yearFrom != null or settings.yearTo != null}">
+                        <label>연도 범위</label>
+                        <span th:text="${settings.yearFrom} + ' ~ ' + ${settings.yearTo}"></span>
+                    </div>
+                    <div class="setting-item">
+                        <label>솔로/그룹</label>
+                        <span th:if="${settings.soloOnly}">솔로만</span>
+                        <span th:if="${settings.groupOnly}">그룹만</span>
+                        <span th:if="${!settings.soloOnly and !settings.groupOnly}">전체</span>
+                    </div>
+                    <div class="setting-item">
+                        <label>정답 점수</label>
+                        <span th:text="${settings.scorePerCorrect} + '점'"></span>
+                    </div>
+                    <div class="setting-item">
+                        <label>시간 보너스</label>
+                        <span th:text="${settings.timeBonusRate} + '%'"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3>라운드 상세</h3>
+                <div class="table-container">
+                    <table class="data-table round-table">
+                        <thead>
+                        <tr>
+                            <th>R</th>
+                            <th>노래</th>
+                            <th>아티스트</th>
+                            <th>장르</th>
+                            <th>사용자 답변</th>
+                            <th>정답</th>
+                            <th>응답시간</th>
+                            <th>힌트</th>
+                            <th>점수</th>
+                            <th>상태</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="round : ${rounds}" th:classappend="${round.isCorrect} ? 'correct-row' : ''">
+                            <td th:text="${round.roundNumber}"></td>
+                            <td th:text="${round.song != null} ? ${round.song.title} : '-'"></td>
+                            <td th:text="${round.song != null} ? ${round.song.artist} : '-'"></td>
+                            <td th:text="${round.genre != null} ? ${round.genre.name} : '-'"></td>
+                            <td th:text="${round.userAnswer} ?: '-'"></td>
+                            <td>
+                                        <span th:if="${round.isCorrect != null}"
+                                              th:class="${round.isCorrect} ? 'correct-badge' : 'wrong-badge'"
+                                              th:text="${round.isCorrect} ? 'O' : 'X'"></span>
+                                <span th:if="${round.isCorrect == null}">-</span>
+                            </td>
+                            <td th:text="${round.answerTimeFormatted}"></td>
+                            <td th:text="${round.hintUsed} ? ${round.hintType} : '-'"></td>
+                            <td th:text="${round.score}"></td>
+                            <td>
+                                        <span class="round-status" th:classappend="${round.status.name()}"
+                                              th:switch="${round.status.name()}">
+                                            <span th:case="'WAITING'">대기</span>
+                                            <span th:case="'PLAYING'">재생중</span>
+                                            <span th:case="'ANSWERED'">답변</span>
+                                            <span th:case="'SKIPPED'">스킵</span>
+                                            <span th:case="'TIMEOUT'">시간초과</span>
+                                        </span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(rounds)}">
+                            <td colspan="10" class="empty-row">라운드 정보가 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+</body>
+</html>

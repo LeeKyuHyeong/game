@@ -13,29 +13,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Value("${admin.username:admin}")
+    @Value("${admin.username}")
     private String adminUsername;
 
-    @Value("${admin.password:admin123}")
+    @Value("${admin.password}")
     private String adminPassword;
 
-    @GetMapping
-    public String adminRoot() {
-        return "redirect:/admin/song";
-    }
-
     @GetMapping("/login")
-    public String loginForm() {
+    public String login() {
         return "admin/login";
     }
 
-    @PostMapping("/login/process")
-    public String login(@RequestParam String username,
-                        @RequestParam String password,
-                        HttpSession session,
-                        Model model) {
+    @PostMapping("/login-process")
+    public String loginProcess(@RequestParam String username,
+                               @RequestParam String password,
+                               HttpSession session,
+                               Model model) {
         if (adminUsername.equals(username) && adminPassword.equals(password)) {
-            session.setAttribute("adminUser", username);
+            session.setAttribute("admin", true);
             return "redirect:/admin/song";
         }
         model.addAttribute("error", "아이디 또는 비밀번호가 올바르지 않습니다.");

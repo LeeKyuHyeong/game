@@ -21,9 +21,7 @@ function closeModal() {
 async function editSong(id) {
     try {
         const response = await fetch(`/admin/song/detail/${id}`);
-        if (!response.ok) {
-            throw new Error('노래 정보를 불러올 수 없습니다.');
-        }
+        if (!response.ok) throw new Error('노래 정보를 불러올 수 없습니다.');
 
         const song = await response.json();
 
@@ -37,14 +35,10 @@ async function editSong(id) {
         document.getElementById('releaseYear').value = song.releaseYear || '';
 
         const isSoloRadio = document.querySelector(`input[name="isSolo"][value="${song.isSolo}"]`);
-        if (isSoloRadio) {
-            isSoloRadio.checked = true;
-        }
+        if (isSoloRadio) isSoloRadio.checked = true;
 
         const useYnRadio = document.querySelector(`input[name="useYn"][value="${song.useYn || 'Y'}"]`);
-        if (useYnRadio) {
-            useYnRadio.checked = true;
-        }
+        if (useYnRadio) useYnRadio.checked = true;
 
         const currentFileDiv = document.getElementById('currentFile');
         if (song.filePath) {
@@ -60,15 +54,10 @@ async function editSong(id) {
 }
 
 async function deleteSong(id) {
-    if (!confirm('정말 삭제하시겠습니까?')) {
-        return;
-    }
+    if (!confirm('정말 삭제하시겠습니까?')) return;
 
     try {
-        const response = await fetch(`/admin/song/delete/${id}`, {
-            method: 'POST'
-        });
-
+        const response = await fetch(`/admin/song/delete/${id}`, { method: 'POST' });
         const result = await response.json();
 
         if (result.success) {
@@ -84,10 +73,7 @@ async function deleteSong(id) {
 
 async function toggleStatus(id) {
     try {
-        const response = await fetch(`/admin/song/toggle/${id}`, {
-            method: 'POST'
-        });
-
+        const response = await fetch(`/admin/song/toggle/${id}`, { method: 'POST' });
         const result = await response.json();
 
         if (result.success) {
@@ -106,9 +92,7 @@ songForm.addEventListener('submit', async function(e) {
     const formData = new FormData();
 
     const songId = document.getElementById('songId').value;
-    if (songId) {
-        formData.append('id', songId);
-    }
+    if (songId) formData.append('id', songId);
 
     formData.append('title', document.getElementById('title').value);
     formData.append('artist', document.getElementById('artist').value);
@@ -116,22 +100,16 @@ songForm.addEventListener('submit', async function(e) {
     formData.append('playDuration', document.getElementById('playDuration').value || 10);
 
     const genreId = document.getElementById('genreId').value;
-    if (genreId) {
-        formData.append('genreId', genreId);
-    }
+    if (genreId) formData.append('genreId', genreId);
 
     const releaseYear = document.getElementById('releaseYear').value;
-    if (releaseYear) {
-        formData.append('releaseYear', releaseYear);
-    }
+    if (releaseYear) formData.append('releaseYear', releaseYear);
 
     formData.append('isSolo', document.querySelector('input[name="isSolo"]:checked').value);
     formData.append('useYn', document.querySelector('input[name="useYn"]:checked').value);
 
     const mp3File = document.getElementById('mp3File').files[0];
-    if (mp3File) {
-        formData.append('mp3File', mp3File);
-    }
+    if (mp3File) formData.append('mp3File', mp3File);
 
     try {
         const response = await fetch('/admin/song/save', {
@@ -154,13 +132,9 @@ songForm.addEventListener('submit', async function(e) {
 });
 
 modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-        closeModal();
-    }
+    if (e.target === modal) closeModal();
 });
 
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && modal.classList.contains('show')) {
-        closeModal();
-    }
+    if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
 });

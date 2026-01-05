@@ -1,33 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>노래 관리</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}">
-    <link rel="stylesheet" th:href="@{/css/admin.css}">
-</head>
+<head th:replace="~{common/fragments/head :: adminHead('노래 관리')}"></head>
 <body class="admin-page">
 <div class="admin-container">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h2>🎵 Song Quiz</h2>
-            <span>관리자</span>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="/admin/song" class="nav-item active">
-                <span class="nav-icon">🎶</span>
-                <span>노래 관리</span>
-            </a>
-            <a href="/admin/genre" class="nav-item">
-                <span class="nav-icon">🏷️</span>
-                <span>장르 관리</span>
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <a href="/admin/logout" class="logout-btn">로그아웃</a>
-        </div>
-    </aside>
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
 
     <main class="main-content">
         <header class="content-header">
@@ -201,7 +177,7 @@
     </div>
 </div>
 
-<script th:src="@{/js/common.js}"></script>
-<script th:src="@{/js/admin-song.js}"></script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/admin/admin-song.js}"></script>
 </body>
 </html>
