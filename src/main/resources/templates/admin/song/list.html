@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>노래 관리</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body class="admin-page">
+<div class="admin-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>🎵 Song Quiz</h2>
+            <span>관리자</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/song" class="nav-item active">
+                <span class="nav-icon">🎶</span>
+                <span>노래 관리</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/admin/logout" class="logout-btn">로그아웃</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="content-header">
+            <h1>노래 관리</h1>
+            <button class="btn btn-primary" onclick="openModal()">+ 노래 추가</button>
+        </header>
+
+        <div class="search-bar">
+            <form action="/admin/song" method="get" class="search-form">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 아티스트 검색">
+                <button type="submit" class="btn btn-search">검색</button>
+                <a th:if="${keyword}" href="/admin/song" class="btn btn-reset">초기화</a>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>제목</th>
+                    <th>아티스트</th>
+                    <th>장르</th>
+                    <th>연도</th>
+                    <th>솔로</th>
+                    <th>MP3</th>
+                    <th>사용여부</th>
+                    <th>등록일</th>
+                    <th>관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="song : ${songs}">
+                    <td th:text="${song.id}"></td>
+                    <td th:text="${song.title}"></td>
+                    <td th:text="${song.artist}"></td>
+                    <td th:text="${song.genre}"></td>
+                    <td th:text="${song.releaseYear}"></td>
+                    <td>
+                                <span class="solo-badge" th:classappend="${song.isSolo} ? 'solo' : 'group'"
+                                      th:text="${song.isSolo} ? '솔로' : '그룹'"></span>
+                    </td>
+                    <td>
+                        <span th:if="${song.filePath}" class="file-exists">●</span>
+                        <span th:unless="${song.filePath}" class="file-none">-</span>
+                    </td>
+                    <td>
+                                <span class="status" th:classappend="${song.useYn == 'Y'} ? 'active' : 'inactive'"
+                                      th:text="${song.useYn == 'Y'} ? '사용' : '미사용'"></span>
+                    </td>
+                    <td th:text="${#temporals.format(song.createdAt, 'yyyy-MM-dd')}"></td>
+                    <td class="action-buttons">
+                        <button class="btn btn-sm btn-edit" th:onclick="'editSong(' + ${song.id} + ')'">수정</button>
+                        <button class="btn btn-sm btn-toggle" th:onclick="'toggleStatus(' + ${song.id} + ')'">상태변경</button>
+                        <button class="btn btn-sm btn-delete" th:onclick="'deleteSong(' + ${song.id} + ')'">삭제</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(songs)}">
+                    <td colspan="10" class="empty-row">등록된 노래가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" th:if="${totalPages > 0}">
+            <a th:href="@{/admin/song(page=0, keyword=${keyword})}"
+               th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
+            <a th:href="@{/admin/song(page=${currentPage - 1}, keyword=${keyword})}"
+               th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
+
+            <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                   th:href="@{/admin/song(page=${i}, keyword=${keyword})}"
+                   th:text="${i + 1}"
+                   th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
+            </th:block>
+
+            <a th:href="@{/admin/song(page=${currentPage + 1}, keyword=${keyword})}"
+               th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
+            <a th:href="@{/admin/song(page=${totalPages - 1}, keyword=${keyword})}"
+               th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
+        </div>
+    </main>
+</div>
+
+<div id="songModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">노래 추가</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="songForm" class="modal-form" enctype="multipart/form-data">
+            <input type="hidden" id="songId" name="id">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title">제목 *</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="artist">아티스트 *</label>
+                    <input type="text" id="artist" name="artist" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="mp3File">MP3 파일</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="mp3File" name="mp3File" accept=".mp3,audio/mpeg">
+                    <div id="currentFile" class="current-file"></div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startTime">시작 시간 (초)</label>
+                    <input type="number" id="startTime" name="startTime" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="playDuration">재생 시간 (초)</label>
+                    <input type="number" id="playDuration" name="playDuration" min="1" value="10">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="genre">장르</label>
+                    <select id="genre" name="genre">
+                        <option value="">선택하세요</option>
+                        <option value="POP">POP</option>
+                        <option value="KPOP">K-POP</option>
+                        <option value="ROCK">ROCK</option>
+                        <option value="HIPHOP">HIP-HOP</option>
+                        <option value="RNB">R&B</option>
+                        <option value="BALLAD">발라드</option>
+                        <option value="EDM">EDM</option>
+                        <option value="CLASSIC">클래식</option>
+                        <option value="ETC">기타</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="releaseYear">발매연도</label>
+                    <input type="number" id="releaseYear" name="releaseYear" min="1900" max="2099" placeholder="예: 2024">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>솔로여부</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="isSolo" value="true"> 솔로
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="isSolo" value="false" checked> 그룹
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>사용여부</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="useYn" value="Y" checked> 사용
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="useYn" value="N"> 미사용
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" onclick="closeModal()">취소</button>
+                <button type="submit" class="btn btn-primary">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/common.js}"></script>
+<script th:src="@{/js/admin-song.js}"></script>
+</body>
+</html>
