@@ -1,4 +1,4 @@
-package com.kh.game.controller;
+package com.kh.game.controller.admin;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;

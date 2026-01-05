@@ -33,7 +33,9 @@ public class Song {
     @Column(name = "play_duration")
     private Integer playDuration;
 
-    private String genre;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "genre_id")
+    private Genre genre;
 
     @Column(name = "release_year")
     private Integer releaseYear;

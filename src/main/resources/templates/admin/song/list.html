@@ -19,6 +19,10 @@
                 <span class="nav-icon">🎶</span>
                 <span>노래 관리</span>
             </a>
+            <a href="/admin/genre" class="nav-item">
+                <span class="nav-icon">🏷️</span>
+                <span>장르 관리</span>
+            </a>
         </nav>
         <div class="sidebar-footer">
             <a href="/admin/logout" class="logout-btn">로그아웃</a>
@@ -60,8 +64,8 @@
                     <td th:text="${song.id}"></td>
                     <td th:text="${song.title}"></td>
                     <td th:text="${song.artist}"></td>
-                    <td th:text="${song.genre}"></td>
-                    <td th:text="${song.releaseYear}"></td>
+                    <td th:text="${song.genre != null} ? ${song.genre.name} : '-'"></td>
+                    <td th:text="${song.releaseYear} ?: '-'"></td>
                     <td>
                                 <span class="solo-badge" th:classappend="${song.isSolo} ? 'solo' : 'group'"
                                       th:text="${song.isSolo} ? '솔로' : '그룹'"></span>
@@ -150,18 +154,12 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="genre">장르</label>
-                    <select id="genre" name="genre">
+                    <label for="genreId">장르</label>
+                    <select id="genreId" name="genreId">
                         <option value="">선택하세요</option>
-                        <option value="POP">POP</option>
-                        <option value="KPOP">K-POP</option>
-                        <option value="ROCK">ROCK</option>
-                        <option value="HIPHOP">HIP-HOP</option>
-                        <option value="RNB">R&B</option>
-                        <option value="BALLAD">발라드</option>
-                        <option value="EDM">EDM</option>
-                        <option value="CLASSIC">클래식</option>
-                        <option value="ETC">기타</option>
+                        <option th:each="genre : ${genres}"
+                                th:value="${genre.id}"
+                                th:text="${genre.name}"></option>
                     </select>
                 </div>
                 <div class="form-group">

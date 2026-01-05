@@ -33,7 +33,7 @@ async function editSong(id) {
         document.getElementById('artist').value = song.artist || '';
         document.getElementById('startTime').value = song.startTime || 0;
         document.getElementById('playDuration').value = song.playDuration || 10;
-        document.getElementById('genre').value = song.genre || '';
+        document.getElementById('genreId').value = song.genreId || '';
         document.getElementById('releaseYear').value = song.releaseYear || '';
 
         const isSoloRadio = document.querySelector(`input[name="isSolo"][value="${song.isSolo}"]`);
@@ -114,8 +114,17 @@ songForm.addEventListener('submit', async function(e) {
     formData.append('artist', document.getElementById('artist').value);
     formData.append('startTime', document.getElementById('startTime').value || 0);
     formData.append('playDuration', document.getElementById('playDuration').value || 10);
-    formData.append('genre', document.getElementById('genre').value);
-    formData.append('releaseYear', document.getElementById('releaseYear').value);
+
+    const genreId = document.getElementById('genreId').value;
+    if (genreId) {
+        formData.append('genreId', genreId);
+    }
+
+    const releaseYear = document.getElementById('releaseYear').value;
+    if (releaseYear) {
+        formData.append('releaseYear', releaseYear);
+    }
+
     formData.append('isSolo', document.querySelector('input[name="isSolo"]:checked').value);
     formData.append('useYn', document.querySelector('input[name="useYn"]:checked').value);
 

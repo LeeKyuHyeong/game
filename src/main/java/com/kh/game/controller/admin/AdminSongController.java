@@ -1,6 +1,7 @@
-package com.kh.game.controller;
+package com.kh.game.controller.admin;
 
 import com.kh.game.entity.Song;
+import com.kh.game.service.GenreService;
 import com.kh.game.service.SongService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class AdminSongController {
 
     private final SongService songService;
+    private final GenreService genreService;
 
     @GetMapping
     public String list(@RequestParam(defaultValue = "0") int page,
@@ -39,6 +41,7 @@ public class AdminSongController {
         }
 
         model.addAttribute("songs", songPage.getContent());
+        model.addAttribute("genres", genreService.findActiveGenres());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", songPage.getTotalPages());
         model.addAttribute("totalItems", songPage.getTotalElements());
@@ -48,9 +51,22 @@ public class AdminSongController {
 
     @GetMapping("/detail/{id}")
     @ResponseBody
-    public ResponseEntity<Song> detail(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> detail(@PathVariable Long id) {
         return songService.findById(id)
-                .map(ResponseEntity::ok)
+                .map(song -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("id", song.getId());
+                    result.put("title", song.getTitle());
+                    result.put("artist", song.getArtist());
+                    result.put("filePath", song.getFilePath());
+                    result.put("startTime", song.getStartTime());
+                    result.put("playDuration", song.getPlayDuration());
+                    result.put("genreId", song.getGenre() != null ? song.getGenre().getId() : null);
+                    result.put("releaseYear", song.getReleaseYear());
+                    result.put("isSolo", song.getIsSolo());
+                    result.put("useYn", song.getUseYn());
+                    return ResponseEntity.ok(result);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -62,7 +78,7 @@ public class AdminSongController {
             @RequestParam String artist,
             @RequestParam(required = false) Integer startTime,
             @RequestParam(required = false) Integer playDuration,
-            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) Long genreId,
             @RequestParam(required = false) Integer releaseYear,
             @RequestParam(required = false) Boolean isSolo,
             @RequestParam String useYn,
@@ -81,10 +97,15 @@ public class AdminSongController {
             song.setArtist(artist);
             song.setStartTime(startTime != null ? startTime : 0);
             song.setPlayDuration(playDuration != null ? playDuration : 10);
-            song.setGenre(genre);
             song.setReleaseYear(releaseYear);
             song.setIsSolo(isSolo);
             song.setUseYn(useYn);
+
+            if (genreId != null) {
+                genreService.findById(genreId).ifPresent(song::setGenre);
+            } else {
+                song.setGenre(null);
+            }
 
             if (mp3File != null && !mp3File.isEmpty()) {
                 String filePath = songService.saveFile(mp3File);
