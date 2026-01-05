@@ -1,5 +1,6 @@
 package com.kh.game.service;
 
+import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.Song;
 import com.kh.game.repository.SongRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +37,10 @@ public class SongService {
 
     public Optional<Song> findById(Long id) {
         return songRepository.findById(id);
+    }
+
+    public List<Song> findActiveSongs() {
+        return songRepository.findByUseYn("Y");
     }
 
     @Transactional
@@ -83,5 +87,40 @@ public class SongService {
         } catch (IOException e) {
             // 로그만 남기고 예외는 무시
         }
+    }
+
+    public List<Song> getRandomSongs(int count, GameSettings settings) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+
+        // 필터링
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            // 연도 필터
+            if (settings.getYearFrom() != null && song.getReleaseYear() != null) {
+                if (song.getReleaseYear() < settings.getYearFrom()) continue;
+            }
+            if (settings.getYearTo() != null && song.getReleaseYear() != null) {
+                if (song.getReleaseYear() > settings.getYearTo()) continue;
+            }
+
+            // 솔로/그룹 필터
+            if (settings.getSoloOnly() != null && settings.getSoloOnly()) {
+                if (song.getIsSolo() == null || !song.getIsSolo()) continue;
+            }
+            if (settings.getGroupOnly() != null && settings.getGroupOnly()) {
+                if (song.getIsSolo() != null && song.getIsSolo()) continue;
+            }
+
+            // 장르 필터
+            if (settings.getFixedGenreId() != null) {
+                if (song.getGenre() == null || !song.getGenre().getId().equals(settings.getFixedGenreId())) continue;
+            }
+
+            filtered.add(song);
+        }
+
+        // 셔플 후 필요한 만큼 반환
+        Collections.shuffle(filtered);
+        return filtered.subList(0, Math.min(count, filtered.size()));
     }
 }

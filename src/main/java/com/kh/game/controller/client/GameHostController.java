@@ -1,0 +1,333 @@
+package com.kh.game.controller.client;
+
+import com.kh.game.dto.GameSettings;
+import com.kh.game.entity.*;
+import com.kh.game.service.GameSessionService;
+import com.kh.game.service.GenreService;
+import com.kh.game.service.SongService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpSession;
+import java.time.LocalDateTime;
+import java.util.*;
+
+@Controller
+@RequestMapping("/game/solo/host")
+@RequiredArgsConstructor
+public class GameHostController {
+
+    private final SongService songService;
+    private final GenreService genreService;
+    private final GameSessionService gameSessionService;
+
+    @GetMapping
+    public String setup(Model model) {
+        model.addAttribute("genres", genreService.findActiveGenres());
+        return "client/game/host/setup";
+    }
+
+    @PostMapping("/start")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> startGame(
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            @SuppressWarnings("unchecked")
+            List<String> players = (List<String>) request.get("players");
+            int totalRounds = (int) request.get("totalRounds");
+            String gameMode = (String) request.get("gameMode");
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> settingsMap = (Map<String, Object>) request.get("settings");
+
+            // GameSession 생성
+            GameSession session = new GameSession();
+            session.setSessionUuid(UUID.randomUUID().toString());
+            session.setNickname(players.get(0)); // 첫번째 플레이어를 대표로
+            session.setGameType(GameSession.GameType.SOLO_HOST);
+            session.setGameMode(GameSession.GameMode.valueOf(gameMode));
+            session.setTotalRounds(totalRounds);
+            session.setStatus(GameSession.GameStatus.PLAYING);
+
+            // Settings JSON 생성
+            GameSettings settings = new GameSettings();
+            if (settingsMap != null) {
+                if (settingsMap.get("timeLimit") != null) {
+                    settings.setTimeLimit((Integer) settingsMap.get("timeLimit"));
+                }
+                if (settingsMap.get("yearFrom") != null) {
+                    settings.setYearFrom((Integer) settingsMap.get("yearFrom"));
+                }
+                if (settingsMap.get("yearTo") != null) {
+                    settings.setYearTo((Integer) settingsMap.get("yearTo"));
+                }
+                if (settingsMap.get("soloOnly") != null) {
+                    settings.setSoloOnly((Boolean) settingsMap.get("soloOnly"));
+                }
+                if (settingsMap.get("groupOnly") != null) {
+                    settings.setGroupOnly((Boolean) settingsMap.get("groupOnly"));
+                }
+                if (settingsMap.get("fixedGenreId") != null) {
+                    settings.setFixedGenreId(Long.valueOf(settingsMap.get("fixedGenreId").toString()));
+                }
+            }
+            session.setSettings(gameSessionService.toSettingsJson(settings));
+
+            GameSession savedSession = gameSessionService.save(session);
+
+            // 노래 목록 가져오기
+            List<Song> songs = songService.getRandomSongs(totalRounds, settings);
+
+            // 라운드 생성
+            for (int i = 0; i < songs.size(); i++) {
+                GameRound round = new GameRound();
+                round.setGameSession(savedSession);
+                round.setRoundNumber(i + 1);
+                round.setSong(songs.get(i));
+                round.setGenre(songs.get(i).getGenre());
+                round.setPlayStartTime(songs.get(i).getStartTime());
+                round.setPlayDuration(songs.get(i).getPlayDuration());
+                round.setStatus(GameRound.RoundStatus.WAITING);
+                savedSession.getRounds().add(round);
+            }
+
+            gameSessionService.save(savedSession);
+
+            // 세션에 플레이어 정보 저장
+            httpSession.setAttribute("gameSessionId", savedSession.getId());
+            httpSession.setAttribute("players", players);
+            httpSession.setAttribute("playerScores", new HashMap<String, Integer>());
+
+            result.put("success", true);
+            result.put("sessionId", savedSession.getId());
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "게임 시작 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/play")
+    public String play(HttpSession httpSession, Model model) {
+        Long sessionId = (Long) httpSession.getAttribute("gameSessionId");
+        if (sessionId == null) {
+            return "redirect:/game/solo/host";
+        }
+
+        GameSession session = gameSessionService.findById(sessionId).orElse(null);
+        if (session == null) {
+            return "redirect:/game/solo/host";
+        }
+
+        @SuppressWarnings("unchecked")
+        List<String> players = (List<String>) httpSession.getAttribute("players");
+
+        model.addAttribute("session", session);
+        model.addAttribute("players", players);
+        model.addAttribute("settings", gameSessionService.parseSettings(session.getSettings()));
+
+        return "client/game/host/play";
+    }
+
+    @GetMapping("/round/{roundNumber}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getRound(
+            @PathVariable int roundNumber,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long sessionId = (Long) httpSession.getAttribute("gameSessionId");
+
+        if (sessionId == null) {
+            result.put("success", false);
+            result.put("message", "세션이 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        GameSession session = gameSessionService.findById(sessionId).orElse(null);
+        if (session == null) {
+            result.put("success", false);
+            result.put("message", "게임을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        GameRound round = session.getRounds().stream()
+                .filter(r -> r.getRoundNumber() == roundNumber)
+                .findFirst()
+                .orElse(null);
+
+        if (round == null) {
+            result.put("success", false);
+            result.put("message", "라운드를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        result.put("success", true);
+        result.put("roundNumber", round.getRoundNumber());
+        result.put("totalRounds", session.getTotalRounds());
+
+        if (round.getSong() != null) {
+            Map<String, Object> songInfo = new HashMap<>();
+            songInfo.put("id", round.getSong().getId());
+            songInfo.put("title", round.getSong().getTitle());
+            songInfo.put("artist", round.getSong().getArtist());
+            songInfo.put("filePath", round.getSong().getFilePath());
+            songInfo.put("startTime", round.getPlayStartTime());
+            songInfo.put("playDuration", round.getPlayDuration());
+            songInfo.put("releaseYear", round.getSong().getReleaseYear());
+            if (round.getSong().getGenre() != null) {
+                songInfo.put("genre", round.getSong().getGenre().getName());
+            }
+            result.put("song", songInfo);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/answer")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> submitAnswer(
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long sessionId = (Long) httpSession.getAttribute("gameSessionId");
+
+        if (sessionId == null) {
+            result.put("success", false);
+            result.put("message", "세션이 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            int roundNumber = (int) request.get("roundNumber");
+            String winner = (String) request.get("winner"); // null이면 스킵
+            boolean isSkip = request.get("isSkip") != null && (boolean) request.get("isSkip");
+
+            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            if (session == null) {
+                result.put("success", false);
+                result.put("message", "게임을 찾을 수 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            GameRound round = session.getRounds().stream()
+                    .filter(r -> r.getRoundNumber() == roundNumber)
+                    .findFirst()
+                    .orElse(null);
+
+            if (round == null) {
+                result.put("success", false);
+                result.put("message", "라운드를 찾을 수 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            // 라운드 업데이트
+            if (isSkip) {
+                round.setStatus(GameRound.RoundStatus.SKIPPED);
+                round.setIsCorrect(false);
+                session.setSkipCount(session.getSkipCount() + 1);
+            } else {
+                round.setStatus(GameRound.RoundStatus.ANSWERED);
+                round.setUserAnswer(winner);
+                round.setIsCorrect(true);
+                round.setScore(100);
+                session.setCorrectCount(session.getCorrectCount() + 1);
+                session.setTotalScore(session.getTotalScore() + 100);
+
+                // 플레이어 점수 업데이트
+                @SuppressWarnings("unchecked")
+                Map<String, Integer> playerScores = (Map<String, Integer>) httpSession.getAttribute("playerScores");
+                playerScores.put(winner, playerScores.getOrDefault(winner, 0) + 100);
+                httpSession.setAttribute("playerScores", playerScores);
+            }
+
+            session.setCompletedRounds(session.getCompletedRounds() + 1);
+
+            // 게임 종료 체크
+            if (session.getCompletedRounds() >= session.getTotalRounds()) {
+                session.setStatus(GameSession.GameStatus.COMPLETED);
+                session.setEndedAt(LocalDateTime.now());
+            }
+
+            gameSessionService.save(session);
+
+            result.put("success", true);
+            result.put("isGameOver", session.getStatus() == GameSession.GameStatus.COMPLETED);
+            result.put("completedRounds", session.getCompletedRounds());
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "처리 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/result")
+    public String result(HttpSession httpSession, Model model) {
+        Long sessionId = (Long) httpSession.getAttribute("gameSessionId");
+        if (sessionId == null) {
+            return "redirect:/game/solo/host";
+        }
+
+        GameSession session = gameSessionService.findById(sessionId).orElse(null);
+        if (session == null) {
+            return "redirect:/game/solo/host";
+        }
+
+        @SuppressWarnings("unchecked")
+        List<String> players = (List<String>) httpSession.getAttribute("players");
+        @SuppressWarnings("unchecked")
+        Map<String, Integer> playerScores = (Map<String, Integer>) httpSession.getAttribute("playerScores");
+
+        // 점수순 정렬
+        List<Map.Entry<String, Integer>> sortedScores = new ArrayList<>();
+        if (playerScores != null) {
+            for (String player : players) {
+                int score = playerScores.getOrDefault(player, 0);
+                sortedScores.add(new AbstractMap.SimpleEntry<>(player, score));
+            }
+            sortedScores.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+        }
+
+        model.addAttribute("session", session);
+        model.addAttribute("rounds", session.getRounds());
+        model.addAttribute("players", players);
+        model.addAttribute("playerScores", sortedScores);
+
+        return "client/game/host/result";
+    }
+
+    @PostMapping("/end")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> endGame(HttpSession httpSession) {
+        Map<String, Object> result = new HashMap<>();
+        Long sessionId = (Long) httpSession.getAttribute("gameSessionId");
+
+        if (sessionId != null) {
+            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            if (session != null && session.getStatus() == GameSession.GameStatus.PLAYING) {
+                session.setStatus(GameSession.GameStatus.ABANDONED);
+                session.setEndedAt(LocalDateTime.now());
+                gameSessionService.save(session);
+            }
+        }
+
+        httpSession.removeAttribute("gameSessionId");
+        httpSession.removeAttribute("players");
+        httpSession.removeAttribute("playerScores");
+
+        result.put("success", true);
+        return ResponseEntity.ok(result);
+    }
+}

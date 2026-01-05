@@ -15,6 +15,8 @@ public interface SongRepository extends JpaRepository<Song, Long> {
 
     List<Song> findByUseYn(String useYn);
 
+    List<Song> findByUseYnAndFilePathIsNotNull(String useYn);
+
     Page<Song> findByTitleContainingOrArtistContaining(String title, String artist, Pageable pageable);
 
     Page<Song> findByTitleContainingOrArtistContainingAndUseYn(String title, String artist, String useYn, Pageable pageable);

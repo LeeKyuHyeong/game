@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('게임 진행 - Song Quiz')}"></head>
+<body class="client-page game-page">
+<div class="game-container">
+    <header class="game-header">
+        <div class="game-info">
+                <span class="round-info">
+                    라운드 <span id="currentRound">1</span> / <span th:text="${session.totalRounds}"></span>
+                </span>
+        </div>
+        <button class="btn btn-quit" onclick="quitGame()">게임 종료</button>
+    </header>
+
+    <main class="game-main">
+        <div class="music-player">
+            <div class="player-display">
+                <div class="music-icon" id="musicIcon">🎵</div>
+                <div class="player-status" id="playerStatus">재생 대기중</div>
+            </div>
+
+            <div class="player-controls">
+                <button class="control-btn play-btn" id="playBtn" onclick="togglePlay()">
+                    <span class="play-icon">▶</span>
+                </button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <div class="time-display">
+                <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+            </div>
+        </div>
+
+        <div class="answer-section">
+            <h3>🎯 정답자 선택</h3>
+            <div class="player-buttons" id="playerButtons">
+                <button th:each="player : ${players}"
+                        class="player-btn"
+                        th:text="${player}"
+                        th:data-player="${player}"
+                        onclick="selectWinner(this.getAttribute('data-player'))">
+                </button>
+            </div>
+            <button class="btn btn-skip" onclick="skipRound()">스킵 ⏭</button>
+        </div>
+    </main>
+
+    <aside class="scoreboard">
+        <h3>📊 점수판</h3>
+        <div class="score-list" id="scoreList">
+            <div th:each="player : ${players}" class="score-item" th:data-player="${player}">
+                <span class="player-name" th:text="${player}"></span>
+                <span class="player-score">0</span>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- 정답 공개 모달 -->
+<div class="modal" id="answerModal">
+    <div class="modal-content answer-modal">
+        <div class="answer-header" id="answerHeader">정답!</div>
+        <div class="answer-info">
+            <div class="song-title" id="answerTitle"></div>
+            <div class="song-artist" id="answerArtist"></div>
+            <div class="song-meta" id="answerMeta"></div>
+        </div>
+        <div class="winner-info" id="winnerInfo"></div>
+        <button class="btn btn-next-round" id="nextRoundBtn" onclick="nextRound()">다음 라운드 →</button>
+    </div>
+</div>
+
+<!-- 오디오 요소 -->
+<audio id="audioPlayer" preload="auto"></audio>
+
+<script th:inline="javascript">
+    const sessionId = [[${session.id}]];
+    const totalRounds = [[${session.totalRounds}]];
+    const players = [[${players}]];
+</script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/client/game-host-play.js}"></script>
+</body>
+</html>

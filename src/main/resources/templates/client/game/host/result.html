@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('게임 결과 - Song Quiz')}"></head>
+<body class="client-page result-page">
+<div class="result-container">
+    <header class="result-header">
+        <h1>🏆 게임 결과</h1>
+    </header>
+
+    <main class="result-main">
+        <div class="podium-section" th:if="${#lists.size(playerScores) >= 1}">
+            <div class="podium">
+                <div class="podium-place second" th:if="${#lists.size(playerScores) >= 2}">
+                    <div class="place-medal">🥈</div>
+                    <div class="place-name" th:text="${playerScores[1].key}"></div>
+                    <div class="place-score" th:text="${playerScores[1].value} + '점'"></div>
+                    <div class="place-stand">2</div>
+                </div>
+                <div class="podium-place first">
+                    <div class="place-medal">🥇</div>
+                    <div class="place-name" th:text="${playerScores[0].key}"></div>
+                    <div class="place-score" th:text="${playerScores[0].value} + '점'"></div>
+                    <div class="place-stand">1</div>
+                </div>
+                <div class="podium-place third" th:if="${#lists.size(playerScores) >= 3}">
+                    <div class="place-medal">🥉</div>
+                    <div class="place-name" th:text="${playerScores[2].key}"></div>
+                    <div class="place-score" th:text="${playerScores[2].value} + '점'"></div>
+                    <div class="place-stand">3</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-box">
+                <div class="stat-label">총 라운드</div>
+                <div class="stat-value" th:text="${session.totalRounds}"></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">정답</div>
+                <div class="stat-value" th:text="${session.correctCount}"></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">스킵</div>
+                <div class="stat-value" th:text="${session.skipCount}"></div>
+            </div>
+        </div>
+
+        <div class="rounds-section">
+            <h3>📋 라운드 기록</h3>
+            <div class="rounds-list">
+                <div th:each="round : ${rounds}" class="round-item"
+                     th:classappend="${round.status.name() == 'SKIPPED'} ? 'skipped' : ''">
+                    <div class="round-number" th:text="'R' + ${round.roundNumber}"></div>
+                    <div class="round-song">
+                        <div class="song-title" th:text="${round.song != null} ? ${round.song.title} : '-'"></div>
+                        <div class="song-artist" th:text="${round.song != null} ? ${round.song.artist} : ''"></div>
+                    </div>
+                    <div class="round-result">
+                        <span th:if="${round.status.name() == 'ANSWERED'}" class="winner-badge" th:text="${round.userAnswer}"></span>
+                        <span th:if="${round.status.name() == 'SKIPPED'}" class="skip-badge">스킵</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="all-scores" th:if="${#lists.size(playerScores) > 3}">
+            <h3>전체 순위</h3>
+            <div class="score-table">
+                <div th:each="entry, idx : ${playerScores}" class="score-row">
+                    <span class="rank" th:text="${idx.index + 1} + '위'"></span>
+                    <span class="name" th:text="${entry.key}"></span>
+                    <span class="score" th:text="${entry.value} + '점'"></span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="result-footer">
+        <a href="/game/solo/host" class="btn btn-replay">다시 하기 🔄</a>
+        <a href="/" class="btn btn-home">홈으로 🏠</a>
+    </footer>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+</body>
+</html>
