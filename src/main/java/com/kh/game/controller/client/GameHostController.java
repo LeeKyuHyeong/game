@@ -30,6 +30,55 @@ public class GameHostController {
         return "client/game/host/setup";
     }
 
+    @GetMapping("/song-count")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getSongCount(
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Integer yearFrom,
+            @RequestParam(required = false) Integer yearTo,
+            @RequestParam(required = false) Boolean soloOnly,
+            @RequestParam(required = false) Boolean groupOnly) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        GameSettings settings = new GameSettings();
+        settings.setFixedGenreId(genreId);
+        settings.setYearFrom(yearFrom);
+        settings.setYearTo(yearTo);
+        settings.setSoloOnly(soloOnly);
+        settings.setGroupOnly(groupOnly);
+
+        int count = songService.getAvailableSongCount(settings);
+        result.put("count", count);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/genres-with-count")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getGenresWithCount(HttpSession httpSession) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        @SuppressWarnings("unchecked")
+        List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("playedSongIds");
+        if (playedSongIds == null) {
+            playedSongIds = new ArrayList<>();
+        }
+
+        for (var genre : genreService.findActiveGenres()) {
+            Map<String, Object> genreInfo = new HashMap<>();
+            genreInfo.put("id", genre.getId());
+            genreInfo.put("name", genre.getName());
+
+            int availableCount = songService.getAvailableSongCountByGenreExcluding(genre.getId(), playedSongIds);
+            genreInfo.put("availableCount", availableCount);
+
+            result.add(genreInfo);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping("/start")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startGame(
@@ -82,31 +131,35 @@ public class GameHostController {
 
             GameSession savedSession = gameSessionService.save(session);
 
-            // 노래 목록 가져오기
-            List<Song> songs = songService.getRandomSongs(totalRounds, settings);
-
-            // 라운드 생성
-            for (int i = 0; i < songs.size(); i++) {
-                GameRound round = new GameRound();
-                round.setGameSession(savedSession);
-                round.setRoundNumber(i + 1);
-                round.setSong(songs.get(i));
-                round.setGenre(songs.get(i).getGenre());
-                round.setPlayStartTime(songs.get(i).getStartTime());
-                round.setPlayDuration(songs.get(i).getPlayDuration());
-                round.setStatus(GameRound.RoundStatus.WAITING);
-                savedSession.getRounds().add(round);
-            }
-
-            gameSessionService.save(savedSession);
-
             // 세션에 플레이어 정보 저장
             httpSession.setAttribute("gameSessionId", savedSession.getId());
             httpSession.setAttribute("players", players);
             httpSession.setAttribute("playerScores", new HashMap<String, Integer>());
+            httpSession.setAttribute("playedSongIds", new ArrayList<Long>());
+            httpSession.setAttribute("gameMode", gameMode);
+
+            // GENRE_PER_ROUND 모드가 아닌 경우에만 미리 라운드 생성
+            if (!"GENRE_PER_ROUND".equals(gameMode)) {
+                List<Song> songs = songService.getRandomSongs(totalRounds, settings);
+
+                for (int i = 0; i < songs.size(); i++) {
+                    GameRound round = new GameRound();
+                    round.setGameSession(savedSession);
+                    round.setRoundNumber(i + 1);
+                    round.setSong(songs.get(i));
+                    round.setGenre(songs.get(i).getGenre());
+                    round.setPlayStartTime(songs.get(i).getStartTime());
+                    round.setPlayDuration(songs.get(i).getPlayDuration());
+                    round.setStatus(GameRound.RoundStatus.WAITING);
+                    savedSession.getRounds().add(round);
+                }
+
+                gameSessionService.save(savedSession);
+            }
 
             result.put("success", true);
             result.put("sessionId", savedSession.getId());
+            result.put("gameMode", gameMode);
 
         } catch (Exception e) {
             result.put("success", false);
@@ -131,11 +184,84 @@ public class GameHostController {
         @SuppressWarnings("unchecked")
         List<String> players = (List<String>) httpSession.getAttribute("players");
 
+        String gameMode = (String) httpSession.getAttribute("gameMode");
+
         model.addAttribute("session", session);
         model.addAttribute("players", players);
         model.addAttribute("settings", gameSessionService.parseSettings(session.getSettings()));
+        model.addAttribute("gameMode", gameMode);
+        model.addAttribute("genres", genreService.findActiveGenres());
 
         return "client/game/host/play";
+    }
+
+    @PostMapping("/select-genre")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> selectGenreForRound(
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long sessionId = (Long) httpSession.getAttribute("gameSessionId");
+
+        if (sessionId == null) {
+            result.put("success", false);
+            result.put("message", "세션이 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            Long genreId = Long.valueOf(request.get("genreId").toString());
+            int roundNumber = (int) request.get("roundNumber");
+
+            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            if (session == null) {
+                result.put("success", false);
+                result.put("message", "게임을 찾을 수 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            @SuppressWarnings("unchecked")
+            List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("playedSongIds");
+            if (playedSongIds == null) {
+                playedSongIds = new ArrayList<>();
+            }
+
+            // 해당 장르에서 아직 플레이하지 않은 노래 중 랜덤으로 1곡 선택
+            Song song = songService.getRandomSongByGenreExcluding(genreId, playedSongIds);
+
+            if (song == null) {
+                result.put("success", false);
+                result.put("message", "해당 장르에 사용 가능한 노래가 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            // 라운드 생성
+            GameRound round = new GameRound();
+            round.setGameSession(session);
+            round.setRoundNumber(roundNumber);
+            round.setSong(song);
+            round.setGenre(song.getGenre());
+            round.setPlayStartTime(song.getStartTime());
+            round.setPlayDuration(song.getPlayDuration());
+            round.setStatus(GameRound.RoundStatus.WAITING);
+            session.getRounds().add(round);
+
+            gameSessionService.save(session);
+
+            // 플레이한 노래 ID 추가
+            playedSongIds.add(song.getId());
+            httpSession.setAttribute("playedSongIds", playedSongIds);
+
+            result.put("success", true);
+            result.put("roundNumber", roundNumber);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "장르 선택 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/round/{roundNumber}")

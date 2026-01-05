@@ -29,6 +29,8 @@ public class AdminController {
                                @RequestParam String password,
                                HttpSession session,
                                Model model) {
+        System.out.println("admin.username : " + adminUsername);
+
         if (adminUsername.equals(username) && adminPassword.equals(password)) {
             session.setAttribute("admin", true);
             return "redirect:/admin/song";

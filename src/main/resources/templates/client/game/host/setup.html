@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>진행 라운드</label>
+                    <label>진행 라운드 <span id="songCountInfo" class="song-count-info"></span></label>
                     <div class="round-options">
                         <button type="button" class="round-btn" data-value="5">5</button>
                         <button type="button" class="round-btn active" data-value="10">10</button>
@@ -48,6 +48,13 @@
                             <span class="mode-label">
                                     <strong>장르 고정</strong>
                                     <small>선택한 장르에서만 출제</small>
+                                </span>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="gameMode" value="GENRE_PER_ROUND">
+                            <span class="mode-label">
+                                    <strong>매 라운드 선택</strong>
+                                    <small>매 라운드마다 장르 선택</small>
                                 </span>
                         </label>
                     </div>

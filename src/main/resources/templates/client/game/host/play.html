@@ -72,6 +72,23 @@
     </div>
 </div>
 
+<!-- 장르 선택 모달 -->
+<div class="modal" id="genreSelectModal">
+    <div class="modal-content genre-select-modal">
+        <div class="genre-modal-header">🎵 장르 선택</div>
+        <div class="genre-modal-subtitle">다음 라운드의 장르를 선택하세요</div>
+        <div class="genre-list" id="genreList">
+            <div th:each="genre : ${genres}"
+                 class="genre-item"
+                 th:data-genre-id="${genre.id}"
+                 th:data-genre-name="${genre.name}">
+                <span class="genre-name" th:text="${genre.name}"></span>
+                <span class="genre-count" th:data-genre-id="${genre.id}"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 오디오 요소 -->
 <audio id="audioPlayer" preload="auto"></audio>
 
@@ -79,6 +96,7 @@
     const sessionId = [[${session.id}]];
     const totalRounds = [[${session.totalRounds}]];
     const players = [[${players}]];
+    const gameMode = [[${gameMode}]];
 </script>
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/client/game-host-play.js}"></script>

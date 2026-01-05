@@ -123,4 +123,67 @@ public class SongService {
         Collections.shuffle(filtered);
         return filtered.subList(0, Math.min(count, filtered.size()));
     }
+
+    public int getAvailableSongCount(GameSettings settings) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+
+        int count = 0;
+        for (Song song : allSongs) {
+            // 연도 필터
+            if (settings.getYearFrom() != null && song.getReleaseYear() != null) {
+                if (song.getReleaseYear() < settings.getYearFrom()) continue;
+            }
+            if (settings.getYearTo() != null && song.getReleaseYear() != null) {
+                if (song.getReleaseYear() > settings.getYearTo()) continue;
+            }
+
+            // 솔로/그룹 필터
+            if (settings.getSoloOnly() != null && settings.getSoloOnly()) {
+                if (song.getIsSolo() == null || !song.getIsSolo()) continue;
+            }
+            if (settings.getGroupOnly() != null && settings.getGroupOnly()) {
+                if (song.getIsSolo() != null && song.getIsSolo()) continue;
+            }
+
+            // 장르 필터
+            if (settings.getFixedGenreId() != null) {
+                if (song.getGenre() == null || !song.getGenre().getId().equals(settings.getFixedGenreId())) continue;
+            }
+
+            count++;
+        }
+
+        return count;
+    }
+
+    public int getAvailableSongCountByGenreExcluding(Long genreId, List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+
+        int count = 0;
+        for (Song song : allSongs) {
+            if (song.getGenre() == null || !song.getGenre().getId().equals(genreId)) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            count++;
+        }
+
+        return count;
+    }
+
+    public Song getRandomSongByGenreExcluding(Long genreId, List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            if (song.getGenre() == null || !song.getGenre().getId().equals(genreId)) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            filtered.add(song);
+        }
+
+        if (filtered.isEmpty()) {
+            return null;
+        }
+
+        Collections.shuffle(filtered);
+        return filtered.get(0);
+    }
 }

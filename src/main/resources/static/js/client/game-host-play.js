@@ -12,8 +12,76 @@ players.forEach(player => {
 
 // 게임 시작
 document.addEventListener('DOMContentLoaded', function() {
-    loadRound(1);
+    // GENRE_PER_ROUND 모드면 장르 선택 모달 표시
+    if (gameMode === 'GENRE_PER_ROUND') {
+        showGenreSelectModal(1);
+    } else {
+        loadRound(1);
+    }
 });
+
+async function showGenreSelectModal(roundNumber) {
+    const modal = document.getElementById('genreSelectModal');
+    const genreList = document.getElementById('genreList');
+
+    // 장르별 남은 노래 수 업데이트
+    try {
+        const response = await fetch('/game/solo/host/genres-with-count');
+        const genres = await response.json();
+
+        genreList.innerHTML = '';
+
+        genres.forEach(genre => {
+            const item = document.createElement('div');
+            item.className = 'genre-item';
+            if (genre.availableCount === 0) {
+                item.classList.add('disabled');
+            }
+            item.dataset.genreId = genre.id;
+            item.dataset.genreName = genre.name;
+            item.innerHTML = `
+                <span class="genre-name">${genre.name}</span>
+                <span class="genre-count">${genre.availableCount}곡</span>
+            `;
+
+            if (genre.availableCount > 0) {
+                item.addEventListener('click', () => selectGenre(genre.id, roundNumber));
+            }
+
+            genreList.appendChild(item);
+        });
+
+    } catch (error) {
+        console.error('장르 목록 로딩 오류:', error);
+    }
+
+    modal.classList.add('show');
+}
+
+async function selectGenre(genreId, roundNumber) {
+    try {
+        const response = await fetch('/game/solo/host/select-genre', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                genreId: genreId,
+                roundNumber: roundNumber
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            document.getElementById('genreSelectModal').classList.remove('show');
+            loadRound(roundNumber);
+        } else {
+            alert(result.message || '장르 선택에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('장르 선택 오류:', error);
+        alert('장르 선택 중 오류가 발생했습니다.');
+    }
+}
 
 async function loadRound(roundNumber) {
     try {
@@ -30,10 +98,10 @@ async function loadRound(roundNumber) {
 
         document.getElementById('currentRound').textContent = roundNumber;
 
-        // 오디오 설정
+        // 오디오 설정 - 항상 0초부터 시작
         if (currentSong && currentSong.filePath) {
             audioPlayer.src = `/uploads/songs/${currentSong.filePath}`;
-            audioPlayer.currentTime = currentSong.startTime || 0;
+            audioPlayer.currentTime = 0;
 
             audioPlayer.onloadedmetadata = function() {
                 updateTimeDisplay();
@@ -89,7 +157,7 @@ function pauseAudio() {
 
 function stopAudio() {
     audioPlayer.pause();
-    audioPlayer.currentTime = currentSong ? (currentSong.startTime || 0) : 0;
+    audioPlayer.currentTime = 0;
     isPlaying = false;
 
     document.getElementById('playBtn').innerHTML = '<span class="play-icon">▶</span>';
@@ -104,9 +172,8 @@ function stopAudio() {
 function updateProgress() {
     if (!currentSong) return;
 
-    const startTime = currentSong.startTime || 0;
-    const duration = currentSong.playDuration || 10;
-    const currentTime = audioPlayer.currentTime - startTime;
+    const duration = currentSong.playDuration || 30;
+    const currentTime = audioPlayer.currentTime;
     const progress = Math.min((currentTime / duration) * 100, 100);
 
     document.getElementById('progressBar').style.width = progress + '%';
@@ -119,9 +186,8 @@ function updateProgress() {
 }
 
 function updateTimeDisplay() {
-    const startTime = currentSong ? (currentSong.startTime || 0) : 0;
-    const duration = currentSong ? (currentSong.playDuration || 10) : 0;
-    const currentTime = Math.max(0, audioPlayer.currentTime - startTime);
+    const duration = currentSong ? (currentSong.playDuration || 30) : 0;
+    const currentTime = Math.max(0, audioPlayer.currentTime);
 
     document.getElementById('currentTime').textContent = formatTime(Math.min(currentTime, duration));
     document.getElementById('totalTime').textContent = formatTime(duration);
@@ -250,7 +316,14 @@ function nextRound() {
     document.getElementById('answerModal').classList.remove('show');
 
     if (currentRound < totalRounds) {
-        loadRound(currentRound + 1);
+        const nextRoundNumber = currentRound + 1;
+
+        // GENRE_PER_ROUND 모드면 장르 선택 모달 표시
+        if (gameMode === 'GENRE_PER_ROUND') {
+            showGenreSelectModal(nextRoundNumber);
+        } else {
+            loadRound(nextRoundNumber);
+        }
     } else {
         window.location.href = '/game/solo/host/result';
     }

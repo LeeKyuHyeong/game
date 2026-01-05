@@ -30,6 +30,7 @@ public class AdminSongController {
                        @RequestParam(defaultValue = "10") int size,
                        @RequestParam(required = false) String keyword,
                        Model model) {
+        System.out.println("adminSongController!!");
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         Page<Song> songPage;
 
