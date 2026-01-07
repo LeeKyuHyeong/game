@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('게임 진행 - Song Quiz')}"></head>
+<body class="client-page game-page">
+<div class="game-container guess-mode">
+    <header class="game-header">
+        <div class="game-info">
+            <span class="round-info">
+                라운드 <span id="currentRound">1</span> / <span th:text="${session.totalRounds}"></span>
+            </span>
+            <span class="score-info">
+                점수: <span id="currentScore">0</span>점
+            </span>
+        </div>
+        <button class="btn btn-quit" onclick="quitGame()">게임 종료</button>
+    </header>
+
+    <main class="game-main">
+        <div class="music-player">
+            <div class="player-display">
+                <div class="music-icon" id="musicIcon">🎵</div>
+                <div class="player-status" id="playerStatus">재생 대기중</div>
+            </div>
+
+            <div class="player-controls">
+                <button class="control-btn play-btn" id="playBtn" onclick="togglePlay()">
+                    <span class="play-icon">▶</span>
+                </button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <div class="time-display">
+                <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+            </div>
+        </div>
+
+        <div class="answer-section guess-answer-section">
+            <h3>🎯 정답 입력</h3>
+            <div class="answer-input-wrapper">
+                <input type="text" id="answerInput" class="answer-input" placeholder="노래 제목을 입력하세요" autocomplete="off">
+                <button class="btn btn-submit" onclick="submitAnswer()">제출</button>
+            </div>
+            <button class="btn btn-skip" onclick="skipRound()">스킵 ⏭</button>
+        </div>
+    </main>
+
+    <aside class="stats-sidebar">
+        <h3>📊 현재 기록</h3>
+        <div class="stat-item">
+            <span class="stat-label">정답</span>
+            <span class="stat-value" id="correctCount">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">오답</span>
+            <span class="stat-value" id="wrongCount">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">스킵</span>
+            <span class="stat-value" id="skipCount">0</span>
+        </div>
+    </aside>
+</div>
+
+<!-- 결과 모달 -->
+<div class="modal" id="answerModal">
+    <div class="modal-content answer-modal">
+        <div class="answer-header" id="answerHeader">정답!</div>
+        <div class="answer-info">
+            <div class="song-title" id="answerTitle"></div>
+            <div class="song-artist" id="answerArtist"></div>
+            <div class="song-meta" id="answerMeta"></div>
+        </div>
+        <div class="user-answer-info" id="userAnswerInfo"></div>
+        <button class="btn btn-next-round" id="nextRoundBtn" onclick="nextRound()">다음 라운드 →</button>
+    </div>
+</div>
+
+<!-- 장르 선택 모달 -->
+<div class="modal" id="genreSelectModal">
+    <div class="modal-content genre-select-modal">
+        <div class="genre-modal-header">🎵 장르 선택</div>
+        <div class="genre-modal-subtitle">다음 라운드의 장르를 선택하세요</div>
+        <div class="genre-list" id="genreList">
+            <div th:each="genre : ${genres}"
+                 class="genre-item"
+                 th:data-genre-id="${genre.id}"
+                 th:data-genre-name="${genre.name}">
+                <span class="genre-name" th:text="${genre.name}"></span>
+                <span class="genre-count" th:data-genre-id="${genre.id}"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 오디오 요소 -->
+<audio id="audioPlayer" preload="auto"></audio>
+
+<script th:inline="javascript">
+    const sessionId = [[${session.id}]];
+    const totalRounds = [[${session.totalRounds}]];
+    const nickname = [[${nickname}]];
+    const gameMode = [[${gameMode}]];
+</script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/client/game-guess-play.js}"></script>
+</body>
+</html>

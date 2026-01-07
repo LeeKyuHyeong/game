@@ -2,6 +2,8 @@ package com.kh.game.service;
 
 import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.Song;
+import com.kh.game.entity.SongAnswer;
+import com.kh.game.repository.SongAnswerRepository;
 import com.kh.game.repository.SongRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +25,7 @@ import java.util.*;
 public class SongService {
 
     private final SongRepository songRepository;
+    private final SongAnswerRepository songAnswerRepository;
 
     @Value("${file.upload-dir:uploads/songs}")
     private String uploadDir;
@@ -185,5 +188,72 @@ public class SongService {
 
         Collections.shuffle(filtered);
         return filtered.get(0);
+    }
+
+    // ========== 정답 관련 메서드 ==========
+
+    public List<SongAnswer> getAnswers(Long songId) {
+        return songAnswerRepository.findBySongIdOrderByIsPrimaryDesc(songId);
+    }
+
+    @Transactional
+    public SongAnswer addAnswer(Long songId, String answer, Boolean isPrimary) {
+        Song song = songRepository.findById(songId).orElseThrow();
+        SongAnswer songAnswer = new SongAnswer(song, answer, isPrimary);
+        return songAnswerRepository.save(songAnswer);
+    }
+
+    @Transactional
+    public void deleteAnswer(Long answerId) {
+        songAnswerRepository.deleteById(answerId);
+    }
+
+    @Transactional
+    public void updateAnswers(Long songId, List<String> answers) {
+        songAnswerRepository.deleteBySongId(songId);
+        Song song = songRepository.findById(songId).orElseThrow();
+
+        boolean isFirst = true;
+        for (String answer : answers) {
+            if (answer != null && !answer.trim().isEmpty()) {
+                SongAnswer songAnswer = new SongAnswer(song, answer.trim(), isFirst);
+                songAnswerRepository.save(songAnswer);
+                isFirst = false;
+            }
+        }
+    }
+
+    public boolean checkAnswer(Long songId, String userAnswer) {
+        if (userAnswer == null || userAnswer.trim().isEmpty()) {
+            return false;
+        }
+
+        String normalizedUserAnswer = normalizeAnswer(userAnswer);
+
+        // 1. song_answer 테이블에서 정답 확인
+        List<SongAnswer> answers = songAnswerRepository.findBySongId(songId);
+        for (SongAnswer answer : answers) {
+            if (normalizeAnswer(answer.getAnswer()).equals(normalizedUserAnswer)) {
+                return true;
+            }
+        }
+
+        // 2. song_answer가 없으면 title로 체크
+        if (answers.isEmpty()) {
+            Song song = songRepository.findById(songId).orElse(null);
+            if (song != null) {
+                return normalizeAnswer(song.getTitle()).equals(normalizedUserAnswer);
+            }
+        }
+
+        return false;
+    }
+
+    private String normalizeAnswer(String answer) {
+        if (answer == null) return "";
+        // 공백 제거, 소문자 변환, 특수문자 제거
+        return answer.toLowerCase()
+                .replaceAll("\\s+", "")
+                .replaceAll("[^a-z0-9가-힣]", "");
     }
 }

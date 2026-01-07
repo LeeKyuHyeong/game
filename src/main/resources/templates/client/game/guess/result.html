@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('게임 결과 - Song Quiz')}"></head>
+<body class="client-page result-page">
+<div class="result-container">
+    <header class="result-header">
+        <h1>🏆 게임 결과</h1>
+        <p th:text="${nickname}"></p>
+    </header>
+
+    <main class="result-main">
+        <!-- 점수 섹션 -->
+        <div class="score-section">
+            <div class="final-score">
+                <span class="score-label">최종 점수</span>
+                <span class="score-value" th:text="${sessions.totalScore}">0</span>
+            </div>
+        </div>
+
+        <!-- 통계 섹션 -->
+        <div class="stats-section">
+            <div class="stat-box">
+                <div class="stat-label">정답</div>
+                <div class="stat-value correct" th:text="${sessions.correctCount}">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">오답</div>
+                <div class="stat-value wrong" th:text="${sessions.completedRounds - sessions.correctCount - sessions.skipCount}">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">스킵</div>
+                <div class="stat-value skip" th:text="${sessions.skipCount}">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">정답률</div>
+                <div class="stat-value" th:text="${#numbers.formatDecimal(sessions.accuracyRate, 1, 1) + '%'}">0%</div>
+            </div>
+        </div>
+
+        <!-- 라운드 기록 섹션 -->
+        <div class="rounds-section">
+            <h3>📝 라운드 기록</h3>
+            <div class="rounds-list">
+                <div th:each="round : ${rounds}" class="round-item"
+                     th:classappend="${
+                        round != null and round.isCorrect
+                            ? 'correct'
+                            : (round != null and round.status != null and round.status.name() == 'SKIPPED'
+                                ? 'skipped'
+                                : 'wrong')
+                     }">
+                    <span class="round-number" th:text="'#' + ${round.roundNumber}"></span>
+                    <div class="round-song">
+                        <span class="song-title" th:text="${round.song.title}"></span>
+                        <span class="song-artist" th:text="${round.song.artist}"></span>
+                    </div>
+                    <div class="round-result">
+                        <span th:if="${round.isCorrect}" class="result-badge correct">정답!</span>
+                        <span th:if="${round.status.name() == 'SKIPPED'}" class="result-badge skip">스킵</span>
+                        <span th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="result-badge wrong">오답</span>
+                    </div>
+                    <div class="round-user-answer" th:if="${round.userAnswer != null && !round.userAnswer.isEmpty()}">
+                        <small>내 답: <span th:text="${round.userAnswer}"></span></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="result-footer">
+        <a href="/game/solo/guess" class="btn btn-replay">다시 하기 🔄</a>
+        <a href="/" class="btn btn-home">홈으로 🏠</a>
+    </footer>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+</body>
+</html>

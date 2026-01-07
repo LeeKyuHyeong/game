@@ -3,13 +3,11 @@ let currentSong = null;
 let isPlaying = false;
 let audioPlayer = document.getElementById('audioPlayer');
 let progressInterval = null;
-let playerScores = {};
+let score = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let skipCount = 0;
 let actualTotalRounds = totalRounds; // 서버에서 업데이트될 수 있음
-
-// 초기화
-players.forEach(player => {
-    playerScores[player] = 0;
-});
 
 // 게임 시작
 document.addEventListener('DOMContentLoaded', function() {
@@ -25,9 +23,8 @@ async function showGenreSelectModal(roundNumber) {
     const modal = document.getElementById('genreSelectModal');
     const genreList = document.getElementById('genreList');
 
-    // 장르별 남은 노래 수 업데이트
     try {
-        const response = await fetch('/game/solo/host/genres-with-count');
+        const response = await fetch('/game/solo/guess/genres-with-count');
         const genres = await response.json();
 
         genreList.innerHTML = '';
@@ -61,7 +58,7 @@ async function showGenreSelectModal(roundNumber) {
 
 async function selectGenre(genreId, roundNumber) {
     try {
-        const response = await fetch('/game/solo/host/select-genre', {
+        const response = await fetch('/game/solo/guess/select-genre', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -86,7 +83,7 @@ async function selectGenre(genreId, roundNumber) {
 
 async function loadRound(roundNumber) {
     try {
-        const response = await fetch(`/game/solo/host/round/${roundNumber}`);
+        const response = await fetch(`/game/solo/guess/round/${roundNumber}`);
         const result = await response.json();
 
         if (!result.success) {
@@ -97,19 +94,14 @@ async function loadRound(roundNumber) {
         currentRound = roundNumber;
         currentSong = result.song;
 
-        // 서버의 totalRounds로 업데이트 (노래 부족 시 변경될 수 있음)
+        // 서버의 totalRounds로 업데이트
         if (result.totalRounds) {
             actualTotalRounds = result.totalRounds;
-            // 화면의 총 라운드 수도 업데이트
-            const totalRoundDisplay = document.querySelector('.round-info span:last-child');
-            if (totalRoundDisplay) {
-                totalRoundDisplay.textContent = actualTotalRounds;
-            }
         }
 
         document.getElementById('currentRound').textContent = roundNumber;
 
-        // 오디오 설정 - 항상 0초부터 시작
+        // 오디오 설정 - 0초부터 시작
         if (currentSong && currentSong.filePath) {
             audioPlayer.src = `/uploads/songs/${currentSong.filePath}`;
             audioPlayer.currentTime = 0;
@@ -120,7 +112,10 @@ async function loadRound(roundNumber) {
         }
 
         // UI 리셋
-        resetPlayerUI();
+        resetUI();
+
+        // 입력창 포커스
+        document.getElementById('answerInput').focus();
 
     } catch (error) {
         console.error('라운드 로딩 오류:', error);
@@ -150,7 +145,6 @@ function playAudio() {
     document.getElementById('musicIcon').classList.add('playing');
     document.getElementById('playerStatus').textContent = '재생 중...';
 
-    // 프로그레스 바 업데이트
     progressInterval = setInterval(updateProgress, 100);
 }
 
@@ -190,7 +184,6 @@ function updateProgress() {
     document.getElementById('progressBar').style.width = progress + '%';
     updateTimeDisplay();
 
-    // 재생 시간 초과 시 자동 정지
     if (currentTime >= duration) {
         pauseAudio();
     }
@@ -210,33 +203,32 @@ function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-function resetPlayerUI() {
+function resetUI() {
     stopAudio();
-    document.querySelectorAll('.player-btn').forEach(btn => {
-        btn.classList.remove('selected');
-    });
+    document.getElementById('answerInput').value = '';
 }
 
-async function selectWinner(playerName) {
-    if (!currentSong) return;
+async function submitAnswer() {
+    const answerInput = document.getElementById('answerInput');
+    const userAnswer = answerInput.value.trim();
 
-    // 버튼 하이라이트
-    document.querySelectorAll('.player-btn').forEach(btn => {
-        if (btn.textContent === playerName) {
-            btn.classList.add('selected');
-        }
-    });
+    if (!userAnswer) {
+        alert('정답을 입력해주세요.');
+        answerInput.focus();
+        return;
+    }
+
+    if (!currentSong) return;
 
     stopAudio();
 
-    // 서버에 결과 전송
     try {
-        const response = await fetch('/game/solo/host/answer', {
+        const response = await fetch('/game/solo/guess/answer', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 roundNumber: currentRound,
-                winner: playerName,
+                answer: userAnswer,
                 isSkip: false
             })
         });
@@ -244,12 +236,17 @@ async function selectWinner(playerName) {
         const result = await response.json();
 
         if (result.success) {
-            // 점수 업데이트
-            playerScores[playerName] = (playerScores[playerName] || 0) + 100;
-            updateScoreboard();
+            if (result.isCorrect) {
+                score += 100;
+                correctCount++;
+                document.getElementById('currentScore').textContent = score;
+                document.getElementById('correctCount').textContent = correctCount;
+            } else {
+                wrongCount++;
+                document.getElementById('wrongCount').textContent = wrongCount;
+            }
 
-            // 정답 모달 표시
-            showAnswerModal(playerName, result.isGameOver);
+            showAnswerModal(result.isCorrect, userAnswer, result.answer, result.isGameOver);
         } else {
             alert(result.message);
         }
@@ -264,12 +261,12 @@ async function skipRound() {
     stopAudio();
 
     try {
-        const response = await fetch('/game/solo/host/answer', {
+        const response = await fetch('/game/solo/guess/answer', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 roundNumber: currentRound,
-                winner: null,
+                answer: null,
                 isSkip: true
             })
         });
@@ -277,7 +274,9 @@ async function skipRound() {
         const result = await response.json();
 
         if (result.success) {
-            showAnswerModal(null, result.isGameOver);
+            skipCount++;
+            document.getElementById('skipCount').textContent = skipCount;
+            showAnswerModal(false, null, result.answer, result.isGameOver, true);
         } else {
             alert(result.message);
         }
@@ -286,35 +285,39 @@ async function skipRound() {
     }
 }
 
-function showAnswerModal(winner, isGameOver) {
+function showAnswerModal(isCorrect, userAnswer, answerInfo, isGameOver, isSkip = false) {
     const modal = document.getElementById('answerModal');
     const header = document.getElementById('answerHeader');
-    const winnerInfo = document.getElementById('winnerInfo');
+    const userAnswerInfo = document.getElementById('userAnswerInfo');
     const nextBtn = document.getElementById('nextRoundBtn');
 
-    if (winner) {
-        header.textContent = '🎉 정답!';
-        header.className = 'answer-header correct';
-        winnerInfo.innerHTML = `<span class="winner-name">${winner}</span> 정답! +100점`;
-    } else {
+    if (isSkip) {
         header.textContent = '⏭ 스킵';
         header.className = 'answer-header skip';
-        winnerInfo.innerHTML = '아쉽게도 스킵되었습니다.';
+        userAnswerInfo.innerHTML = '';
+    } else if (isCorrect) {
+        header.textContent = '🎉 정답!';
+        header.className = 'answer-header correct';
+        userAnswerInfo.innerHTML = `<span class="correct-text">+100점!</span>`;
+    } else {
+        header.textContent = '❌ 오답';
+        header.className = 'answer-header wrong';
+        userAnswerInfo.innerHTML = `<span class="wrong-text">내 답: ${userAnswer}</span>`;
     }
 
-    // 노래 정보 표시
-    document.getElementById('answerTitle').textContent = currentSong.title;
-    document.getElementById('answerArtist').textContent = currentSong.artist;
+    // 정답 정보 표시
+    document.getElementById('answerTitle').textContent = answerInfo.title;
+    document.getElementById('answerArtist').textContent = answerInfo.artist;
 
     let meta = [];
-    if (currentSong.releaseYear) meta.push(currentSong.releaseYear + '년');
-    if (currentSong.genre) meta.push(currentSong.genre);
+    if (answerInfo.releaseYear) meta.push(answerInfo.releaseYear + '년');
+    if (answerInfo.genre) meta.push(answerInfo.genre);
     document.getElementById('answerMeta').textContent = meta.join(' · ');
 
     // 버튼 텍스트
     if (isGameOver) {
         nextBtn.textContent = '결과 보기 🏆';
-        nextBtn.onclick = function() { window.location.href = '/game/solo/host/result'; };
+        nextBtn.onclick = function() { window.location.href = '/game/solo/guess/result'; };
     } else {
         nextBtn.textContent = '다음 라운드 →';
         nextBtn.onclick = nextRound;
@@ -329,37 +332,21 @@ function nextRound() {
     if (currentRound < actualTotalRounds) {
         const nextRoundNumber = currentRound + 1;
 
-        // GENRE_PER_ROUND 모드면 장르 선택 모달 표시
         if (gameMode === 'GENRE_PER_ROUND') {
             showGenreSelectModal(nextRoundNumber);
         } else {
             loadRound(nextRoundNumber);
         }
     } else {
-        window.location.href = '/game/solo/host/result';
+        window.location.href = '/game/solo/guess/result';
     }
-}
-
-function updateScoreboard() {
-    const scoreList = document.getElementById('scoreList');
-
-    // 점수순 정렬
-    const sorted = Object.entries(playerScores).sort((a, b) => b[1] - a[1]);
-
-    sorted.forEach(([player, score], index) => {
-        const item = scoreList.querySelector(`[data-player="${player}"]`);
-        if (item) {
-            item.querySelector('.player-score').textContent = score;
-            item.style.order = index;
-        }
-    });
 }
 
 async function quitGame() {
     if (!confirm('정말 게임을 종료하시겠습니까?')) return;
 
     try {
-        await fetch('/game/solo/host/end', { method: 'POST' });
+        await fetch('/game/solo/guess/end', { method: 'POST' });
         window.location.href = '/';
     } catch (error) {
         window.location.href = '/';
@@ -374,4 +361,11 @@ audioPlayer.addEventListener('ended', function() {
 audioPlayer.addEventListener('error', function() {
     alert('오디오 파일을 재생할 수 없습니다.');
     pauseAudio();
+});
+
+// Enter 키로 제출
+document.getElementById('answerInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        submitAnswer();
+    }
 });

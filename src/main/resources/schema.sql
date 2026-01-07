@@ -80,6 +80,32 @@ INSERT INTO song (title, artist, file_path, start_time, play_duration, genre_id,
 ('Shape of You', 'Ed Sheeran', NULL, 45, 10, 8, 2017, TRUE, 'Y'),
 ('Blinding Lights', 'The Weeknd', NULL, 50, 10, 8, 2019, TRUE, 'Y'),
 ('Bohemian Rhapsody', 'Queen', NULL, 120, 10, 17, 1975, FALSE, 'Y');
+
+-- Song Answer Table (노래별 여러 정답)
+CREATE TABLE IF NOT EXISTS song_answer (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    song_id BIGINT NOT NULL COMMENT '노래 ID',
+    answer VARCHAR(255) NOT NULL COMMENT '정답',
+    is_primary BOOLEAN DEFAULT FALSE COMMENT '대표 정답 여부',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
+    INDEX idx_song_id (song_id),
+    INDEX idx_answer (answer),
+    FOREIGN KEY (song_id) REFERENCES song(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='노래 정답';
+
+-- Song Answer Sample Data
+INSERT INTO song_answer (song_id, answer, is_primary) VALUES
+(1, 'Dynamite', TRUE),
+(1, '다이너마이트', FALSE),
+(2, 'Butter', TRUE),
+(2, '버터', FALSE),
+(3, 'Shape of You', TRUE),
+(3, '쉐이프오브유', FALSE),
+(4, 'Blinding Lights', TRUE),
+(4, '블라인딩라이츠', FALSE),
+(5, 'Bohemian Rhapsody', TRUE),
+(5, '보헤미안랩소디', FALSE);
+
 -- Game Session Table
 CREATE TABLE IF NOT EXISTS game_session (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
