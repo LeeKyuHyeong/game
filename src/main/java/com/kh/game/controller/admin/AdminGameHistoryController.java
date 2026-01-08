@@ -70,7 +70,7 @@ public class AdminGameHistoryController {
         List<GameRound> rounds = gameSessionService.findRoundsBySessionId(id);
         GameSettings settings = gameSessionService.parseSettings(session.getSettings());
 
-        model.addAttribute("session", session);
+        model.addAttribute("gameSession", session);
         model.addAttribute("rounds", rounds);
         model.addAttribute("settings", settings);
         model.addAttribute("menu", "history");

@@ -34,15 +34,15 @@
         <div class="stats-section">
             <div class="stat-box">
                 <div class="stat-label">총 라운드</div>
-                <div class="stat-value" th:text="${sessions.totalRounds}"></div>
+                <div class="stat-value" th:text="${gameSession.totalRounds}"></div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">정답</div>
-                <div class="stat-value" th:text="${sessions.correctCount}"></div>
+                <div class="stat-value" th:text="${gameSession.correctCount}"></div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">스킵</div>
-                <div class="stat-value" th:text="${sessions.skipCount}"></div>
+                <div class="stat-value" th:text="${gameSession.skipCount}"></div>
             </div>
         </div>
 

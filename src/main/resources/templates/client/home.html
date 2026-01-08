@@ -4,6 +4,11 @@
 <body class="client-page">
 <div class="client-container">
     <header class="client-header">
+        <div class="header-top">
+            <div class="user-info" id="userInfo">
+                <!-- JS에서 로그인 상태에 따라 표시 -->
+            </div>
+        </div>
         <h1>🎵 Song Quiz</h1>
         <p>노래를 듣고 제목을 맞춰보세요!</p>
     </header>
@@ -28,6 +33,20 @@
                     <span class="coming-badge">Coming Soon</span>
                 </div>
             </div>
+        </div>
+
+        <!-- 랭킹 섹션 (로그인 사용자용) -->
+        <div class="ranking-section" id="rankingSection" style="display:none;">
+            <h3>🏆 랭킹</h3>
+            <div class="ranking-tabs">
+                <button class="ranking-tab active" data-type="score">총점</button>
+                <button class="ranking-tab" data-type="accuracy">정답률</button>
+                <button class="ranking-tab" data-type="games">게임수</button>
+            </div>
+            <div class="ranking-list" id="rankingList">
+                <!-- JS에서 로딩 -->
+            </div>
+            <a href="/ranking" class="view-all-link">전체 랭킹 보기 →</a>
         </div>
     </main>
 

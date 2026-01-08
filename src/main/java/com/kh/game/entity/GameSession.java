@@ -23,6 +23,10 @@ public class GameSession {
     @Column(name = "session_uuid", length = 36)
     private String sessionUuid;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
     @Column(nullable = false, length = 50)
     private String nickname;
 
@@ -101,5 +105,9 @@ public class GameSession {
         if (startedAt == null) return 0;
         LocalDateTime end = endedAt != null ? endedAt : LocalDateTime.now();
         return java.time.Duration.between(startedAt, end).getSeconds();
+    }
+
+    public boolean isGuest() {
+        return member == null;
     }
 }

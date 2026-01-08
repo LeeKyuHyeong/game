@@ -28,16 +28,25 @@ async function showGenreSelectModal(roundNumber) {
     // 장르별 남은 노래 수 업데이트
     try {
         const response = await fetch('/game/solo/host/genres-with-count');
-        const genres = await response.json();
+        let genres = await response.json();
+
+        // 남은 곡 개수 순으로 정렬 (내림차순)
+        genres.sort((a, b) => b.availableCount - a.availableCount);
 
         genreList.innerHTML = '';
 
         genres.forEach(genre => {
             const item = document.createElement('div');
             item.className = 'genre-item';
+
             if (genre.availableCount === 0) {
                 item.classList.add('disabled');
+                // hideEmptyGenres 설정에 따라 숨김 처리
+                if (hideEmptyGenres) {
+                    item.classList.add('hidden');
+                }
             }
+
             item.dataset.genreId = genre.id;
             item.dataset.genreName = genre.name;
             item.innerHTML = `

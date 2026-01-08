@@ -97,6 +97,16 @@
                     </div>
                 </div>
 
+                <div class="form-group genre-round-setting" id="genreRoundSetting" style="display:none;">
+                    <label>장르 선택 옵션</label>
+                    <div class="checkbox-option">
+                        <label class="toggle-option">
+                            <input type="checkbox" id="hideEmptyGenres">
+                            <span class="toggle-label">남은 곡이 없는 장르 숨기기</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="step-buttons">
                     <button type="button" class="btn btn-back" onclick="goToStep1()">← 이전</button>
                     <button type="button" class="btn btn-start" onclick="startGame()">게임 시작! 🎮</button>
@@ -106,6 +116,10 @@
     </main>
 </div>
 
+<script th:inline="javascript">
+    const isLoggedIn = [[${isLoggedIn}]];
+    const memberNickname = [[${memberNickname}]];
+</script>
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/client/game-guess-setup.js}"></script>
 </body>

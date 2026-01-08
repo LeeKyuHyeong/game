@@ -927,3 +927,237 @@ code {
         width: 100%;
     }
 }
+
+/* ========== Admin Main Layout ========== */
+
+.admin-main {
+    flex: 1;
+    margin-left: 260px;
+    padding: 2rem;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.admin-header p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.admin-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ========== Filter Section ========== */
+
+.filter-section {
+    background: var(--card-bg);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    min-width: 180px;
+    transition: border-color 0.2s;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.date-range input {
+    min-width: 140px;
+}
+
+.date-range span {
+    color: var(--text-secondary);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-search {
+    padding: 0.625rem 1.25rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-search:hover {
+    background: var(--primary-hover);
+}
+
+.btn-reset {
+    padding: 0.625rem 1.25rem;
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-reset:hover {
+    background: #f8fafc;
+    color: var(--text-primary);
+}
+
+/* ========== Status Badge ========== */
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-badge.success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge.warning {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-badge.info {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* ========== Stats Summary ========== */
+
+.stats-summary {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.stats-summary .stat-card {
+    flex: 1;
+    min-width: 150px;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stats-summary .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.stats-summary .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ========== Responsive for Admin Main ========== */
+
+@media (max-width: 768px) {
+    .admin-main {
+        margin-left: 0;
+        padding: 1rem;
+    }
+
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .date-range {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .date-range input {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .filter-actions {
+        width: 100%;
+    }
+
+    .filter-actions .btn-search,
+    .filter-actions .btn-reset {
+        flex: 1;
+    }
+}

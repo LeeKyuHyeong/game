@@ -6,7 +6,7 @@
     <header class="game-header">
         <div class="game-info">
             <span class="round-info">
-                라운드 <span id="currentRound">1</span> / <span th:text="${session.totalRounds}"></span>
+                라운드 <span id="currentRound">1</span> / <span th:text="${gameSession.totalRounds}"></span>
             </span>
             <span class="score-info">
                 점수: <span id="currentScore">0</span>점
@@ -98,10 +98,11 @@
 <audio id="audioPlayer" preload="auto"></audio>
 
 <script th:inline="javascript">
-    const sessionId = [[${session.id}]];
-    const totalRounds = [[${session.totalRounds}]];
+    const sessionId = [[${gameSession.id}]];
+    const totalRounds = [[${gameSession.totalRounds}]];
     const nickname = [[${nickname}]];
     const gameMode = [[${gameMode}]];
+    const hideEmptyGenres = [[${settings.hideEmptyGenres}]] || false;
 </script>
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/client/game-guess-play.js}"></script>

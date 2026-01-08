@@ -6,7 +6,7 @@
     <header class="game-header">
         <div class="game-info">
                 <span class="round-info">
-                    라운드 <span id="currentRound">1</span> / <span th:text="${session.totalRounds}"></span>
+                    라운드 <span id="currentRound">1</span> / <span th:text="${gameSession.totalRounds}"></span>
                 </span>
         </div>
         <button class="btn btn-quit" onclick="quitGame()">게임 종료</button>
@@ -93,10 +93,11 @@
 <audio id="audioPlayer" preload="auto"></audio>
 
 <script th:inline="javascript">
-    const sessionId = [[${session.id}]];
-    const totalRounds = [[${session.totalRounds}]];
+    const sessionId = [[${gameSession.id}]];
+    const totalRounds = [[${gameSession.totalRounds}]];
     const players = [[${players}]];
     const gameMode = [[${gameMode}]];
+    const hideEmptyGenres = [[${settings.hideEmptyGenres}]] || false;
 </script>
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/client/game-host-play.js}"></script>

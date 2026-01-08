@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('로그인 - Song Quiz')}"></head>
+<body class="client-page auth-page">
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <a href="/" class="back-link">← 홈으로</a>
+            <h1>🎵 로그인</h1>
+            <p>Song Quiz에 오신 것을 환영합니다</p>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" placeholder="example@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" name="password" placeholder="비밀번호 입력" required>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <button type="submit" class="btn btn-auth">로그인</button>
+        </form>
+
+        <div class="auth-divider">
+            <span>또는</span>
+        </div>
+
+        <a href="/?guest=true" class="btn btn-guest">게스트로 플레이</a>
+
+        <div class="auth-footer">
+            <p>계정이 없으신가요? <a href="/auth/register">회원가입</a></p>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="redirectUrl" th:value="${redirect}">
+
+<script th:src="@{/js/common/common.js}"></script>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('errorMessage');
+
+        try {
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const redirect = document.getElementById('redirectUrl').value;
+                window.location.href = redirect || '/';
+            } else {
+                errorMessage.textContent = result.message;
+                errorMessage.style.display = 'block';
+            }
+        } catch (error) {
+            errorMessage.textContent = '로그인 처리 중 오류가 발생했습니다.';
+            errorMessage.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

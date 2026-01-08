@@ -13,7 +13,7 @@
         <div class="score-section">
             <div class="final-score">
                 <span class="score-label">최종 점수</span>
-                <span class="score-value" th:text="${sessions.totalScore}">0</span>
+                <span class="score-value" th:text="${gameSession.totalScore}">0</span>
             </div>
         </div>
 
@@ -21,19 +21,19 @@
         <div class="stats-section">
             <div class="stat-box">
                 <div class="stat-label">정답</div>
-                <div class="stat-value correct" th:text="${sessions.correctCount}">0</div>
+                <div class="stat-value correct" th:text="${gameSession.correctCount}">0</div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">오답</div>
-                <div class="stat-value wrong" th:text="${sessions.completedRounds - sessions.correctCount - sessions.skipCount}">0</div>
+                <div class="stat-value wrong" th:text="${gameSession.completedRounds - gameSession.correctCount - gameSession.skipCount}">0</div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">스킵</div>
-                <div class="stat-value skip" th:text="${sessions.skipCount}">0</div>
+                <div class="stat-value skip" th:text="${gameSession.skipCount}">0</div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">정답률</div>
-                <div class="stat-value" th:text="${#numbers.formatDecimal(sessions.accuracyRate, 1, 1) + '%'}">0%</div>
+                <div class="stat-value" th:text="${#numbers.formatDecimal(gameSession.accuracyRate, 1, 1) + '%'}">0%</div>
             </div>
         </div>
 
@@ -41,26 +41,34 @@
         <div class="rounds-section">
             <h3>📝 라운드 기록</h3>
             <div class="rounds-list">
-                <div th:each="round : ${rounds}" class="round-item"
-                     th:classappend="${
-                        round != null and round.isCorrect
-                            ? 'correct'
-                            : (round != null and round.status != null and round.status.name() == 'SKIPPED'
-                                ? 'skipped'
-                                : 'wrong')
-                     }">
+                <div th:each="round : ${rounds}"
+                     class="round-item"
+                     th:classappend="${round.isCorrect ? 'correct' : (round.status.name() == 'SKIPPED' ? 'skipped' : 'wrong')}">
                     <span class="round-number" th:text="'#' + ${round.roundNumber}"></span>
                     <div class="round-song">
                         <span class="song-title" th:text="${round.song.title}"></span>
                         <span class="song-artist" th:text="${round.song.artist}"></span>
                     </div>
                     <div class="round-result">
-                        <span th:if="${round.isCorrect}" class="result-badge correct">정답!</span>
+                        <span th:if="${round.isCorrect}" class="result-badge correct">
+                            정답! +<span th:text="${round.score}"></span>점
+                        </span>
+                        <span th:if="${round.isCorrect}"
+                              class="round-attempt-info"
+                              th:classappend="'attempt-' + ${round.attemptCount}"
+                              th:text="'(' + ${round.attemptCount} + '번째 시도)'"></span>
                         <span th:if="${round.status.name() == 'SKIPPED'}" class="result-badge skip">스킵</span>
-                        <span th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="result-badge wrong">오답</span>
+                        <span th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="result-badge wrong">
+                            오답 (3회 실패)
+                        </span>
                     </div>
-                    <div class="round-user-answer" th:if="${round.userAnswer != null && !round.userAnswer.isEmpty()}">
-                        <small>내 답: <span th:text="${round.userAnswer}"></span></small>
+                    <div class="round-attempts" th:if="${round.attempts != null && !round.attempts.isEmpty()}">
+                        <small>시도 기록: </small>
+                        <span th:each="attempt, stat : ${round.attempts}" class="attempt-item">
+                            <span th:classappend="${attempt.isCorrect ? 'correct' : 'wrong'}"
+                                  th:text="${attempt.userAnswer}"></span>
+                            <span th:if="${!stat.last}">, </span>
+                        </span>
                     </div>
                 </div>
             </div>

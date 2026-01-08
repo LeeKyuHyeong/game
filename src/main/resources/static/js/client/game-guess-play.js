@@ -25,16 +25,25 @@ async function showGenreSelectModal(roundNumber) {
 
     try {
         const response = await fetch('/game/solo/guess/genres-with-count');
-        const genres = await response.json();
+        let genres = await response.json();
+
+        // 남은 곡 개수 순으로 정렬 (내림차순)
+        genres.sort((a, b) => b.availableCount - a.availableCount);
 
         genreList.innerHTML = '';
 
         genres.forEach(genre => {
             const item = document.createElement('div');
             item.className = 'genre-item';
+
             if (genre.availableCount === 0) {
                 item.classList.add('disabled');
+                // hideEmptyGenres 설정에 따라 숨김 처리
+                if (hideEmptyGenres) {
+                    item.classList.add('hidden');
+                }
             }
+
             item.dataset.genreId = genre.id;
             item.dataset.genreName = genre.name;
             item.innerHTML = `
@@ -206,6 +215,12 @@ function formatTime(seconds) {
 function resetUI() {
     stopAudio();
     document.getElementById('answerInput').value = '';
+    // 피드백 메시지 초기화
+    const feedbackEl = document.getElementById('attemptFeedback');
+    if (feedbackEl) {
+        feedbackEl.style.display = 'none';
+        feedbackEl.textContent = '';
+    }
 }
 
 async function submitAnswer() {
@@ -219,8 +234,6 @@ async function submitAnswer() {
     }
 
     if (!currentSong) return;
-
-    stopAudio();
 
     try {
         const response = await fetch('/game/solo/guess/answer', {
@@ -236,23 +249,48 @@ async function submitAnswer() {
         const result = await response.json();
 
         if (result.success) {
-            if (result.isCorrect) {
-                score += 100;
-                correctCount++;
-                document.getElementById('currentScore').textContent = score;
-                document.getElementById('correctCount').textContent = correctCount;
-            } else {
-                wrongCount++;
-                document.getElementById('wrongCount').textContent = wrongCount;
-            }
+            if (result.isRoundOver) {
+                // 라운드 종료 (정답 또는 3번 모두 실패)
+                stopAudio();
 
-            showAnswerModal(result.isCorrect, userAnswer, result.answer, result.isGameOver);
+                if (result.isCorrect) {
+                    score = result.totalScore;
+                    correctCount++;
+                    document.getElementById('currentScore').textContent = score;
+                    document.getElementById('correctCount').textContent = correctCount;
+                } else {
+                    wrongCount++;
+                    document.getElementById('wrongCount').textContent = wrongCount;
+                }
+
+                showAnswerModal(result.isCorrect, userAnswer, result.answer, result.isGameOver, false, result.earnedScore, result.attemptCount);
+            } else {
+                // 오답이지만 기회 남음
+                showAttemptFeedback(result.remainingAttempts, userAnswer);
+                answerInput.value = '';
+                answerInput.focus();
+            }
         } else {
             alert(result.message);
         }
     } catch (error) {
         console.error('답변 제출 오류:', error);
     }
+}
+
+function showAttemptFeedback(remaining, wrongAnswer) {
+    let feedbackEl = document.getElementById('attemptFeedback');
+    if (!feedbackEl) {
+        feedbackEl = document.createElement('div');
+        feedbackEl.id = 'attemptFeedback';
+        feedbackEl.className = 'attempt-feedback';
+        document.querySelector('.answer-input-wrapper').after(feedbackEl);
+    }
+
+    feedbackEl.innerHTML = `❌ 오답입니다! 남은 기회: <strong>${remaining}회</strong>`;
+    feedbackEl.style.display = 'block';
+    feedbackEl.classList.add('shake');
+    setTimeout(() => feedbackEl.classList.remove('shake'), 500);
 }
 
 async function skipRound() {
@@ -285,7 +323,7 @@ async function skipRound() {
     }
 }
 
-function showAnswerModal(isCorrect, userAnswer, answerInfo, isGameOver, isSkip = false) {
+function showAnswerModal(isCorrect, userAnswer, answerInfo, isGameOver, isSkip = false, earnedScore = 0, attemptCount = 0) {
     const modal = document.getElementById('answerModal');
     const header = document.getElementById('answerHeader');
     const userAnswerInfo = document.getElementById('userAnswerInfo');
@@ -298,11 +336,18 @@ function showAnswerModal(isCorrect, userAnswer, answerInfo, isGameOver, isSkip =
     } else if (isCorrect) {
         header.textContent = '🎉 정답!';
         header.className = 'answer-header correct';
-        userAnswerInfo.innerHTML = `<span class="correct-text">+100점!</span>`;
+        let attemptText = attemptCount === 1 ? '첫 번째' : attemptCount === 2 ? '두 번째' : '세 번째';
+        userAnswerInfo.innerHTML = `
+            <span class="attempt-info">${attemptText} 시도에 정답!</span>
+            <span class="correct-text">+${earnedScore}점!</span>
+        `;
     } else {
         header.textContent = '❌ 오답';
         header.className = 'answer-header wrong';
-        userAnswerInfo.innerHTML = `<span class="wrong-text">내 답: ${userAnswer}</span>`;
+        userAnswerInfo.innerHTML = `
+            <span class="attempt-info">3번 모두 실패</span>
+            <span class="wrong-text">내 마지막 답: ${userAnswer}</span>
+        `;
     }
 
     // 정답 정보 표시

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('회원가입 - Song Quiz')}"></head>
+<body class="client-page auth-page">
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <a href="/" class="back-link">← 홈으로</a>
+            <h1>🎵 회원가입</h1>
+            <p>Song Quiz 계정을 만들어보세요</p>
+        </div>
+
+        <form id="registerForm" class="auth-form">
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <div class="input-with-check">
+                    <input type="email" id="email" name="email" placeholder="example@email.com" required>
+                    <span class="check-icon" id="emailCheck"></span>
+                </div>
+                <small class="field-hint" id="emailHint"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="username">성명</label>
+                <input type="text" id="username" name="username" placeholder="" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" name="password" placeholder="4자 이상" minlength="4" required>
+            </div>
+
+            <div class="form-group">
+                <label for="passwordConfirm">비밀번호 확인</label>
+                <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호 재입력" required>
+                <small class="field-hint" id="passwordHint"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="nickname">닉네임</label>
+                <input type="text" id="nickname" name="nickname" placeholder="2~20자" minlength="2" maxlength="20" required>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <button type="submit" class="btn btn-auth">회원가입</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script>
+    let emailAvailable = false;
+
+    // 이메일 중복 체크
+    document.getElementById('email').addEventListener('blur', async function() {
+        const email = this.value;
+        const emailCheck = document.getElementById('emailCheck');
+        const emailHint = document.getElementById('emailHint');
+
+        if (!email || !email.match(/^[A-Za-z0-9+_.-]+@(.+)$/)) {
+            emailCheck.textContent = '';
+            emailHint.textContent = '';
+            emailAvailable = false;
+            return;
+        }
+
+        try {
+            const response = await fetch(`/auth/check-email?email=${encodeURIComponent(email)}`);
+            const result = await response.json();
+
+            if (result.available) {
+                emailCheck.textContent = '✓';
+                emailCheck.className = 'check-icon available';
+                emailHint.textContent = '사용 가능한 이메일입니다.';
+                emailHint.className = 'field-hint success';
+                emailAvailable = true;
+            } else {
+                emailCheck.textContent = '✗';
+                emailCheck.className = 'check-icon unavailable';
+                emailHint.textContent = '이미 사용 중인 이메일입니다.';
+                emailHint.className = 'field-hint error';
+                emailAvailable = false;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
+    // 비밀번호 확인
+    document.getElementById('passwordConfirm').addEventListener('input', function() {
+        const password = document.getElementById('password').value;
+        const passwordHint = document.getElementById('passwordHint');
+
+        if (this.value && this.value !== password) {
+            passwordHint.textContent = '비밀번호가 일치하지 않습니다.';
+            passwordHint.className = 'field-hint error';
+        } else if (this.value && this.value === password) {
+            passwordHint.textContent = '비밀번호가 일치합니다.';
+            passwordHint.className = 'field-hint success';
+        } else {
+            passwordHint.textContent = '';
+        }
+    });
+
+    // 회원가입 폼 제출
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('passwordConfirm').value;
+        const nickname = document.getElementById('nickname').value;
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+
+        // 유효성 검사
+        if (!emailAvailable) {
+            errorMessage.textContent = '사용 가능한 이메일을 입력해주세요.';
+            errorMessage.style.display = 'block';
+            return;
+        }
+
+        if (password !== passwordConfirm) {
+            errorMessage.textContent = '비밀번호가 일치하지 않습니다.';
+            errorMessage.style.display = 'block';
+            return;
+        }
+
+        try {
+            const response = await fetch('/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, nickname })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                successMessage.textContent = '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.';
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    window.location.href = '/auth/login';
+                }, 1500);
+            } else {
+                errorMessage.textContent = result.message;
+                errorMessage.style.display = 'block';
+            }
+        } catch (error) {
+            errorMessage.textContent = '회원가입 처리 중 오류가 발생했습니다.';
+            errorMessage.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

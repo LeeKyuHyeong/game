@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "game_round")
@@ -45,6 +47,9 @@ public class GameRound {
     @Column(name = "is_correct")
     private Boolean isCorrect;
 
+    @Column(name = "attempt_count")
+    private Integer attemptCount = 0;
+
     @Column(name = "answer_time_ms")
     private Long answerTimeMs;
 
@@ -62,6 +67,10 @@ public class GameRound {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "gameRound", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("attemptNumber ASC")
+    private List<GameRoundAttempt> attempts = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

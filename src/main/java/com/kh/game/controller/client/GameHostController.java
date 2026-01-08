@@ -180,8 +180,8 @@ public class GameHostController {
             return "redirect:/game/solo/host";
         }
 
-        GameSession sessions = gameSessionService.findById(sessionId).orElse(null);
-        if (sessions == null) {
+        GameSession session = gameSessionService.findById(sessionId).orElse(null);
+        if (session == null) {
             return "redirect:/game/solo/host";
         }
 
@@ -190,9 +190,9 @@ public class GameHostController {
 
         String gameMode = (String) httpSession.getAttribute("gameMode");
 
-        model.addAttribute("sessions", sessions);
+        model.addAttribute("gameSession", session);
         model.addAttribute("players", players);
-        model.addAttribute("settings", gameSessionService.parseSettings(sessions.getSettings()));
+        model.addAttribute("settings", gameSessionService.parseSettings(session.getSettings()));
         model.addAttribute("gameMode", gameMode);
         model.addAttribute("genres", genreService.findActiveGenres());
 
@@ -410,8 +410,8 @@ public class GameHostController {
             return "redirect:/game/solo/host";
         }
 
-        GameSession sessions = gameSessionService.findById(sessionId).orElse(null);
-        if (sessions == null) {
+        GameSession session = gameSessionService.findById(sessionId).orElse(null);
+        if (session == null) {
             return "redirect:/game/solo/host";
         }
 
@@ -430,8 +430,8 @@ public class GameHostController {
             sortedScores.sort((a, b) -> b.getValue().compareTo(a.getValue()));
         }
 
-        model.addAttribute("sessions", sessions);
-        model.addAttribute("rounds", sessions.getRounds());
+        model.addAttribute("gameSession", session);
+        model.addAttribute("rounds", session.getRounds());
         model.addAttribute("players", players);
         model.addAttribute("playerScores", sortedScores);
 

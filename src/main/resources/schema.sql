@@ -106,10 +106,51 @@ INSERT INTO song_answer (song_id, answer, is_primary) VALUES
 (5, 'Bohemian Rhapsody', TRUE),
 (5, '보헤미안랩소디', FALSE);
 
+-- Member Table (회원)
+CREATE TABLE IF NOT EXISTS member (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE COMMENT '이메일(로그인ID)',
+    password VARCHAR(255) NOT NULL COMMENT '암호화된 비밀번호',
+    nickname VARCHAR(50) NOT NULL COMMENT '닉네임',
+    total_games INT DEFAULT 0 COMMENT '총 게임 수',
+    total_score INT DEFAULT 0 COMMENT '누적 점수',
+    total_correct INT DEFAULT 0 COMMENT '총 정답 수',
+    total_rounds INT DEFAULT 0 COMMENT '총 라운드 수',
+    total_skip INT DEFAULT 0 COMMENT '총 스킵 수',
+    role VARCHAR(20) NOT NULL DEFAULT 'USER' COMMENT '역할 (USER, ADMIN)',
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '상태 (ACTIVE, INACTIVE, BANNED)',
+    last_login_at DATETIME COMMENT '마지막 로그인',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '가입일시',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+    INDEX idx_email (email),
+    INDEX idx_nickname (nickname),
+    INDEX idx_status (status),
+    INDEX idx_total_score (total_score),
+    INDEX idx_total_games (total_games)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='회원';
+
+-- Member Login History Table (로그인 이력)
+CREATE TABLE IF NOT EXISTS member_login_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    member_id BIGINT COMMENT '회원 ID',
+    email VARCHAR(100) COMMENT '시도한 이메일',
+    result VARCHAR(20) NOT NULL COMMENT '결과 (SUCCESS, FAIL_PASSWORD, FAIL_NOT_FOUND, FAIL_BANNED, FAIL_INACTIVE)',
+    ip_address VARCHAR(50) COMMENT 'IP 주소',
+    user_agent VARCHAR(500) COMMENT 'User Agent',
+    fail_reason VARCHAR(255) COMMENT '실패 사유',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '일시',
+    INDEX idx_member_id (member_id),
+    INDEX idx_email (email),
+    INDEX idx_result (result),
+    INDEX idx_created_at (created_at),
+    FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='로그인 이력';
+
 -- Game Session Table
 CREATE TABLE IF NOT EXISTS game_session (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     session_uuid VARCHAR(36) COMMENT '브라우저 세션 UUID',
+    member_id BIGINT COMMENT '회원 ID (NULL이면 게스트)',
     nickname VARCHAR(50) NOT NULL COMMENT '별명',
     game_type VARCHAR(20) NOT NULL COMMENT '게임유형 (SOLO_HOST, SOLO_GUESS)',
     game_mode VARCHAR(20) NOT NULL COMMENT '게임모드 (RANDOM, GENRE_PER_ROUND, FIXED_GENRE)',
@@ -124,11 +165,13 @@ CREATE TABLE IF NOT EXISTS game_session (
     ended_at DATETIME COMMENT '게임 종료시간',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
     INDEX idx_session_uuid (session_uuid),
+    INDEX idx_member_id (member_id),
     INDEX idx_nickname (nickname),
     INDEX idx_game_type (game_type),
     INDEX idx_status (status),
     INDEX idx_total_score (total_score),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게임 세션';
 
 -- Game Round Table
@@ -140,8 +183,9 @@ CREATE TABLE IF NOT EXISTS game_round (
     genre_id BIGINT COMMENT '해당 라운드 장르 ID',
     play_start_time INT COMMENT '노래 재생 시작 위치(초)',
     play_duration INT COMMENT '재생 시간(초)',
-    user_answer VARCHAR(255) COMMENT '사용자 입력 답',
+    user_answer VARCHAR(255) COMMENT '사용자 입력 답(최종 정답)',
     is_correct BOOLEAN COMMENT '정답 여부',
+    attempt_count INT DEFAULT 0 COMMENT '시도 횟수',
     answer_time_ms BIGINT COMMENT '답변까지 걸린 시간(ms)',
     hint_used BOOLEAN DEFAULT FALSE COMMENT '힌트 사용 여부',
     hint_type VARCHAR(20) COMMENT '사용한 힌트 타입',
@@ -152,11 +196,25 @@ CREATE TABLE IF NOT EXISTS game_round (
     INDEX idx_song_id (song_id),
     INDEX idx_genre_id (genre_id),
     INDEX idx_is_correct (is_correct),
+    INDEX idx_attempt_count (attempt_count),
     INDEX idx_status (status),
     FOREIGN KEY (game_session_id) REFERENCES game_session(id) ON DELETE CASCADE,
     FOREIGN KEY (song_id) REFERENCES song(id) ON DELETE SET NULL,
     FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게임 라운드';
+
+-- Game Round Attempt Table (각 시도 기록)
+CREATE TABLE IF NOT EXISTS game_round_attempt (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    game_round_id BIGINT NOT NULL COMMENT '게임 라운드 ID',
+    attempt_number INT NOT NULL COMMENT '시도 번호 (1, 2, 3)',
+    user_answer VARCHAR(255) NOT NULL COMMENT '사용자 입력 답',
+    is_correct BOOLEAN NOT NULL COMMENT '정답 여부',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
+    INDEX idx_game_round_id (game_round_id),
+    INDEX idx_is_correct (is_correct),
+    FOREIGN KEY (game_round_id) REFERENCES game_round(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게임 라운드 시도 기록';
 
 -- 테스트 데이터
 INSERT INTO game_session (session_uuid, nickname, game_type, game_mode, total_rounds, completed_rounds, total_score, correct_count, skip_count, status, settings, started_at, ended_at) VALUES

@@ -4,6 +4,11 @@ let maxAvailableSongs = 999;
 // 초기 노래 개수 로딩
 document.addEventListener('DOMContentLoaded', function() {
     updateSongCount();
+
+    // 로그인한 경우 닉네임 자동 입력
+    if (typeof isLoggedIn !== 'undefined' && isLoggedIn && memberNickname) {
+        document.getElementById('nickname').value = memberNickname;
+    }
 });
 
 // 라운드 버튼 이벤트
@@ -24,10 +29,17 @@ document.querySelectorAll('.round-btn').forEach(btn => {
 document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
     radio.addEventListener('change', function() {
         const genreSelect = document.getElementById('genreSelect');
+        const genreRoundSetting = document.getElementById('genreRoundSetting');
+
         if (this.value === 'FIXED_GENRE') {
             genreSelect.style.display = 'block';
+            genreRoundSetting.style.display = 'none';
+        } else if (this.value === 'GENRE_PER_ROUND') {
+            genreSelect.style.display = 'none';
+            genreRoundSetting.style.display = 'block';
         } else {
             genreSelect.style.display = 'none';
+            genreRoundSetting.style.display = 'none';
         }
         updateSongCount();
     });
@@ -195,6 +207,10 @@ async function startGame() {
 
     if (gameMode === 'FIXED_GENRE') {
         settings.fixedGenreId = parseInt(document.getElementById('fixedGenreId').value);
+    }
+
+    if (gameMode === 'GENRE_PER_ROUND') {
+        settings.hideEmptyGenres = document.getElementById('hideEmptyGenres').checked;
     }
 
     // 서버로 전송
