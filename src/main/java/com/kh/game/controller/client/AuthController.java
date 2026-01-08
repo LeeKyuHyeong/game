@@ -83,6 +83,7 @@ public class AuthController {
             String email = request.get("email");
             String password = request.get("password");
             String nickname = request.get("nickname");
+            String username = request.get("username");
 
             // 유효성 검사
             if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
@@ -95,7 +96,7 @@ public class AuthController {
                 throw new IllegalArgumentException("닉네임은 2~20자 이내로 입력해주세요.");
             }
 
-            Member member = memberService.register(email, password, nickname);
+            Member member = memberService.register(email, password, nickname, username);
 
             result.put("success", true);
             result.put("message", "회원가입이 완료되었습니다.");

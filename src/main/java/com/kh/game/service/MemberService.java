@@ -28,23 +28,59 @@ public class MemberService {
     // ========== 회원 관리 ==========
 
     @Transactional
-    public Member register(String email, String password, String nickname) {
-        // 중복 체크
+    public Member register(String email, String password, String nickname, String username) {
+        // 이메일 중복 체크
         if (memberRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
-        if (memberRepository.existsByNickname(nickname)) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
-        }
+
+        // 닉네임 중복 시 번호 자동 추가
+        String finalNickname = generateUniqueNickname(nickname);
 
         Member member = new Member();
         member.setEmail(email);
         member.setPassword(passwordEncoder.encode(password));
-        member.setNickname(nickname);
+        member.setNickname(finalNickname);
+        member.setUsername(username);
         member.setRole(Member.MemberRole.USER);
         member.setStatus(Member.MemberStatus.ACTIVE);
 
         return memberRepository.save(member);
+    }
+
+    /**
+     * 고유 닉네임 생성 (중복 시 번호 추가)
+     * 예: 홍길동 → 홍길동, 홍길동2, 홍길동3 ...
+     */
+    private String generateUniqueNickname(String nickname) {
+        // 원본 닉네임이 사용 가능하면 그대로 반환
+        if (!memberRepository.existsByNickname(nickname)) {
+            return nickname;
+        }
+
+        // 같은 닉네임으로 시작하는 모든 닉네임 조회
+        List<String> existingNicknames = memberRepository.findNicknamesStartingWith(nickname);
+
+        // 가장 큰 번호 찾기
+        int maxNumber = 1;
+        for (String existing : existingNicknames) {
+            if (existing.equals(nickname)) {
+                continue;  // 원본 닉네임은 스킵
+            }
+
+            // 닉네임 뒤의 숫자 추출 (예: "홍길동3" → 3)
+            String suffix = existing.substring(nickname.length());
+            if (!suffix.isEmpty()) {
+                try {
+                    int num = Integer.parseInt(suffix);
+                    maxNumber = Math.max(maxNumber, num);
+                } catch (NumberFormatException ignored) {
+                    // 숫자가 아닌 경우 무시
+                }
+            }
+        }
+
+        return nickname + (maxNumber + 1);
     }
 
     public Optional<Member> findById(Long id) {

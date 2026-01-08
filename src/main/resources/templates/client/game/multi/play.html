@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('게임 진행 - Song Quiz')}"></head>
+<body class="client-page game-page">
+<div class="game-container multi-mode">
+    <header class="game-header">
+        <div class="game-info">
+            <span class="round-info">
+                라운드 <span id="currentRound">0</span> / <span th:text="${room.totalRounds}">10</span>
+            </span>
+            <span class="room-name-badge" th:text="${room.roomName}">방 이름</span>
+        </div>
+        <button class="btn btn-quit" onclick="quitGame()">나가기</button>
+    </header>
+
+    <main class="game-main multi-main">
+        <!-- 왼쪽: 게임 영역 -->
+        <div class="game-area">
+            <!-- 장르 선택 단계 (방장용) -->
+            <div class="phase-section genre-select-phase" id="genreSelectPhase" style="display:none;">
+                <h2>🎵 장르 선택</h2>
+                <p class="phase-desc" id="genreSelectDesc">방장이 장르를 선택중입니다...</p>
+                <div class="genre-grid" id="genreGrid">
+                    <!-- JS에서 생성 -->
+                </div>
+            </div>
+
+            <!-- 플레이 단계 -->
+            <div class="phase-section playing-phase" id="playingPhase" style="display:none;">
+                <div class="music-player">
+                    <div class="player-display">
+                        <div class="music-icon" id="musicIcon">🎵</div>
+                        <div class="player-status" id="playerStatus">재생 대기중</div>
+                    </div>
+
+                    <!-- 방장만 재생 버튼 표시 -->
+                    <div class="player-controls" th:if="${isHost}">
+                        <button class="control-btn play-btn" id="playBtn" onclick="hostTogglePlay()">
+                            <span class="play-icon">▶</span>
+                        </button>
+                    </div>
+
+                    <!-- 일반 참가자는 상태 메시지 표시 -->
+                    <div class="player-controls participant-status" th:unless="${isHost}">
+                        <span id="syncStatus">🎧 방장이 재생을 시작하면 노래가 들립니다</span>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress" id="progressBar"></div>
+                    </div>
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+                    </div>
+                </div>
+
+                <div class="answer-section multi-answer-section">
+                    <h3>🎯 정답 입력</h3>
+                    <div class="answer-input-wrapper">
+                        <input type="text" id="answerInput" class="answer-input" placeholder="노래 제목을 입력하세요" autocomplete="off">
+                        <button class="btn btn-submit" id="submitBtn" onclick="submitAnswer()">제출</button>
+                    </div>
+                    <div class="answer-status" id="answerStatus"></div>
+                </div>
+
+                <!-- 방장용 컨트롤 -->
+                <div class="host-controls" id="hostControls" th:if="${isHost}">
+                    <button class="btn btn-show-result" id="showResultBtn" onclick="showRoundResult()">정답 공개</button>
+                </div>
+            </div>
+
+            <!-- 결과 단계 -->
+            <div class="phase-section result-phase" id="resultPhase" style="display:none;">
+                <div class="answer-reveal">
+                    <h2>🎉 정답</h2>
+                    <div class="answer-info-card">
+                        <div class="song-title" id="answerTitle">노래 제목</div>
+                        <div class="song-artist" id="answerArtist">아티스트</div>
+                        <div class="song-meta" id="answerMeta">2024 · K-POP</div>
+                    </div>
+                </div>
+
+                <div class="round-results" id="roundResults">
+                    <!-- JS에서 생성 -->
+                </div>
+
+                <!-- 방장용 다음 라운드 버튼 -->
+                <div class="host-controls" th:if="${isHost}">
+                    <button class="btn btn-next-round" id="nextRoundBtn" onclick="nextRound()">다음 라운드 →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 오른쪽: 스코어보드 -->
+        <aside class="scoreboard multi-scoreboard">
+            <h3>📊 점수판</h3>
+            <div class="score-list" id="scoreList">
+                <!-- JS에서 생성 -->
+            </div>
+        </aside>
+    </main>
+</div>
+
+<!-- 오디오 요소 -->
+<audio id="audioPlayer" preload="auto"></audio>
+
+<script th:inline="javascript">
+    const roomCode = [[${room.roomCode}]];
+    const totalRounds = [[${room.totalRounds}]];
+    const myMemberId = [[${member.id}]];
+    const isHost = [[${isHost}]];
+</script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/client/multi-play.js}"></script>
+</body>
+</html>

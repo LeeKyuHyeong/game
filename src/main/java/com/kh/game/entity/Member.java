@@ -27,6 +27,9 @@ public class Member {
     @Column(nullable = false, length = 50)
     private String nickname;
 
+    @Column(nullable = false, length = 30)
+    private String username;
+
     @Column(name = "total_games")
     private Integer totalGames = 0;
 

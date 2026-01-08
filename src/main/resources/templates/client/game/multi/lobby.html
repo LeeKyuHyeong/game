@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('멀티게임 - Song Quiz')}"></head>
+<body class="client-page">
+<div class="client-container">
+    <header class="client-header compact">
+        <a href="/" class="back-home">← 홈으로</a>
+        <h1>🎮 멀티게임</h1>
+        <p>친구들과 함께 실시간으로 대결하세요!</p>
+    </header>
+
+    <main class="lobby-main">
+        <!-- 이미 참가중인 방이 있을 경우 -->
+        <div th:if="${activeRoom}" class="active-room-alert">
+            <div class="alert-content">
+                <span class="alert-icon">⚠️</span>
+                <span>이미 참가중인 방이 있습니다: <strong th:text="${activeRoom.roomName}"></strong></span>
+                <a th:href="@{/game/multi/room/{code}(code=${activeRoom.roomCode})}" class="btn btn-primary btn-sm">입장하기</a>
+            </div>
+        </div>
+
+        <!-- 상단 액션 버튼 -->
+        <div class="lobby-actions">
+            <a href="/game/multi/create" class="btn btn-create">
+                <span class="btn-icon">➕</span>
+                방 만들기
+            </a>
+            <div class="join-code-form">
+                <input type="text" id="joinCode" placeholder="참가 코드 입력" maxlength="6" class="code-input">
+                <button type="button" class="btn btn-join" onclick="joinByCode()">참가</button>
+            </div>
+        </div>
+
+        <!-- 방 목록 -->
+        <div class="room-list-section">
+            <div class="section-header">
+                <h2>🏠 공개 방 목록</h2>
+                <div class="search-box">
+                    <input type="text" id="searchKeyword" placeholder="방 이름 검색..." onkeyup="searchRooms()">
+                    <button type="button" class="btn btn-search-icon" onclick="loadRooms()">🔍</button>
+                </div>
+            </div>
+
+            <div class="room-list" id="roomList">
+                <div th:if="${#lists.isEmpty(rooms)}" class="empty-rooms">
+                    <div class="empty-icon">🎵</div>
+                    <p>참가 가능한 방이 없습니다.</p>
+                    <p class="empty-sub">새로운 방을 만들어보세요!</p>
+                </div>
+
+                <div th:each="room : ${rooms}" class="room-card" th:data-room-code="${room.roomCode}">
+                    <div class="room-info">
+                        <div class="room-name" th:text="${room.roomName}">방 이름</div>
+                        <div class="room-host">
+                            <span class="host-icon">👑</span>
+                            <span th:text="${room.host.nickname}">방장</span>
+                        </div>
+                    </div>
+                    <div class="room-meta">
+                        <div class="player-count">
+                            <span class="count-icon">👥</span>
+                            <span th:text="${room.currentPlayerCount} + '/' + ${room.maxPlayers}">0/8</span>
+                        </div>
+                        <div class="round-count">
+                            <span class="round-icon">🎯</span>
+                            <span th:text="${room.totalRounds} + '라운드'">10라운드</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-enter" th:data-code="${room.roomCode}" onclick="joinRoom(this.dataset.code)">입장</button>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-refresh" onclick="loadRooms()">🔄 새로고침</button>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/client/multi-lobby.js}"></script>
+</body>
+</html>

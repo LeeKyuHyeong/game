@@ -256,4 +256,47 @@ public class SongService {
                 .replaceAll("\\s+", "")
                 .replaceAll("[^a-z0-9가-힣]", "");
     }
+
+    // ========== 멀티게임용 메서드 ==========
+
+    /**
+     * 랜덤 노래 가져오기 (excludeSongIds 제외)
+     */
+    public Song getRandomSongExcluding(Long genreId, Set<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            // 장르 필터 (genreId가 null이면 전체)
+            if (genreId != null) {
+                if (song.getGenre() == null || !song.getGenre().getId().equals(genreId)) continue;
+            }
+            // 제외 목록 체크
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            filtered.add(song);
+        }
+
+        if (filtered.isEmpty()) {
+            return null;
+        }
+
+        Collections.shuffle(filtered);
+        return filtered.get(0);
+    }
+
+    /**
+     * 장르별 사용 가능한 노래 수 (excludeSongIds 제외)
+     */
+    public int getAvailableCountByGenreExcluding(Long genreId, Set<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+
+        int count = 0;
+        for (Song song : allSongs) {
+            if (song.getGenre() == null || !song.getGenre().getId().equals(genreId)) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            count++;
+        }
+
+        return count;
+    }
 }

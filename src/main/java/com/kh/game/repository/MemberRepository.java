@@ -19,6 +19,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsByNickname(String nickname);
 
+    // 닉네임으로 시작하는 회원 목록 (동명이인 처리용)
+    @Query("SELECT m.nickname FROM Member m WHERE m.nickname LIKE :nickname% ORDER BY m.nickname")
+    List<String> findNicknamesStartingWith(String nickname);
+
     // 활성 회원만 조회
     Optional<Member> findByEmailAndStatus(String email, Member.MemberStatus status);
 
