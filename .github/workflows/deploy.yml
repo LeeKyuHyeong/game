@@ -52,10 +52,12 @@ jobs:
           echo "========== 배포 시작 =========="
           cd /root/game
 
-          echo "1. 환경변수 설정"
-          export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-          export DB_USERNAME=${{ secrets.DB_USERNAME }}
-          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          echo "1. .env 파일 생성"
+          cat > .env << EOF
+          DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          EOF
 
           echo "2. 최신 이미지 Pull"
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/khgame-app:latest
@@ -64,8 +66,8 @@ jobs:
           docker-compose stop app 2>/dev/null || true
           docker-compose rm -f app 2>/dev/null || true
 
-          echo "4. 전체 서비스 시작 (DB + App)"
-          docker-compose up -d
+          echo "4. 앱 컨테이너 시작"
+          docker-compose up -d app
 
           echo "5. 사용하지 않는 이미지 정리"
           docker image prune -f
