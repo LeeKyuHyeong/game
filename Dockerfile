@@ -1,23 +1,22 @@
-# Build stage
-FROM maven:3.9-eclipse-temurin-17 AS build
-WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
-COPY src ./src
-RUN mvn package -DskipTests -B
-
-# Runtime stage
-FROM eclipse-temurin:17-jre
+# 실행 스테이지 (빌드 스테이지 제거)
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-# Create uploads directory
+# 한국 시간(KST) 설정
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
+    echo "Asia/Seoul" > /etc/timezone && \
+    apk del tzdata
+
+# 업로드 디렉토리 생성
 RUN mkdir -p /app/uploads/songs
 
-# Copy the built artifact
-COPY --from=build /app/target/*.war app.war
+# GitHub Actions에서 빌드된 WAR 파일을 복사
+COPY target/*.war app.war
 
-# Expose port
+# 메모리 제한 설정
+ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC"
+
 EXPOSE 8082
 
-# Run the application
 ENTRYPOINT ["java", "-jar", "app.war"]
