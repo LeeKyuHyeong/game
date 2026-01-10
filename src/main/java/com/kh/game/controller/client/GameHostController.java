@@ -435,14 +435,38 @@ public class GameHostController {
         @SuppressWarnings("unchecked")
         Map<String, Integer> playerScores = (Map<String, Integer>) httpSession.getAttribute("playerScores");
 
-        // 점수순 정렬
-        List<Map.Entry<String, Integer>> sortedScores = new ArrayList<>();
-        if (playerScores != null) {
+        // 점수순 정렬 및 동점자 순위 계산
+        List<Map<String, Object>> sortedScores = new ArrayList<>();
+        if (playerScores != null && players != null) {
+            List<Map.Entry<String, Integer>> entries = new ArrayList<>();
             for (String player : players) {
                 int score = playerScores.getOrDefault(player, 0);
-                sortedScores.add(new AbstractMap.SimpleEntry<>(player, score));
+                entries.add(new AbstractMap.SimpleEntry<>(player, score));
             }
-            sortedScores.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+            entries.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+
+            // 동점자 순위 계산
+            int rank = 1;
+            int prevScore = -1;
+            int sameScoreCount = 0;
+
+            for (Map.Entry<String, Integer> entry : entries) {
+                Map<String, Object> playerData = new HashMap<>();
+                playerData.put("name", entry.getKey());
+                playerData.put("score", entry.getValue());
+
+                if (entry.getValue() == prevScore) {
+                    // 동점이면 이전 순위 유지
+                    sameScoreCount++;
+                } else {
+                    // 점수가 다르면 순위 갱신 (이전 동점자 수만큼 건너뜀)
+                    rank += sameScoreCount;
+                    sameScoreCount = 1;
+                    prevScore = entry.getValue();
+                }
+                playerData.put("rank", rank);
+                sortedScores.add(playerData);
+            }
         }
 
         model.addAttribute("gameSession", session);
