@@ -17,6 +17,6 @@ COPY target/*.war app.war
 # 메모리 제한 설정
 ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC"
 
-EXPOSE 8080
+EXPOSE 8082
 
 ENTRYPOINT ["java", "-jar", "app.war"]
