@@ -8,6 +8,7 @@ let correctCount = 0;
 let wrongCount = 0;
 let skipCount = 0;
 let actualTotalRounds = totalRounds; // 서버에서 업데이트될 수 있음
+let isRoundEnded = false; // 라운드 종료 플래그
 
 // 게임 시작
 document.addEventListener('DOMContentLoaded', function() {
@@ -214,6 +215,7 @@ function formatTime(seconds) {
 
 function resetUI() {
     stopAudio();
+    isRoundEnded = false; // 라운드 종료 플래그 리셋
     document.getElementById('answerInput').value = '';
     // 피드백 메시지 초기화
     const feedbackEl = document.getElementById('attemptFeedback');
@@ -224,6 +226,9 @@ function resetUI() {
 }
 
 async function submitAnswer() {
+    // 라운드가 이미 종료되었으면 무시
+    if (isRoundEnded) return;
+
     const answerInput = document.getElementById('answerInput');
     const userAnswer = answerInput.value.trim();
 
@@ -251,6 +256,7 @@ async function submitAnswer() {
         if (result.success) {
             if (result.isRoundOver) {
                 // 라운드 종료 (정답 또는 3번 모두 실패)
+                isRoundEnded = true;
                 stopAudio();
 
                 if (result.isCorrect) {

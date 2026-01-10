@@ -17,58 +17,53 @@
             </div>
         </div>
 
-        <!-- 통계 섹션 -->
-        <div class="stats-section">
-            <div class="stat-box">
-                <div class="stat-label">정답</div>
-                <div class="stat-value correct" th:text="${gameSession.correctCount}">0</div>
+        <!-- 통계 바 - 한 줄 -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">정답</span>
+                <span class="stat-value correct" th:text="${gameSession.correctCount}">0</span>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">오답</div>
-                <div class="stat-value wrong" th:text="${gameSession.completedRounds - gameSession.correctCount - gameSession.skipCount}">0</div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-label">오답</span>
+                <span class="stat-value wrong" th:text="${gameSession.completedRounds - gameSession.correctCount - gameSession.skipCount}">0</span>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">스킵</div>
-                <div class="stat-value skip" th:text="${gameSession.skipCount}">0</div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-label">스킵</span>
+                <span class="stat-value skip" th:text="${gameSession.skipCount}">0</span>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">정답률</div>
-                <div class="stat-value" th:text="${#numbers.formatDecimal(gameSession.accuracyRate, 1, 1) + '%'}">0%</div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-label">정답률</span>
+                <span class="stat-value" th:text="${#numbers.formatDecimal(gameSession.accuracyRate, 1, 1) + '%'}">0%</span>
             </div>
         </div>
 
-        <!-- 라운드 기록 섹션 -->
+        <!-- 라운드 기록 - 카드 그리드 -->
         <div class="rounds-section">
-            <h3>📝 라운드 기록</h3>
-            <div class="rounds-list">
-                <div th:each="round : ${rounds}"
-                     class="round-item"
+            <h3>라운드 기록</h3>
+            <div class="rounds-grid">
+                <div th:each="round : ${rounds}" class="round-card"
                      th:classappend="${round.isCorrect ? 'correct' : (round.status.name() == 'SKIPPED' ? 'skipped' : 'wrong')}">
-                    <span class="round-number" th:text="'#' + ${round.roundNumber}"></span>
-                    <div class="round-song">
-                        <span class="song-title" th:text="${round.song.title}"></span>
-                        <span class="song-artist" th:text="${round.song.artist}"></span>
+                    <div class="round-header">
+                        <span class="round-num" th:text="'#' + ${round.roundNumber}"></span>
+                        <span th:if="${round.isCorrect}" class="round-status correct">정답</span>
+                        <span th:if="${round.status.name() == 'SKIPPED'}" class="round-status skip">스킵</span>
+                        <span th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="round-status wrong">오답</span>
                     </div>
-                    <div class="round-result">
-                        <span th:if="${round.isCorrect}" class="result-badge correct">
-                            정답! +<span th:text="${round.score}"></span>점
-                        </span>
-                        <span th:if="${round.isCorrect}"
-                              class="round-attempt-info"
-                              th:classappend="'attempt-' + ${round.attemptCount}"
-                              th:text="'(' + ${round.attemptCount} + '번째 시도)'"></span>
-                        <span th:if="${round.status.name() == 'SKIPPED'}" class="result-badge skip">스킵</span>
-                        <span th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="result-badge wrong">
-                            오답 (3회 실패)
-                        </span>
-                    </div>
-                    <div class="round-attempts" th:if="${round.attempts != null && !round.attempts.isEmpty()}">
-                        <small>시도 기록: </small>
-                        <span th:each="attempt, stat : ${round.attempts}" class="attempt-item">
-                            <span th:classappend="${attempt.isCorrect ? 'correct' : 'wrong'}"
-                                  th:text="${attempt.userAnswer}"></span>
-                            <span th:if="${!stat.last}">, </span>
-                        </span>
+                    <div class="round-body">
+                        <div class="song-info">
+                            <div class="song-title" th:text="${round.song.title}"></div>
+                            <div class="song-artist" th:text="${round.song.artist}"></div>
+                        </div>
+                        <div th:if="${round.isCorrect}" class="score-info">
+                            <span class="score-plus" th:text="'+' + ${round.score} + '점'"></span>
+                            <span class="attempt-info" th:text="'(' + ${round.attemptCount} + '번째)'"></span>
+                        </div>
+                        <div th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="fail-info">
+                            <span class="fail-text">3회 실패</span>
+                        </div>
                     </div>
                 </div>
             </div>

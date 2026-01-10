@@ -89,4 +89,9 @@ public class GameRound {
         if (answerTimeMs == null) return "-";
         return String.format("%.2f초", answerTimeMs / 1000.0);
     }
+
+    // Thymeleaf에서 isCorrect 접근을 위한 명시적 getter
+    public boolean isCorrect() {
+        return Boolean.TRUE.equals(isCorrect);
+    }
 }

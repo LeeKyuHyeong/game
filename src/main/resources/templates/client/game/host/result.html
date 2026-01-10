@@ -11,19 +11,19 @@
         <div class="podium-section" th:if="${#lists.size(playerScores) >= 1}">
             <div class="podium">
                 <div class="podium-place second" th:if="${#lists.size(playerScores) >= 2}">
-                    <div class="place-medal">🥈</div>
+                    <div class="place-medal" th:text="${playerScores[1].rank == 1} ? '🥇' : (${playerScores[1].rank == 2} ? '🥈' : '🥉')"></div>
                     <div class="place-name" th:text="${playerScores[1].name}"></div>
                     <div class="place-score" th:text="${playerScores[1].score} + '점'"></div>
                     <div class="place-stand" th:text="${playerScores[1].rank}"></div>
                 </div>
                 <div class="podium-place first">
-                    <div class="place-medal">🥇</div>
+                    <div class="place-medal" th:text="${playerScores[0].rank == 1} ? '🥇' : (${playerScores[0].rank == 2} ? '🥈' : '🥉')"></div>
                     <div class="place-name" th:text="${playerScores[0].name}"></div>
                     <div class="place-score" th:text="${playerScores[0].score} + '점'"></div>
                     <div class="place-stand" th:text="${playerScores[0].rank}"></div>
                 </div>
                 <div class="podium-place third" th:if="${#lists.size(playerScores) >= 3}">
-                    <div class="place-medal">🥉</div>
+                    <div class="place-medal" th:text="${playerScores[2].rank == 1} ? '🥇' : (${playerScores[2].rank == 2} ? '🥈' : '🥉')"></div>
                     <div class="place-name" th:text="${playerScores[2].name}"></div>
                     <div class="place-score" th:text="${playerScores[2].score} + '점'"></div>
                     <div class="place-stand" th:text="${playerScores[2].rank}"></div>
@@ -31,34 +31,42 @@
             </div>
         </div>
 
-        <div class="stats-section">
-            <div class="stat-box">
-                <div class="stat-label">총 라운드</div>
-                <div class="stat-value" th:text="${gameSession.totalRounds}"></div>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">정답</span>
+                <span class="stat-value correct" th:text="${gameSession.correctCount}"></span>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">정답</div>
-                <div class="stat-value" th:text="${gameSession.correctCount}"></div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-label">스킵</span>
+                <span class="stat-value skip" th:text="${gameSession.skipCount}"></span>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">스킵</div>
-                <div class="stat-value" th:text="${gameSession.skipCount}"></div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-label">정답률</span>
+                <span class="stat-value" th:text="${gameSession.totalRounds > 0} ? ${#numbers.formatDecimal(gameSession.correctCount * 100.0 / gameSession.totalRounds, 1, 0)} + '%' : '0%'"></span>
             </div>
         </div>
 
         <div class="rounds-section">
-            <h3>📋 라운드 기록</h3>
-            <div class="rounds-list">
-                <div th:each="round : ${rounds}" class="round-item"
-                     th:classappend="${round.status.name() == 'SKIPPED'} ? 'skipped' : ''">
-                    <div class="round-number" th:text="'R' + ${round.roundNumber}"></div>
-                    <div class="round-song">
-                        <div class="song-title" th:text="${round.song != null} ? ${round.song.title} : '-'"></div>
-                        <div class="song-artist" th:text="${round.song != null} ? ${round.song.artist} : ''"></div>
+            <h3>라운드 기록</h3>
+            <div class="rounds-grid">
+                <div th:each="round : ${rounds}" class="round-card"
+                     th:classappend="${round.status.name() == 'SKIPPED'} ? 'skipped' : 'answered'">
+                    <div class="round-header">
+                        <span class="round-num" th:text="'#' + ${round.roundNumber}"></span>
+                        <span th:if="${round.status.name() == 'ANSWERED'}" class="round-status correct">정답</span>
+                        <span th:if="${round.status.name() == 'SKIPPED'}" class="round-status skip">스킵</span>
                     </div>
-                    <div class="round-result">
-                        <span th:if="${round.status.name() == 'ANSWERED'}" class="winner-badge" th:text="${round.userAnswer}"></span>
-                        <span th:if="${round.status.name() == 'SKIPPED'}" class="skip-badge">스킵</span>
+                    <div class="round-body">
+                        <div class="song-info">
+                            <div class="song-title" th:text="${round.song != null} ? ${round.song.title} : '-'"></div>
+                            <div class="song-artist" th:text="${round.song != null} ? ${round.song.artist} : ''"></div>
+                        </div>
+                        <div th:if="${round.status.name() == 'ANSWERED'}" class="winner-info">
+                            <span class="winner-label">정답자</span>
+                            <span class="winner-name" th:text="${round.userAnswer}"></span>
+                        </div>
                     </div>
                 </div>
             </div>
