@@ -52,27 +52,20 @@ jobs:
           echo "========== 배포 시작 =========="
           cd /root/game
 
-          echo "1. .env 파일 생성"
-          cat > .env << EOF
-          DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-          DB_USERNAME=${{ secrets.DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          EOF
-
-          echo "2. 최신 이미지 Pull"
+          echo "1. 최신 이미지 Pull"
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/khgame-app:latest
 
-          echo "3. 기존 앱 컨테이너 중지"
+          echo "2. 기존 앱 컨테이너 중지"
           docker-compose stop app 2>/dev/null || true
           docker-compose rm -f app 2>/dev/null || true
 
-          echo "4. 앱 컨테이너 시작"
+          echo "3. 앱 컨테이너 시작"
           docker-compose up -d app
 
-          echo "5. 사용하지 않는 이미지 정리"
+          echo "4. 사용하지 않는 이미지 정리"
           docker image prune -f
 
-          echo "6. 컨테이너 상태 확인"
+          echo "5. 컨테이너 상태 확인"
           docker-compose ps
 
           echo "========== 배포 완료 =========="
