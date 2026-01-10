@@ -1,6 +1,7 @@
 package com.kh.game.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,6 +46,7 @@ public class GameRound {
     private String userAnswer;
 
     @Column(name = "is_correct")
+    @Getter(AccessLevel.NONE)
     private Boolean isCorrect;
 
     @Column(name = "attempt_count")
