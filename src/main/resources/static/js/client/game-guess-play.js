@@ -421,6 +421,17 @@ audioPlayer.addEventListener('error', function() {
 // Enter 키로 제출
 document.getElementById('answerInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
+        // 모달이 표시 중이면 무시
+        const modal = document.getElementById('answerModal');
+        if (modal && modal.classList.contains('show')) {
+            e.preventDefault();
+            return;
+        }
+        // 라운드가 종료되었으면 무시
+        if (isRoundEnded) {
+            e.preventDefault();
+            return;
+        }
         submitAnswer();
     }
 });
