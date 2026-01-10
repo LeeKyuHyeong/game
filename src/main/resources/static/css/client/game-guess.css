@@ -1,0 +1,290 @@
+/**
+ * Game Guess CSS - Guess Mode Game Styles
+ *
+ * Contains styles specific to the guess/solo game mode including:
+ * - Guess mode container layout
+ * - Answer input section
+ * - Submit and skip buttons
+ * - Statistics sidebar
+ * - Attempt feedback
+ * - Genre selection modal
+ */
+
+/* Guess Mode Container */
+.game-container.guess-mode {
+    grid-template-columns: 1fr 200px;
+}
+
+/* Guess Answer Section */
+.guess-answer-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    text-align: center;
+}
+
+.guess-answer-section h3 {
+    color: white;
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Answer Input */
+.answer-input-wrapper {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.answer-input {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1.125rem;
+    transition: all 0.2s;
+}
+
+.answer-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.answer-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Submit Button */
+.btn-submit {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(34, 197, 94, 0.4);
+}
+
+/* Skip Button */
+.btn-skip {
+    padding: 0.875rem 2.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-skip:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Statistics Sidebar */
+.stats-sidebar {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.stats-sidebar h3 {
+    color: white;
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.stats-sidebar .stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stats-sidebar .stat-item .stat-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+}
+
+.stats-sidebar .stat-item .stat-value {
+    color: white;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+/* Attempt Feedback */
+.attempt-feedback {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    border-radius: 0.75rem;
+    color: #fca5a5;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.attempt-feedback strong {
+    color: #fbbf24;
+}
+
+.attempt-feedback.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+/* Attempt Info */
+.attempt-info {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+/* Correct/Wrong Text */
+.correct-text {
+    color: #22c55e;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.wrong-text {
+    color: #ef4444;
+    font-size: 0.875rem;
+}
+
+/* User Answer Info */
+.user-answer-info {
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.user-answer-info .correct-text {
+    display: block;
+}
+
+/* Genre Select Modal */
+.genre-select-modal {
+    max-width: 800px;
+    width: 90%;
+    padding: 2rem;
+    text-align: center;
+}
+
+.genre-modal-header {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.genre-modal-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.genre-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.genre-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem 1rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px solid var(--border-color);
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 100px;
+    text-align: center;
+}
+
+.genre-item:hover:not(.disabled):not(.hidden) {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+}
+
+.genre-item.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #f3f4f6;
+}
+
+.genre-item.hidden {
+    display: none;
+}
+
+.genre-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.genre-count {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.15);
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+}
+
+.genre-item.disabled .genre-count {
+    color: #9ca3af;
+    background: #e5e7eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .game-container.guess-mode {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-sidebar {
+        order: -1;
+    }
+
+    .stats-sidebar .stat-item {
+        display: inline-flex;
+        flex: 1;
+        min-width: 80px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .answer-input-wrapper {
+        flex-direction: column;
+    }
+}

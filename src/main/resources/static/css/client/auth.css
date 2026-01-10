@@ -1,0 +1,219 @@
+/**
+ * Auth CSS - Authentication Page Styles
+ *
+ * Contains styles for login and registration pages including:
+ * - Auth page layout and containers
+ * - Auth card and form styling
+ * - Input validation icons and hints
+ * - Auth buttons and dividers
+ * - Guest login option
+ */
+
+/* Auth Page Layout */
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Auth Header */
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header .back-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.auth-header .back-link:hover {
+    color: var(--primary-color);
+}
+
+.auth-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: var(--text-secondary);
+}
+
+/* Auth Form */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.auth-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.auth-form label {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.auth-form input {
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Input with Check Icon */
+.input-with-check {
+    position: relative;
+}
+
+.input-with-check input {
+    width: 100%;
+    padding-right: 2.5rem;
+}
+
+.check-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem;
+}
+
+.check-icon.available {
+    color: #22c55e;
+}
+
+.check-icon.unavailable {
+    color: #ef4444;
+}
+
+/* Field Hints */
+.field-hint {
+    font-size: 0.75rem;
+}
+
+.field-hint.success {
+    color: #22c55e;
+}
+
+.field-hint.error {
+    color: #ef4444;
+}
+
+/* Auth Button */
+.btn-auth {
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+/* Messages */
+.error-message {
+    display: none;
+    padding: 0.75rem 1rem;
+    background: #fee2e2;
+    color: #991b1b;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.success-message {
+    display: none;
+    padding: 0.75rem 1rem;
+    background: #dcfce7;
+    color: #166534;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+/* Auth Divider */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.auth-divider span {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Guest Button */
+.btn-guest {
+    display: block;
+    text-align: center;
+    padding: 0.875rem;
+    background: var(--bg-light);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-guest:hover {
+    background: var(--border-color);
+}
+
+/* Auth Footer */
+.auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.auth-footer a {
+    color: var(--primary-color);
+    font-weight: 500;
+}

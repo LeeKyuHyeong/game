@@ -1,0 +1,303 @@
+/**
+ * Base Admin Styles
+ *
+ * This file contains the foundational styles for the admin panel:
+ * - .admin-page: Root container for admin pages
+ * - .admin-container: Main flex container layout
+ * - General layout variables and base settings
+ */
+
+/* Admin Layout Base */
+.admin-page {
+    min-height: 100vh;
+}
+
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Code Style */
+code {
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.875rem;
+    color: #0f172a;
+}
+
+/* File indicators */
+.file-exists {
+    color: #22c55e;
+    font-size: 1rem;
+}
+
+.file-none {
+    color: #9ca3af;
+}
+
+/* Badges */
+.solo-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.solo-badge.solo {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.solo-badge.group {
+    background: #fce7f3;
+    color: #9d174d;
+}
+
+.status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status.inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-badge.success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge.warning {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-badge.info {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* Type Badge */
+.type-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.type-badge.SOLO_HOST {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.type-badge.SOLO_GUESS {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.type-badge.small {
+    padding: 0.125rem 0.5rem;
+    font-size: 0.7rem;
+}
+
+/* Game Status */
+.game-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.game-status.PLAYING {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.game-status.COMPLETED {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.game-status.ABANDONED {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Round Status */
+.round-status {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.round-status.WAITING { background: #f3f4f6; color: #6b7280; }
+.round-status.PLAYING { background: #dbeafe; color: #1d4ed8; }
+.round-status.ANSWERED { background: #dcfce7; color: #166534; }
+.round-status.SKIPPED { background: #fef3c7; color: #b45309; }
+.round-status.TIMEOUT { background: #fee2e2; color: #991b1b; }
+
+/* General Badges */
+.badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.625rem;
+    font-weight: 500;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+.badge-private {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+/* Score Cell */
+.score-cell {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Text Colors */
+.text-success {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.text-danger {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* UUID Style */
+.uuid {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Loading and Error States */
+.loading {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.error {
+    padding: 2rem;
+    text-align: center;
+    color: var(--danger-color);
+}
+
+.empty-text {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Correct/Wrong Badges */
+.correct-badge, .wrong-badge {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    color: white;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.correct-badge { background: #22c55e; }
+.wrong-badge { background: #ef4444; }
+
+.correct-row {
+    background: #f0fdf4 !important;
+}
+
+/* Button Variants */
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6875rem;
+    border-radius: 0.25rem;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.btn-info {
+    background: var(--info-color);
+    color: white;
+}
+
+.btn-info:hover {
+    background: #2563eb;
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #16a34a;
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #d97706;
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}

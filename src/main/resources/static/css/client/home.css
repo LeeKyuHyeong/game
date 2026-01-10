@@ -1,0 +1,237 @@
+/**
+ * Home CSS - Home Page Styles
+ *
+ * Contains styles for the home/landing page including:
+ * - Game mode cards and selection
+ * - Header navigation with user info
+ * - Login/register/logout buttons
+ * - Ranking section and tabs
+ */
+
+/* Game Modes */
+.game-modes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 800px;
+}
+
+.mode-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.3s;
+}
+
+.mode-card:hover {
+    transform: translateY(-5px);
+}
+
+.mode-card.coming-soon {
+    opacity: 0.7;
+}
+
+.mode-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.mode-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.mode-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.btn-mode {
+    padding: 1rem 1.5rem;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: var(--text-primary);
+    transition: all 0.2s;
+}
+
+.btn-mode:hover {
+    background: #e2e8f0;
+}
+
+.btn-mode.primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-mode.primary:hover {
+    background: var(--primary-hover);
+}
+
+.coming-badge {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: #f1f5f9;
+    color: var(--text-secondary);
+    border-radius: 0.75rem;
+    font-weight: 500;
+}
+
+/* Header Top with User Info */
+.header-top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-greeting {
+    color: white;
+    font-size: 0.875rem;
+}
+
+.btn-login, .btn-register, .btn-logout {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-login {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.btn-login:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-register {
+    background: white;
+    color: var(--primary-color);
+}
+
+.btn-register:hover {
+    background: #f3f4f6;
+}
+
+.btn-logout {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    cursor: pointer;
+}
+
+.btn-logout:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Ranking Section */
+.ranking-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.ranking-section h3 {
+    color: white;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.ranking-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.ranking-tab {
+    flex: 1;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ranking-tab:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.ranking-tab.active {
+    background: white;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+}
+
+.ranking-item .rank {
+    width: 2rem;
+    font-weight: 700;
+    color: #fbbf24;
+}
+
+.ranking-item .nickname {
+    flex: 1;
+    color: white;
+}
+
+.ranking-item .value {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+}
+
+.empty-ranking {
+    text-align: center;
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.view-all-link {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.view-all-link:hover {
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .game-modes {
+        grid-template-columns: 1fr;
+    }
+}

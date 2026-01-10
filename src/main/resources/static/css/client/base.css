@@ -1,0 +1,90 @@
+/**
+ * Base CSS - Client Page Base Styles
+ *
+ * Contains foundational styles for the client-side pages including:
+ * - Client page container and layout
+ * - Header, main content, and footer sections
+ * - Responsive breakpoints for base layout
+ */
+
+/* Client Page */
+.client-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.client-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.client-header {
+    text-align: center;
+    padding: 3rem 0;
+    color: white;
+}
+
+.client-header h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.client-header p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+.client-header.compact {
+    padding: 2rem 0;
+}
+
+.client-header.compact h1 {
+    font-size: 2rem;
+}
+
+.back-home {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+}
+
+.back-home:hover {
+    color: white;
+}
+
+/* Main */
+.client-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Footer */
+.client-footer {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.admin-link {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.875rem;
+    transition: color 0.2s;
+}
+
+.admin-link:hover {
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .client-header h1 {
+        font-size: 2rem;
+    }
+}

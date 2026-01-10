@@ -1,0 +1,115 @@
+/**
+ * Game Host CSS - Host Mode Game Styles
+ *
+ * Contains styles specific to the host game mode including:
+ * - Answer section for host
+ * - Player selection buttons
+ * - Scoreboard display
+ * - Score list and items
+ */
+
+/* Answer Section for Host Mode */
+.answer-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    text-align: center;
+}
+
+.answer-section h3 {
+    color: white;
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Player Buttons */
+.player-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.player-btn {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border-radius: 0.75rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+}
+
+.player-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(34, 197, 94, 0.4);
+}
+
+.player-btn.selected {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    box-shadow: 0 4px 10px rgba(251, 191, 36, 0.4);
+}
+
+/* Scoreboard */
+.scoreboard {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.scoreboard h3 {
+    color: white;
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Score List */
+.score-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+}
+
+.player-name {
+    color: white;
+    font-weight: 500;
+}
+
+.player-score {
+    color: #fbbf24;
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .scoreboard {
+        order: -1;
+    }
+
+    .score-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .score-item {
+        flex: 1;
+        min-width: 100px;
+        flex-direction: column;
+        text-align: center;
+    }
+}

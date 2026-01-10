@@ -1,0 +1,375 @@
+/**
+ * Batch Management Styles
+ *
+ * This file contains styles specific to batch job management:
+ * - .batch-grid: Grid layout for batch cards
+ * - .batch-card: Individual batch job card
+ * - .batch-header: Card header with title and status
+ * - .batch-status: Implementation status badge
+ * - .batch-enabled: Enable/disable status badge
+ * - .batch-actions: Action buttons container
+ * - .batch-info: Information rows within cards
+ * - .batch-execution: Execution status display
+ * - .batch-legend: Legend for status indicators
+ * - .batch-priority: Priority level badges
+ * - Execution type and result badges
+ */
+
+/* Batch Grid */
+.batch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+/* Batch Card */
+.batch-card {
+    background: var(--card-bg);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.batch-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.batch-card.not-implemented {
+    background: #fafafa;
+    border-color: #e5e5e5;
+}
+
+.batch-card.disabled {
+    opacity: 0.7;
+    border-left: 3px solid #9ca3af;
+}
+
+/* Batch Header */
+.batch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.batch-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.batch-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Batch Status */
+.batch-status {
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+.batch-status.implemented {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.batch-status.not-implemented {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+/* Batch Priority */
+.batch-priority {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.batch-priority.high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.batch-priority.medium {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.batch-priority.low {
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
+/* Batch Description */
+.batch-description {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin: 0 0 1rem 0;
+    line-height: 1.5;
+}
+
+/* Batch Info */
+.batch-info {
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.batch-info .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.375rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.batch-info .info-row:last-child {
+    border-bottom: none;
+}
+
+.batch-info .info-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.batch-info .info-value {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+.batch-info .info-value code {
+    background: #e5e7eb;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.6875rem;
+}
+
+/* Batch Execution */
+.batch-execution {
+    margin-bottom: 1rem;
+}
+
+.execution-info {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.exec-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.exec-label {
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.exec-value {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+.exec-value.success {
+    color: #16a34a;
+}
+
+.exec-value.fail {
+    color: #dc2626;
+}
+
+.exec-value.running {
+    color: #2563eb;
+}
+
+.exec-message {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f8fafc;
+    border-radius: 0.25rem;
+    word-break: break-word;
+}
+
+/* Batch Actions */
+.batch-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Batch Badges */
+.batch-badges {
+    display: flex;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+}
+
+/* Batch Enabled */
+.batch-enabled {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.625rem;
+    font-weight: 700;
+}
+
+.batch-enabled.on {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.batch-enabled.off {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Scheduled Badge */
+.scheduled-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    background: #dbeafe;
+    color: #1d4ed8;
+    margin-left: 0.25rem;
+}
+
+/* Batch Legend */
+.batch-legend {
+    background: var(--card-bg);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+}
+
+.batch-legend h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+    color: var(--text-primary);
+}
+
+.legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+/* Priority Dots */
+.priority-dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+}
+
+.priority-dot.high {
+    background: #dc2626;
+}
+
+.priority-dot.medium {
+    background: #d97706;
+}
+
+.priority-dot.low {
+    background: #4f46e5;
+}
+
+/* Status Dots */
+.status-dot {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 0.25rem;
+}
+
+.status-dot.implemented {
+    background: #22c55e;
+}
+
+.status-dot.not-implemented {
+    background: #f59e0b;
+}
+
+/* Execution Type */
+.exec-type {
+    display: inline-block;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+}
+
+.exec-type.manual {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.exec-type.scheduled {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* Result Badge */
+.result-badge {
+    display: inline-block;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+}
+
+.result-badge.success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.result-badge.failure,
+.result-badge.fail {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.result-badge.running {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* ========== Responsive for Batch ========== */
+@media (max-width: 768px) {
+    .batch-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .legend-items {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}

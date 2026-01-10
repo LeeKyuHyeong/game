@@ -1,0 +1,203 @@
+/**
+ * Table Styles
+ *
+ * This file contains styles for tables and pagination:
+ * - .table-container: Wrapper with shadow and rounded corners
+ * - .data-table: Main table element
+ * - Table header (th) and cell (td) styles
+ * - .empty-row: Empty state display
+ * - .action-buttons: Button container in table rows
+ * - .btn-sm, .btn-edit, .btn-delete, .btn-toggle, .btn-view: Action button variants
+ * - .pagination: Page navigation
+ * - .page-link: Individual page buttons
+ * - .page-info: Pagination information text
+ */
+
+/* Table Container */
+.table-container {
+    background: var(--card-bg);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+/* Data Table */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.data-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Empty Row */
+.empty-row {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 3rem !important;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Small Button */
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    border-radius: 0.375rem;
+}
+
+/* Edit Button */
+.btn-edit {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-edit:hover {
+    background: var(--primary-hover);
+}
+
+/* Delete Button */
+.btn-delete {
+    background: var(--danger-color);
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+}
+
+/* Toggle Button */
+.btn-toggle {
+    background: #f3f4f6;
+    color: var(--text-primary);
+}
+
+.btn-toggle:hover {
+    background: #e5e7eb;
+}
+
+/* View Button */
+.btn-view {
+    background: var(--info-color);
+    color: white;
+}
+
+.btn-view:hover {
+    background: #2563eb;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-top: 1.5rem;
+}
+
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.75rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.page-link:hover:not(.disabled):not(.active) {
+    background: #f8fafc;
+    border-color: var(--primary-color);
+}
+
+.page-link.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.page-link.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Page Info */
+.page-info {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Round Table */
+.round-table {
+    font-size: 0.875rem;
+}
+
+/* Mini Table */
+.mini-table {
+    font-size: 0.875rem;
+}
+
+.mini-table th,
+.mini-table td {
+    padding: 0.5rem 0.75rem;
+}
+
+/* Table Actions */
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.selected-count {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* No Answer Row */
+.no-answer-row {
+    background: #fffbeb !important;
+}
+
+/* Fail Row */
+.fail-row {
+    background: #fef2f2 !important;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+    .table-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

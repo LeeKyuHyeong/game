@@ -1,0 +1,192 @@
+/**
+ * Stats Cards Styles
+ *
+ * This file contains styles for statistics display components:
+ * - .stats-cards: Grid container for stat cards
+ * - .stat-card: Individual stat card (with variants: waiting, playing, finished, etc.)
+ * - .stat-icon: Icon display in stat card
+ * - .stat-info: Text container in stat card
+ * - .stat-value: Large numeric value
+ * - .stat-label: Descriptive label
+ * - .result-cards: Grid for result display
+ * - .result-card: Individual result card
+ * - .stats-summary: Summary statistics section
+ * - .stats-row: Horizontal stats layout
+ */
+
+/* Stats Cards Container */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Stat Card */
+.stat-card {
+    background: var(--card-bg);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow);
+}
+
+.stat-card .stat-icon {
+    font-size: 2rem;
+}
+
+.stat-card .stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-card .stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Stat Card Variants */
+.stat-card.waiting {
+    border-left: 4px solid #f59e0b;
+}
+
+.stat-card.playing {
+    border-left: 4px solid #22c55e;
+}
+
+.stat-card.finished {
+    border-left: 4px solid #6366f1;
+}
+
+.stat-card.implemented {
+    border-left: 4px solid #22c55e;
+}
+
+.stat-card.not-implemented {
+    border-left: 4px solid #f59e0b;
+}
+
+.stat-card.enabled {
+    border-left: 4px solid #3b82f6;
+}
+
+.stat-card.scheduled {
+    border-left: 4px solid #8b5cf6;
+}
+
+.stat-card.with-answer {
+    border-left: 4px solid var(--success-color);
+}
+
+.stat-card.without-answer {
+    border-left: 4px solid var(--warning-color);
+}
+
+/* Stats Row (horizontal layout) */
+.stats-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.stats-row .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+}
+
+.stats-row .stat-item.active {
+    border-left: 3px solid #22c55e;
+}
+
+.stats-row .stat-item .stat-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.stats-row .stat-item .stat-value {
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+/* Stats Summary */
+.stats-summary {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.stats-summary .stat-card {
+    flex: 1;
+    min-width: 150px;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stats-summary .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.stats-summary .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Result Cards */
+.result-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.result-card {
+    text-align: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+}
+
+.result-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.result-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+    .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stats-row {
+        flex-direction: column;
+    }
+}

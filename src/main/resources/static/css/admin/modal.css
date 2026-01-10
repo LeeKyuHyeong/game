@@ -1,0 +1,331 @@
+/**
+ * Modal Styles
+ *
+ * This file contains styles for modal dialogs:
+ * - .modal: Overlay container
+ * - .modal-content: Main modal box
+ * - .modal-header: Title and close button area
+ * - .modal-body: Content area
+ * - .modal-footer: Action buttons area
+ * - .modal-form: Form styling within modals
+ * - .modal-sm: Small modal variant
+ * - .modal-lg: Large modal variant
+ * - .close-btn: Modal close button
+ * - .btn-cancel: Cancel action button
+ */
+
+/* Modal Overlay */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+/* Modal Content */
+.modal-content {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+/* Modal Size Variants */
+.modal-sm {
+    max-width: 450px;
+}
+
+.modal-lg {
+    max-width: 800px;
+}
+
+/* Modal Header */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Close Button */
+.close-btn {
+    width: 2rem;
+    height: 2rem;
+    background: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    border-radius: 0.375rem;
+    transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+    background: #f3f4f6;
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* Modal Form */
+.modal-form {
+    padding: 1.5rem;
+}
+
+/* Modal Footer */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 0.5rem;
+}
+
+/* Cancel Button */
+.btn-cancel {
+    padding: 0.625rem 1.25rem;
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #f8fafc;
+    color: var(--text-primary);
+}
+
+/* Song Info Card (used in answer management modal) */
+.song-info-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.song-info-card .song-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.song-info-card .song-artist {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.song-info-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.song-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.song-info-row .info-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    width: 60px;
+    flex-shrink: 0;
+}
+
+.song-info-row .info-value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Answer Section */
+.answer-section {
+    margin-bottom: 1.5rem;
+}
+
+.answer-section h4,
+.add-answer-section h4,
+.test-section h4 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+/* Answer List */
+.answer-list {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.answers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.answer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.answer-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.answer-item.primary {
+    background: #eff6ff;
+    border-color: #3b82f6;
+}
+
+.answer-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.answer-text {
+    font-size: 0.9375rem;
+    font-family: 'SF Mono', Monaco, 'Consolas', monospace;
+}
+
+.answer-actions {
+    display: flex;
+    gap: 0.375rem;
+}
+
+.primary-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    background: #3b82f6;
+    color: white;
+    border-radius: 9999px;
+    font-size: 0.625rem;
+    font-weight: 600;
+}
+
+.empty-answers {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+    font-size: 0.875rem;
+}
+
+.empty-answers p {
+    margin-bottom: 0.5rem;
+}
+
+.empty-answers .hint {
+    font-size: 0.8125rem;
+    color: #9ca3af;
+}
+
+/* Add Answer Section */
+.add-answer-section {
+    margin-bottom: 1.5rem;
+}
+
+/* Answer Count */
+.answer-count {
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.answer-count.has-answers {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.answer-count.no-answers {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.answer-count.zero {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Answer Stats */
+.answer-stats {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Song Title in Tables */
+.song-title {
+    font-weight: 600;
+}
+
+/* Primary Answer Display */
+.primary-answer {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.8125rem;
+}
+
+/* Not Implemented Notice */
+.not-implemented-notice {
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.not-implemented-notice p {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+    color: #b45309;
+}
+
+.not-implemented-notice p:first-child {
+    font-weight: 600;
+}
+
+/* Result Message */
+.result-message {
+    font-size: 0.8125rem;
+    background: #f8fafc;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
