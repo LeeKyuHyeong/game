@@ -3,7 +3,6 @@
 *.md
 .idea
 *.iml
-target/
 logs/
 *.log
 .env
