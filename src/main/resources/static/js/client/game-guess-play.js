@@ -301,7 +301,9 @@ function showAttemptFeedback(remaining, wrongAnswer) {
 
 async function skipRound() {
     if (!currentSong) return;
+    if (isRoundEnded) return; // 이미 라운드 종료된 경우 무시
 
+    isRoundEnded = true; // 스킵 시작 시 라운드 종료 플래그 설정
     stopAudio();
 
     try {
@@ -322,9 +324,11 @@ async function skipRound() {
             document.getElementById('skipCount').textContent = skipCount;
             showAnswerModal(false, null, result.answer, result.isGameOver, true);
         } else {
+            isRoundEnded = false; // 실패 시 플래그 복원
             alert(result.message);
         }
     } catch (error) {
+        isRoundEnded = false; // 오류 시 플래그 복원
         console.error('스킵 오류:', error);
     }
 }
