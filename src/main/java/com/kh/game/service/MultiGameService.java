@@ -19,6 +19,7 @@ public class MultiGameService {
 
     private final GameRoomRepository gameRoomRepository;
     private final GameRoomParticipantRepository participantRepository;
+    private final GameRoomChatRepository chatRepository;
     private final SongService songService;
     private final GenreService genreService;
     private final AnswerValidationService answerValidationService;
@@ -27,8 +28,10 @@ public class MultiGameService {
     // 이미 출제된 노래 ID를 방별로 관리
     private final Map<Long, Set<Long>> usedSongsByRoom = new HashMap<>();
 
+    // ========== 게임 진행 ==========
+
     /**
-     * 게임 시작 (방장만)
+     * 게임 시작 (방장만) - 대기 상태로 전환
      */
     @Transactional
     public void startGame(GameRoom room, Member host) {
@@ -53,85 +56,33 @@ public class MultiGameService {
         // 게임 상태 변경
         room.setStatus(GameRoom.RoomStatus.PLAYING);
         room.setCurrentRound(0);
+        room.setRoundPhase(null);  // 아직 라운드 시작 전
 
         // 참가자 상태 변경
         for (GameRoomParticipant p : participants) {
             p.setStatus(GameRoomParticipant.ParticipantStatus.PLAYING);
             p.resetScore();
-            p.resetRoundAnswer();
         }
 
         // 사용된 노래 목록 초기화
         usedSongsByRoom.put(room.getId(), new HashSet<>());
 
-        // 게임 모드에 따라 첫 라운드 시작
-        String gameMode = getGameMode(room);
-        if ("GENRE_PER_ROUND".equals(gameMode)) {
-            room.setRoundPhase(GameRoom.RoundPhase.GENRE_SELECT);
-        } else {
-            // RANDOM 또는 FIXED_GENRE 모드는 바로 라운드 시작
-            startNextRound(room, null);
-        }
+        // 시스템 메시지
+        addSystemMessage(room, host, "🎮 게임이 시작되었습니다! 방장이 라운드를 시작하면 노래가 재생됩니다.");
     }
 
     /**
-     * 다음 라운드 시작
+     * 라운드 시작 (방장만) - 노래 선택 및 재생
      */
     @Transactional
-    public Song startNextRound(GameRoom room, Long genreId) {
-        room.nextRound();
-
-        // 오디오 상태 초기화
-        room.setAudioPlaying(false);
-        room.setAudioPlayedAt(null);
-
-        // 참가자 라운드 답변 초기화
-        List<GameRoomParticipant> participants = participantRepository.findActiveParticipants(room);
-        for (GameRoomParticipant p : participants) {
-            p.resetRoundAnswer();
-        }
-
-        // 노래 선택
-        Song song = selectSong(room, genreId);
-        if (song == null) {
-            // 노래 없으면 게임 종료
-            room.setStatus(GameRoom.RoomStatus.FINISHED);
-            room.setRoundPhase(null);
-            return null;
-        }
-
-        room.setCurrentSong(song);
-        room.setRoundPhase(GameRoom.RoundPhase.PLAYING);
-        room.setRoundStartTime(LocalDateTime.now());
-
-        // 사용된 노래 기록
-        usedSongsByRoom.computeIfAbsent(room.getId(), k -> new HashSet<>()).add(song.getId());
-
-        return song;
-    }
-
-    /**
-     * 장르 선택 (GENRE_PER_ROUND 모드, 방장만)
-     */
-    @Transactional
-    public Song selectGenre(GameRoom room, Member host, Long genreId) {
-        if (!room.isHost(host)) {
-            throw new IllegalStateException("방장만 장르를 선택할 수 있습니다.");
-        }
-
-        if (room.getRoundPhase() != GameRoom.RoundPhase.GENRE_SELECT) {
-            throw new IllegalStateException("장르 선택 단계가 아닙니다.");
-        }
-
-        return startNextRound(room, genreId);
-    }
-
-    /**
-     * 답변 제출
-     */
-    @Transactional
-    public Map<String, Object> submitAnswer(GameRoom room, Member member, String answer) {
+    public Map<String, Object> startRound(GameRoom room, Member host) {
         Map<String, Object> result = new HashMap<>();
+
+        if (!room.isHost(host)) {
+            result.put("success", false);
+            result.put("message", "방장만 라운드를 시작할 수 있습니다.");
+            return result;
+        }
 
         if (room.getStatus() != GameRoom.RoomStatus.PLAYING) {
             result.put("success", false);
@@ -139,108 +90,240 @@ public class MultiGameService {
             return result;
         }
 
-        if (room.getRoundPhase() != GameRoom.RoundPhase.PLAYING) {
+        // 이미 PLAYING 상태면 중복 시작 방지
+        if (room.getRoundPhase() == GameRoom.RoundPhase.PLAYING) {
             result.put("success", false);
-            result.put("message", "답변 제출 단계가 아닙니다.");
+            result.put("message", "이미 라운드가 진행중입니다.");
             return result;
         }
 
-        GameRoomParticipant participant = participantRepository.findByGameRoomAndMember(room, member)
-                .orElseThrow(() -> new IllegalArgumentException("참가자 정보를 찾을 수 없습니다."));
+        // 라운드 증가
+        room.setCurrentRound(room.getCurrentRound() + 1);
 
-        if (participant.getHasAnswered()) {
-            result.put("success", false);
-            result.put("message", "이미 답변을 제출했습니다.");
+        // 총 라운드 초과 체크
+        if (room.getCurrentRound() > room.getTotalRounds()) {
+            room.setStatus(GameRoom.RoomStatus.FINISHED);
+            result.put("success", true);
+            result.put("isGameOver", true);
             return result;
         }
 
-        Song currentSong = room.getCurrentSong();
-        if (currentSong == null) {
-            result.put("success", false);
-            result.put("message", "출제된 노래가 없습니다.");
+        // 노래 선택
+        Song song = selectSong(room);
+        if (song == null) {
+            room.setStatus(GameRoom.RoomStatus.FINISHED);
+            result.put("success", true);
+            result.put("isGameOver", true);
+            result.put("message", "출제할 노래가 없습니다.");
             return result;
         }
 
-        // 정답 확인
-        boolean isCorrect = answerValidationService.validateAnswer(answer, currentSong.getTitle());
+        // 라운드 상태 설정
+        room.setCurrentSong(song);
+        room.setRoundPhase(GameRoom.RoundPhase.PLAYING);
+        room.setRoundStartTime(LocalDateTime.now());
+        room.setWinner(null);  // 정답자 초기화
 
-        // 점수 계산 (빠르게 맞출수록 높은 점수)
-        int earnedScore = 0;
-        if (isCorrect) {
-            // 먼저 맞춘 순서에 따라 점수 차등
-            long answeredCount = participantRepository.findActiveParticipants(room).stream()
-                    .filter(p -> p.getHasAnswered() && p.getCurrentRoundCorrect())
-                    .count();
+        // 오디오 재생 시작
+        room.setAudioPlaying(true);
+        room.setAudioPlayedAt(System.currentTimeMillis());
 
-            if (answeredCount == 0) {
-                earnedScore = 100;  // 1등
-            } else if (answeredCount == 1) {
-                earnedScore = 80;   // 2등
-            } else if (answeredCount == 2) {
-                earnedScore = 60;   // 3등
-            } else {
-                earnedScore = 50;   // 4등 이하
-            }
-        }
+        // 사용된 노래 기록
+        usedSongsByRoom.computeIfAbsent(room.getId(), k -> new HashSet<>()).add(song.getId());
 
-        // 답변 저장
-        participant.submitAnswer(answer, isCorrect, earnedScore);
+        // 시스템 메시지
+        addSystemMessage(room, host, "🎵 라운드 " + room.getCurrentRound() + " 시작! 노래를 맞춰보세요!");
 
         result.put("success", true);
-        result.put("isCorrect", isCorrect);
-        result.put("earnedScore", earnedScore);
-        result.put("totalScore", participant.getScore());
-
-        // 모든 참가자가 답변했는지 확인
-        boolean allAnswered = checkAllAnswered(room);
-        result.put("allAnswered", allAnswered);
+        result.put("isGameOver", false);
+        result.put("currentRound", room.getCurrentRound());
 
         return result;
     }
 
     /**
-     * 라운드 결과 보기로 전환
+     * 다음 라운드로 (방장만) - RESULT 상태에서 호출, 바로 다음 라운드 시작
      */
     @Transactional
-    public void showRoundResult(GameRoom room) {
-        room.setRoundPhase(GameRoom.RoundPhase.RESULT);
+    public Map<String, Object> nextRound(GameRoom room, Member host) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (!room.isHost(host)) {
+            result.put("success", false);
+            result.put("message", "방장만 다음 라운드를 진행할 수 있습니다.");
+            return result;
+        }
+
+        // 마지막 라운드였으면 게임 종료
+        if (room.getCurrentRound() >= room.getTotalRounds()) {
+            room.setStatus(GameRoom.RoomStatus.FINISHED);
+            result.put("success", true);
+            result.put("isGameOver", true);
+            return result;
+        }
+
+        // 라운드 증가
+        room.setCurrentRound(room.getCurrentRound() + 1);
+
+        // 총 라운드 초과 체크
+        if (room.getCurrentRound() > room.getTotalRounds()) {
+            room.setStatus(GameRoom.RoomStatus.FINISHED);
+            result.put("success", true);
+            result.put("isGameOver", true);
+            return result;
+        }
+
+        // 노래 선택
+        Song song = selectSong(room);
+        if (song == null) {
+            room.setStatus(GameRoom.RoomStatus.FINISHED);
+            result.put("success", true);
+            result.put("isGameOver", true);
+            result.put("message", "출제할 노래가 없습니다.");
+            return result;
+        }
+
+        // 라운드 상태 설정
+        room.setCurrentSong(song);
+        room.setRoundPhase(GameRoom.RoundPhase.PLAYING);
+        room.setRoundStartTime(LocalDateTime.now());
+        room.setWinner(null);
+
+        // 오디오 재생 시작
+        room.setAudioPlaying(true);
+        room.setAudioPlayedAt(System.currentTimeMillis());
+
+        // 사용된 노래 기록
+        usedSongsByRoom.computeIfAbsent(room.getId(), k -> new HashSet<>()).add(song.getId());
+
+        // 시스템 메시지
+        addSystemMessage(room, host, "🎵 라운드 " + room.getCurrentRound() + " 시작! 노래를 맞춰보세요!");
+
+        result.put("success", true);
+        result.put("isGameOver", false);
+        result.put("currentRound", room.getCurrentRound());
+
+        return result;
+    }
+
+    // ========== 채팅 ==========
+
+    /**
+     * 채팅 전송 (정답 체크 포함)
+     */
+    @Transactional
+    public Map<String, Object> sendChat(GameRoom room, Member member, String message) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (message == null || message.trim().isEmpty()) {
+            result.put("success", false);
+            result.put("message", "메시지를 입력해주세요.");
+            return result;
+        }
+
+        String trimmedMessage = message.trim();
+        if (trimmedMessage.length() > 200) {
+            trimmedMessage = trimmedMessage.substring(0, 200);
+        }
+
+        // 참가자 확인
+        GameRoomParticipant participant = participantRepository.findByGameRoomAndMember(room, member)
+                .orElse(null);
+        if (participant == null) {
+            result.put("success", false);
+            result.put("message", "참가자가 아닙니다.");
+            return result;
+        }
+
+        // PLAYING 상태이고 정답자가 없으면 정답 체크
+        boolean isCorrectAnswer = false;
+        if (room.getRoundPhase() == GameRoom.RoundPhase.PLAYING && room.getWinner() == null) {
+            Song currentSong = room.getCurrentSong();
+            if (currentSong != null) {
+                isCorrectAnswer = answerValidationService.validateAnswer(trimmedMessage, currentSong);
+            }
+        }
+
+        if (isCorrectAnswer) {
+            // 정답 처리
+            handleCorrectAnswer(room, member, participant, trimmedMessage);
+            result.put("isCorrect", true);
+        } else {
+            // 일반 채팅 저장
+            GameRoomChat chat = GameRoomChat.chat(room, member, trimmedMessage);
+            chatRepository.save(chat);
+            result.put("isCorrect", false);
+        }
+
+        result.put("success", true);
+        return result;
     }
 
     /**
-     * 다음 라운드 또는 게임 종료
+     * 정답 처리
      */
-    @Transactional
-    public Map<String, Object> proceedToNext(GameRoom room) {
-        Map<String, Object> result = new HashMap<>();
+    private void handleCorrectAnswer(GameRoom room, Member member, GameRoomParticipant participant, String answer) {
+        // 정답자 설정
+        room.setWinner(member);
 
-        if (room.getCurrentRound() >= room.getTotalRounds()) {
-            // 게임 종료
-            room.setStatus(GameRoom.RoomStatus.FINISHED);
-            room.setRoundPhase(null);
-            result.put("isGameOver", true);
+        // 오디오 정지
+        room.setAudioPlaying(false);
+        room.setAudioPlayedAt(null);
+
+        // 라운드 결과로 전환
+        room.setRoundPhase(GameRoom.RoundPhase.RESULT);
+
+        // 점수 추가 (100점 고정)
+        participant.addScore(100);
+        participant.incrementCorrect();
+
+        // 정답 채팅 저장
+        GameRoomChat correctChat = GameRoomChat.correctAnswer(room, member, answer, room.getCurrentRound());
+        chatRepository.save(correctChat);
+
+        // 정답 정보 시스템 메시지
+        Song song = room.getCurrentSong();
+        String answerMessage = String.format("🎉 정답: %s - %s", song.getArtist(), song.getTitle());
+        addSystemMessage(room, member, answerMessage);
+    }
+
+    /**
+     * 시스템 메시지 추가
+     */
+    private void addSystemMessage(GameRoom room, Member member, String message) {
+        GameRoomChat systemChat = GameRoomChat.system(room, member, message);
+        chatRepository.save(systemChat);
+    }
+
+    /**
+     * 채팅 목록 조회 (lastId 이후)
+     */
+    public List<Map<String, Object>> getChats(GameRoom room, Long lastId) {
+        List<GameRoomChat> chats;
+        if (lastId == null || lastId == 0) {
+            chats = chatRepository.findByGameRoomOrderByCreatedAtAsc(room);
         } else {
-            // 다음 라운드
-            String gameMode = getGameMode(room);
-            if ("GENRE_PER_ROUND".equals(gameMode)) {
-                room.setRoundPhase(GameRoom.RoundPhase.GENRE_SELECT);
-            } else {
-                startNextRound(room, null);
-            }
-            result.put("isGameOver", false);
+            chats = chatRepository.findByGameRoomAndIdGreaterThan(room, lastId);
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (GameRoomChat chat : chats) {
+            Map<String, Object> chatInfo = new HashMap<>();
+            chatInfo.put("id", chat.getId());
+            chatInfo.put("memberId", chat.getMember().getId());
+            chatInfo.put("nickname", chat.getMember().getNickname());
+            chatInfo.put("message", chat.getMessage());
+            chatInfo.put("messageType", chat.getMessageType().name());
+            chatInfo.put("roundNumber", chat.getRoundNumber());
+            chatInfo.put("createdAt", chat.getCreatedAt().toString());
+            chatInfo.put("isHost", room.isHost(chat.getMember()));
+            result.add(chatInfo);
         }
 
         return result;
     }
 
-    /**
-     * 모든 참가자가 답변했는지 확인
-     */
-    public boolean checkAllAnswered(GameRoom room) {
-        List<GameRoomParticipant> participants = participantRepository.findActiveParticipants(room);
-        return participants.stream()
-                .filter(p -> p.getStatus() == GameRoomParticipant.ParticipantStatus.PLAYING)
-                .allMatch(GameRoomParticipant::getHasAnswered);
-    }
+    // ========== 게임 상태 조회 ==========
 
     /**
      * 현재 라운드 정보 조회
@@ -257,7 +340,14 @@ public class MultiGameService {
         info.put("audioPlaying", room.getAudioPlaying());
         info.put("audioPlayedAt", room.getAudioPlayedAt());
 
+        // 정답자 정보
+        if (room.getWinner() != null) {
+            info.put("winnerId", room.getWinner().getId());
+            info.put("winnerNickname", room.getWinner().getNickname());
+        }
+
         Song currentSong = room.getCurrentSong();
+        // PLAYING 상태에서 노래 파일 정보 (정답은 숨김)
         if (currentSong != null && room.getRoundPhase() == GameRoom.RoundPhase.PLAYING) {
             Map<String, Object> songInfo = new HashMap<>();
             songInfo.put("id", currentSong.getId());
@@ -267,7 +357,7 @@ public class MultiGameService {
             info.put("song", songInfo);
         }
 
-        // 라운드 결과일 때 정답 정보
+        // RESULT 상태에서 정답 정보
         if (room.getRoundPhase() == GameRoom.RoundPhase.RESULT && currentSong != null) {
             Map<String, Object> answerInfo = new HashMap<>();
             answerInfo.put("title", currentSong.getTitle());
@@ -279,8 +369,8 @@ public class MultiGameService {
             info.put("answer", answerInfo);
         }
 
-        // 참가자별 상태
-        List<GameRoomParticipant> participants = participantRepository.findActiveParticipants(room);
+        // 참가자별 점수 (PLAYING 상태도 포함)
+        List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
         List<Map<String, Object>> participantInfos = new ArrayList<>();
         for (GameRoomParticipant p : participants) {
             Map<String, Object> pInfo = new HashMap<>();
@@ -288,16 +378,7 @@ public class MultiGameService {
             pInfo.put("nickname", p.getMember().getNickname());
             pInfo.put("score", p.getScore());
             pInfo.put("correctCount", p.getCorrectCount());
-            pInfo.put("hasAnswered", p.getHasAnswered());
             pInfo.put("isHost", room.isHost(p.getMember()));
-
-            // 결과 단계에서만 답변 정보 공개
-            if (room.getRoundPhase() == GameRoom.RoundPhase.RESULT) {
-                pInfo.put("currentAnswer", p.getCurrentAnswer());
-                pInfo.put("currentRoundCorrect", p.getCurrentRoundCorrect());
-                pInfo.put("currentRoundScore", p.getCurrentRoundScore());
-            }
-
             participantInfos.add(pInfo);
         }
 
@@ -306,63 +387,6 @@ public class MultiGameService {
         info.put("participants", participantInfos);
 
         return info;
-    }
-
-    /**
-     * 오디오 재생 (방장만)
-     */
-    @Transactional
-    public void playAudio(GameRoom room, Member host) {
-        if (!room.isHost(host)) {
-            throw new IllegalStateException("방장만 오디오를 컨트롤할 수 있습니다.");
-        }
-        room.setAudioPlaying(true);
-        room.setAudioPlayedAt(System.currentTimeMillis());
-    }
-
-    /**
-     * 오디오 일시정지 (방장만)
-     */
-    @Transactional
-    public void pauseAudio(GameRoom room, Member host) {
-        if (!room.isHost(host)) {
-            throw new IllegalStateException("방장만 오디오를 컨트롤할 수 있습니다.");
-        }
-        room.setAudioPlaying(false);
-        room.setAudioPlayedAt(null);
-    }
-
-    /**
-     * 오디오 상태 초기화 (라운드 변경 시)
-     */
-    @Transactional
-    public void resetAudioState(GameRoom room) {
-        room.setAudioPlaying(false);
-        room.setAudioPlayedAt(null);
-    }
-
-    /**
-     * 장르별 남은 노래 수 조회
-     */
-    public List<Map<String, Object>> getGenresWithCount(GameRoom room) {
-        Set<Long> usedSongs = usedSongsByRoom.getOrDefault(room.getId(), new HashSet<>());
-        List<Genre> genres = genreService.findActiveGenres();
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        for (Genre genre : genres) {
-            int count = songService.getAvailableCountByGenreExcluding(genre.getId(), usedSongs);
-
-            Map<String, Object> genreInfo = new HashMap<>();
-            genreInfo.put("id", genre.getId());
-            genreInfo.put("name", genre.getName());
-            genreInfo.put("availableCount", count);
-            result.add(genreInfo);
-        }
-
-        // 남은 곡 수 내림차순 정렬
-        result.sort((a, b) -> (Integer) b.get("availableCount") - (Integer) a.get("availableCount"));
-
-        return result;
     }
 
     /**
@@ -387,24 +411,23 @@ public class MultiGameService {
         return result;
     }
 
+    // ========== 내부 헬퍼 ==========
+
     /**
      * 노래 선택
      */
-    private Song selectSong(GameRoom room, Long genreId) {
+    private Song selectSong(GameRoom room) {
         Set<Long> usedSongs = usedSongsByRoom.getOrDefault(room.getId(), new HashSet<>());
         String gameMode = getGameMode(room);
 
-        Long targetGenreId = genreId;
-        if ("FIXED_GENRE".equals(gameMode) && genreId == null) {
+        Long targetGenreId = null;
+        if ("FIXED_GENRE".equals(gameMode)) {
             targetGenreId = getFixedGenreId(room);
         }
 
         return songService.getRandomSongExcluding(targetGenreId, usedSongs);
     }
 
-    /**
-     * 게임 모드 조회
-     */
     private String getGameMode(GameRoom room) {
         try {
             if (room.getSettings() != null) {
@@ -417,9 +440,6 @@ public class MultiGameService {
         return "RANDOM";
     }
 
-    /**
-     * 고정 장르 ID 조회
-     */
     private Long getFixedGenreId(GameRoom room) {
         try {
             if (room.getSettings() != null) {

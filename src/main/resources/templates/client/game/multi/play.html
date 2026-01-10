@@ -13,36 +13,31 @@
         <button class="btn btn-quit" onclick="quitGame()">나가기</button>
     </header>
 
-    <main class="game-main multi-main">
+    <main class="game-main multi-main chat-layout">
         <!-- 왼쪽: 게임 영역 -->
         <div class="game-area">
-            <!-- 장르 선택 단계 (방장용) -->
-            <div class="phase-section genre-select-phase" id="genreSelectPhase" style="display:none;">
-                <h2>🎵 장르 선택</h2>
-                <p class="phase-desc" id="genreSelectDesc">방장이 장르를 선택중입니다...</p>
-                <div class="genre-grid" id="genreGrid">
-                    <!-- JS에서 생성 -->
+            <!-- 라운드 대기 상태 -->
+            <div class="round-waiting" id="roundWaiting">
+                <div class="waiting-content">
+                    <div class="waiting-icon">🎵</div>
+                    <h2>라운드 대기중</h2>
+                    <p id="waitingMessage">방장이 라운드를 시작하면 노래가 재생됩니다</p>
+
+                    <!-- 방장 전용: 라운드 시작 버튼 -->
+                    <div class="host-start-controls" th:if="${isHost}">
+                        <button class="btn btn-start-round" id="startRoundBtn" onclick="startRound()">
+                            🎵 라운드 시작
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- 플레이 단계 -->
-            <div class="phase-section playing-phase" id="playingPhase" style="display:none;">
+            <!-- 플레이 상태 -->
+            <div class="round-playing" id="roundPlaying" style="display:none;">
                 <div class="music-player">
                     <div class="player-display">
-                        <div class="music-icon" id="musicIcon">🎵</div>
-                        <div class="player-status" id="playerStatus">재생 대기중</div>
-                    </div>
-
-                    <!-- 방장만 재생 버튼 표시 -->
-                    <div class="player-controls" th:if="${isHost}">
-                        <button class="control-btn play-btn" id="playBtn" onclick="hostTogglePlay()">
-                            <span class="play-icon">▶</span>
-                        </button>
-                    </div>
-
-                    <!-- 일반 참가자는 상태 메시지 표시 -->
-                    <div class="player-controls participant-status" th:unless="${isHost}">
-                        <span id="syncStatus">🎧 방장이 재생을 시작하면 노래가 들립니다</span>
+                        <div class="music-icon playing" id="musicIcon">🎶</div>
+                        <div class="player-status" id="playerStatus">재생 중...</div>
                     </div>
 
                     <div class="progress-bar">
@@ -53,48 +48,57 @@
                     </div>
                 </div>
 
-                <div class="answer-section multi-answer-section">
-                    <h3>🎯 정답 입력</h3>
-                    <div class="answer-input-wrapper">
-                        <input type="text" id="answerInput" class="answer-input" placeholder="노래 제목을 입력하세요" autocomplete="off">
-                        <button class="btn btn-submit" id="submitBtn" onclick="submitAnswer()">제출</button>
-                    </div>
-                    <div class="answer-status" id="answerStatus"></div>
-                </div>
-
-                <!-- 방장용 컨트롤 -->
-                <div class="host-controls" id="hostControls" th:if="${isHost}">
-                    <button class="btn btn-show-result" id="showResultBtn" onclick="showRoundResult()">정답 공개</button>
+                <div class="play-hint">
+                    <p>💬 채팅창에 노래 제목을 입력하세요!</p>
+                    <p class="hint-sub">먼저 맞추는 사람이 100점!</p>
+                    <p class="hint-note">💡 공백, 특수문자, 대소문자 구분 없이 정답 인정</p>
                 </div>
             </div>
 
-            <!-- 결과 단계 -->
-            <div class="phase-section result-phase" id="resultPhase" style="display:none;">
+            <!-- 결과 상태 -->
+            <div class="round-result" id="roundResult" style="display:none;">
                 <div class="answer-reveal">
-                    <h2>🎉 정답</h2>
+                    <h2>🎉 정답!</h2>
                     <div class="answer-info-card">
                         <div class="song-title" id="answerTitle">노래 제목</div>
                         <div class="song-artist" id="answerArtist">아티스트</div>
                         <div class="song-meta" id="answerMeta">2024 · K-POP</div>
                     </div>
+                    <div class="winner-info" id="winnerInfo">
+                        <span class="winner-label">정답자</span>
+                        <span class="winner-name" id="winnerName">홍길동</span>
+                        <span class="winner-score">+100점</span>
+                    </div>
                 </div>
 
-                <div class="round-results" id="roundResults">
-                    <!-- JS에서 생성 -->
-                </div>
-
-                <!-- 방장용 다음 라운드 버튼 -->
+                <!-- 방장 전용: 다음 라운드 버튼 -->
                 <div class="host-controls" th:if="${isHost}">
-                    <button class="btn btn-next-round" id="nextRoundBtn" onclick="nextRound()">다음 라운드 →</button>
+                    <button class="btn btn-next-round" id="nextRoundBtn" onclick="nextRound()">
+                        다음 라운드 →
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- 오른쪽: 스코어보드 -->
-        <aside class="scoreboard multi-scoreboard">
-            <h3>📊 점수판</h3>
-            <div class="score-list" id="scoreList">
-                <!-- JS에서 생성 -->
+        <!-- 오른쪽: 채팅 + 스코어보드 -->
+        <aside class="chat-scoreboard-area">
+            <!-- 스코어보드 -->
+            <div class="mini-scoreboard">
+                <h3>📊 점수</h3>
+                <div class="score-list" id="scoreList">
+                    <!-- JS에서 생성 -->
+                </div>
+            </div>
+
+            <!-- 채팅 -->
+            <div class="chat-section">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- JS에서 생성 -->
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="정답 또는 메시지 입력..." autocomplete="off" maxlength="200">
+                    <button class="btn btn-send" onclick="sendChat()">전송</button>
+                </div>
             </div>
         </aside>
     </main>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('방 관리')}"></head>
+<body class="admin-page">
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+    <main class="admin-main">
+        <header class="admin-header">
+            <h1>방 관리</h1>
+            <p>게임 방 목록을 조회하고 관리합니다.</p>
+        </header>
+
+        <div class="admin-content">
+            <!-- 통계 카드 -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon">🚪</div>
+                    <div class="stat-info">
+                        <span class="stat-value" th:text="${totalRooms}">0</span>
+                        <span class="stat-label">전체 방</span>
+                    </div>
+                </div>
+                <div class="stat-card waiting">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                        <span class="stat-value" th:text="${waitingCount}">0</span>
+                        <span class="stat-label">대기중</span>
+                    </div>
+                </div>
+                <div class="stat-card playing">
+                    <div class="stat-icon">🎮</div>
+                    <div class="stat-info">
+                        <span class="stat-value" th:text="${playingCount}">0</span>
+                        <span class="stat-label">게임중</span>
+                    </div>
+                </div>
+                <div class="stat-card finished">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-value" th:text="${finishedCount}">0</span>
+                        <span class="stat-label">종료됨</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 필터 섹션 -->
+            <div class="filter-section">
+                <form action="/admin/room" method="get" class="filter-row">
+                    <div class="filter-group">
+                        <label>검색</label>
+                        <input type="text" name="keyword" th:value="${keyword}" placeholder="방 이름 또는 코드">
+                    </div>
+                    <div class="filter-group">
+                        <label>상태</label>
+                        <select name="status">
+                            <option value="">전체</option>
+                            <option value="WAITING" th:selected="${status == 'WAITING'}">대기중</option>
+                            <option value="PLAYING" th:selected="${status == 'PLAYING'}">게임중</option>
+                            <option value="FINISHED" th:selected="${status == 'FINISHED'}">종료됨</option>
+                        </select>
+                    </div>
+                    <div class="filter-actions">
+                        <button type="submit" class="btn btn-search">검색</button>
+                        <a href="/admin/room" class="btn btn-reset">초기화</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 테이블 -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>방 코드</th>
+                        <th>방 이름</th>
+                        <th>방장</th>
+                        <th>인원</th>
+                        <th>라운드</th>
+                        <th>상태</th>
+                        <th>생성일</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="room : ${rooms}">
+                        <td th:text="${room.id}"></td>
+                        <td><code th:text="${room.roomCode}"></code></td>
+                        <td>
+                            <span th:text="${room.roomName}"></span>
+                            <span th:if="${room.isPrivate}" class="badge badge-private">비공개</span>
+                        </td>
+                        <td th:text="${room.host?.nickname ?: '-'}"></td>
+                        <td>
+                            <span th:text="${room.currentPlayerCount}"></span> /
+                            <span th:text="${room.maxPlayers}"></span>
+                        </td>
+                        <td>
+                            <span th:text="${room.currentRound}"></span> /
+                            <span th:text="${room.totalRounds}"></span>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${room.status.name() == 'WAITING'} ? 'warning' : (${room.status.name() == 'PLAYING'} ? 'success' : 'info')"
+                                  th:text="${room.status.name() == 'WAITING'} ? '대기중' : (${room.status.name() == 'PLAYING'} ? '게임중' : '종료')"></span>
+                        </td>
+                        <td th:text="${#temporals.format(room.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-sm btn-info" th:onclick="'viewRoom(' + ${room.id} + ')'">상세</button>
+                            <button class="btn btn-sm btn-primary" th:onclick="'viewChat(' + ${room.id} + ')'">채팅</button>
+                            <button class="btn btn-sm btn-warning" th:if="${room.status.name() != 'FINISHED'}"
+                                    th:onclick="'closeRoom(' + ${room.id} + ')'">종료</button>
+                            <button class="btn btn-sm btn-delete" th:onclick="'deleteRoom(' + ${room.id} + ')'">삭제</button>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(rooms)}">
+                        <td colspan="9" class="empty-row">등록된 방이 없습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="pagination" th:if="${totalPages > 0}">
+                <a th:href="@{/admin/room(page=0, keyword=${keyword}, status=${status})}"
+                   th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
+                <a th:href="@{/admin/room(page=${currentPage - 1}, keyword=${keyword}, status=${status})}"
+                   th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
+
+                <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                       th:href="@{/admin/room(page=${i}, keyword=${keyword}, status=${status})}"
+                       th:text="${i + 1}"
+                       th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
+                </th:block>
+
+                <a th:href="@{/admin/room(page=${currentPage + 1}, keyword=${keyword}, status=${status})}"
+                   th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
+                <a th:href="@{/admin/room(page=${totalPages - 1}, keyword=${keyword}, status=${status})}"
+                   th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- 방 상세 모달 -->
+<div id="roomDetailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>방 상세 정보</h2>
+            <button class="close-btn" onclick="closeModal('roomDetailModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="roomDetailContent">
+            <!-- 내용이 동적으로 로드됨 -->
+        </div>
+    </div>
+</div>
+
+<!-- 채팅 내역 모달 -->
+<div id="chatModal" class="modal">
+    <div class="modal-content modal-lg">
+        <div class="modal-header">
+            <h2 id="chatModalTitle">채팅 내역</h2>
+            <button class="close-btn" onclick="closeModal('chatModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="chat-actions">
+                <button class="btn btn-danger btn-sm" id="deleteAllChatsBtn">모든 채팅 삭제</button>
+            </div>
+            <div class="chat-container" id="chatContent">
+                <!-- 내용이 동적으로 로드됨 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/admin/admin-room.js}"></script>
+</body>
+</html>

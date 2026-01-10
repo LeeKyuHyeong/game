@@ -1,21 +1,23 @@
 let pollingInterval;
+let chatPollingInterval;
 let lastStatus = null;
+let lastChatId = 0;
 
 // 페이지 로드 시 폴링 시작
 document.addEventListener('DOMContentLoaded', function() {
     startPolling();
+    startChatPolling();
 });
 
 // 페이지 떠날 때 폴링 중지
 window.addEventListener('beforeunload', function() {
     stopPolling();
+    stopChatPolling();
 });
 
 // 폴링 시작
 function startPolling() {
-    // 즉시 한 번 실행
     fetchRoomStatus();
-    // 2초마다 갱신
     pollingInterval = setInterval(fetchRoomStatus, 2000);
 }
 
@@ -27,6 +29,20 @@ function stopPolling() {
     }
 }
 
+// 채팅 폴링 시작
+function startChatPolling() {
+    fetchChats();
+    chatPollingInterval = setInterval(fetchChats, 1000);
+}
+
+// 채팅 폴링 중지
+function stopChatPolling() {
+    if (chatPollingInterval) {
+        clearInterval(chatPollingInterval);
+        chatPollingInterval = null;
+    }
+}
+
 // 방 상태 조회
 async function fetchRoomStatus() {
     try {
@@ -34,23 +50,20 @@ async function fetchRoomStatus() {
         const result = await response.json();
 
         if (!result.success) {
-            // 방이 삭제됨
             alert('방이 종료되었습니다.');
             window.location.href = '/game/multi';
             return;
         }
 
-        // 게임 시작됨
         if (result.status === 'PLAYING') {
             stopPolling();
+            stopChatPolling();
             window.location.href = `/game/multi/room/${roomCode}/play`;
             return;
         }
 
-        // 참가자 목록 갱신
         updateParticipantsList(result.participants, result.hostId);
 
-        // 시작 버튼 상태 갱신 (방장용)
         if (isHost) {
             updateStartButton(result.allReady, result.participants.length);
         }
@@ -60,9 +73,83 @@ async function fetchRoomStatus() {
     }
 }
 
+// 채팅 목록 조회
+async function fetchChats() {
+    try {
+        const response = await fetch(`/game/multi/room/${roomCode}/chats?lastId=${lastChatId}`);
+        const result = await response.json();
+
+        if (result.success && result.chats && result.chats.length > 0) {
+            appendChats(result.chats);
+        }
+    } catch (error) {
+        console.error('채팅 조회 오류:', error);
+    }
+}
+
+// 채팅 메시지 추가
+function appendChats(chats) {
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
+
+    chats.forEach(chat => {
+        if (chat.id > lastChatId) {
+            lastChatId = chat.id;
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message';
+
+            if (chat.messageType === 'SYSTEM') {
+                msgDiv.classList.add('system');
+                msgDiv.innerHTML = `<span class="system-text">${escapeHtml(chat.message)}</span>`;
+            } else {
+                const isMe = chat.memberId === myMemberId;
+                if (isMe) msgDiv.classList.add('mine');
+
+                msgDiv.innerHTML = `
+                    <span class="chat-nickname ${isMe ? 'me' : ''}">${escapeHtml(chat.nickname)}</span>
+                    <span class="chat-text">${escapeHtml(chat.message)}</span>
+                `;
+            }
+
+            container.appendChild(msgDiv);
+        }
+    });
+
+    container.scrollTop = container.scrollHeight;
+}
+
+// 채팅 전송
+async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    input.value = '';
+    input.focus();
+
+    try {
+        const response = await fetch(`/game/multi/room/${roomCode}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            console.error('채팅 전송 실패:', result.message);
+        }
+    } catch (error) {
+        console.error('채팅 전송 오류:', error);
+    }
+}
+
 // 참가자 목록 갱신
 function updateParticipantsList(participants, hostId) {
     const container = document.getElementById('participantsList');
+    if (!container) return;
 
     container.innerHTML = participants.map(p => {
         const isHostMember = p.memberId === hostId;
@@ -85,7 +172,6 @@ function updateParticipantsList(participants, hostId) {
         `;
     }).join('');
 
-    // 내 준비 상태 버튼 갱신
     if (!isHost) {
         const myInfo = participants.find(p => p.memberId === myMemberId);
         if (myInfo) {
@@ -132,8 +218,6 @@ async function toggleReady() {
         if (!result.success) {
             alert(result.message || '준비 상태 변경에 실패했습니다.');
         }
-        // 폴링으로 UI 갱신됨
-
     } catch (error) {
         console.error('준비 상태 변경 오류:', error);
     }
@@ -152,6 +236,7 @@ async function leaveRoom() {
 
         if (result.success) {
             stopPolling();
+            stopChatPolling();
             window.location.href = '/game/multi';
         } else {
             alert(result.message || '나가기에 실패했습니다.');
@@ -176,8 +261,6 @@ async function kickPlayer(memberId) {
         if (!result.success) {
             alert(result.message || '강퇴에 실패했습니다.');
         }
-        // 폴링으로 UI 갱신됨
-
     } catch (error) {
         console.error('강퇴 오류:', error);
     }
@@ -192,12 +275,9 @@ async function startGame() {
 
         const result = await response.json();
 
-        if (result.success) {
-            // 폴링이 PLAYING 상태를 감지하면 자동으로 플레이 페이지로 이동
-        } else {
+        if (!result.success) {
             alert(result.message || '게임 시작에 실패했습니다.');
         }
-
     } catch (error) {
         console.error('게임 시작 오류:', error);
         alert('게임 시작 중 오류가 발생했습니다.');
@@ -209,7 +289,6 @@ function copyRoomCode() {
     navigator.clipboard.writeText(roomCode).then(() => {
         alert('참가 코드가 복사되었습니다: ' + roomCode);
     }).catch(() => {
-        // 폴백
         const tempInput = document.createElement('input');
         tempInput.value = roomCode;
         document.body.appendChild(tempInput);

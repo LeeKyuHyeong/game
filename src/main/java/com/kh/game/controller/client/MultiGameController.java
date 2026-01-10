@@ -4,7 +4,6 @@ import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.GameRoom;
 import com.kh.game.entity.GameRoomParticipant;
 import com.kh.game.entity.Member;
-import com.kh.game.entity.Song;
 import com.kh.game.service.GameRoomService;
 import com.kh.game.service.GenreService;
 import com.kh.game.service.MemberService;
@@ -33,6 +32,8 @@ public class MultiGameController {
     private final GenreService genreService;
     private final ObjectMapper objectMapper;
 
+    // ========== 페이지 ==========
+
     /**
      * 멀티게임 로비 페이지
      */
@@ -59,9 +60,119 @@ public class MultiGameController {
         List<GameRoom> availableRooms = gameRoomService.getAvailableRooms();
         model.addAttribute("rooms", availableRooms);
         model.addAttribute("member", member);
-        model.addAttribute("genres", genreService.findActiveGenres());
 
         return "client/game/multi/lobby";
+    }
+
+    /**
+     * 방 목록 조회 API (Ajax용)
+     */
+    @GetMapping("/rooms")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getRooms(
+            @RequestParam(required = false) String keyword) {
+
+        List<GameRoom> rooms;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            rooms = gameRoomService.searchRooms(keyword);
+        } else {
+            rooms = gameRoomService.getAvailableRooms();
+        }
+
+        List<Map<String, Object>> result = rooms.stream().map(room -> {
+            Map<String, Object> roomInfo = new HashMap<>();
+            roomInfo.put("roomCode", room.getRoomCode());
+            roomInfo.put("roomName", room.getRoomName());
+            roomInfo.put("hostNickname", room.getHost().getNickname());
+            roomInfo.put("currentPlayers", room.getCurrentPlayerCount());
+            roomInfo.put("maxPlayers", room.getMaxPlayers());
+            roomInfo.put("totalRounds", room.getTotalRounds());
+            return roomInfo;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 방 참가 페이지
+     */
+    @GetMapping("/join")
+    public String joinPage(@RequestParam(required = false) String code,
+                           HttpSession httpSession, Model model) {
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            return "redirect:/auth/login?redirect=/game/multi/join" + (code != null ? "?code=" + code : "");
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        if (member == null) {
+            return "redirect:/auth/login";
+        }
+
+        model.addAttribute("member", member);
+        model.addAttribute("roomCode", code != null ? code : "");
+
+        return "client/game/multi/join";
+    }
+
+    /**
+     * 방 참가 API
+     */
+    @PostMapping("/join/{roomCode}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> joinRoomApi(
+            @PathVariable String roomCode,
+            @RequestBody(required = false) Map<String, String> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        // roomCode 대문자 변환
+        roomCode = roomCode.toUpperCase().trim();
+
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        if (member == null) {
+            result.put("success", false);
+            result.put("message", "회원 정보를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+        if (room == null) {
+            result.put("success", false);
+            result.put("message", "방을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        // 비공개 방 비밀번호 확인
+        if (room.getIsPrivate()) {
+            String password = request != null ? request.get("password") : null;
+            if (password == null || !password.equals(room.getPassword())) {
+                result.put("success", false);
+                result.put("message", "비밀번호가 일치하지 않습니다.");
+                return ResponseEntity.ok(result);
+            }
+        }
+
+        try {
+            gameRoomService.joinRoom(roomCode, member);
+            result.put("success", true);
+            result.put("roomCode", roomCode);
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -75,101 +186,15 @@ public class MultiGameController {
             return "redirect:/auth/login?redirect=/game/multi/create";
         }
 
+        Member member = memberService.findById(memberId).orElse(null);
+        if (member == null) {
+            return "redirect:/auth/login";
+        }
+
         model.addAttribute("genres", genreService.findActiveGenres());
+        model.addAttribute("member", member);
+
         return "client/game/multi/create";
-    }
-
-    /**
-     * 방 생성 API
-     */
-    @PostMapping("/create")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> createRoom(
-            @RequestBody Map<String, Object> request,
-            HttpSession httpSession) {
-
-        Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
-
-        if (memberId == null) {
-            result.put("success", false);
-            result.put("message", "로그인이 필요합니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        Member member = memberService.findById(memberId).orElse(null);
-        if (member == null) {
-            result.put("success", false);
-            result.put("message", "회원 정보를 찾을 수 없습니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        try {
-            String roomName = (String) request.get("roomName");
-            int maxPlayers = (int) request.getOrDefault("maxPlayers", 8);
-            int totalRounds = (int) request.getOrDefault("totalRounds", 10);
-            boolean isPrivate = (boolean) request.getOrDefault("isPrivate", false);
-
-            @SuppressWarnings("unchecked")
-            Map<String, Object> settings = (Map<String, Object>) request.get("settings");
-            String settingsJson = settings != null ? objectMapper.writeValueAsString(settings) : null;
-
-            GameRoom room = gameRoomService.createRoom(member, roomName, maxPlayers, totalRounds, isPrivate, settingsJson);
-
-            result.put("success", true);
-            result.put("roomCode", room.getRoomCode());
-            result.put("roomId", room.getId());
-
-        } catch (IllegalStateException e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "방 생성에 실패했습니다.");
-        }
-
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * 방 참가 API
-     */
-    @PostMapping("/join")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> joinRoom(
-            @RequestBody Map<String, String> request,
-            HttpSession httpSession) {
-
-        Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
-
-        if (memberId == null) {
-            result.put("success", false);
-            result.put("message", "로그인이 필요합니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        Member member = memberService.findById(memberId).orElse(null);
-        if (member == null) {
-            result.put("success", false);
-            result.put("message", "회원 정보를 찾을 수 없습니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        try {
-            String roomCode = request.get("roomCode").toUpperCase().trim();
-            GameRoomParticipant participant = gameRoomService.joinRoom(roomCode, member);
-
-            result.put("success", true);
-            result.put("roomCode", participant.getGameRoom().getRoomCode());
-            result.put("roomId", participant.getGameRoom().getId());
-
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
-
-        return ResponseEntity.ok(result);
     }
 
     /**
@@ -193,25 +218,191 @@ public class MultiGameController {
             return "redirect:/game/multi?error=notfound";
         }
 
-        // 참가자인지 확인, 아니면 자동 참가 시도
-        GameRoomParticipant participant = gameRoomService.getParticipant(room, member).orElse(null);
-        if (participant == null || participant.getStatus() == GameRoomParticipant.ParticipantStatus.LEFT) {
-            try {
-                participant = gameRoomService.joinRoom(roomCode, member);
-            } catch (Exception e) {
-                return "redirect:/game/multi?error=" + e.getMessage();
-            }
+        // 게임중이면 플레이 페이지로
+        if (room.getStatus() == GameRoom.RoomStatus.PLAYING) {
+            return "redirect:/game/multi/room/" + roomCode + "/play";
         }
 
+        // 이미 참가중인지 확인
+        GameRoomParticipant participant = gameRoomService.getParticipant(room, member).orElse(null);
+        boolean isParticipant = participant != null && participant.getStatus() != GameRoomParticipant.ParticipantStatus.LEFT;
+
+        // 참가자 목록
         List<GameRoomParticipant> participants = gameRoomService.getParticipants(room);
 
         model.addAttribute("room", room);
-        model.addAttribute("participants", participants);
         model.addAttribute("member", member);
         model.addAttribute("isHost", room.isHost(member));
+        model.addAttribute("isParticipant", isParticipant);
+        model.addAttribute("participants", participants);
         model.addAttribute("myParticipant", participant);
 
         return "client/game/multi/waiting";
+    }
+
+    /**
+     * 게임 플레이 페이지
+     */
+    @GetMapping("/room/{roomCode}/play")
+    public String playPage(@PathVariable String roomCode, HttpSession httpSession, Model model) {
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            return "redirect:/auth/login?redirect=/game/multi/room/" + roomCode;
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        if (member == null) {
+            return "redirect:/auth/login";
+        }
+
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+        if (room == null) {
+            return "redirect:/game/multi?error=notfound";
+        }
+
+        // 게임중이 아니면 대기실로
+        if (room.getStatus() != GameRoom.RoomStatus.PLAYING) {
+            return "redirect:/game/multi/room/" + roomCode;
+        }
+
+        // 참가자 확인
+        GameRoomParticipant participant = gameRoomService.getParticipant(room, member).orElse(null);
+        if (participant == null || participant.getStatus() == GameRoomParticipant.ParticipantStatus.LEFT) {
+            return "redirect:/game/multi?error=notparticipant";
+        }
+
+        model.addAttribute("room", room);
+        model.addAttribute("member", member);
+        model.addAttribute("isHost", room.isHost(member));
+
+        return "client/game/multi/play";
+    }
+
+    /**
+     * 게임 결과 페이지
+     */
+    @GetMapping("/room/{roomCode}/result")
+    public String resultPage(@PathVariable String roomCode, HttpSession httpSession, Model model) {
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            return "redirect:/auth/login";
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        if (member == null) {
+            return "redirect:/auth/login";
+        }
+
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+        if (room == null) {
+            return "redirect:/game/multi";
+        }
+
+        List<Map<String, Object>> finalResult = multiGameService.getFinalResult(room);
+
+        model.addAttribute("room", room);
+        model.addAttribute("member", member);
+        model.addAttribute("results", finalResult);
+
+        return "client/game/multi/result";
+    }
+
+    // ========== 방 관리 API ==========
+
+    /**
+     * 방 생성 API
+     */
+    @PostMapping("/create")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> createRoom(
+            @RequestBody GameSettings settings,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        if (member == null) {
+            result.put("success", false);
+            result.put("message", "회원 정보를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            String settingsJson = objectMapper.writeValueAsString(settings);
+            GameRoom room = gameRoomService.createRoom(
+                    member,
+                    settings.getRoomName(),
+                    settings.getMaxPlayers(),
+                    settings.getTotalRounds(),
+                    settings.isPrivateRoom(),
+                    settingsJson
+            );
+
+            result.put("success", true);
+            result.put("roomCode", room.getRoomCode());
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 방 참가 API
+     */
+    @PostMapping("/room/{roomCode}/join")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> joinRoom(
+            @PathVariable String roomCode,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        // roomCode 대문자 변환
+        roomCode = roomCode.toUpperCase().trim();
+
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        if (member == null) {
+            result.put("success", false);
+            result.put("message", "회원 정보를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+        if (room == null) {
+            result.put("success", false);
+            result.put("message", "방을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            gameRoomService.joinRoom(roomCode, member);
+            result.put("success", true);
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -306,98 +497,37 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        List<GameRoomParticipant> participants = gameRoomService.getParticipants(room);
-
         result.put("success", true);
         result.put("status", room.getStatus().name());
+        result.put("roomName", room.getRoomName());
         result.put("hostId", room.getHost().getId());
         result.put("hostNickname", room.getHost().getNickname());
-        result.put("allReady", gameRoomService.isAllReady(room));
-        result.put("participants", participants.stream().map(p -> {
-            Map<String, Object> pMap = new HashMap<>();
-            pMap.put("id", p.getId());
-            pMap.put("memberId", p.getMember().getId());
-            pMap.put("nickname", p.getMember().getNickname());
-            pMap.put("isReady", p.getIsReady());
-            pMap.put("isHost", room.isHost(p.getMember()));
-            return pMap;
-        }).collect(Collectors.toList()));
+        result.put("maxPlayers", room.getMaxPlayers());
+        result.put("totalRounds", room.getTotalRounds());
+        result.put("isPrivate", room.getIsPrivate());
+
+        List<Map<String, Object>> participants = room.getParticipants().stream()
+                .filter(p -> p.getStatus() != GameRoomParticipant.ParticipantStatus.LEFT)
+                .map(p -> {
+                    Map<String, Object> pInfo = new HashMap<>();
+                    pInfo.put("memberId", p.getMember().getId());
+                    pInfo.put("nickname", p.getMember().getNickname());
+                    pInfo.put("isReady", p.getIsReady());
+                    pInfo.put("isHost", room.isHost(p.getMember()));
+                    return pInfo;
+                })
+                .collect(Collectors.toList());
+
+        result.put("participants", participants);
+
+        // 모두 준비 완료 여부
+        boolean allReady = gameRoomService.isAllReady(room);
+        result.put("allReady", allReady);
 
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * 방 목록 API
-     */
-    @GetMapping("/rooms")
-    @ResponseBody
-    public ResponseEntity<List<Map<String, Object>>> getRooms(
-            @RequestParam(required = false) String keyword) {
-
-        List<GameRoom> rooms;
-        if (keyword != null && !keyword.isBlank()) {
-            rooms = gameRoomService.searchRooms(keyword);
-        } else {
-            rooms = gameRoomService.getAvailableRooms();
-        }
-
-        List<Map<String, Object>> roomList = rooms.stream().map(room -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", room.getId());
-            map.put("roomCode", room.getRoomCode());
-            map.put("roomName", room.getRoomName());
-            map.put("hostNickname", room.getHost().getNickname());
-            map.put("currentPlayers", room.getCurrentPlayerCount());
-            map.put("maxPlayers", room.getMaxPlayers());
-            map.put("totalRounds", room.getTotalRounds());
-            map.put("isPrivate", room.getIsPrivate());
-            return map;
-        }).collect(Collectors.toList());
-
-        return ResponseEntity.ok(roomList);
-    }
-
-    /**
-     * 강퇴 API
-     */
-    @PostMapping("/room/{roomCode}/kick/{targetMemberId}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> kickPlayer(
-            @PathVariable String roomCode,
-            @PathVariable Long targetMemberId,
-            HttpSession httpSession) {
-
-        Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
-
-        if (memberId == null) {
-            result.put("success", false);
-            result.put("message", "로그인이 필요합니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        Member host = memberService.findById(memberId).orElse(null);
-        Member target = memberService.findById(targetMemberId).orElse(null);
-        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
-
-        if (host == null || target == null || room == null) {
-            result.put("success", false);
-            result.put("message", "정보를 찾을 수 없습니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        try {
-            gameRoomService.kickParticipant(room, host, target);
-            result.put("success", true);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
-
-        return ResponseEntity.ok(result);
-    }
-
-    // ==================== 게임 진행 API ====================
+    // ========== 게임 진행 API ==========
 
     /**
      * 게임 시작 API (방장만)
@@ -438,189 +568,11 @@ public class MultiGameController {
     }
 
     /**
-     * 게임 플레이 페이지
+     * 라운드 시작 API (방장만) - 노래 재생 시작
      */
-    @GetMapping("/room/{roomCode}/play")
-    public String playPage(@PathVariable String roomCode, HttpSession httpSession, Model model) {
-        Long memberId = (Long) httpSession.getAttribute("memberId");
-
-        if (memberId == null) {
-            return "redirect:/auth/login?redirect=/game/multi/room/" + roomCode;
-        }
-
-        Member member = memberService.findById(memberId).orElse(null);
-        if (member == null) {
-            return "redirect:/auth/login";
-        }
-
-        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
-        if (room == null) {
-            return "redirect:/game/multi?error=notfound";
-        }
-
-        // 게임중이 아니면 대기실로
-        if (room.getStatus() != GameRoom.RoomStatus.PLAYING) {
-            return "redirect:/game/multi/room/" + roomCode;
-        }
-
-        // 참가자 확인
-        GameRoomParticipant participant = gameRoomService.getParticipant(room, member).orElse(null);
-        if (participant == null || participant.getStatus() == GameRoomParticipant.ParticipantStatus.LEFT) {
-            return "redirect:/game/multi?error=notparticipant";
-        }
-
-        model.addAttribute("room", room);
-        model.addAttribute("member", member);
-        model.addAttribute("isHost", room.isHost(member));
-        model.addAttribute("genres", genreService.findActiveGenres());
-
-        return "client/game/multi/play";
-    }
-
-    /**
-     * 현재 라운드 정보 조회 API (폴링용)
-     */
-    @GetMapping("/room/{roomCode}/round")
+    @PostMapping("/room/{roomCode}/start-round")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getRoundInfo(
-            @PathVariable String roomCode,
-            HttpSession httpSession) {
-
-        Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
-
-        if (memberId == null) {
-            result.put("success", false);
-            result.put("message", "로그인이 필요합니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
-        if (room == null) {
-            result.put("success", false);
-            result.put("message", "방을 찾을 수 없습니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        result.put("success", true);
-        result.putAll(multiGameService.getCurrentRoundInfo(room));
-
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * 장르 선택 API (GENRE_PER_ROUND 모드, 방장만)
-     */
-    @PostMapping("/room/{roomCode}/select-genre")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> selectGenre(
-            @PathVariable String roomCode,
-            @RequestBody Map<String, Long> request,
-            HttpSession httpSession) {
-
-        Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
-
-        if (memberId == null) {
-            result.put("success", false);
-            result.put("message", "로그인이 필요합니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        Member member = memberService.findById(memberId).orElse(null);
-        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
-
-        if (member == null || room == null) {
-            result.put("success", false);
-            result.put("message", "정보를 찾을 수 없습니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        try {
-            Long genreId = request.get("genreId");
-            Song song = multiGameService.selectGenre(room, member, genreId);
-
-            if (song == null) {
-                result.put("success", false);
-                result.put("message", "선택 가능한 노래가 없습니다.");
-            } else {
-                result.put("success", true);
-            }
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
-
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * 장르 목록 (남은 곡 수 포함) API
-     */
-    @GetMapping("/room/{roomCode}/genres")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getGenres(@PathVariable String roomCode) {
-        Map<String, Object> result = new HashMap<>();
-
-        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
-        if (room == null) {
-            result.put("success", false);
-            result.put("message", "방을 찾을 수 없습니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        result.put("success", true);
-        result.put("genres", multiGameService.getGenresWithCount(room));
-
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * 답변 제출 API
-     */
-    @PostMapping("/room/{roomCode}/answer")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> submitAnswer(
-            @PathVariable String roomCode,
-            @RequestBody Map<String, String> request,
-            HttpSession httpSession) {
-
-        Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
-
-        if (memberId == null) {
-            result.put("success", false);
-            result.put("message", "로그인이 필요합니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        Member member = memberService.findById(memberId).orElse(null);
-        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
-
-        if (member == null || room == null) {
-            result.put("success", false);
-            result.put("message", "정보를 찾을 수 없습니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        try {
-            String answer = request.get("answer");
-            Map<String, Object> answerResult = multiGameService.submitAnswer(room, member, answer);
-            result.putAll(answerResult);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
-
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * 라운드 결과 보기 (방장이 호출)
-     */
-    @PostMapping("/room/{roomCode}/show-result")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> showRoundResult(
+    public ResponseEntity<Map<String, Object>> startRound(
             @PathVariable String roomCode,
             HttpSession httpSession) {
 
@@ -642,25 +594,14 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        if (!room.isHost(member)) {
-            result.put("success", false);
-            result.put("message", "방장만 결과를 공개할 수 있습니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        try {
-            multiGameService.showRoundResult(room);
-            result.put("success", true);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
+        Map<String, Object> roundResult = multiGameService.startRound(room, member);
+        result.putAll(roundResult);
 
         return ResponseEntity.ok(result);
     }
 
     /**
-     * 다음 라운드 진행 (방장이 호출)
+     * 다음 라운드 API (방장만)
      */
     @PostMapping("/room/{roomCode}/next-round")
     @ResponseBody
@@ -686,31 +627,43 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        if (!room.isHost(member)) {
-            result.put("success", false);
-            result.put("message", "방장만 다음 라운드를 진행할 수 있습니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        try {
-            Map<String, Object> nextResult = multiGameService.proceedToNext(room);
-            result.put("success", true);
-            result.putAll(nextResult);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
+        Map<String, Object> roundResult = multiGameService.nextRound(room, member);
+        result.putAll(roundResult);
 
         return ResponseEntity.ok(result);
     }
 
     /**
-     * 오디오 재생 API (방장만)
+     * 라운드 정보 조회 API (폴링용)
      */
-    @PostMapping("/room/{roomCode}/audio/play")
+    @GetMapping("/room/{roomCode}/round")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> playAudio(
+    public ResponseEntity<Map<String, Object>> getRoundInfo(@PathVariable String roomCode) {
+        Map<String, Object> result = new HashMap<>();
+
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+        if (room == null) {
+            result.put("success", false);
+            result.put("message", "방을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        result.put("success", true);
+        result.putAll(multiGameService.getCurrentRoundInfo(room));
+
+        return ResponseEntity.ok(result);
+    }
+
+    // ========== 채팅 API ==========
+
+    /**
+     * 채팅 전송 API (정답 체크 포함)
+     */
+    @PostMapping("/room/{roomCode}/chat")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> sendChat(
             @PathVariable String roomCode,
+            @RequestBody Map<String, String> request,
             HttpSession httpSession) {
 
         Map<String, Object> result = new HashMap<>();
@@ -731,27 +684,46 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            multiGameService.playAudio(room, member);
-            result.put("success", true);
-            result.put("audioPlayedAt", room.getAudioPlayedAt());
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
+        String message = request.get("message");
+        Map<String, Object> chatResult = multiGameService.sendChat(room, member, message);
+        result.putAll(chatResult);
 
         return ResponseEntity.ok(result);
     }
 
     /**
-     * 오디오 일시정지 API (방장만)
+     * 채팅 목록 조회 API (폴링용)
      */
-    @PostMapping("/room/{roomCode}/audio/pause")
+    @GetMapping("/room/{roomCode}/chats")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> pauseAudio(
+    public ResponseEntity<Map<String, Object>> getChats(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @RequestParam(defaultValue = "0") Long lastId) {
 
+        Map<String, Object> result = new HashMap<>();
+
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+        if (room == null) {
+            result.put("success", false);
+            result.put("message", "방을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        result.put("success", true);
+        result.put("chats", multiGameService.getChats(room, lastId));
+
+        return ResponseEntity.ok(result);
+    }
+
+    // ========== 참가 정보 관리 API ==========
+
+    /**
+     * 내 방 참가 정보 초기화 API
+     * 오류로 인해 방에 들어갈 수 없을 때 사용
+     */
+    @PostMapping("/reset-participation")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> resetParticipation(HttpSession httpSession) {
         Map<String, Object> result = new HashMap<>();
         Long memberId = (Long) httpSession.getAttribute("memberId");
 
@@ -759,55 +731,27 @@ public class MultiGameController {
             result.put("success", false);
             result.put("message", "로그인이 필요합니다.");
             return ResponseEntity.ok(result);
-        }
-
-        Member member = memberService.findById(memberId).orElse(null);
-        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
-
-        if (member == null || room == null) {
-            result.put("success", false);
-            result.put("message", "정보를 찾을 수 없습니다.");
-            return ResponseEntity.ok(result);
-        }
-
-        try {
-            multiGameService.pauseAudio(room, member);
-            result.put("success", true);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
-
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * 게임 결과 페이지
-     */
-    @GetMapping("/room/{roomCode}/result")
-    public String resultPage(@PathVariable String roomCode, HttpSession httpSession, Model model) {
-        Long memberId = (Long) httpSession.getAttribute("memberId");
-
-        if (memberId == null) {
-            return "redirect:/auth/login";
         }
 
         Member member = memberService.findById(memberId).orElse(null);
         if (member == null) {
-            return "redirect:/auth/login";
+            result.put("success", false);
+            result.put("message", "회원 정보를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
         }
 
-        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
-        if (room == null) {
-            return "redirect:/game/multi";
+        try {
+            int count = gameRoomService.resetMyParticipation(member);
+            result.put("success", true);
+            result.put("message", count > 0
+                    ? count + "개의 방 참가 정보가 초기화되었습니다."
+                    : "초기화할 참가 정보가 없습니다.");
+            result.put("count", count);
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "초기화 중 오류가 발생했습니다: " + e.getMessage());
         }
 
-        List<Map<String, Object>> finalResult = multiGameService.getFinalResult(room);
-
-        model.addAttribute("room", room);
-        model.addAttribute("member", member);
-        model.addAttribute("results", finalResult);
-
-        return "client/game/multi/result";
+        return ResponseEntity.ok(result);
     }
 }

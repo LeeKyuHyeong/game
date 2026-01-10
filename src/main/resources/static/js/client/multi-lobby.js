@@ -34,10 +34,10 @@ async function joinByCode() {
 // 방 참가
 async function joinRoom(roomCode) {
     try {
-        const response = await fetch('/game/multi/join', {
+        const response = await fetch(`/game/multi/join/${roomCode}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ roomCode: roomCode })
+            body: JSON.stringify({})
         });
 
         const result = await response.json();
@@ -123,4 +123,31 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// 방 참가 정보 초기화
+async function resetParticipation() {
+    if (!confirm('모든 방 참가 정보를 초기화하시겠습니까?\n\n현재 참가중인 방에서 나가게 됩니다.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/game/multi/reset-participation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(result.message);
+            // 페이지 새로고침
+            window.location.reload();
+        } else {
+            alert(result.message || '초기화에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('초기화 오류:', error);
+        alert('초기화 중 오류가 발생했습니다.');
+    }
 }

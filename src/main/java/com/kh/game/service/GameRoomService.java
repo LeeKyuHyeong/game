@@ -31,6 +31,9 @@ public class GameRoomService {
     @Transactional
     public GameRoom createRoom(Member host, String roomName, int maxPlayers, int totalRounds,
                                boolean isPrivate, String settings) {
+        // 종료된 방의 참가 정보 자동 정리
+        cleanupStaleParticipations(host);
+
         // 이미 다른 방에 참가중인지 확인
         Optional<GameRoomParticipant> existingParticipation = participantRepository.findActiveParticipation(host);
         if (existingParticipation.isPresent()) {
@@ -63,6 +66,9 @@ public class GameRoomService {
      */
     @Transactional
     public GameRoomParticipant joinRoom(String roomCode, Member member) {
+        // 종료된 방의 참가 정보 자동 정리
+        cleanupStaleParticipations(member);
+
         GameRoom room = gameRoomRepository.findByRoomCode(roomCode)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
 
@@ -269,5 +275,30 @@ public class GameRoomService {
             sb.append(CODE_CHARS.charAt(random.nextInt(CODE_CHARS.length())));
         }
         return sb.toString();
+    }
+
+    /**
+     * 종료된 방의 참가 정보 자동 정리
+     */
+    @Transactional
+    public void cleanupStaleParticipations(Member member) {
+        List<GameRoomParticipant> staleParticipations = participantRepository.findStaleParticipations(member);
+        for (GameRoomParticipant p : staleParticipations) {
+            p.setStatus(GameRoomParticipant.ParticipantStatus.LEFT);
+        }
+    }
+
+    /**
+     * 내 모든 방 참가 정보 초기화 (수동 초기화용)
+     */
+    @Transactional
+    public int resetMyParticipation(Member member) {
+        List<GameRoomParticipant> allActive = participantRepository.findAllActiveParticipations(member);
+        int count = 0;
+        for (GameRoomParticipant p : allActive) {
+            p.setStatus(GameRoomParticipant.ParticipantStatus.LEFT);
+            count++;
+        }
+        return count;
     }
 }

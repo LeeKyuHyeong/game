@@ -259,6 +259,21 @@ public class GameHostController {
 
             result.put("success", true);
             result.put("roundNumber", roundNumber);
+            result.put("totalRounds", session.getTotalRounds());
+
+            // ★ 노래 정보를 직접 반환 (loadRound 호출 불필요)
+            Map<String, Object> songInfo = new HashMap<>();
+            songInfo.put("id", song.getId());
+            songInfo.put("title", song.getTitle());
+            songInfo.put("artist", song.getArtist());
+            songInfo.put("filePath", song.getFilePath());
+            songInfo.put("startTime", 0); // 항상 0초부터
+            songInfo.put("playDuration", round.getPlayDuration());
+            songInfo.put("releaseYear", song.getReleaseYear());
+            if (song.getGenre() != null) {
+                songInfo.put("genre", song.getGenre().getName());
+            }
+            result.put("song", songInfo);
 
         } catch (Exception e) {
             result.put("success", false);

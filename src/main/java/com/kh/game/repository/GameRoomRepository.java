@@ -47,6 +47,23 @@ public interface GameRoomRepository extends JpaRepository<GameRoom, Long> {
     // 상태별 방 조회
     List<GameRoom> findByStatus(GameRoom.RoomStatus status);
 
+    // 상태별 방 조회 (페이징)
+    Page<GameRoom> findByStatusOrderByCreatedAtDesc(GameRoom.RoomStatus status, Pageable pageable);
+
+    // 전체 방 목록 (관리자용, 페이징)
+    Page<GameRoom> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    // 방 이름/코드 검색 (관리자용)
+    @Query("SELECT r FROM GameRoom r WHERE r.roomName LIKE %:keyword% OR r.roomCode LIKE %:keyword% ORDER BY r.createdAt DESC")
+    Page<GameRoom> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    // 활성 방 (WAITING, PLAYING) 수
+    @Query("SELECT COUNT(r) FROM GameRoom r WHERE r.status IN ('WAITING', 'PLAYING')")
+    long countActiveRooms();
+
+    // 상태별 카운트
+    long countByStatus(GameRoom.RoomStatus status);
+
     // 오래된 대기 방 조회 (정리용)
     @Query("SELECT r FROM GameRoom r WHERE r.status = 'WAITING' " +
             "AND r.updatedAt < :threshold")

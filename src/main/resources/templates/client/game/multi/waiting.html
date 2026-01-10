@@ -18,56 +18,75 @@
         </div>
     </header>
 
-    <main class="waiting-main">
-        <div class="participants-section">
-            <h2>참가자 목록</h2>
-            <div class="participants-grid" id="participantsList">
-                <div th:each="p : ${participants}" class="participant-card"
-                     th:classappend="${p.isReady} ? 'ready' : ''"
-                     th:data-member-id="${p.member.id}">
-                    <div class="participant-info">
-                        <span class="participant-icon" th:if="${room.isHost(p.member)}">👑</span>
-                        <span class="participant-icon" th:unless="${room.isHost(p.member)}">👤</span>
-                        <span class="participant-name" th:text="${p.member.nickname}">닉네임</span>
+    <main class="waiting-main with-chat">
+        <!-- 좌측: 참가자 + 버튼 -->
+        <div class="waiting-left">
+            <div class="participants-section">
+                <h2>참가자 목록</h2>
+                <div class="participants-grid" id="participantsList">
+                    <div th:each="p : ${participants}" class="participant-card"
+                         th:classappend="${p.isReady} ? 'ready' : ''"
+                         th:data-member-id="${p.member.id}">
+                        <div class="participant-info">
+                            <span class="participant-icon" th:if="${room.isHost(p.member)}">👑</span>
+                            <span class="participant-icon" th:unless="${room.isHost(p.member)}">👤</span>
+                            <span class="participant-name" th:text="${p.member.nickname}">닉네임</span>
+                        </div>
+                        <div class="participant-status">
+                            <span th:if="${room.isHost(p.member)}" class="status-badge host">방장</span>
+                            <span th:unless="${room.isHost(p.member)}"
+                                  class="status-badge"
+                                  th:classappend="${p.isReady} ? 'ready' : 'waiting'"
+                                  th:text="${p.isReady} ? '준비완료' : '대기중'">대기중</span>
+                        </div>
+                        <!-- 방장일 때 강퇴 버튼 (본인 제외) -->
+                        <button th:if="${isHost and !room.isHost(p.member)}"
+                                type="button"
+                                class="btn btn-kick"
+                                th:onclick="'kickPlayer(' + ${p.member.id} + ')'">강퇴</button>
                     </div>
-                    <div class="participant-status">
-                        <span th:if="${room.isHost(p.member)}" class="status-badge host">방장</span>
-                        <span th:unless="${room.isHost(p.member)}"
-                              class="status-badge"
-                              th:classappend="${p.isReady} ? 'ready' : 'waiting'"
-                              th:text="${p.isReady} ? '준비완료' : '대기중'">대기중</span>
-                    </div>
-                    <!-- 방장일 때 강퇴 버튼 (본인 제외) -->
-                    <button th:if="${isHost and !room.isHost(p.member)}"
-                            type="button"
-                            class="btn btn-kick"
-                            th:onclick="'kickPlayer(' + ${p.member.id} + ')'">강퇴</button>
                 </div>
+            </div>
+
+            <div class="waiting-actions">
+                <!-- 방장이 아닌 경우 준비 버튼 -->
+                <button th:if="${!isHost and myParticipant != null}"
+                        type="button"
+                        class="btn btn-ready"
+                        id="readyBtn"
+                        th:classappend="${myParticipant.isReady} ? 'is-ready' : ''"
+                        onclick="toggleReady()">
+                    <span th:if="${myParticipant.isReady}">✅ 준비 완료</span>
+                    <span th:unless="${myParticipant.isReady}">🎮 준비하기</span>
+                </button>
+
+                <!-- 방장인 경우 게임 시작 버튼 -->
+                <button th:if="${isHost}"
+                        type="button"
+                        class="btn btn-start-game"
+                        id="startGameBtn"
+                        onclick="startGame()">
+                    🚀 게임 시작
+                </button>
+
+                <button type="button" class="btn btn-leave" onclick="leaveRoom()">나가기</button>
             </div>
         </div>
 
-        <div class="waiting-actions">
-            <!-- 방장이 아닌 경우 준비 버튼 -->
-            <button th:unless="${isHost}"
-                    type="button"
-                    class="btn btn-ready"
-                    id="readyBtn"
-                    th:classappend="${myParticipant.isReady} ? 'is-ready' : ''"
-                    onclick="toggleReady()">
-                <span th:if="${myParticipant.isReady}">✅ 준비 완료</span>
-                <span th:unless="${myParticipant.isReady}">🎮 준비하기</span>
-            </button>
-
-            <!-- 방장인 경우 게임 시작 버튼 -->
-            <button th:if="${isHost}"
-                    type="button"
-                    class="btn btn-start-game"
-                    id="startGameBtn"
-                    onclick="startGame()">
-                🚀 게임 시작
-            </button>
-
-            <button type="button" class="btn btn-leave" onclick="leaveRoom()">나가기</button>
+        <!-- 우측: 채팅 -->
+        <div class="waiting-chat">
+            <div class="chat-header">
+                <h3>💬 채팅</h3>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- 채팅 메시지가 여기에 표시됩니다 -->
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="메시지를 입력하세요..."
+                       maxlength="200" autocomplete="off"
+                       onkeypress="if(event.key === 'Enter') sendChat()">
+                <button type="button" class="btn btn-send" onclick="sendChat()">전송</button>
+            </div>
         </div>
     </main>
 </div>
@@ -75,6 +94,7 @@
 <script th:inline="javascript">
     const roomCode = [[${room.roomCode}]];
     const myMemberId = [[${member.id}]];
+    const myNickname = [[${member.nickname}]];
     const isHost = [[${isHost}]];
 </script>
 <script th:src="@{/js/common/common.js}"></script>

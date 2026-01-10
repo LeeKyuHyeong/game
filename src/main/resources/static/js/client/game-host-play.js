@@ -83,7 +83,35 @@ async function selectGenre(genreId, roundNumber) {
 
         if (result.success) {
             document.getElementById('genreSelectModal').classList.remove('show');
-            loadRound(roundNumber);
+
+            // ★ select-genre에서 반환된 데이터로 바로 라운드 설정 (loadRound 호출 X)
+            currentRound = roundNumber;
+            currentSong = result.song;
+
+            // 서버의 totalRounds로 업데이트
+            if (result.totalRounds) {
+                actualTotalRounds = result.totalRounds;
+                const totalRoundDisplay = document.querySelector('.round-info span:last-child');
+                if (totalRoundDisplay) {
+                    totalRoundDisplay.textContent = actualTotalRounds;
+                }
+            }
+
+            document.getElementById('currentRound').textContent = roundNumber;
+
+            // 오디오 설정 - 항상 0초부터 시작
+            if (currentSong && currentSong.filePath) {
+                audioPlayer.src = `/uploads/songs/${currentSong.filePath}`;
+                audioPlayer.currentTime = 0;
+
+                audioPlayer.onloadedmetadata = function() {
+                    updateTimeDisplay();
+                };
+            }
+
+            // UI 리셋
+            resetPlayerUI();
+
         } else {
             alert(result.message || '장르 선택에 실패했습니다.');
         }

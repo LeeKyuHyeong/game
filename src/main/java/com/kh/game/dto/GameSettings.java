@@ -9,6 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class GameSettings {
 
+    // ========== 싱글 플레이어 설정 ==========
     private Integer timeLimit = 30;              // 제한시간(초)
     private Boolean hintEnabled = true;          // 힌트 사용 가능 여부
     private String hintType = "INITIAL";         // 힌트 타입 (INITIAL: 초성, YEAR: 연도, ARTIST: 아티스트)
@@ -23,4 +24,16 @@ public class GameSettings {
     private Integer timeBonusRate = 10;          // 시간 보너스 비율
     private Boolean autoNextRound = true;        // 자동 다음 라운드
     private Boolean hideEmptyGenres = false;     // 남은곡 없는 장르 숨기기
+
+    // ========== 멀티게임 설정 ==========
+    private String roomName;                     // 방 이름
+    private Integer maxPlayers = 8;              // 최대 인원
+    private Integer totalRounds = 10;            // 총 라운드
+    private Boolean privateRoom = false;         // 비공개 방 여부
+    private String gameMode = "RANDOM";          // 게임 모드 (RANDOM, FIXED_GENRE)
+
+    // boolean getter는 is로 시작해야 함
+    public boolean isPrivateRoom() {
+        return privateRoom != null && privateRoom;
+    }
 }

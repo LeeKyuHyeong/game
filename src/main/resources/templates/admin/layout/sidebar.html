@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="sidebar">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h2>🎵 Song Quiz</h2>
             <span>관리자</span>
@@ -9,29 +9,83 @@
         <nav class="sidebar-nav">
             <a href="/admin/song" class="nav-item" th:classappend="${menu == 'song'} ? 'active'">
                 <span class="nav-icon">🎶</span>
-                <span>노래 관리</span>
+                <span class="nav-text">노래 관리</span>
+            </a>
+            <a href="/admin/answer" class="nav-item" th:classappend="${menu == 'answer'} ? 'active'">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-text">정답 관리</span>
             </a>
             <a href="/admin/genre" class="nav-item" th:classappend="${menu == 'genre'} ? 'active'">
                 <span class="nav-icon">🏷️</span>
-                <span>장르 관리</span>
+                <span class="nav-text">장르 관리</span>
+            </a>
+            <a href="/admin/room" class="nav-item" th:classappend="${menu == 'room'} ? 'active'">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">방 관리</span>
+            </a>
+            <a href="/admin/chat" class="nav-item" th:classappend="${menu == 'chat'} ? 'active'">
+                <span class="nav-icon">💬</span>
+                <span class="nav-text">채팅 내역</span>
+            </a>
+            <a href="/admin/badword" class="nav-item" th:classappend="${menu == 'badword'} ? 'active'">
+                <span class="nav-icon">🚫</span>
+                <span class="nav-text">비속어 필터</span>
             </a>
             <a href="/admin/history" class="nav-item" th:classappend="${menu == 'history'} ? 'active'">
                 <span class="nav-icon">📊</span>
-                <span>게임 이력</span>
+                <span class="nav-text">게임 이력</span>
             </a>
             <a href="/admin/history/ranking" class="nav-item" th:classappend="${menu == 'ranking'} ? 'active'">
                 <span class="nav-icon">🏆</span>
-                <span>랭킹</span>
+                <span class="nav-text">랭킹</span>
             </a>
             <a href="/admin/login-history" class="nav-item" th:classappend="${menu == 'login-history'} ? 'active'">
                 <span class="nav-icon">🔐</span>
-                <span>로그인 이력</span>
+                <span class="nav-text">로그인 이력</span>
+            </a>
+            <a href="/admin/batch" class="nav-item" th:classappend="${menu == 'batch'} ? 'active'">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">배치 관리</span>
             </a>
         </nav>
         <div class="sidebar-footer">
-            <a href="/" class="home-btn">홈으로</a>
-            <a href="/admin/logout" class="logout-btn">로그아웃</a>
+            <a href="/" class="home-btn">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">홈으로</span>
+            </a>
+            <a href="/admin/logout" class="logout-btn">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">로그아웃</span>
+            </a>
         </div>
+
+        <!-- 토글 버튼 -->
+        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+            <span class="toggle-icon">◀</span>
+        </button>
     </aside>
+
+    <script>
+        // 페이지 로드 시 저장된 상태 복원
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                document.getElementById('sidebar').classList.add('collapsed');
+                document.querySelector('.main-content').classList.add('expanded');
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+
+            // 상태 저장
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+        }
+    </script>
 </th:block>
 </html>

@@ -48,6 +48,9 @@ public class GameRoom {
     @Column(nullable = false)
     private Boolean isPrivate = false;  // 비공개 방 여부
 
+    @Column(length = 50)
+    private String password;  // 비공개 방 비밀번호
+
     // 게임 진행 상태
     @Column(nullable = false)
     private Integer currentRound = 0;  // 현재 라운드 (0이면 시작 전)
@@ -66,6 +69,11 @@ public class GameRoom {
     private Boolean audioPlaying = false;  // 현재 재생 중 여부
 
     private Long audioPlayedAt;  // 재생 시작 시각 (epoch millis, 동기화용)
+
+    // 현재 라운드 정답자
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "winner_id")
+    private Member winner;
 
     @OneToMany(mappedBy = "gameRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GameRoomParticipant> participants = new ArrayList<>();
@@ -87,7 +95,6 @@ public class GameRoom {
     }
 
     public enum RoundPhase {
-        GENRE_SELECT,   // 장르 선택 중 (방장)
         PLAYING,        // 노래 재생 & 답변 대기
         RESULT          // 결과 표시
     }

@@ -1211,10 +1211,10 @@
 .answer-input {
     flex: 1;
     padding: 1rem 1.5rem;
-    /*border: 2px solid rgba(255, 255, 255, 0.3);*/
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 0.75rem;
     background: rgba(255, 255, 255, 0.1);
-    /*color: white;*/
+    color: white;
     font-size: 1.125rem;
     transition: all 0.2s;
 }
@@ -3013,4 +3013,774 @@
     .first-stand { height: 100px; }
     .second-stand { height: 75px; }
     .third-stand { height: 50px; }
+}
+
+/* ========================================
+   Chat-based Multi Game Styles
+   ======================================== */
+
+/* Chat Layout */
+.chat-layout {
+    grid-template-columns: 1fr 360px;
+}
+
+.chat-scoreboard-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: calc(100vh - 120px);
+}
+
+/* Mini Scoreboard */
+.mini-scoreboard {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 1rem;
+    flex-shrink: 0;
+}
+
+.mini-scoreboard h3 {
+    color: white;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.mini-scoreboard .score-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.mini-scoreboard .score-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.mini-scoreboard .score-item.me {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 1px solid var(--primary-color);
+}
+
+.mini-scoreboard .score-item .rank {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.mini-scoreboard .score-item .player-name {
+    flex: 1;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.mini-scoreboard .score-item .player-score {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Chat Section */
+.chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1rem;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chat-message {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.5rem 0.75rem;
+    background: #f1f5f9;
+    border-radius: 0.75rem;
+    max-width: 85%;
+    word-break: break-word;
+}
+
+.chat-message.my-message {
+    align-self: flex-end;
+    background: #dbeafe;
+}
+
+.chat-message.correct-answer {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border: 2px solid #22c55e;
+    max-width: 100%;
+}
+
+.chat-message.system-message {
+    align-self: center;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    text-align: center;
+    max-width: 90%;
+    font-size: 0.9rem;
+}
+
+.chat-nickname {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.chat-nickname .host-badge {
+    margin-right: 0.25rem;
+}
+
+.chat-text {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.system-text {
+    color: #92400e;
+    font-weight: 500;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-top: 1px solid var(--border-color);
+}
+
+.chat-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.btn-send {
+    padding: 0.75rem 1.25rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 0.75rem;
+    font-weight: 500;
+}
+
+.btn-send:hover {
+    background: var(--primary-hover);
+}
+
+/* Round States */
+.round-waiting,
+.round-playing,
+.round-result {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.waiting-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.waiting-icon {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    animation: pulse 2s infinite;
+}
+
+.waiting-content h2 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.waiting-content p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.host-start-controls {
+    margin-top: 1rem;
+}
+
+.btn-start-round {
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border-radius: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+    transition: all 0.2s;
+}
+
+.btn-start-round:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+}
+
+.btn-start-round:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Playing State */
+.round-playing {
+    padding: 2rem;
+}
+
+.play-hint {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 1rem;
+}
+
+.play-hint p {
+    color: var(--primary-color);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.play-hint .hint-sub {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+/* Result State */
+.round-result {
+    padding: 2rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.winner-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-radius: 1rem;
+    border: 2px solid #22c55e;
+}
+
+.winner-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.winner-name {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 1.125rem;
+}
+
+.winner-score {
+    color: #22c55e;
+    font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .chat-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 350px;
+    }
+
+    .chat-scoreboard-area {
+        height: auto;
+    }
+
+    .mini-scoreboard .score-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        max-height: none;
+    }
+
+    .mini-scoreboard .score-item {
+        flex: 0 0 auto;
+    }
+}
+
+/* ========== Join Page ========== */
+
+.join-container {
+    max-width: 500px;
+    width: 100%;
+}
+
+.room-info-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.room-badge {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.badge-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-status.waiting {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-status.playing {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.badge-status.finished {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.badge-private {
+    background: #fef2f2;
+    color: #991b1b;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.room-info-card h2 {
+    font-size: 1.5rem;
+    margin: 0 0 0.75rem 0;
+    color: #1f2937;
+}
+
+.room-meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+
+.participant-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.participant-tag {
+    background: #f3f4f6;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    color: #374151;
+}
+
+.participant-tag.host {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.join-form-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.join-form-card h3 {
+    font-size: 1.25rem;
+    margin: 0 0 1.25rem 0;
+    color: #1f2937;
+}
+
+.join-form-card .form-group {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.join-form-card .form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.375rem;
+}
+
+.join-form-card .form-group input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.join-form-card .form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.join-form-card #passwordGroup {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.join-form-card #passwordGroup input {
+    width: 100%;
+}
+
+.form-actions {
+    margin-top: 1.5rem;
+}
+
+.form-actions .btn-lg {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.125rem;
+}
+
+.join-info {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    color: white;
+}
+
+.join-info h4 {
+    font-size: 1rem;
+    margin: 0 0 0.75rem 0;
+}
+
+.join-info ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.join-info li {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin-bottom: 0.375rem;
+}
+
+.join-info li:last-child {
+    margin-bottom: 0;
+}
+/* ========== Waiting Room Chat ========== */
+
+.waiting-main.with-chat {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.waiting-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.waiting-chat {
+    background: white;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.waiting-chat .chat-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.waiting-chat .chat-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #1f2937;
+}
+
+.waiting-chat .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.waiting-chat .chat-message {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.waiting-chat .chat-message.system {
+    justify-content: center;
+}
+
+.waiting-chat .chat-message.system .system-text {
+    color: #6b7280;
+    font-size: 0.75rem;
+    background: #f3f4f6;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+}
+
+.waiting-chat .chat-nickname {
+    font-weight: 600;
+    color: #374151;
+    flex-shrink: 0;
+}
+
+.waiting-chat .chat-nickname.me {
+    color: #667eea;
+}
+
+.waiting-chat .chat-text {
+    color: #1f2937;
+    word-break: break-word;
+}
+
+.waiting-chat .chat-message.mine {
+    background: #f0f4ff;
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.5rem;
+    margin-left: auto;
+    max-width: 85%;
+}
+
+.waiting-chat .chat-input-area {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.waiting-chat .chat-input-area input {
+    flex: 1;
+    padding: 0.625rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+}
+
+.waiting-chat .chat-input-area input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.waiting-chat .btn-send {
+    padding: 0.625rem 1.25rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.waiting-chat .btn-send:hover {
+    background: #5a67d8;
+}
+
+/* 모바일 대응 */
+@media (max-width: 900px) {
+    .waiting-main.with-chat {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+    }
+
+    .waiting-chat {
+        height: 350px;
+        order: 2;
+    }
+
+    .waiting-left {
+        order: 1;
+    }
+}
+
+.waiting-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.waiting-actions .btn {
+    white-space: nowrap;
+    min-width: 140px;
+    padding: 0.875rem 1.5rem;
+}
+
+.waiting-actions .btn-start-game,
+.waiting-actions .btn-ready {
+    min-width: 180px;
+}
+
+/* 게임 진행 중 채팅 영역 크기 조절 */
+.chat-scoreboard-area {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 120px);
+    max-height: 700px;
+}
+
+.chat-scoreboard-area .chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.chat-scoreboard-area .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.chat-scoreboard-area .chat-input-area {
+    flex-shrink: 0;
+    padding: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* 스코어보드 고정 높이 */
+.mini-scoreboard {
+    flex-shrink: 0;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.podium-player {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin: 0.5rem 0;
+}
+.podium-player.first-name {
+    color: #1e3a5f;
+}
+.podium-player.second-name {
+    color: #1e3a5f;
+}
+.podium-player.third-name {
+    color: #1e3a5f;
+}
+.podium-score {
+    color: #e74c3c;
+    font-weight: bold;
+}
+.podium-correct {
+    color: #555;
+    font-size: 0.9rem;
+}
+/* 정답 입력 힌트 */
+.answer-hint {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin: 0.75rem 0;
+    text-align: center;
+}
+
+.hint-note {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 0.25rem;
+}
+
+/* 방 참가 알림 액션 버튼 */
+.alert-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+/* 문제 해결 섹션 */
+.troubleshoot-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.troubleshoot-hint {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 0.875rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0.5rem 1rem;
+}
+
+.btn-link:hover {
+    color: #374151;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
 }

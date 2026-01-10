@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('방 참가')}"></head>
+<body class="client-page">
+<div class="client-container">
+    <header class="client-header">
+        <a href="/game/multi" class="back-btn">← 로비</a>
+        <h1>🚪 방 참가</h1>
+    </header>
+
+    <main class="client-main">
+        <div class="join-container">
+            <!-- 방 정보 카드 -->
+            <div class="room-info-card" id="roomInfoCard" style="display: none;">
+                <div class="room-badge" id="roomBadge">
+                    <span class="badge-status waiting">대기중</span>
+                    <span class="badge-private" id="privateBadge" style="display: none;">🔒 비공개</span>
+                </div>
+                <h2 id="roomName">방 이름</h2>
+                <div class="room-meta">
+                    <span>👑 <span id="hostNickname">방장</span></span>
+                    <span>👥 <span id="playerCount">0</span>/<span id="maxPlayers">4</span>명</span>
+                    <span>🎵 <span id="totalRounds">10</span>라운드</span>
+                </div>
+                <div class="participant-list" id="participantList">
+                    <!-- 동적 로드 -->
+                </div>
+            </div>
+
+            <!-- 방 코드 입력 -->
+            <div class="join-form-card">
+                <h3>방 코드로 참가</h3>
+                <form id="joinForm">
+                    <div class="form-group">
+                        <label for="roomCode">방 코드</label>
+                        <input type="text" id="roomCode" name="roomCode"
+                               th:value="${roomCode}"
+                               placeholder="6자리 방 코드 입력"
+                               maxlength="10" required>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="searchRoom()">검색</button>
+                    </div>
+
+                    <!-- 비공개 방일 경우 비밀번호 입력 -->
+                    <div class="form-group" id="passwordGroup" style="display: none;">
+                        <label for="password">비밀번호</label>
+                        <input type="password" id="password" name="password" placeholder="비밀번호 입력">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-lg" id="joinBtn" disabled>
+                            참가하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 안내 메시지 -->
+            <div class="join-info">
+                <h4>💡 참가 안내</h4>
+                <ul>
+                    <li>방 코드는 방장에게 문의하세요</li>
+                    <li>비공개 방은 비밀번호가 필요합니다</li>
+                    <li>게임이 이미 시작된 방은 참가할 수 없습니다</li>
+                    <li>정원이 찬 방은 참가할 수 없습니다</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+</div>
+
+<input type="hidden" id="currentMemberId" th:value="${member.id}">
+
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/client/multi-join.js}"></script>
+</body>
+</html>
