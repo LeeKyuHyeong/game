@@ -5,6 +5,7 @@ let audioPlayer = document.getElementById('audioPlayer');
 let progressInterval = null;
 let playerScores = {};
 let actualTotalRounds = totalRounds; // 서버에서 업데이트될 수 있음
+let isRoundEnded = false; // 라운드 종료 플래그
 
 // 초기화
 players.forEach(player => {
@@ -249,16 +250,22 @@ function formatTime(seconds) {
 
 function resetPlayerUI() {
     stopAudio();
+    isRoundEnded = false; // 라운드 종료 플래그 리셋
     document.querySelectorAll('.player-btn').forEach(btn => {
         btn.classList.remove('selected');
+        btn.disabled = false; // 버튼 활성화
     });
 }
 
 async function selectWinner(playerName) {
     if (!currentSong) return;
+    if (isRoundEnded) return; // 이미 라운드 종료된 경우 무시
 
-    // 버튼 하이라이트
+    isRoundEnded = true; // 라운드 종료 플래그 설정
+
+    // 모든 버튼 비활성화 및 선택된 버튼 하이라이트
     document.querySelectorAll('.player-btn').forEach(btn => {
+        btn.disabled = true;
         if (btn.textContent === playerName) {
             btn.classList.add('selected');
         }
@@ -288,15 +295,35 @@ async function selectWinner(playerName) {
             // 정답 모달 표시
             showAnswerModal(playerName, result.isGameOver);
         } else {
+            // 실패 시 플래그 및 버튼 복원
+            isRoundEnded = false;
+            document.querySelectorAll('.player-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('selected');
+            });
             alert(result.message);
         }
     } catch (error) {
+        // 오류 시 플래그 및 버튼 복원
+        isRoundEnded = false;
+        document.querySelectorAll('.player-btn').forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('selected');
+        });
         console.error('답변 제출 오류:', error);
     }
 }
 
 async function skipRound() {
     if (!currentSong) return;
+    if (isRoundEnded) return; // 이미 라운드 종료된 경우 무시
+
+    isRoundEnded = true; // 라운드 종료 플래그 설정
+
+    // 모든 버튼 비활성화
+    document.querySelectorAll('.player-btn').forEach(btn => {
+        btn.disabled = true;
+    });
 
     stopAudio();
 
@@ -316,9 +343,19 @@ async function skipRound() {
         if (result.success) {
             showAnswerModal(null, result.isGameOver);
         } else {
+            // 실패 시 플래그 및 버튼 복원
+            isRoundEnded = false;
+            document.querySelectorAll('.player-btn').forEach(btn => {
+                btn.disabled = false;
+            });
             alert(result.message);
         }
     } catch (error) {
+        // 오류 시 플래그 및 버튼 복원
+        isRoundEnded = false;
+        document.querySelectorAll('.player-btn').forEach(btn => {
+            btn.disabled = false;
+        });
         console.error('스킵 오류:', error);
     }
 }
