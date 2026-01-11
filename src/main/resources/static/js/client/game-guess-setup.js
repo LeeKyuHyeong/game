@@ -1,29 +1,141 @@
-let totalRounds = 10;
 let maxAvailableSongs = 999;
 
 // 초기 노래 개수 로딩
 document.addEventListener('DOMContentLoaded', function() {
     updateSongCount();
+    updateRankingNotice();
 
     // 로그인한 경우 닉네임 자동 입력
     if (typeof isLoggedIn !== 'undefined' && isLoggedIn && memberNickname) {
         document.getElementById('nickname').value = memberNickname;
     }
-});
 
-// 라운드 버튼 이벤트
-document.querySelectorAll('.round-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const value = parseInt(this.dataset.value);
-        if (value > maxAvailableSongs) {
-            alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
-            return;
-        }
-        document.querySelectorAll('.round-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        totalRounds = value;
+    // 라운드 입력 이벤트
+    document.getElementById('totalRounds').addEventListener('change', function() {
+        validateRounds();
+        updatePresetButtons();
+        updateRankingNotice();
+    });
+
+    document.getElementById('totalRounds').addEventListener('input', function() {
+        updatePresetButtons();
+        updateRankingNotice();
     });
 });
+
+// 라운드 수 조절
+function adjustRounds(delta) {
+    const input = document.getElementById('totalRounds');
+    let value = parseInt(input.value) || 10;
+    value = Math.max(1, Math.min(50, value + delta));
+
+    if (value > maxAvailableSongs) {
+        value = maxAvailableSongs;
+    }
+
+    input.value = value;
+    updatePresetButtons();
+    updateRankingNotice();
+}
+
+// 프리셋 버튼으로 라운드 설정
+function setRounds(value) {
+    if (value > maxAvailableSongs) {
+        alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+        return;
+    }
+    document.getElementById('totalRounds').value = value;
+    updatePresetButtons();
+    updateRankingNotice();
+}
+
+// 프리셋 버튼 활성화 상태 업데이트
+function updatePresetButtons() {
+    const currentValue = parseInt(document.getElementById('totalRounds').value) || 10;
+
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+        const btnValue = parseInt(btn.textContent);
+        btn.classList.remove('active');
+
+        if (btnValue > maxAvailableSongs) {
+            btn.classList.add('disabled');
+            btn.disabled = true;
+        } else {
+            btn.classList.remove('disabled');
+            btn.disabled = false;
+            if (btnValue === currentValue) {
+                btn.classList.add('active');
+            }
+        }
+    });
+}
+
+// 라운드 수 유효성 검증
+function validateRounds() {
+    const input = document.getElementById('totalRounds');
+    let value = parseInt(input.value) || 10;
+
+    if (value < 1) value = 1;
+    if (value > 50) value = 50;
+    if (value > maxAvailableSongs && maxAvailableSongs > 0) {
+        value = maxAvailableSongs;
+    }
+
+    input.value = value;
+}
+
+// 현재 라운드 수 가져오기
+function getTotalRounds() {
+    return parseInt(document.getElementById('totalRounds').value) || 10;
+}
+
+// 최고기록 랭킹 조건 안내 업데이트
+function updateRankingNotice() {
+    const rounds = getTotalRounds();
+    const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
+    const loggedIn = typeof isLoggedIn !== 'undefined' && isLoggedIn;
+
+    // 조건 체크
+    const conditionLoginMet = loggedIn;
+    const conditionModeMet = gameMode === 'RANDOM';
+    const conditionRoundsMet = rounds >= 10;
+
+    // UI 업데이트
+    updateConditionUI('conditionLogin', conditionLoginMet);
+    updateConditionUI('conditionMode', conditionModeMet);
+    updateConditionUI('conditionRounds', conditionRoundsMet);
+
+    // 결과 메시지
+    const resultEl = document.getElementById('noticeResult');
+    const allMet = conditionLoginMet && conditionModeMet && conditionRoundsMet;
+
+    if (allMet) {
+        resultEl.textContent = '최고기록 랭킹에 등록됩니다!';
+        resultEl.className = 'notice-result success';
+    } else {
+        const missing = [];
+        if (!conditionLoginMet) missing.push('로그인');
+        if (!conditionModeMet) missing.push('전체 랜덤 모드');
+        if (!conditionRoundsMet) missing.push('10라운드 이상');
+        resultEl.textContent = `조건 미충족: ${missing.join(', ')}`;
+        resultEl.className = 'notice-result warning';
+    }
+}
+
+function updateConditionUI(elementId, isMet) {
+    const el = document.getElementById(elementId);
+    const iconEl = el.querySelector('.condition-icon');
+
+    if (isMet) {
+        el.classList.add('met');
+        el.classList.remove('unmet');
+        iconEl.textContent = '✓';
+    } else {
+        el.classList.add('unmet');
+        el.classList.remove('met');
+        iconEl.textContent = '○';
+    }
+}
 
 // 게임 모드 변경 이벤트
 document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
@@ -42,6 +154,7 @@ document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
             genreRoundSetting.style.display = 'none';
         }
         updateSongCount();
+        updateRankingNotice();
     });
 });
 
@@ -98,27 +211,15 @@ async function updateSongCount() {
             infoEl.style.color = '#22c55e';
         }
 
-        // 라운드 버튼 활성화/비활성화
-        document.querySelectorAll('.round-btn').forEach(btn => {
-            const value = parseInt(btn.dataset.value);
-            if (value > maxAvailableSongs) {
-                btn.classList.add('disabled');
-                btn.disabled = true;
-            } else {
-                btn.classList.remove('disabled');
-                btn.disabled = false;
-            }
-        });
+        // 프리셋 버튼 업데이트
+        updatePresetButtons();
 
-        // 현재 선택된 라운드가 최대치를 초과하면 조정
-        if (totalRounds > maxAvailableSongs && maxAvailableSongs > 0) {
-            const availableButtons = document.querySelectorAll('.round-btn:not(.disabled)');
-            if (availableButtons.length > 0) {
-                document.querySelectorAll('.round-btn').forEach(b => b.classList.remove('active'));
-                const lastAvailable = availableButtons[availableButtons.length - 1];
-                lastAvailable.classList.add('active');
-                totalRounds = parseInt(lastAvailable.dataset.value);
-            }
+        // 현재 라운드가 최대치 초과시 조정
+        const currentRounds = getTotalRounds();
+        if (currentRounds > maxAvailableSongs && maxAvailableSongs > 0) {
+            document.getElementById('totalRounds').value = maxAvailableSongs;
+            updatePresetButtons();
+            updateRankingNotice();
         }
 
     } catch (error) {
@@ -156,6 +257,7 @@ function goToStep2() {
         return;
     }
 
+    const totalRounds = getTotalRounds();
     if (totalRounds > maxAvailableSongs) {
         alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
         return;
@@ -163,6 +265,9 @@ function goToStep2() {
 
     document.getElementById('step1').style.display = 'none';
     document.getElementById('step2').style.display = 'block';
+
+    // step2로 이동할 때 랭킹 조건 다시 업데이트
+    updateRankingNotice();
 }
 
 async function startGame() {
@@ -186,6 +291,8 @@ async function startGame() {
             return;
         }
     }
+
+    const totalRounds = getTotalRounds();
 
     // 최종 라운드 수 검증
     if (totalRounds > maxAvailableSongs) {

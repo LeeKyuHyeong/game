@@ -119,6 +119,191 @@
     transform: none;
 }
 
+/* Round Input Group */
+.round-input-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.round-adjust-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.round-adjust-btn:hover {
+    background: var(--primary-hover);
+    transform: scale(1.1);
+}
+
+.round-input {
+    width: 5rem;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.round-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Hide number input spinners */
+.round-input::-webkit-outer-spin-button,
+.round-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.round-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Round Presets */
+.round-presets {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.preset-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: white;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.preset-btn:hover:not(.disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.preset-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.preset-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #e5e7eb;
+    border-color: #d1d5db;
+    color: #9ca3af;
+}
+
+/* Ranking Notice */
+.ranking-notice {
+    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+    border: 2px solid #eab308;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.notice-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.notice-icon {
+    font-size: 1.25rem;
+}
+
+.notice-title {
+    font-weight: 700;
+    color: #92400e;
+    font-size: 0.9375rem;
+}
+
+.notice-conditions {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.75rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.condition {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #78350f;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.condition-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.condition.met {
+    background: rgba(34, 197, 94, 0.2);
+    color: #166534;
+}
+
+.condition.met .condition-icon {
+    color: #22c55e;
+}
+
+.condition.unmet {
+    background: rgba(255, 255, 255, 0.5);
+    color: #78350f;
+}
+
+.condition.unmet .condition-icon {
+    color: #9ca3af;
+}
+
+.notice-result {
+    text-align: center;
+    font-weight: 600;
+    padding: 0.625rem;
+    border-radius: 0.5rem;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.notice-result.success {
+    background: #22c55e;
+    color: white;
+}
+
+.notice-result.warning {
+    background: rgba(239, 68, 68, 0.15);
+    color: #b91c1c;
+}
+
 /* Song Count Info */
 .song-count-info {
     font-size: 0.875rem;
@@ -412,5 +597,71 @@
     .btn-back, .btn-next, .btn-start {
         padding: 0.75rem;
         font-size: 0.9rem;
+    }
+
+    /* Round Input Group Mobile */
+    .round-input-group {
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .round-adjust-btn {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+    }
+
+    .round-input {
+        width: 4rem;
+        padding: 0.5rem;
+        font-size: 1.25rem;
+    }
+
+    .round-presets {
+        gap: 0.375rem;
+    }
+
+    .preset-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    /* Ranking Notice Mobile */
+    .ranking-notice {
+        padding: 1rem;
+        border-radius: 0.75rem;
+    }
+
+    .notice-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .notice-icon {
+        font-size: 1rem;
+    }
+
+    .notice-title {
+        font-size: 0.85rem;
+    }
+
+    .notice-conditions {
+        gap: 0.375rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .condition {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .condition-icon {
+        width: 1rem;
+        height: 1rem;
+        font-size: 0.75rem;
+    }
+
+    .notice-result {
+        padding: 0.5rem;
+        font-size: 0.8rem;
     }
 }

@@ -21,11 +21,16 @@
 
                 <div class="form-group">
                     <label>진행 라운드 <span id="songCountInfo" class="song-count-info"></span></label>
-                    <div class="round-options">
-                        <button type="button" class="round-btn" data-value="5">5</button>
-                        <button type="button" class="round-btn active" data-value="10">10</button>
-                        <button type="button" class="round-btn" data-value="15">15</button>
-                        <button type="button" class="round-btn" data-value="20">20</button>
+                    <div class="round-input-group">
+                        <button type="button" class="round-adjust-btn" onclick="adjustRounds(-1)">−</button>
+                        <input type="number" id="totalRounds" value="10" min="1" max="50" class="round-input">
+                        <button type="button" class="round-adjust-btn" onclick="adjustRounds(1)">+</button>
+                    </div>
+                    <div class="round-presets">
+                        <button type="button" class="preset-btn" onclick="setRounds(5)">5</button>
+                        <button type="button" class="preset-btn active" onclick="setRounds(10)">10</button>
+                        <button type="button" class="preset-btn" onclick="setRounds(15)">15</button>
+                        <button type="button" class="preset-btn" onclick="setRounds(20)">20</button>
                     </div>
                 </div>
 
@@ -105,6 +110,29 @@
                             <span class="toggle-label">남은 곡이 없는 장르 숨기기</span>
                         </label>
                     </div>
+                </div>
+
+                <!-- 최고기록 랭킹 안내 -->
+                <div class="ranking-notice" id="rankingNotice">
+                    <div class="notice-header">
+                        <span class="notice-icon">🏆</span>
+                        <span class="notice-title">최고기록 랭킹 조건</span>
+                    </div>
+                    <ul class="notice-conditions">
+                        <li id="conditionLogin" class="condition">
+                            <span class="condition-icon">○</span>
+                            <span class="condition-text">로그인 상태</span>
+                        </li>
+                        <li id="conditionMode" class="condition">
+                            <span class="condition-icon">○</span>
+                            <span class="condition-text">전체 랜덤 모드</span>
+                        </li>
+                        <li id="conditionRounds" class="condition">
+                            <span class="condition-icon">○</span>
+                            <span class="condition-text">10라운드 이상</span>
+                        </li>
+                    </ul>
+                    <p class="notice-result" id="noticeResult"></p>
                 </div>
 
                 <div class="step-buttons">
