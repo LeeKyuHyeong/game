@@ -34,3 +34,98 @@ const Utils = {
 window.addEventListener('unhandledrejection', function(event) {
     console.error('Unhandled promise rejection:', event.reason);
 });
+
+// ========== 중복 로그인 감지 (세션 유효성 체크) ==========
+const SessionManager = {
+    checkInterval: null,
+    isChecking: false,
+
+    // 세션 체크 시작 (30초 간격)
+    startSessionCheck() {
+        // 인증 페이지에서는 체크하지 않음
+        if (window.location.pathname.startsWith('/auth/')) {
+            return;
+        }
+
+        // 이미 체크 중이면 중복 실행 방지
+        if (this.checkInterval) {
+            return;
+        }
+
+        // 30초마다 세션 유효성 체크
+        this.checkInterval = setInterval(() => this.validateSession(), 30000);
+
+        // 페이지 로드 시 즉시 1회 체크
+        setTimeout(() => this.validateSession(), 1000);
+    },
+
+    // 세션 체크 중지
+    stopSessionCheck() {
+        if (this.checkInterval) {
+            clearInterval(this.checkInterval);
+            this.checkInterval = null;
+        }
+    },
+
+    // 세션 유효성 검증
+    async validateSession() {
+        if (this.isChecking) return;
+        this.isChecking = true;
+
+        try {
+            const response = await fetch('/auth/validate-session', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            const result = await response.json();
+
+            if (!result.valid && result.reason === 'SESSION_INVALIDATED') {
+                this.handleSessionInvalidated(result.message);
+            }
+        } catch (error) {
+            // 네트워크 오류는 무시 (오프라인 등)
+            console.warn('Session validation failed:', error);
+        } finally {
+            this.isChecking = false;
+        }
+    },
+
+    // 세션 무효화 처리 (다른 기기에서 로그인됨)
+    handleSessionInvalidated(message) {
+        this.stopSessionCheck();
+
+        // 알림 표시
+        const msg = message || '다른 기기에서 로그인하여 현재 세션이 종료되었습니다.';
+        alert(msg);
+
+        // 로그인 페이지로 이동
+        window.location.href = '/auth/login';
+    }
+};
+
+// 전역 fetch 래퍼 - AJAX 응답에서 세션 무효화 감지
+const originalFetch = window.fetch;
+window.fetch = async function(...args) {
+    const response = await originalFetch.apply(this, args);
+
+    // 401 응답에서 세션 무효화 감지
+    if (response.status === 401) {
+        try {
+            const clonedResponse = response.clone();
+            const result = await clonedResponse.json();
+
+            if (result.error === 'SESSION_INVALIDATED') {
+                SessionManager.handleSessionInvalidated(result.message);
+            }
+        } catch (e) {
+            // JSON 파싱 실패 시 무시
+        }
+    }
+
+    return response;
+};
+
+// 페이지 로드 시 세션 체크 시작
+document.addEventListener('DOMContentLoaded', function() {
+    SessionManager.startSessionCheck();
+});

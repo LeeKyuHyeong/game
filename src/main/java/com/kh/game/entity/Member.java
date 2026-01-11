@@ -56,6 +56,12 @@ public class Member {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
+    @Column(name = "session_token", length = 64)
+    private String sessionToken;  // 현재 유효한 세션 토큰
+
+    @Column(name = "session_created_at")
+    private LocalDateTime sessionCreatedAt;  // 세션 생성 시간
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

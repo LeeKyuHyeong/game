@@ -1,7 +1,10 @@
 package com.kh.game.service;
 
+import com.kh.game.entity.GameRoom;
+import com.kh.game.entity.GameRoomParticipant;
 import com.kh.game.entity.Member;
 import com.kh.game.entity.MemberLoginHistory;
+import com.kh.game.repository.GameRoomParticipantRepository;
 import com.kh.game.repository.MemberLoginHistoryRepository;
 import com.kh.game.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +27,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final MemberLoginHistoryRepository loginHistoryRepository;
+    private final GameRoomParticipantRepository participantRepository;
     private final PasswordEncoder passwordEncoder;
 
     // ========== 회원 관리 ==========
@@ -215,4 +220,117 @@ public class MemberService {
     public Page<MemberLoginHistory> getLoginHistoryByPeriod(LocalDateTime start, LocalDateTime end, Pageable pageable) {
         return loginHistoryRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(start, end, pageable);
     }
+
+    // ========== 세션 관리 (중복 로그인 방지) ==========
+
+    /**
+     * 회원이 현재 게임 중인지 확인
+     */
+    public boolean isInGame(Long memberId) {
+        Optional<Member> memberOpt = memberRepository.findById(memberId);
+        if (memberOpt.isEmpty()) {
+            return false;
+        }
+
+        Optional<GameRoomParticipant> participation = participantRepository.findActiveParticipation(memberOpt.get());
+        if (participation.isEmpty()) {
+            return false;
+        }
+
+        // 방이 게임 중인 상태인지 확인
+        GameRoom room = participation.get().getGameRoom();
+        return room.getStatus() == GameRoom.RoomStatus.PLAYING;
+    }
+
+    /**
+     * 기존 세션 존재 여부 확인
+     */
+    public boolean hasActiveSession(Long memberId) {
+        Optional<Member> memberOpt = memberRepository.findById(memberId);
+        if (memberOpt.isEmpty()) {
+            return false;
+        }
+        Member member = memberOpt.get();
+        return member.getSessionToken() != null && member.getSessionCreatedAt() != null;
+    }
+
+    /**
+     * 새 세션 토큰 생성 및 저장
+     */
+    @Transactional
+    public String createSessionToken(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+
+        String token = UUID.randomUUID().toString().replace("-", "");
+        member.setSessionToken(token);
+        member.setSessionCreatedAt(LocalDateTime.now());
+        memberRepository.save(member);
+
+        return token;
+    }
+
+    /**
+     * 세션 토큰 유효성 검증
+     */
+    public boolean validateSessionToken(Long memberId, String token) {
+        if (token == null || memberId == null) {
+            return false;
+        }
+
+        Optional<Member> memberOpt = memberRepository.findById(memberId);
+        if (memberOpt.isEmpty()) {
+            return false;
+        }
+
+        Member member = memberOpt.get();
+        return token.equals(member.getSessionToken());
+    }
+
+    /**
+     * 세션 토큰 무효화 (로그아웃)
+     */
+    @Transactional
+    public void invalidateSessionToken(Long memberId) {
+        memberRepository.findById(memberId).ifPresent(member -> {
+            member.setSessionToken(null);
+            member.setSessionCreatedAt(null);
+            memberRepository.save(member);
+        });
+    }
+
+    /**
+     * 로그인 시도 상태 확인 (중복 로그인 체크)
+     * @return LoginAttemptResult
+     */
+    public LoginAttemptResult checkLoginAttempt(String email) {
+        Optional<Member> memberOpt = memberRepository.findByEmail(email);
+        if (memberOpt.isEmpty()) {
+            return new LoginAttemptResult(LoginAttemptStatus.NO_EXISTING_SESSION, false);
+        }
+
+        Member member = memberOpt.get();
+
+        // 기존 세션이 없으면 바로 로그인 가능
+        if (member.getSessionToken() == null) {
+            return new LoginAttemptResult(LoginAttemptStatus.NO_EXISTING_SESSION, false);
+        }
+
+        // 기존 세션이 있고, 게임 중인지 확인
+        boolean inGame = isInGame(member.getId());
+
+        if (inGame) {
+            return new LoginAttemptResult(LoginAttemptStatus.IN_GAME, true);
+        } else {
+            return new LoginAttemptResult(LoginAttemptStatus.EXISTING_SESSION, true);
+        }
+    }
+
+    public enum LoginAttemptStatus {
+        NO_EXISTING_SESSION,  // 기존 세션 없음 → 바로 로그인
+        EXISTING_SESSION,     // 기존 세션 있음 (게임 중 아님) → 바로 로그인 (기존 세션 종료)
+        IN_GAME              // 게임 중 → 확인 필요
+    }
+
+    public record LoginAttemptResult(LoginAttemptStatus status, boolean hasExistingSession) {}
 }

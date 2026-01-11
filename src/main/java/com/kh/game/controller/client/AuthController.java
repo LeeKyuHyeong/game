@@ -40,17 +40,37 @@ public class AuthController {
         try {
             String email = request.get("email");
             String password = request.get("password");
+            boolean forceLogin = "true".equals(request.get("forceLogin"));
 
             String ipAddress = getClientIp(httpRequest);
             String userAgent = httpRequest.getHeader("User-Agent");
 
+            // 중복 로그인 체크 (forceLogin이 아닌 경우)
+            if (!forceLogin) {
+                MemberService.LoginAttemptResult attemptResult = memberService.checkLoginAttempt(email);
+
+                if (attemptResult.status() == MemberService.LoginAttemptStatus.IN_GAME) {
+                    // 게임 중인 경우 - 확인 필요
+                    result.put("success", false);
+                    result.put("requireConfirm", true);
+                    result.put("inGame", true);
+                    result.put("message", "현재 다른 기기에서 게임이 진행 중입니다. 강제 로그인하시겠습니까?");
+                    return ResponseEntity.ok(result);
+                }
+                // EXISTING_SESSION인 경우 - 바로 로그인 진행 (기존 세션은 자동 무효화)
+            }
+
             Member member = memberService.login(email, password, ipAddress, userAgent);
+
+            // 새 세션 토큰 생성 (기존 세션 자동 무효화)
+            String sessionToken = memberService.createSessionToken(member.getId());
 
             // 세션에 회원 정보 저장
             session.setAttribute("memberId", member.getId());
             session.setAttribute("memberEmail", member.getEmail());
             session.setAttribute("memberNickname", member.getNickname());
             session.setAttribute("memberRole", member.getRole().name());
+            session.setAttribute("sessionToken", sessionToken);
             session.setAttribute("isLoggedIn", true);
 
             result.put("success", true);
@@ -118,10 +138,17 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
         Map<String, Object> result = new HashMap<>();
 
+        // 세션 토큰 무효화
+        Long memberId = (Long) session.getAttribute("memberId");
+        if (memberId != null) {
+            memberService.invalidateSessionToken(memberId);
+        }
+
         session.removeAttribute("memberId");
         session.removeAttribute("memberEmail");
         session.removeAttribute("memberNickname");
         session.removeAttribute("memberRole");
+        session.removeAttribute("sessionToken");
         session.removeAttribute("isLoggedIn");
 
         result.put("success", true);
@@ -152,6 +179,35 @@ public class AuthController {
             result.put("email", session.getAttribute("memberEmail"));
         } else {
             result.put("isLoggedIn", false);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    // 세션 유효성 검증 (중복 로그인 감지용)
+    @GetMapping("/validate-session")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> validateSession(HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+
+        Long memberId = (Long) session.getAttribute("memberId");
+        String sessionToken = (String) session.getAttribute("sessionToken");
+
+        if (memberId == null || sessionToken == null) {
+            result.put("valid", false);
+            result.put("reason", "NOT_LOGGED_IN");
+            return ResponseEntity.ok(result);
+        }
+
+        boolean isValid = memberService.validateSessionToken(memberId, sessionToken);
+
+        if (isValid) {
+            result.put("valid", true);
+        } else {
+            // 세션이 무효화됨 - 다른 기기에서 로그인됨
+            result.put("valid", false);
+            result.put("reason", "SESSION_INVALIDATED");
+            result.put("message", "다른 기기에서 로그인하여 현재 세션이 종료되었습니다.");
         }
 
         return ResponseEntity.ok(result);
