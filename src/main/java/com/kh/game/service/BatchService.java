@@ -28,9 +28,10 @@ public class BatchService {
     @PostConstruct
     @Transactional
     public void initBatchConfigs() {
-        // 기존 데이터가 있으면 implemented 플래그만 업데이트
+        // 기존 데이터가 있으면 implemented 플래그 및 설정 업데이트
         if (batchConfigRepository.count() > 0) {
             updateImplementedFlags();
+            updateBatchConfigs();
             return;
         }
 
@@ -108,13 +109,13 @@ public class BatchService {
                 true  // 구현됨
         ));
 
-        // 7. 노래 파일 정합성 검사
+        // 7. 노래 파일 정합성 검사 (MP3 유효성 검증 포함)
         batchConfigRepository.save(new BatchConfig(
                 "BATCH_SONG_FILE_CHECK",
-                "노래 파일 정합성 검사",
-                "DB에 등록된 노래와 실제 MP3 파일의 정합성을 검사합니다.",
-                "0 0 2 * * *",
-                "매일 02:00",
+                "MP3 파일 유효성 검사",
+                "MP3 파일 존재 및 형식 유효성을 검사하고, 문제 있는 노래를 비활성화합니다.",
+                "0 0 * * * *",
+                "매시간",
                 "Song",
                 BatchConfig.Priority.HIGH,
                 true  // 구현됨
@@ -191,6 +192,41 @@ public class BatchService {
         if (updatedCount > 0) {
             log.info("배치 구현 상태 업데이트 완료: {}개", updatedCount);
         }
+    }
+
+    /**
+     * 배치 설정 업데이트 (기존 데이터 마이그레이션)
+     */
+    @Transactional
+    public void updateBatchConfigs() {
+        // BATCH_SONG_FILE_CHECK: 매일 02:00 -> 매시간으로 변경
+        batchConfigRepository.findById("BATCH_SONG_FILE_CHECK").ifPresent(config -> {
+            boolean updated = false;
+
+            // 이름 업데이트
+            if (!"MP3 파일 유효성 검사".equals(config.getName())) {
+                config.setName("MP3 파일 유효성 검사");
+                updated = true;
+            }
+
+            // 설명 업데이트
+            String newDesc = "MP3 파일 존재 및 형식 유효성을 검사하고, 문제 있는 노래를 비활성화합니다.";
+            if (!newDesc.equals(config.getDescription())) {
+                config.setDescription(newDesc);
+                updated = true;
+            }
+
+            // cron 표현식 업데이트 (매시간)
+            if (!"0 0 * * * *".equals(config.getCronExpression())) {
+                config.setCronExpression("0 0 * * * *");
+                config.setScheduleText("매시간");
+                updated = true;
+            }
+
+            if (updated) {
+                log.info("BATCH_SONG_FILE_CHECK 설정 업데이트 완료 (매시간 실행)");
+            }
+        });
     }
 
     /**
