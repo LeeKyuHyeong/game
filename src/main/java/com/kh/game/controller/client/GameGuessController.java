@@ -446,9 +446,14 @@ public class GameGuessController {
 
                 // 회원인 경우 Solo Guess 통계 업데이트
                 if (session.getMember() != null) {
-                    // 전체랜덤 여부 확인 (fixedGenreId가 null이면 전체랜덤)
+                    // 최고기록 랭킹 대상 여부 확인
+                    // 조건: 전체랜덤 + 연도필터없음 + 아티스트유형전체
                     GameSettings settings = gameSessionService.parseSettings(session.getSettings());
                     boolean isAllRandom = settings.getFixedGenreId() == null;
+                    boolean noYearFilter = settings.getYearFrom() == null && settings.getYearTo() == null;
+                    boolean allArtistTypes = !Boolean.TRUE.equals(settings.getSoloOnly())
+                                           && !Boolean.TRUE.equals(settings.getGroupOnly());
+                    boolean isEligibleForBestScore = isAllRandom && noYearFilter && allArtistTypes;
 
                     memberService.addGuessGameResult(
                             session.getMember().getId(),
@@ -456,7 +461,7 @@ public class GameGuessController {
                             session.getCorrectCount(),
                             session.getCompletedRounds(),
                             session.getSkipCount(),
-                            isAllRandom
+                            isEligibleForBestScore
                     );
                 }
             }

@@ -95,19 +95,32 @@ function updateRankingNotice() {
     const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
     const loggedIn = typeof isLoggedIn !== 'undefined' && isLoggedIn;
 
+    // 연도 범위 체크
+    const yearFrom = document.getElementById('yearFrom').value;
+    const yearTo = document.getElementById('yearTo').value;
+    const noYearFilter = !yearFrom && !yearTo;
+
+    // 아티스트 유형 체크
+    const artistType = document.querySelector('input[name="artistType"]:checked').value;
+    const allArtistTypes = artistType === 'all';
+
     // 조건 체크
     const conditionLoginMet = loggedIn;
     const conditionModeMet = gameMode === 'RANDOM';
     const conditionRoundsMet = rounds >= 10;
+    const conditionYearMet = noYearFilter;
+    const conditionArtistMet = allArtistTypes;
 
     // UI 업데이트
     updateConditionUI('conditionLogin', conditionLoginMet);
     updateConditionUI('conditionMode', conditionModeMet);
     updateConditionUI('conditionRounds', conditionRoundsMet);
+    updateConditionUI('conditionYear', conditionYearMet);
+    updateConditionUI('conditionArtist', conditionArtistMet);
 
     // 결과 메시지
     const resultEl = document.getElementById('noticeResult');
-    const allMet = conditionLoginMet && conditionModeMet && conditionRoundsMet;
+    const allMet = conditionLoginMet && conditionModeMet && conditionRoundsMet && conditionYearMet && conditionArtistMet;
 
     if (allMet) {
         resultEl.textContent = '최고기록 랭킹에 등록됩니다!';
@@ -117,6 +130,8 @@ function updateRankingNotice() {
         if (!conditionLoginMet) missing.push('로그인');
         if (!conditionModeMet) missing.push('전체 랜덤 모드');
         if (!conditionRoundsMet) missing.push('10라운드 이상');
+        if (!conditionYearMet) missing.push('연도 범위 미설정');
+        if (!conditionArtistMet) missing.push('아티스트 유형 전체');
         resultEl.textContent = `조건 미충족: ${missing.join(', ')}`;
         resultEl.className = 'notice-result warning';
     }
@@ -164,12 +179,21 @@ document.getElementById('fixedGenreId').addEventListener('change', function() {
 });
 
 // 연도 범위 변경 이벤트
-document.getElementById('yearFrom').addEventListener('change', updateSongCount);
-document.getElementById('yearTo').addEventListener('change', updateSongCount);
+document.getElementById('yearFrom').addEventListener('change', function() {
+    updateSongCount();
+    updateRankingNotice();
+});
+document.getElementById('yearTo').addEventListener('change', function() {
+    updateSongCount();
+    updateRankingNotice();
+});
 
 // 아티스트 유형 변경 이벤트
 document.querySelectorAll('input[name="artistType"]').forEach(radio => {
-    radio.addEventListener('change', updateSongCount);
+    radio.addEventListener('change', function() {
+        updateSongCount();
+        updateRankingNotice();
+    });
 });
 
 async function updateSongCount() {

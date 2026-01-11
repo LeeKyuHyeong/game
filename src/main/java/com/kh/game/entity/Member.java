@@ -261,7 +261,8 @@ public class Member {
     public static final int MIN_ROUNDS_FOR_BEST_SCORE = 10;
 
     // Solo Guess (내가맞추기) 게임 결과 반영
-    public void addGuessGameResult(int score, int correct, int rounds, int skip, boolean isAllRandom) {
+    // isEligibleForBestScore: 최고기록 랭킹 대상 여부 (전체랜덤 + 필터없음 + 10라운드 이상)
+    public void addGuessGameResult(int score, int correct, int rounds, int skip, boolean isEligibleForBestScore) {
         // 모드별 통계
         this.guessGames = (this.guessGames == null ? 0 : this.guessGames) + 1;
         this.guessScore = (this.guessScore == null ? 0 : this.guessScore) + score;
@@ -275,8 +276,8 @@ public class Member {
         this.weeklyGuessCorrect = (this.weeklyGuessCorrect == null ? 0 : this.weeklyGuessCorrect) + correct;
         this.weeklyGuessRounds = (this.weeklyGuessRounds == null ? 0 : this.weeklyGuessRounds) + rounds;
 
-        // 최고 기록 갱신 체크 (전체랜덤 + 10라운드 이상 게임만)
-        if (isAllRandom && rounds >= MIN_ROUNDS_FOR_BEST_SCORE) {
+        // 최고 기록 갱신 체크 (전체랜덤 + 필터없음 + 10라운드 이상 게임만)
+        if (isEligibleForBestScore && rounds >= MIN_ROUNDS_FOR_BEST_SCORE) {
             double accuracy = (double) correct / rounds * 100;
             if (this.bestGuessScore == null || score > this.bestGuessScore) {
                 this.bestGuessScore = score;

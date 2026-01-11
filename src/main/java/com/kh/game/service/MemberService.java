@@ -186,10 +186,11 @@ public class MemberService {
     }
 
     // Solo Guess (내가맞추기) 게임 결과 반영
+    // isEligibleForBestScore: 최고기록 랭킹 대상 여부 (전체랜덤 + 필터없음)
     @Transactional
-    public void addGuessGameResult(Long memberId, int score, int correct, int rounds, int skip, boolean isAllRandom) {
+    public void addGuessGameResult(Long memberId, int score, int correct, int rounds, int skip, boolean isEligibleForBestScore) {
         Member member = memberRepository.findById(memberId).orElseThrow();
-        member.addGuessGameResult(score, correct, rounds, skip, isAllRandom);
+        member.addGuessGameResult(score, correct, rounds, skip, isEligibleForBestScore);
         memberRepository.save(member);
     }
 
