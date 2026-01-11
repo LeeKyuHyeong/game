@@ -269,5 +269,56 @@
 @media (max-width: 768px) {
     .game-container {
         grid-template-columns: 1fr;
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+
+    .game-header {
+        padding: 0.75rem 1rem;
+    }
+
+    /* 모바일에서 음악 플레이어 축소 */
+    .music-player {
+        padding: 1rem 1.5rem;
+        border-radius: 1rem;
+    }
+
+    .player-display {
+        margin-bottom: 0.75rem;
+    }
+
+    .music-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .player-status {
+        font-size: 0.875rem;
+    }
+
+    .player-controls {
+        margin-bottom: 0.75rem;
+    }
+
+    .control-btn {
+        width: 3.5rem;
+        height: 3.5rem;
+        font-size: 1.25rem;
+    }
+
+    .play-icon, .pause-icon {
+        font-size: 1.25rem;
+    }
+
+    .progress-bar {
+        height: 6px;
+    }
+
+    .time-display {
+        font-size: 0.75rem;
+    }
+
+    .game-main {
+        gap: 0.75rem;
     }
 }

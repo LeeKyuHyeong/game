@@ -1,0 +1,189 @@
+/* ========================================
+   모바일 통계 카드 스타일
+   ======================================== */
+
+/* ----------------------------------------
+   1. 게임 이력 관리 - 텍스트 요약 스타일
+   ---------------------------------------- */
+@media (max-width: 768px) {
+    .history-stats .stats-cards {
+        display: flex;
+        flex-wrap: wrap;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px 12px;
+        gap: 4px 16px;
+    }
+
+    .history-stats .stats-cards .stat-card {
+        display: inline-flex;
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+    }
+
+    .history-stats .stats-cards .stat-icon {
+        display: none;
+    }
+
+    .history-stats .stats-cards .stat-info {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+    }
+
+    .history-stats .stats-cards .stat-label {
+        font-size: 11px;
+        color: #666;
+        order: 1;
+    }
+
+    .history-stats .stats-cards .stat-label::after {
+        content: ':';
+    }
+
+    .history-stats .stats-cards .stat-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: #333;
+        order: 2;
+    }
+}
+
+
+/* ----------------------------------------
+   2. 랭킹 화면 - Top 3 숨기고 테이블만
+   ---------------------------------------- */
+@media (max-width: 768px) {
+    .ranking-mobile .top-three {
+        display: none !important;
+    }
+
+    .ranking-mobile .ranking-table tbody tr:nth-child(1) td:first-child .rank-num,
+    .ranking-mobile .ranking-table tbody tr:nth-child(2) td:first-child .rank-num,
+    .ranking-mobile .ranking-table tbody tr:nth-child(3) td:first-child .rank-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: 12px;
+    }
+
+    .ranking-mobile .ranking-table tbody tr:nth-child(1) td:first-child .rank-num {
+        background: linear-gradient(135deg, #ffd700, #ffb347);
+        color: #333;
+    }
+
+    .ranking-mobile .ranking-table tbody tr:nth-child(2) td:first-child .rank-num {
+        background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+        color: #333;
+    }
+
+    .ranking-mobile .ranking-table tbody tr:nth-child(3) td:first-child .rank-num {
+        background: linear-gradient(135deg, #cd7f32, #b87333);
+        color: #fff;
+    }
+
+    /* 랭킹 테이블 모바일 최적화 */
+    .ranking-mobile .ranking-table {
+        font-size: 13px;
+    }
+
+    .ranking-mobile .ranking-table th,
+    .ranking-mobile .ranking-table td {
+        padding: 8px 6px;
+    }
+
+    /* 플레이 시간 열 숨김 */
+    .ranking-mobile .ranking-table th:last-child,
+    .ranking-mobile .ranking-table td:last-child {
+        display: none;
+    }
+
+    /* 게임유형 열 숨김 */
+    .ranking-mobile .ranking-table th:nth-child(6),
+    .ranking-mobile .ranking-table td:nth-child(6) {
+        display: none;
+    }
+}
+
+
+/* ----------------------------------------
+   3. 배치관리 - 가로 칩/태그 스타일
+   ---------------------------------------- */
+@media (max-width: 768px) {
+    .batch-stats .stats-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px 0;
+    }
+
+    .batch-stats .stats-cards .stat-card {
+        padding: 6px 10px;
+        border-radius: 16px;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        flex-grow: 0;
+        border: 1px solid #dee2e6;
+        box-shadow: none;
+        background: #fff;
+    }
+
+    .batch-stats .stats-cards .stat-card.implemented {
+        border-color: #28a745;
+        background: #e8f5e9;
+    }
+
+    .batch-stats .stats-cards .stat-card.enabled {
+        border-color: #007bff;
+        background: #e3f2fd;
+    }
+
+    .batch-stats .stats-cards .stat-card.scheduled {
+        border-color: #6f42c1;
+        background: #f3e5f5;
+    }
+
+    .batch-stats .stats-cards .stat-icon {
+        font-size: 10px;
+        background: #667eea;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+
+    .batch-stats .stats-cards .stat-card.implemented .stat-icon {
+        background: #28a745;
+    }
+
+    .batch-stats .stats-cards .stat-card.enabled .stat-icon {
+        background: #007bff;
+    }
+
+    .batch-stats .stats-cards .stat-card.scheduled .stat-icon {
+        background: #6f42c1;
+    }
+
+    .batch-stats .stats-cards .stat-info {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+    }
+
+    .batch-stats .stats-cards .stat-value {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .batch-stats .stats-cards .stat-label {
+        display: none;
+    }
+}

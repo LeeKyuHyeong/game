@@ -1,7 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="sidebar">
+    <!-- 모바일 햄버거 버튼 -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+        <span class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </span>
+    </button>
+
+    <!-- 모바일 오버레이 -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileMenu()"></div>
+
     <aside class="sidebar" id="sidebar">
+        <!-- 모바일 닫기 버튼 -->
+        <button class="mobile-close-btn" onclick="closeMobileMenu()">&times;</button>
+
         <div class="sidebar-header">
             <h2>🎵 Song Quiz</h2>
             <span>관리자</span>
@@ -66,26 +81,57 @@
     </aside>
 
     <script>
-        // 페이지 로드 시 저장된 상태 복원
+        // 페이지 로드 시 저장된 상태 복원 (데스크탑)
         document.addEventListener('DOMContentLoaded', function() {
             const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (isCollapsed) {
+            if (isCollapsed && window.innerWidth > 768) {
                 document.getElementById('sidebar').classList.add('collapsed');
-                document.querySelector('.main-content').classList.add('expanded');
+                document.querySelector('.main-content')?.classList.add('expanded');
             }
         });
 
+        // 데스크탑 사이드바 토글
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.querySelector('.main-content');
 
             sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
+            mainContent?.classList.toggle('expanded');
 
-            // 상태 저장
             const isCollapsed = sidebar.classList.contains('collapsed');
             localStorage.setItem('sidebarCollapsed', isCollapsed);
         }
+
+        // 모바일 메뉴 열기
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+
+            sidebar.classList.add('mobile-open');
+            overlay.classList.add('show');
+            menuBtn.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 모바일 메뉴 닫기
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('show');
+            menuBtn.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // 화면 크기 변경 시 모바일 메뉴 상태 초기화
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileMenu();
+            }
+        });
     </script>
 </th:block>
 </html>

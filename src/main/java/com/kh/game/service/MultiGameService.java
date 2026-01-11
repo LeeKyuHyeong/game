@@ -245,9 +245,16 @@ public class MultiGameService {
         }
 
         if (isCorrectAnswer) {
-            // 정답 처리
-            handleCorrectAnswer(room, member, participant, trimmedMessage);
-            result.put("isCorrect", true);
+            // 정답 처리 (이미 정답자가 있으면 false 반환)
+            boolean wasWinner = handleCorrectAnswer(room, member, participant, trimmedMessage);
+            if (wasWinner) {
+                result.put("isCorrect", true);
+            } else {
+                // 이미 다른 사람이 먼저 맞춤 - 일반 채팅으로 저장
+                GameRoomChat chat = GameRoomChat.chat(room, member, trimmedMessage);
+                chatRepository.save(chat);
+                result.put("isCorrect", false);
+            }
         } else {
             // 일반 채팅 저장
             GameRoomChat chat = GameRoomChat.chat(room, member, trimmedMessage);
@@ -260,9 +267,15 @@ public class MultiGameService {
     }
 
     /**
-     * 정답 처리
+     * 정답 처리 (동시 제출 방지를 위한 synchronized)
+     * @return 정답 처리 성공 여부 (이미 정답자가 있으면 false)
      */
-    private void handleCorrectAnswer(GameRoom room, Member member, GameRoomParticipant participant, String answer) {
+    private synchronized boolean handleCorrectAnswer(GameRoom room, Member member, GameRoomParticipant participant, String answer) {
+        // 이미 정답자가 있으면 무시 (동시 제출 방지)
+        if (room.getWinner() != null) {
+            return false;
+        }
+
         // 정답자 설정
         room.setWinner(member);
 
@@ -285,6 +298,8 @@ public class MultiGameService {
         Song song = room.getCurrentSong();
         String answerMessage = String.format("🎉 정답: %s - %s", song.getArtist(), song.getTitle());
         addSystemMessage(room, member, answerMessage);
+
+        return true;
     }
 
     /**

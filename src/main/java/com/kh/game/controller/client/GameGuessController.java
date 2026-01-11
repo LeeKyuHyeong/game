@@ -366,8 +366,10 @@ public class GameGuessController {
 
             Song song = round.getSong();
 
-            // 점수 배열: 1번째=10, 2번째=7, 3번째=5
-            int[] scoreByAttempt = {10, 7, 5};
+            // 시간 기반 점수 계산 (초 단위)
+            // 3초 이내: 100점, 5초 이내: 90점, 10초 이내: 80점, 이후: 70점
+            Double answerTimeSec = request.get("answerTime") != null ?
+                    Double.parseDouble(request.get("answerTime").toString()) : null;
             int maxAttempts = 3;
 
             if (isSkip) {
@@ -399,8 +401,12 @@ public class GameGuessController {
                     round.setUserAnswer(userAnswer);
                     round.setIsCorrect(true);
 
-                    int earnedScore = scoreByAttempt[currentAttempt - 1];
+                    // 시간 기반 점수 계산
+                    int earnedScore = calculateScoreByTime(answerTimeSec);
                     round.setScore(earnedScore);
+                    if (answerTimeSec != null) {
+                        round.setAnswerTimeMs((long) (answerTimeSec * 1000));
+                    }
                     session.setCorrectCount(session.getCorrectCount() + 1);
                     session.setTotalScore(session.getTotalScore() + earnedScore);
                     session.setCompletedRounds(session.getCompletedRounds() + 1);
@@ -408,6 +414,7 @@ public class GameGuessController {
                     result.put("isCorrect", true);
                     result.put("isRoundOver", true);
                     result.put("earnedScore", earnedScore);
+                    result.put("answerTime", answerTimeSec);
                     result.put("attemptCount", currentAttempt);
 
                 } else if (currentAttempt >= maxAttempts) {
@@ -521,5 +528,24 @@ public class GameGuessController {
 
         result.put("success", true);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 시간 기반 점수 계산
+     * 3초 이내: 100점, 5초 이내: 90점, 10초 이내: 80점, 이후: 70점
+     */
+    private int calculateScoreByTime(Double answerTimeSec) {
+        if (answerTimeSec == null) {
+            return 70; // 시간 정보가 없으면 기본 점수
+        }
+        if (answerTimeSec <= 3.0) {
+            return 100;
+        } else if (answerTimeSec <= 5.0) {
+            return 90;
+        } else if (answerTimeSec <= 10.0) {
+            return 80;
+        } else {
+            return 70;
+        }
     }
 }

@@ -9,6 +9,8 @@ let wrongCount = 0;
 let skipCount = 0;
 let actualTotalRounds = totalRounds; // 서버에서 업데이트될 수 있음
 let isRoundEnded = false; // 라운드 종료 플래그
+let totalPlayTime = 0; // 실제 재생된 총 시간 (초)
+let playStartTime = null; // 현재 재생 시작 시점
 
 // 게임 시작
 document.addEventListener('DOMContentLoaded', function() {
@@ -150,6 +152,9 @@ function playAudio() {
     audioPlayer.play();
     isPlaying = true;
 
+    // 재생 시작 시점 기록
+    playStartTime = Date.now();
+
     document.getElementById('playBtn').innerHTML = '<span class="pause-icon">❚❚</span>';
     document.getElementById('musicIcon').textContent = '🎶';
     document.getElementById('musicIcon').classList.add('playing');
@@ -161,6 +166,12 @@ function playAudio() {
 function pauseAudio() {
     audioPlayer.pause();
     isPlaying = false;
+
+    // 일시정지 시 재생된 시간 누적
+    if (playStartTime !== null) {
+        totalPlayTime += (Date.now() - playStartTime) / 1000;
+        playStartTime = null;
+    }
 
     document.getElementById('playBtn').innerHTML = '<span class="play-icon">▶</span>';
     document.getElementById('musicIcon').textContent = '🎵';
@@ -174,6 +185,12 @@ function stopAudio() {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
     isPlaying = false;
+
+    // 정지 시 재생된 시간 누적
+    if (playStartTime !== null) {
+        totalPlayTime += (Date.now() - playStartTime) / 1000;
+        playStartTime = null;
+    }
 
     document.getElementById('playBtn').innerHTML = '<span class="play-icon">▶</span>';
     document.getElementById('musicIcon').textContent = '🎵';
@@ -216,6 +233,8 @@ function formatTime(seconds) {
 function resetUI() {
     stopAudio();
     isRoundEnded = false; // 라운드 종료 플래그 리셋
+    totalPlayTime = 0; // 재생 시간 리셋
+    playStartTime = null; // 재생 시작 시점 리셋
     document.getElementById('answerInput').value = '';
     // 피드백 메시지 초기화
     const feedbackEl = document.getElementById('attemptFeedback');
@@ -240,6 +259,17 @@ async function submitAnswer() {
 
     if (!currentSong) return;
 
+    // 실제 재생된 시간 계산 (초 단위)
+    let answerTime = totalPlayTime;
+    // 현재 재생 중이면 현재 재생 시간도 추가
+    if (playStartTime !== null) {
+        answerTime += (Date.now() - playStartTime) / 1000;
+    }
+    // 한 번도 재생하지 않았으면 null
+    if (answerTime === 0 && playStartTime === null) {
+        answerTime = null;
+    }
+
     try {
         const response = await fetch('/game/solo/guess/answer', {
             method: 'POST',
@@ -247,7 +277,8 @@ async function submitAnswer() {
             body: JSON.stringify({
                 roundNumber: currentRound,
                 answer: userAnswer,
-                isSkip: false
+                isSkip: false,
+                answerTime: answerTime
             })
         });
 
@@ -269,7 +300,7 @@ async function submitAnswer() {
                     document.getElementById('wrongCount').textContent = wrongCount;
                 }
 
-                showAnswerModal(result.isCorrect, userAnswer, result.answer, result.isGameOver, false, result.earnedScore, result.attemptCount);
+                showAnswerModal(result.isCorrect, userAnswer, result.answer, result.isGameOver, false, result.earnedScore, result.answerTime);
             } else {
                 // 오답이지만 기회 남음
                 showAttemptFeedback(result.remainingAttempts, userAnswer);
@@ -333,7 +364,7 @@ async function skipRound() {
     }
 }
 
-function showAnswerModal(isCorrect, userAnswer, answerInfo, isGameOver, isSkip = false, earnedScore = 0, attemptCount = 0) {
+function showAnswerModal(isCorrect, userAnswer, answerInfo, isGameOver, isSkip = false, earnedScore = 0, answerTime = null) {
     const modal = document.getElementById('answerModal');
     const header = document.getElementById('answerHeader');
     const userAnswerInfo = document.getElementById('userAnswerInfo');
@@ -346,9 +377,9 @@ function showAnswerModal(isCorrect, userAnswer, answerInfo, isGameOver, isSkip =
     } else if (isCorrect) {
         header.textContent = '🎉 정답!';
         header.className = 'answer-header correct';
-        let attemptText = attemptCount === 1 ? '첫 번째' : attemptCount === 2 ? '두 번째' : '세 번째';
+        let timeText = answerTime !== null ? answerTime.toFixed(1) + '초' : '';
         userAnswerInfo.innerHTML = `
-            <span class="attempt-info">${attemptText} 시도에 정답!</span>
+            <span class="attempt-info">${timeText}만에 정답!</span>
             <span class="correct-text">+${earnedScore}점!</span>
         `;
     } else {

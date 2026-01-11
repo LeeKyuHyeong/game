@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('채팅 내역')}"></head>
+<link rel="stylesheet" href="/css/admin/table-mobile-collapse.css">
 <body class="admin-page">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
@@ -77,21 +78,21 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="chat : ${chats}" th:classappend="${chat.messageType.name() == 'CORRECT_ANSWER'} ? 'correct-row'">
-                        <td><input type="checkbox" class="chat-checkbox" th:value="${chat.id}"></td>
-                        <td th:text="${chat.id}"></td>
-                        <td><code th:text="${chat.gameRoom?.roomCode ?: '-'}"></code></td>
-                        <td th:text="${chat.member?.nickname ?: '-'}"></td>
-                        <td class="message-cell">
+                    <tr th:each="chat : ${chats}" th:classappend="${chat.messageType.name() == 'CORRECT_ANSWER'} ? 'correct-row'" onclick="toggleRowExpand(this)">
+                        <td data-label="" onclick="event.stopPropagation()"><input type="checkbox" class="chat-checkbox" th:value="${chat.id}"></td>
+                        <td data-label="ID" th:text="${chat.id}"></td>
+                        <td data-label="방 코드"><code th:text="${chat.gameRoom?.roomCode ?: '-'}"></code></td>
+                        <td data-label="닉네임" th:text="${chat.member?.nickname ?: '-'}"></td>
+                        <td data-label="메시지" class="message-cell">
                             <span th:text="${chat.message}"></span>
                         </td>
-                        <td>
+                        <td data-label="타입">
                             <span class="message-type"
                                   th:classappend="${chat.messageType.name()}"
                                   th:text="${chat.messageType.name() == 'CHAT'} ? '채팅' : (${chat.messageType.name() == 'CORRECT_ANSWER'} ? '정답' : '시스템')"></span>
                         </td>
-                        <td th:text="${#temporals.format(chat.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                        <td>
+                        <td data-label="일시" th:text="${#temporals.format(chat.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
                             <button class="btn btn-sm btn-delete" th:onclick="'deleteChat(' + ${chat.id} + ')'">삭제</button>
                         </td>
                     </tr>
@@ -131,5 +132,12 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-chat.js}"></script>
+<script>
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+</script>
 </body>
 </html>

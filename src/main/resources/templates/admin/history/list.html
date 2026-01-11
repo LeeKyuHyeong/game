@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('게임 이력 관리')}"></head>
-<body class="admin-page">
+<link rel="stylesheet" href="/css/admin/table-mobile-collapse.css">
+<link rel="stylesheet" href="/css/admin/mobile-stats.css">
+<body class="admin-page history-stats">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
 
@@ -70,28 +72,28 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="s : ${sessions}">
-                    <td th:text="${s.id}"></td>
-                    <td th:text="${s.nickname}"></td>
-                    <td>
+                <tr th:each="s : ${sessions}" onclick="toggleRowExpand(this)">
+                    <td data-label="ID" th:text="${s.id}"></td>
+                    <td data-label="별명" th:text="${s.nickname}"></td>
+                    <td data-label="게임유형">
                                 <span class="type-badge" th:classappend="${s.gameType.name()}"
                                       th:text="${s.gameType.name() == 'SOLO_HOST'} ? '게임진행용' : '내가맞추기'"></span>
                     </td>
-                    <td>
+                    <td data-label="게임모드">
                                 <span th:switch="${s.gameMode.name()}">
                                     <span th:case="'RANDOM'">전체랜덤</span>
                                     <span th:case="'GENRE_PER_ROUND'">라운드별장르</span>
                                     <span th:case="'FIXED_GENRE'">고정장르</span>
                                 </span>
                     </td>
-                    <td>
+                    <td data-label="라운드">
                         <span th:text="${s.completedRounds}"></span>/<span th:text="${s.totalRounds}"></span>
                     </td>
-                    <td class="score-cell" th:text="${s.totalScore}"></td>
-                    <td>
+                    <td data-label="점수" class="score-cell" th:text="${s.totalScore}"></td>
+                    <td data-label="정답률">
                         <span class="accuracy" th:text="${#numbers.formatDecimal(s.accuracyRate, 0, 1)} + '%'"></span>
                     </td>
-                    <td>
+                    <td data-label="상태">
                                 <span class="game-status" th:classappend="${s.status.name()}"
                                       th:switch="${s.status.name()}">
                                     <span th:case="'PLAYING'">진행중</span>
@@ -99,8 +101,8 @@
                                     <span th:case="'ABANDONED'">중도포기</span>
                                 </span>
                     </td>
-                    <td th:text="${#temporals.format(s.startedAt, 'MM-dd HH:mm')}"></td>
-                    <td class="action-buttons">
+                    <td data-label="시작시간" th:text="${#temporals.format(s.startedAt, 'MM-dd HH:mm')}"></td>
+                    <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
                         <a th:href="@{/admin/history/detail/{id}(id=${s.id})}" class="btn btn-sm btn-view">상세</a>
                         <button class="btn btn-sm btn-delete" th:onclick="'deleteSession(' + ${s.id} + ')'">삭제</button>
                     </td>
@@ -135,5 +137,12 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-history.js}"></script>
+<script>
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+</script>
 </body>
 </html>

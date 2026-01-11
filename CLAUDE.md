@@ -11,8 +11,11 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 # Build WAR package
 mvn clean package -DskipTests
 
-# Run tests
+# Run all tests
 mvn test
+
+# Run a single test class
+mvn test -Dtest=GameApplicationTests
 
 # Docker deployment
 docker-compose up -d
@@ -54,7 +57,8 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 
 ## Configuration
 
-- **Dev profile:** Port 8082, MariaDB localhost:3306/song
+- **Dev profile:** Port 8082, MariaDB localhost:3306/song (root/1234)
+- **Admin login (dev):** admin / 1234
 - **File uploads:** `uploads/songs/`, max 50MB
 - **Session timeout:** 30 minutes
 - **Admin routes:** Protected by `AdminInterceptor` (/admin/**)
@@ -62,6 +66,6 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 ## CI/CD
 
 GitHub Actions workflow at `.github/workflows/deploy.yml`:
-- Triggers on push to main
-- Builds Docker image → deploys to server via SSH
-- Requires secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`, `SERVER_PORT`, `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`
+- Triggers on push to main or manual dispatch
+- Builds Docker image → pushes to Docker Hub → deploys to server via SSH
+- Requires secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`, `SERVER_PORT`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `DB_USERNAME`, `DB_PASSWORD`

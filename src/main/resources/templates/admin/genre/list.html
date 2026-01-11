@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('장르 관리')}"></head>
+<link rel="stylesheet" href="/css/admin/table-mobile-collapse.css">
 <body class="admin-page">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
@@ -33,17 +34,17 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="genre : ${genres}">
-                    <td th:text="${genre.id}"></td>
-                    <td><code th:text="${genre.code}"></code></td>
-                    <td th:text="${genre.name}"></td>
-                    <td th:text="${genre.displayOrder}"></td>
-                    <td>
+                <tr th:each="genre : ${genres}" onclick="toggleRowExpand(this)">
+                    <td data-label="ID" th:text="${genre.id}"></td>
+                    <td data-label="코드"><code th:text="${genre.code}"></code></td>
+                    <td data-label="장르명" th:text="${genre.name}"></td>
+                    <td data-label="정렬순서" th:text="${genre.displayOrder}"></td>
+                    <td data-label="사용여부">
                                 <span class="status" th:classappend="${genre.useYn == 'Y'} ? 'active' : 'inactive'"
                                       th:text="${genre.useYn == 'Y'} ? '사용' : '미사용'"></span>
                     </td>
-                    <td th:text="${#temporals.format(genre.createdAt, 'yyyy-MM-dd')}"></td>
-                    <td class="action-buttons">
+                    <td data-label="등록일" th:text="${#temporals.format(genre.createdAt, 'yyyy-MM-dd')}"></td>
+                    <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
                         <button class="btn btn-sm btn-edit" th:onclick="'editGenre(' + ${genre.id} + ')'">수정</button>
                         <button class="btn btn-sm btn-toggle" th:onclick="'toggleStatus(' + ${genre.id} + ')'">상태변경</button>
                         <button class="btn btn-sm btn-delete" th:onclick="'deleteGenre(' + ${genre.id} + ')'">삭제</button>
@@ -124,5 +125,12 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-genre.js}"></script>
+<script>
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+</script>
 </body>
 </html>

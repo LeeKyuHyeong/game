@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('로그인 이력 관리')}"></head>
+<link rel="stylesheet" href="/css/admin/table-mobile-collapse.css">
 <body class="admin-page">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
@@ -59,10 +60,10 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="history : ${histories}">
-                    <td th:text="${history.id}"></td>
-                    <td th:text="${history.email}"></td>
-                    <td>
+                <tr th:each="history : ${histories}" onclick="toggleRowExpand(this)">
+                    <td data-label="ID" th:text="${history.id}"></td>
+                    <td data-label="이메일" th:text="${history.email}"></td>
+                    <td data-label="결과">
                             <span class="status-badge"
                                   th:classappend="${history.result.name() == 'SUCCESS' ? 'success' : 'danger'}"
                                   th:text="${history.result.name() == 'SUCCESS' ? '성공' :
@@ -72,9 +73,9 @@
                                             (history.result.name() == 'FAIL_INACTIVE' ? '비활성 계정' : history.result.name()))))}">
                             </span>
                     </td>
-                    <td th:text="${history.ipAddress}"></td>
-                    <td th:text="${history.failReason ?: '-'}"></td>
-                    <td th:text="${#temporals.format(history.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td data-label="IP 주소" th:text="${history.ipAddress}"></td>
+                    <td data-label="사유" th:text="${history.failReason ?: '-'}"></td>
+                    <td data-label="일시" th:text="${#temporals.format(history.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
                 </tr>
                 <tr th:if="${histories.isEmpty()}">
                     <td colspan="6" class="empty-row">조회된 이력이 없습니다.</td>
@@ -113,5 +114,12 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin.js}"></script>
+<script>
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+</script>
 </body>
 </html>

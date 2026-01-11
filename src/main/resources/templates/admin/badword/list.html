@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('비속어 필터')}"></head>
+<link rel="stylesheet" href="/css/admin/table-mobile-collapse.css">
 <body class="admin-page">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
@@ -69,18 +70,18 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="badWord : ${badWords}">
-                        <td th:text="${badWord.id}"></td>
-                        <td>
+                    <tr th:each="badWord : ${badWords}" onclick="toggleRowExpand(this)">
+                        <td data-label="ID" th:text="${badWord.id}"></td>
+                        <td data-label="비속어">
                             <code class="badword-text" th:text="${badWord.word}"></code>
                         </td>
-                        <td th:text="${badWord.replacement ?: '***'}"></td>
-                        <td>
+                        <td data-label="대체 문자" th:text="${badWord.replacement ?: '***'}"></td>
+                        <td data-label="상태">
                             <span class="status" th:classappend="${badWord.isActive} ? 'active' : 'inactive'"
                                   th:text="${badWord.isActive} ? '활성' : '비활성'"></span>
                         </td>
-                        <td th:text="${#temporals.format(badWord.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-                        <td class="action-buttons">
+                        <td data-label="등록일" th:text="${#temporals.format(badWord.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
                             <button class="btn btn-sm btn-edit" th:onclick="'editBadWord(' + ${badWord.id} + ')'">수정</button>
                             <button class="btn btn-sm btn-toggle" th:onclick="'toggleStatus(' + ${badWord.id} + ')'">상태변경</button>
                             <button class="btn btn-sm btn-delete" th:onclick="'deleteBadWord(' + ${badWord.id} + ')'">삭제</button>
@@ -220,5 +221,12 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-badword.js}"></script>
+<script>
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+</script>
 </body>
 </html>

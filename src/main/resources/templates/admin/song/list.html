@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('노래 관리')}"></head>
+<!-- 모바일 테이블 스타일 (접기 방식) -->
+<link rel="stylesheet" href="/css/admin/table-mobile-collapse.css">
 <body class="admin-page">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
@@ -36,26 +38,26 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="song : ${songs}">
-                    <td th:text="${song.id}"></td>
-                    <td th:text="${song.title}"></td>
-                    <td th:text="${song.artist}"></td>
-                    <td th:text="${song.genre != null} ? ${song.genre.name} : '-'"></td>
-                    <td th:text="${song.releaseYear} ?: '-'"></td>
-                    <td>
+                <tr th:each="song : ${songs}" onclick="toggleRowExpand(this)">
+                    <td data-label="ID" th:text="${song.id}"></td>
+                    <td data-label="제목" th:text="${song.title}"></td>
+                    <td data-label="아티스트" th:text="${song.artist}"></td>
+                    <td data-label="장르" th:text="${song.genre != null} ? ${song.genre.name} : '-'"></td>
+                    <td data-label="연도" th:text="${song.releaseYear} ?: '-'"></td>
+                    <td data-label="솔로">
                                 <span class="solo-badge" th:classappend="${song.isSolo} ? 'solo' : 'group'"
                                       th:text="${song.isSolo} ? '솔로' : '그룹'"></span>
                     </td>
-                    <td>
+                    <td data-label="MP3">
                         <span th:if="${song.filePath}" class="file-exists">●</span>
                         <span th:unless="${song.filePath}" class="file-none">-</span>
                     </td>
-                    <td>
+                    <td data-label="사용여부">
                                 <span class="status" th:classappend="${song.useYn == 'Y'} ? 'active' : 'inactive'"
                                       th:text="${song.useYn == 'Y'} ? '사용' : '미사용'"></span>
                     </td>
-                    <td th:text="${#temporals.format(song.createdAt, 'yyyy-MM-dd')}"></td>
-                    <td class="action-buttons">
+                    <td data-label="등록일" th:text="${#temporals.format(song.createdAt, 'yyyy-MM-dd')}"></td>
+                    <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
                         <button class="btn btn-sm btn-edit" th:onclick="'editSong(' + ${song.id} + ')'">수정</button>
                         <button class="btn btn-sm btn-toggle" th:onclick="'toggleStatus(' + ${song.id} + ')'">상태변경</button>
                         <button class="btn btn-sm btn-delete" th:onclick="'deleteSong(' + ${song.id} + ')'">삭제</button>
@@ -179,5 +181,13 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-song.js}"></script>
+<script>
+// 행 펼치기/접기 (모바일)
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+</script>
 </body>
 </html>

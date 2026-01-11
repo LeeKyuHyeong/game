@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('정답 관리')}"></head>
+<link rel="stylesheet" href="/css/admin/table-mobile-collapse.css">
 <body class="admin-page">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
@@ -47,24 +48,25 @@
                     </thead>
                     <tbody>
                     <tr th:each="song : ${songs.content}"
-                        th:classappend="${answerCounts[song.id] == 0} ? 'no-answer-row'">
-                        <td th:text="${song.id}"></td>
-                        <td>
+                        th:classappend="${answerCounts[song.id] == 0} ? 'no-answer-row'"
+                        onclick="toggleRowExpand(this)">
+                        <td data-label="ID" th:text="${song.id}"></td>
+                        <td data-label="제목">
                             <span class="song-title" th:text="${song.title}"></span>
                         </td>
-                        <td th:text="${song.artist}"></td>
-                        <td th:text="${song.genre != null} ? ${song.genre.name} : '-'"></td>
-                        <td th:text="${song.releaseYear} ?: '-'"></td>
-                        <td>
+                        <td data-label="아티스트" th:text="${song.artist}"></td>
+                        <td data-label="장르" th:text="${song.genre != null} ? ${song.genre.name} : '-'"></td>
+                        <td data-label="연도" th:text="${song.releaseYear} ?: '-'"></td>
+                        <td data-label="정답 개수">
                             <span class="answer-count"
                                   th:classappend="${answerCounts[song.id] > 0} ? 'has-answers' : 'no-answers'"
                                   th:text="${answerCounts[song.id]} + '개'"></span>
                         </td>
-                        <td>
+                        <td data-label="상태">
                             <span class="status" th:classappend="${song.useYn == 'Y'} ? 'active' : 'inactive'"
                                   th:text="${song.useYn == 'Y'} ? '사용' : '미사용'"></span>
                         </td>
-                        <td class="action-buttons">
+                        <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
                             <button class="btn btn-sm btn-primary"
                                     th:data-song-id="${song.id}"
                                     th:data-song-title="${song.title}"
@@ -194,5 +196,12 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-answer.js}"></script>
+<script>
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+</script>
 </body>
 </html>

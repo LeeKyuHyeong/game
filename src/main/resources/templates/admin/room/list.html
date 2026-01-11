@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('방 관리')}"></head>
+<link rel="stylesheet" href="/css/admin/table-mobile-collapse.css">
 <body class="admin-page">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
@@ -84,29 +85,29 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="room : ${rooms}">
-                        <td th:text="${room.id}"></td>
-                        <td><code th:text="${room.roomCode}"></code></td>
-                        <td>
+                    <tr th:each="room : ${rooms}" onclick="toggleRowExpand(this)">
+                        <td data-label="ID" th:text="${room.id}"></td>
+                        <td data-label="방 코드"><code th:text="${room.roomCode}"></code></td>
+                        <td data-label="방 이름">
                             <span th:text="${room.roomName}"></span>
                             <span th:if="${room.isPrivate}" class="badge badge-private">비공개</span>
                         </td>
-                        <td th:text="${room.host?.nickname ?: '-'}"></td>
-                        <td>
+                        <td data-label="방장" th:text="${room.host?.nickname ?: '-'}"></td>
+                        <td data-label="인원">
                             <span th:text="${room.currentPlayerCount}"></span> /
                             <span th:text="${room.maxPlayers}"></span>
                         </td>
-                        <td>
+                        <td data-label="라운드">
                             <span th:text="${room.currentRound}"></span> /
                             <span th:text="${room.totalRounds}"></span>
                         </td>
-                        <td>
+                        <td data-label="상태">
                             <span class="status-badge"
                                   th:classappend="${room.status.name() == 'WAITING'} ? 'warning' : (${room.status.name() == 'PLAYING'} ? 'success' : 'info')"
                                   th:text="${room.status.name() == 'WAITING'} ? '대기중' : (${room.status.name() == 'PLAYING'} ? '게임중' : '종료')"></span>
                         </td>
-                        <td th:text="${#temporals.format(room.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-                        <td class="action-buttons">
+                        <td data-label="생성일" th:text="${#temporals.format(room.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
                             <button class="btn btn-sm btn-info" th:onclick="'viewRoom(' + ${room.id} + ')'">상세</button>
                             <button class="btn btn-sm btn-primary" th:onclick="'viewChat(' + ${room.id} + ')'">채팅</button>
                             <button class="btn btn-sm btn-warning" th:if="${room.status.name() != 'FINISHED'}"
@@ -177,5 +178,12 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-room.js}"></script>
+<script>
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+</script>
 </body>
 </html>

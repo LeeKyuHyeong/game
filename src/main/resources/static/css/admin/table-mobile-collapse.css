@@ -1,0 +1,174 @@
+/**
+ * Option 3: Collapsed Rows with Expandable Details
+ *
+ * 핵심 정보만 보여주고 클릭하면 상세 정보 펼침
+ * - 깔끔한 미니멀 디자인
+ * - 필요한 정보만 펼쳐서 확인
+ * - 리스트 형태로 빠른 스캔 가능
+ */
+
+@media (max-width: 768px) {
+    /* 테이블 기본 스타일 */
+    .data-table thead {
+        display: none;
+    }
+
+    .data-table,
+    .data-table tbody {
+        display: block;
+    }
+
+    /* 행을 컴팩트한 카드로 */
+    .data-table tbody tr {
+        display: block;
+        background: var(--card-bg);
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    .data-table tbody tr:hover {
+        background: var(--card-bg);
+    }
+
+    /* 모든 셀 숨김 */
+    .data-table td {
+        display: none;
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* 제목, 아티스트, 상태만 표시 (핵심 정보) */
+    .data-table td:nth-child(2), /* 제목 */
+    .data-table td:nth-child(3), /* 아티스트 */
+    .data-table td:nth-child(8)  /* 사용여부 */ {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* 제목 강조 */
+    .data-table td:nth-child(2) {
+        font-weight: 600;
+        font-size: 1rem;
+        padding-top: 0.75rem;
+        border-bottom: none;
+    }
+
+    /* 아티스트 */
+    .data-table td:nth-child(3) {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        padding-top: 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* 사용여부 */
+    .data-table td:nth-child(8) {
+        padding: 0.5rem 1rem;
+        justify-content: flex-start;
+    }
+
+    /* 확장 시 모든 정보 표시 */
+    .data-table tbody tr.expanded td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .data-table tbody tr.expanded td::before {
+        content: attr(data-label);
+        font-weight: 500;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+    }
+
+    /* 확장 시 제목/아티스트는 라벨 제거 */
+    .data-table tbody tr.expanded td:nth-child(2)::before,
+    .data-table tbody tr.expanded td:nth-child(3)::before {
+        display: none;
+    }
+
+    /* 액션 버튼 */
+    .data-table td.action-buttons {
+        background: #f8fafc;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .data-table tbody tr.expanded td.action-buttons {
+        display: flex;
+    }
+
+    .data-table td.action-buttons::before {
+        display: none !important;
+    }
+
+    /* 확장 토글 버튼 (행 하단) */
+    .data-table tbody tr::after {
+        content: '상세보기 ▼';
+        display: block;
+        text-align: center;
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--primary-color);
+        cursor: pointer;
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .data-table tbody tr.expanded::after {
+        content: '접기 ▲';
+    }
+
+    /* 빈 행 */
+    .data-table .empty-row {
+        display: block !important;
+        text-align: center;
+        padding: 2rem !important;
+    }
+
+    .data-table tbody tr:has(.empty-row)::after {
+        display: none;
+    }
+
+    /* 검색바 */
+    .search-bar .search-form {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .search-bar .search-form input {
+        width: 100%;
+    }
+
+    .search-bar .search-form .btn {
+        width: 100%;
+    }
+
+    /* 페이지네이션 */
+    .pagination {
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        min-width: 2rem;
+        height: 2rem;
+        font-size: 0.75rem;
+    }
+
+    /* 컨텐츠 헤더 */
+    .content-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .content-header .btn {
+        width: 100%;
+    }
+}

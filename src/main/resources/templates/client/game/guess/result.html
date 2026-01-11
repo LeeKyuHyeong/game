@@ -59,7 +59,7 @@
                         </div>
                         <div th:if="${round.isCorrect}" class="score-info">
                             <span class="score-plus" th:text="'+' + ${round.score} + '점'"></span>
-                            <span class="attempt-info" th:text="'(' + ${round.attemptCount} + '번째)'"></span>
+                            <span th:if="${round.answerTimeMs != null}" class="attempt-info" th:text="'(' + ${#numbers.formatDecimal(round.answerTimeMs / 1000.0, 1, 1)} + '초)'"></span>
                         </div>
                         <div th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="fail-info">
                             <span class="fail-text">3회 실패</span>
