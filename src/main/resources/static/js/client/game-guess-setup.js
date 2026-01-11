@@ -370,10 +370,18 @@ async function updateSongCount() {
         updatePresetButtons();
 
         const currentRounds = getTotalRounds();
-        if (currentRounds > maxAvailableSongs && maxAvailableSongs > 0) {
-            document.getElementById('totalRounds').value = maxAvailableSongs;
-            updatePresetButtons();
-            updateRankingNotice();
+        if (maxAvailableSongs > 0) {
+            if (currentRounds > maxAvailableSongs) {
+                // 현재 라운드가 max보다 크면 줄임
+                document.getElementById('totalRounds').value = maxAvailableSongs;
+                updatePresetButtons();
+                updateRankingNotice();
+            } else if (currentRounds < maxAvailableSongs && currentRounds < 10) {
+                // 현재 라운드가 max보다 작고 10 미만이면 자동으로 올림 (최대 10 또는 max)
+                document.getElementById('totalRounds').value = Math.min(10, maxAvailableSongs);
+                updatePresetButtons();
+                updateRankingNotice();
+            }
         }
 
     } catch (error) {
