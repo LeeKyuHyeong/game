@@ -716,8 +716,72 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Desktop/Mobile Toggle */
+.mobile-only {
+    display: none;
+}
+
+.desktop-only {
+    display: block;
+}
+
+/* Mobile Ranking List */
+.ranking-list-section {
+    background: white;
+    border-radius: 1rem;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ranking-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    gap: 12px;
+}
+
+.ranking-row.first {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+.ranking-row.second {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.ranking-row.third {
+    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+}
+
+.ranking-row .rank-medal {
+    font-size: 1.25rem;
+    min-width: 28px;
+    text-align: center;
+}
+
+.ranking-row .rank-name {
+    flex: 1;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.ranking-row .rank-score {
+    font-weight: 700;
+    color: #6366f1;
+}
+
 /* Responsive - Tablet */
 @media (max-width: 768px) {
+    .mobile-only {
+        display: block;
+    }
+
+    .desktop-only {
+        display: none;
+    }
     .result-container {
         padding: 1rem;
     }

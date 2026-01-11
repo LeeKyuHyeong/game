@@ -84,7 +84,34 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+    .client-container {
+        padding: 0.75rem;
+    }
+
+    .client-header {
+        padding: 1rem 0;
+    }
+
     .client-header h1 {
-        font-size: 2rem;
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .client-header p {
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    .client-header.compact {
+        padding: 0.75rem 0;
+    }
+
+    .client-header.compact h1 {
+        font-size: 1.25rem;
+    }
+
+    .back-home {
+        margin-bottom: 0.5rem;
+        font-size: 0.75rem;
     }
 }

@@ -27,6 +27,8 @@ body {
     background: var(--bg-color);
     color: var(--text-primary);
     line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
 
 a {

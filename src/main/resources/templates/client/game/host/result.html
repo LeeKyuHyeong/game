@@ -8,7 +8,8 @@
     </header>
 
     <main class="result-main">
-        <div class="podium-section" th:if="${#lists.size(playerScores) >= 1}">
+        <!-- 데스크탑: 포디움 -->
+        <div class="podium-section desktop-only" th:if="${#lists.size(playerScores) >= 1}">
             <div class="podium">
                 <div class="podium-place second" th:if="${#lists.size(playerScores) >= 2}">
                     <div class="place-medal" th:text="${playerScores[1].rank == 1} ? '🥇' : (${playerScores[1].rank == 2} ? '🥈' : '🥉')"></div>
@@ -28,6 +29,16 @@
                     <div class="place-score" th:text="${playerScores[2].score} + '점'"></div>
                     <div class="place-stand" th:text="${playerScores[2].rank}"></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- 모바일: 랭킹 리스트 -->
+        <div class="ranking-list-section mobile-only" th:if="${#lists.size(playerScores) >= 1}">
+            <div th:each="entry : ${playerScores}" class="ranking-row"
+                 th:classappend="${entry.rank == 1} ? 'first' : (${entry.rank == 2} ? 'second' : (${entry.rank == 3} ? 'third' : ''))">
+                <span class="rank-medal" th:text="${entry.rank == 1} ? '🥇' : (${entry.rank == 2} ? '🥈' : (${entry.rank == 3} ? '🥉' : ${entry.rank}))"></span>
+                <span class="rank-name" th:text="${entry.name}"></span>
+                <span class="rank-score" th:text="${entry.score} + '점'"></span>
             </div>
         </div>
 
@@ -72,7 +83,7 @@
             </div>
         </div>
 
-        <div class="all-scores" th:if="${#lists.size(playerScores) > 3}">
+        <div class="all-scores desktop-only" th:if="${#lists.size(playerScores) > 3}">
             <h3>전체 순위</h3>
             <div class="score-table">
                 <div th:each="entry : ${playerScores}" class="score-row">

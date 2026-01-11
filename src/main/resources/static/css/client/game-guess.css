@@ -341,4 +341,42 @@
         padding: 0.75rem;
         font-size: 0.875rem;
     }
+
+    /* 장르 선택 모달 컴팩트 */
+    .genre-select-modal {
+        padding: 1rem;
+        width: 95%;
+    }
+
+    .genre-modal-header {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .genre-modal-subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .genre-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        max-height: 50vh;
+    }
+
+    .genre-item {
+        padding: 10px 8px;
+        min-height: 60px;
+        border-radius: 10px;
+    }
+
+    .genre-name {
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+    }
+
+    .genre-count {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
 }

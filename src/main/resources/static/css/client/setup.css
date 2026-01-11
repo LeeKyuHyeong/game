@@ -344,3 +344,73 @@
 .btn-next:hover, .btn-start:hover {
     background: var(--primary-hover);
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .setup-main {
+        padding: 0.5rem 0;
+    }
+
+    .setup-card {
+        padding: 1.25rem;
+        border-radius: 1rem;
+    }
+
+    .setup-step h2 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .setup-step .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .setup-step .form-group > label {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .player-count-selector {
+        gap: 1rem;
+    }
+
+    .count-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.25rem;
+    }
+
+    .player-count-selector span {
+        font-size: 2rem;
+    }
+
+    .round-options {
+        gap: 0.5rem;
+    }
+
+    .round-btn {
+        padding: 0.75rem 0.5rem;
+        font-size: 1rem;
+    }
+
+    .mode-option {
+        padding: 0.75rem;
+    }
+
+    .mode-label strong {
+        font-size: 0.9rem;
+    }
+
+    .mode-label small {
+        font-size: 0.7rem;
+    }
+
+    .step-buttons {
+        margin-top: 1.25rem;
+    }
+
+    .btn-back, .btn-next, .btn-start {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+}

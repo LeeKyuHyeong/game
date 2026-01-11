@@ -217,3 +217,57 @@
     color: var(--primary-color);
     font-weight: 500;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .auth-page {
+        padding: 1rem;
+    }
+
+    .auth-card {
+        padding: 1.5rem;
+        border-radius: 1rem;
+    }
+
+    .auth-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-header .back-link {
+        margin-bottom: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .auth-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .auth-header p {
+        font-size: 0.875rem;
+    }
+
+    .auth-form {
+        gap: 1rem;
+    }
+
+    .auth-form input {
+        padding: 0.75rem;
+    }
+
+    .btn-auth {
+        padding: 0.875rem;
+    }
+
+    .auth-divider {
+        margin: 1rem 0;
+    }
+
+    .btn-guest {
+        padding: 0.75rem;
+    }
+
+    .auth-footer {
+        margin-top: 1rem;
+        font-size: 0.8rem;
+    }
+}
