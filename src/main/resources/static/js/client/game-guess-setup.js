@@ -1,5 +1,11 @@
 let maxAvailableSongs = 999;
 
+// 선택된 연도/아티스트
+let selectedYears = [];
+let selectedArtists = [];
+let allYears = [];
+let allArtists = [];
+
 // 초기 노래 개수 로딩
 document.addEventListener('DOMContentLoaded', function() {
     updateSongCount();
@@ -95,10 +101,11 @@ function updateRankingNotice() {
     const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
     const loggedIn = typeof isLoggedIn !== 'undefined' && isLoggedIn;
 
-    // 연도 범위 체크
-    const yearFrom = document.getElementById('yearFrom').value;
-    const yearTo = document.getElementById('yearTo').value;
-    const noYearFilter = !yearFrom && !yearTo;
+    // 연도 필터 체크
+    const noYearFilter = selectedYears.length === 0;
+
+    // 아티스트 필터 체크
+    const noArtistFilter = selectedArtists.length === 0;
 
     // 아티스트 유형 체크
     const artistType = document.querySelector('input[name="artistType"]:checked').value;
@@ -109,6 +116,7 @@ function updateRankingNotice() {
     const conditionModeMet = gameMode === 'RANDOM';
     const conditionRoundsMet = rounds >= 10;
     const conditionYearMet = noYearFilter;
+    const conditionArtistFilterMet = noArtistFilter;
     const conditionArtistMet = allArtistTypes;
 
     // UI 업데이트
@@ -116,11 +124,12 @@ function updateRankingNotice() {
     updateConditionUI('conditionMode', conditionModeMet);
     updateConditionUI('conditionRounds', conditionRoundsMet);
     updateConditionUI('conditionYear', conditionYearMet);
+    updateConditionUI('conditionArtistFilter', conditionArtistFilterMet);
     updateConditionUI('conditionArtist', conditionArtistMet);
 
     // 결과 메시지
     const resultEl = document.getElementById('noticeResult');
-    const allMet = conditionLoginMet && conditionModeMet && conditionRoundsMet && conditionYearMet && conditionArtistMet;
+    const allMet = conditionLoginMet && conditionModeMet && conditionRoundsMet && conditionYearMet && conditionArtistFilterMet && conditionArtistMet;
 
     if (allMet) {
         resultEl.textContent = '최고기록 랭킹에 등록됩니다!';
@@ -130,7 +139,8 @@ function updateRankingNotice() {
         if (!conditionLoginMet) missing.push('로그인');
         if (!conditionModeMet) missing.push('전체 랜덤 모드');
         if (!conditionRoundsMet) missing.push('10라운드 이상');
-        if (!conditionYearMet) missing.push('연도 범위 미설정');
+        if (!conditionYearMet) missing.push('연도 필터 미설정');
+        if (!conditionArtistFilterMet) missing.push('아티스트 필터 미설정');
         if (!conditionArtistMet) missing.push('아티스트 유형 전체');
         resultEl.textContent = `조건 미충족: ${missing.join(', ')}`;
         resultEl.className = 'notice-result warning';
@@ -139,6 +149,7 @@ function updateRankingNotice() {
 
 function updateConditionUI(elementId, isMet) {
     const el = document.getElementById(elementId);
+    if (!el) return;
     const iconEl = el.querySelector('.condition-icon');
 
     if (isMet) {
@@ -167,7 +178,7 @@ document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
             genreSelect.style.display = 'none';
             artistSelect.style.display = 'block';
             genreRoundSetting.style.display = 'none';
-            loadArtists();
+            loadArtistsForFixedMode();
         } else if (this.value === 'GENRE_PER_ROUND') {
             genreSelect.style.display = 'none';
             artistSelect.style.display = 'none';
@@ -187,19 +198,18 @@ document.getElementById('fixedGenreId').addEventListener('change', function() {
     updateSongCount();
 });
 
-// 아티스트 목록 로드
-let allArtists = [];
-async function loadArtists() {
+// 아티스트 목록 로드 (FIXED_ARTIST 모드용)
+async function loadArtistsForFixedMode() {
     try {
         const response = await fetch('/game/solo/guess/artists');
-        allArtists = await response.json();
-        renderArtistList(allArtists);
+        const artists = await response.json();
+        renderArtistList(artists);
     } catch (error) {
         console.error('아티스트 목록 로드 오류:', error);
     }
 }
 
-// 아티스트 목록 렌더링
+// 아티스트 목록 렌더링 (FIXED_ARTIST 모드용)
 function renderArtistList(artists) {
     const select = document.getElementById('fixedArtistName');
     select.innerHTML = '<option value="">아티스트를 선택하세요</option>';
@@ -211,9 +221,11 @@ function renderArtistList(artists) {
     });
 }
 
-// 아티스트 검색 이벤트
+// 아티스트 검색 이벤트 (FIXED_ARTIST 모드용)
 document.getElementById('artistSearchInput').addEventListener('input', function() {
     const keyword = this.value.toLowerCase();
+    if (!allArtists.length) return;
+
     if (!keyword) {
         renderArtistList(allArtists);
         return;
@@ -224,19 +236,9 @@ document.getElementById('artistSearchInput').addEventListener('input', function(
     renderArtistList(filtered);
 });
 
-// 아티스트 선택 변경 이벤트
+// 아티스트 선택 변경 이벤트 (FIXED_ARTIST 모드용)
 document.getElementById('fixedArtistName').addEventListener('change', function() {
     updateSongCount();
-});
-
-// 연도 범위 변경 이벤트
-document.getElementById('yearFrom').addEventListener('change', function() {
-    updateSongCount();
-    updateRankingNotice();
-});
-document.getElementById('yearTo').addEventListener('change', function() {
-    updateSongCount();
-    updateRankingNotice();
 });
 
 // 아티스트 유형 변경 이벤트
@@ -246,6 +248,130 @@ document.querySelectorAll('input[name="artistType"]').forEach(radio => {
         updateRankingNotice();
     });
 });
+
+// ========== 연도/아티스트 칩 선택 ==========
+
+// 연도 목록 로드
+async function loadYears() {
+    try {
+        const response = await fetch('/game/solo/guess/years');
+        allYears = await response.json();
+        renderYearChips();
+    } catch (error) {
+        console.error('연도 목록 로드 오류:', error);
+        document.getElementById('yearChips').innerHTML = '<span class="chips-loading">로드 실패</span>';
+    }
+}
+
+// 연도 칩 렌더링
+function renderYearChips() {
+    const container = document.getElementById('yearChips');
+    if (allYears.length === 0) {
+        container.innerHTML = '<span class="chips-loading">등록된 연도가 없습니다</span>';
+        return;
+    }
+
+    container.innerHTML = allYears.map(y => {
+        const isSelected = selectedYears.includes(y.year);
+        return `<div class="chip ${isSelected ? 'selected' : ''}" data-year="${y.year}" onclick="toggleYear(${y.year})">
+            ${y.year}<span class="chip-count">(${y.count})</span>
+        </div>`;
+    }).join('');
+
+    updateYearCountInfo();
+}
+
+// 연도 토글
+function toggleYear(year) {
+    const idx = selectedYears.indexOf(year);
+    if (idx > -1) {
+        selectedYears.splice(idx, 1);
+    } else {
+        selectedYears.push(year);
+    }
+    renderYearChips();
+    updateSongCount();
+    updateRankingNotice();
+}
+
+// 연도 선택 개수 표시
+function updateYearCountInfo() {
+    const el = document.getElementById('yearCountInfo');
+    if (selectedYears.length > 0) {
+        el.textContent = `(${selectedYears.length}개 선택)`;
+    } else {
+        el.textContent = '';
+    }
+}
+
+// 아티스트 목록 로드 (상세 설정용)
+async function loadArtistsForFilter() {
+    try {
+        const response = await fetch('/game/solo/guess/artists');
+        allArtists = await response.json();
+        renderArtistChips();
+    } catch (error) {
+        console.error('아티스트 목록 로드 오류:', error);
+        document.getElementById('artistChips').innerHTML = '<span class="chips-loading">로드 실패</span>';
+    }
+}
+
+// 아티스트 칩 렌더링
+function renderArtistChips(filterKeyword = '') {
+    const container = document.getElementById('artistChips');
+    let artistsToShow = allArtists;
+
+    if (filterKeyword) {
+        artistsToShow = allArtists.filter(a =>
+            a.name.toLowerCase().includes(filterKeyword.toLowerCase())
+        );
+    }
+
+    if (artistsToShow.length === 0) {
+        container.innerHTML = '<span class="chips-loading">검색 결과가 없습니다</span>';
+        return;
+    }
+
+    container.innerHTML = artistsToShow.map(a => {
+        const isSelected = selectedArtists.includes(a.name);
+        return `<div class="chip ${isSelected ? 'selected' : ''}" data-artist="${a.name}" onclick="toggleArtist('${a.name.replace(/'/g, "\\'")}')">
+            ${a.name}<span class="chip-count">(${a.count})</span>
+        </div>`;
+    }).join('');
+
+    updateArtistCountInfo();
+}
+
+// 아티스트 토글
+function toggleArtist(name) {
+    const idx = selectedArtists.indexOf(name);
+    if (idx > -1) {
+        selectedArtists.splice(idx, 1);
+    } else {
+        selectedArtists.push(name);
+    }
+    const keyword = document.getElementById('artistFilterInput').value;
+    renderArtistChips(keyword);
+    updateSongCount();
+    updateRankingNotice();
+}
+
+// 아티스트 선택 개수 표시
+function updateArtistCountInfo() {
+    const el = document.getElementById('artistCountInfo');
+    if (selectedArtists.length > 0) {
+        el.textContent = `(${selectedArtists.length}명 선택)`;
+    } else {
+        el.textContent = '';
+    }
+}
+
+// 아티스트 검색 입력 이벤트 (상세 설정용)
+document.getElementById('artistFilterInput').addEventListener('input', function() {
+    renderArtistChips(this.value);
+});
+
+// ========== 노래 개수 조회 ==========
 
 async function updateSongCount() {
     const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
@@ -258,9 +384,6 @@ async function updateSongCount() {
         artistName = document.getElementById('fixedArtistName').value || null;
     }
 
-    const yearFrom = document.getElementById('yearFrom').value || null;
-    const yearTo = document.getElementById('yearTo').value || null;
-
     const artistType = document.querySelector('input[name="artistType"]:checked').value;
     let soloOnly = null;
     let groupOnly = null;
@@ -271,10 +394,13 @@ async function updateSongCount() {
         const params = new URLSearchParams();
         if (genreId) params.append('genreId', genreId);
         if (artistName) params.append('artistName', artistName);
-        if (yearFrom) params.append('yearFrom', yearFrom);
-        if (yearTo) params.append('yearTo', yearTo);
         if (soloOnly) params.append('soloOnly', soloOnly);
         if (groupOnly) params.append('groupOnly', groupOnly);
+
+        // 복수 연도
+        selectedYears.forEach(y => params.append('years', y));
+        // 복수 아티스트
+        selectedArtists.forEach(a => params.append('artists', a));
 
         const response = await fetch(`/game/solo/guess/song-count?${params.toString()}`);
         const result = await response.json();
@@ -353,6 +479,10 @@ function goToStep2() {
     document.getElementById('step1').style.display = 'none';
     document.getElementById('step2').style.display = 'block';
 
+    // 연도/아티스트 목록 로드
+    loadYears();
+    loadArtistsForFilter();
+
     // step2로 이동할 때 랭킹 조건 다시 업데이트
     updateRankingNotice();
 }
@@ -400,10 +530,15 @@ async function startGame() {
     // 설정 수집
     const settings = {};
 
-    const yearFrom = document.getElementById('yearFrom').value;
-    const yearTo = document.getElementById('yearTo').value;
-    if (yearFrom) settings.yearFrom = parseInt(yearFrom);
-    if (yearTo) settings.yearTo = parseInt(yearTo);
+    // 복수 연도
+    if (selectedYears.length > 0) {
+        settings.selectedYears = selectedYears;
+    }
+
+    // 복수 아티스트 (상세 설정)
+    if (selectedArtists.length > 0) {
+        settings.selectedArtists = selectedArtists;
+    }
 
     const artistType = document.querySelector('input[name="artistType"]:checked').value;
     if (artistType === 'solo') settings.soloOnly = true;

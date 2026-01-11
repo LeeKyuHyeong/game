@@ -102,32 +102,7 @@ public class SongService {
         // 필터링
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
-            // 연도 필터
-            if (settings.getYearFrom() != null && song.getReleaseYear() != null) {
-                if (song.getReleaseYear() < settings.getYearFrom()) continue;
-            }
-            if (settings.getYearTo() != null && song.getReleaseYear() != null) {
-                if (song.getReleaseYear() > settings.getYearTo()) continue;
-            }
-
-            // 솔로/그룹 필터
-            if (settings.getSoloOnly() != null && settings.getSoloOnly()) {
-                if (song.getIsSolo() == null || !song.getIsSolo()) continue;
-            }
-            if (settings.getGroupOnly() != null && settings.getGroupOnly()) {
-                if (song.getIsSolo() != null && song.getIsSolo()) continue;
-            }
-
-            // 장르 필터
-            if (settings.getFixedGenreId() != null) {
-                if (song.getGenre() == null || !song.getGenre().getId().equals(settings.getFixedGenreId())) continue;
-            }
-
-            // 아티스트 필터
-            if (settings.getFixedArtistName() != null && !settings.getFixedArtistName().isEmpty()) {
-                if (song.getArtist() == null || !song.getArtist().equals(settings.getFixedArtistName())) continue;
-            }
-
+            if (!matchesSettings(song, settings)) continue;
             filtered.add(song);
         }
 
@@ -136,37 +111,57 @@ public class SongService {
         return filtered.subList(0, Math.min(count, filtered.size()));
     }
 
+    /**
+     * 노래가 설정 조건에 맞는지 확인
+     */
+    private boolean matchesSettings(Song song, GameSettings settings) {
+        // 연도 필터 (복수 선택)
+        if (settings.getSelectedYears() != null && !settings.getSelectedYears().isEmpty()) {
+            if (song.getReleaseYear() == null || !settings.getSelectedYears().contains(song.getReleaseYear())) {
+                return false;
+            }
+        } else {
+            // 레거시: 연도 범위 필터
+            if (settings.getYearFrom() != null && song.getReleaseYear() != null) {
+                if (song.getReleaseYear() < settings.getYearFrom()) return false;
+            }
+            if (settings.getYearTo() != null && song.getReleaseYear() != null) {
+                if (song.getReleaseYear() > settings.getYearTo()) return false;
+            }
+        }
+
+        // 솔로/그룹 필터
+        if (settings.getSoloOnly() != null && settings.getSoloOnly()) {
+            if (song.getIsSolo() == null || !song.getIsSolo()) return false;
+        }
+        if (settings.getGroupOnly() != null && settings.getGroupOnly()) {
+            if (song.getIsSolo() != null && song.getIsSolo()) return false;
+        }
+
+        // 장르 필터
+        if (settings.getFixedGenreId() != null) {
+            if (song.getGenre() == null || !song.getGenre().getId().equals(settings.getFixedGenreId())) return false;
+        }
+
+        // 아티스트 필터 (복수 선택)
+        if (settings.getSelectedArtists() != null && !settings.getSelectedArtists().isEmpty()) {
+            if (song.getArtist() == null || !settings.getSelectedArtists().contains(song.getArtist())) {
+                return false;
+            }
+        } else if (settings.getFixedArtistName() != null && !settings.getFixedArtistName().isEmpty()) {
+            // 레거시: 단일 아티스트 필터
+            if (song.getArtist() == null || !song.getArtist().equals(settings.getFixedArtistName())) return false;
+        }
+
+        return true;
+    }
+
     public int getAvailableSongCount(GameSettings settings) {
         List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
 
         int count = 0;
         for (Song song : allSongs) {
-            // 연도 필터
-            if (settings.getYearFrom() != null && song.getReleaseYear() != null) {
-                if (song.getReleaseYear() < settings.getYearFrom()) continue;
-            }
-            if (settings.getYearTo() != null && song.getReleaseYear() != null) {
-                if (song.getReleaseYear() > settings.getYearTo()) continue;
-            }
-
-            // 솔로/그룹 필터
-            if (settings.getSoloOnly() != null && settings.getSoloOnly()) {
-                if (song.getIsSolo() == null || !song.getIsSolo()) continue;
-            }
-            if (settings.getGroupOnly() != null && settings.getGroupOnly()) {
-                if (song.getIsSolo() != null && song.getIsSolo()) continue;
-            }
-
-            // 장르 필터
-            if (settings.getFixedGenreId() != null) {
-                if (song.getGenre() == null || !song.getGenre().getId().equals(settings.getFixedGenreId())) continue;
-            }
-
-            // 아티스트 필터
-            if (settings.getFixedArtistName() != null && !settings.getFixedArtistName().isEmpty()) {
-                if (song.getArtist() == null || !song.getArtist().equals(settings.getFixedArtistName())) continue;
-            }
-
+            if (!matchesSettings(song, settings)) continue;
             count++;
         }
 
@@ -184,6 +179,27 @@ public class SongService {
             artists.add(artist);
         }
         return artists;
+    }
+
+    // 연도 목록 조회 (곡 수 포함)
+    public List<Map<String, Object>> getYearsWithCount() {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        Map<Integer, Integer> yearCountMap = new TreeMap<>(Collections.reverseOrder()); // 최신 연도부터
+
+        for (Song song : allSongs) {
+            if (song.getReleaseYear() != null) {
+                yearCountMap.merge(song.getReleaseYear(), 1, Integer::sum);
+            }
+        }
+
+        List<Map<String, Object>> years = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : yearCountMap.entrySet()) {
+            Map<String, Object> yearInfo = new HashMap<>();
+            yearInfo.put("year", entry.getKey());
+            yearInfo.put("count", entry.getValue());
+            years.add(yearInfo);
+        }
+        return years;
     }
 
     // 아티스트 검색 (자동완성용)

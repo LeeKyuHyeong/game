@@ -42,8 +42,10 @@ public class GameGuessController {
     public ResponseEntity<Map<String, Object>> getSongCount(
             @RequestParam(required = false) Long genreId,
             @RequestParam(required = false) String artistName,
+            @RequestParam(required = false) List<String> artists,
             @RequestParam(required = false) Integer yearFrom,
             @RequestParam(required = false) Integer yearTo,
+            @RequestParam(required = false) List<Integer> years,
             @RequestParam(required = false) Boolean soloOnly,
             @RequestParam(required = false) Boolean groupOnly) {
 
@@ -57,10 +59,25 @@ public class GameGuessController {
         settings.setSoloOnly(soloOnly);
         settings.setGroupOnly(groupOnly);
 
+        // 복수 선택 (새로운 방식)
+        if (years != null && !years.isEmpty()) {
+            settings.setSelectedYears(years);
+        }
+        if (artists != null && !artists.isEmpty()) {
+            settings.setSelectedArtists(artists);
+        }
+
         int count = songService.getAvailableSongCount(settings);
         result.put("count", count);
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/years")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getYears() {
+        List<Map<String, Object>> years = songService.getYearsWithCount();
+        return ResponseEntity.ok(years);
     }
 
     @GetMapping("/artists")
@@ -145,6 +162,12 @@ public class GameGuessController {
                 if (settingsMap.get("yearTo") != null) {
                     settings.setYearTo((Integer) settingsMap.get("yearTo"));
                 }
+                // 복수 연도 선택
+                if (settingsMap.get("selectedYears") != null) {
+                    @SuppressWarnings("unchecked")
+                    List<Integer> selectedYears = (List<Integer>) settingsMap.get("selectedYears");
+                    settings.setSelectedYears(selectedYears);
+                }
                 if (settingsMap.get("soloOnly") != null) {
                     settings.setSoloOnly((Boolean) settingsMap.get("soloOnly"));
                 }
@@ -153,6 +176,15 @@ public class GameGuessController {
                 }
                 if (settingsMap.get("fixedGenreId") != null) {
                     settings.setFixedGenreId(Long.valueOf(settingsMap.get("fixedGenreId").toString()));
+                }
+                if (settingsMap.get("fixedArtistName") != null) {
+                    settings.setFixedArtistName((String) settingsMap.get("fixedArtistName"));
+                }
+                // 복수 아티스트 선택
+                if (settingsMap.get("selectedArtists") != null) {
+                    @SuppressWarnings("unchecked")
+                    List<String> selectedArtists = (List<String>) settingsMap.get("selectedArtists");
+                    settings.setSelectedArtists(selectedArtists);
                 }
             }
             session.setSettings(gameSessionService.toSettingsJson(settings));
@@ -463,13 +495,16 @@ public class GameGuessController {
                 // 회원인 경우 Solo Guess 통계 업데이트
                 if (session.getMember() != null) {
                     // 최고기록 랭킹 대상 여부 확인
-                    // 조건: 전체랜덤 + 연도필터없음 + 아티스트유형전체
+                    // 조건: 전체랜덤 + 연도필터없음 + 아티스트유형전체 + 아티스트필터없음
                     GameSettings settings = gameSessionService.parseSettings(session.getSettings());
                     boolean isAllRandom = settings.getFixedGenreId() == null;
-                    boolean noYearFilter = settings.getYearFrom() == null && settings.getYearTo() == null;
+                    boolean noYearFilter = (settings.getYearFrom() == null && settings.getYearTo() == null)
+                                           && (settings.getSelectedYears() == null || settings.getSelectedYears().isEmpty());
                     boolean allArtistTypes = !Boolean.TRUE.equals(settings.getSoloOnly())
                                            && !Boolean.TRUE.equals(settings.getGroupOnly());
-                    boolean isEligibleForBestScore = isAllRandom && noYearFilter && allArtistTypes;
+                    boolean noArtistFilter = (settings.getFixedArtistName() == null || settings.getFixedArtistName().isEmpty())
+                                           && (settings.getSelectedArtists() == null || settings.getSelectedArtists().isEmpty());
+                    boolean isEligibleForBestScore = isAllRandom && noYearFilter && allArtistTypes && noArtistFilter;
 
                     memberService.addGuessGameResult(
                             session.getMember().getId(),

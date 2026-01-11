@@ -91,11 +91,17 @@
                 <h2>2. 상세 설정 (선택)</h2>
 
                 <div class="form-group">
-                    <label>연도 범위</label>
-                    <div class="year-range">
-                        <input type="number" id="yearFrom" placeholder="시작" min="1900" max="2099">
-                        <span>~</span>
-                        <input type="number" id="yearTo" placeholder="끝" min="1900" max="2099">
+                    <label>연도 선택 <span id="yearCountInfo" class="filter-count-info"></span></label>
+                    <div class="multi-select-chips" id="yearChips">
+                        <div class="chips-loading">로딩 중...</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>아티스트 선택 <span id="artistCountInfo" class="filter-count-info"></span></label>
+                    <input type="text" id="artistFilterInput" placeholder="아티스트명 검색..." class="filter-search-input" autocomplete="off">
+                    <div class="multi-select-chips" id="artistChips">
+                        <div class="chips-loading">로딩 중...</div>
                     </div>
                 </div>
 
@@ -148,7 +154,11 @@
                         </li>
                         <li id="conditionYear" class="condition">
                             <span class="condition-icon">○</span>
-                            <span class="condition-text">연도 범위 미설정</span>
+                            <span class="condition-text">연도 필터 미설정</span>
+                        </li>
+                        <li id="conditionArtistFilter" class="condition">
+                            <span class="condition-icon">○</span>
+                            <span class="condition-text">아티스트 필터 미설정</span>
                         </li>
                         <li id="conditionArtist" class="condition">
                             <span class="condition-icon">○</span>
