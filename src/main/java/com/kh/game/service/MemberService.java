@@ -311,19 +311,19 @@ public class MemberService {
 
         Member member = memberOpt.get();
 
+        // 게임 중인지 먼저 확인 (세션 토큰 유무와 관계없이)
+        boolean inGame = isInGame(member.getId());
+        if (inGame) {
+            return new LoginAttemptResult(LoginAttemptStatus.IN_GAME, true);
+        }
+
         // 기존 세션이 없으면 바로 로그인 가능
         if (member.getSessionToken() == null) {
             return new LoginAttemptResult(LoginAttemptStatus.NO_EXISTING_SESSION, false);
         }
 
-        // 기존 세션이 있고, 게임 중인지 확인
-        boolean inGame = isInGame(member.getId());
-
-        if (inGame) {
-            return new LoginAttemptResult(LoginAttemptStatus.IN_GAME, true);
-        } else {
-            return new LoginAttemptResult(LoginAttemptStatus.EXISTING_SESSION, true);
-        }
+        // 기존 세션이 있지만 게임 중 아님
+        return new LoginAttemptResult(LoginAttemptStatus.EXISTING_SESSION, true);
     }
 
     public enum LoginAttemptStatus {
