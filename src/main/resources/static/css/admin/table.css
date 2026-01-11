@@ -109,6 +109,18 @@
     background: #2563eb;
 }
 
+/* Play Button */
+.btn-play {
+    background: #10b981;
+    color: white;
+    min-width: 2rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.btn-play:hover {
+    background: #059669;
+}
+
 /* Pagination */
 .pagination {
     display: flex;

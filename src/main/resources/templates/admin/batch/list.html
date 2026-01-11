@@ -2,6 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('배치 관리')}"></head>
 <link rel="stylesheet" href="/css/admin/mobile-stats.css">
+<link rel="stylesheet" href="/css/admin/batch.css">
 <body class="admin-page batch-stats">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
@@ -15,11 +16,13 @@
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-secondary" onclick="refreshSchedules()">스케줄 새로고침</button>
+                    <button class="btn btn-primary" onclick="runAllBatches()">전체 수동 실행</button>
                 </div>
             </div>
         </header>
 
         <div class="admin-content">
+            <!-- 통계 카드 -->
             <div class="stats-cards">
                 <div class="stat-card">
                     <div class="stat-icon">설정</div>
@@ -31,7 +34,7 @@
                 <div class="stat-card implemented">
                     <div class="stat-icon">완료</div>
                     <div class="stat-info">
-                        <span class="stat-value" th:text="${implementedCount}">1</span>
+                        <span class="stat-value" th:text="${implementedCount}">10</span>
                         <span class="stat-label">구현 완료</span>
                     </div>
                 </div>
@@ -45,24 +48,58 @@
                 <div class="stat-card scheduled">
                     <div class="stat-icon">예약</div>
                     <div class="stat-info">
-                        <span class="stat-value" th:text="${scheduledCount}">1</span>
+                        <span class="stat-value" th:text="${scheduledCount}">10</span>
                         <span class="stat-label">스케줄 등록</span>
                     </div>
                 </div>
             </div>
 
+            <!-- 필터 -->
+            <div class="batch-filters">
+                <div class="filter-group">
+                    <label>우선순위</label>
+                    <select id="filterPriority" onchange="filterBatches()">
+                        <option value="">전체</option>
+                        <option value="HIGH">HIGH</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="LOW">LOW</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>상태</label>
+                    <select id="filterStatus" onchange="filterBatches()">
+                        <option value="">전체</option>
+                        <option value="enabled">활성화</option>
+                        <option value="disabled">비활성화</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>실행 결과</label>
+                    <select id="filterResult" onchange="filterBatches()">
+                        <option value="">전체</option>
+                        <option value="SUCCESS">성공</option>
+                        <option value="FAIL">실패</option>
+                        <option value="never">미실행</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 배치 그리드 -->
             <div class="batch-grid">
                 <div th:each="batch : ${batches}" class="batch-card"
                      th:classappend="${!batch.implemented} ? 'not-implemented' : (${!batch.enabled} ? 'disabled' : '')"
                      th:data-batch-id="${batch.batchId}"
-                     th:data-batch-name="${batch.name}">
+                     th:data-batch-name="${batch.name}"
+                     th:data-priority="${batch.priority}"
+                     th:data-enabled="${batch.enabled}"
+                     th:data-result="${batch.lastResult}">
                     <div class="batch-header">
                         <div class="batch-title-row">
                             <h3 class="batch-name" th:text="${batch.name}">배치명</h3>
                             <div class="batch-badges">
                                 <span class="batch-status"
                                       th:classappend="${batch.implemented} ? 'implemented' : 'not-implemented'"
-                                      th:text="${batch.implemented} ? '구현됨' : '미구현'">미구현</span>
+                                      th:text="${batch.implemented} ? '구현됨' : '미구현'">구현됨</span>
                                 <span class="batch-enabled"
                                       th:classappend="${batch.enabled} ? 'on' : 'off'"
                                       th:text="${batch.enabled} ? 'ON' : 'OFF'">ON</span>
@@ -109,7 +146,13 @@
                                 <span class="exec-label">처리</span>
                                 <span class="exec-value" th:text="${batch.lastAffectedCount} + '건'">0건</span>
                             </div>
+                            <div class="exec-item" th:if="${batch.lastExecutionTimeMs != null}">
+                                <span class="exec-label">소요</span>
+                                <span class="exec-value" th:text="${batch.lastExecutionTimeMs} + 'ms'">0ms</span>
+                            </div>
                         </div>
+                        <div class="exec-message" th:if="${batch.lastResultMessage != null and batch.lastResultMessage.length() > 0}"
+                             th:text="${batch.lastResultMessage}">결과 메시지</div>
                     </div>
 
                     <div class="batch-actions">
@@ -128,20 +171,30 @@
                 </div>
             </div>
 
+            <!-- 범례 -->
             <div class="batch-legend">
-                <h4>우선순위 범례</h4>
+                <h4>범례</h4>
                 <div class="legend-items">
-                    <span class="legend-item"><span class="priority-dot high"></span> HIGH - 핵심 운영 배치</span>
-                    <span class="legend-item"><span class="priority-dot medium"></span> MEDIUM - 성능/품질 개선</span>
-                    <span class="legend-item"><span class="priority-dot low"></span> LOW - 부가 기능</span>
+                    <div class="legend-group">
+                        <span class="legend-title">우선순위</span>
+                        <span class="legend-item"><span class="priority-dot high"></span> HIGH - 핵심 운영</span>
+                        <span class="legend-item"><span class="priority-dot medium"></span> MEDIUM - 성능/품질</span>
+                        <span class="legend-item"><span class="priority-dot low"></span> LOW - 부가 기능</span>
+                    </div>
+                    <div class="legend-group">
+                        <span class="legend-title">상태</span>
+                        <span class="legend-item"><span class="status-dot implemented"></span> 구현됨</span>
+                        <span class="legend-item"><span class="status-dot not-implemented"></span> 미구현</span>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 </div>
 
+<!-- 배치 상세 모달 -->
 <div id="batchDetailModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content modal-lg">
         <div class="modal-header">
             <h2 id="batchDetailTitle">배치 상세</h2>
             <button class="close-btn" onclick="closeModal('batchDetailModal')">X</button>
@@ -153,6 +206,7 @@
     </div>
 </div>
 
+<!-- 배치 설정 수정 모달 -->
 <div id="batchEditModal" class="modal">
     <div class="modal-content modal-sm">
         <div class="modal-header">
@@ -197,6 +251,20 @@
                 <button type="submit" class="btn btn-primary">저장</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- 실행 중 모달 -->
+<div id="runningModal" class="modal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h2>배치 실행 중</h2>
+        </div>
+        <div class="modal-body running-modal-body">
+            <div class="running-spinner"></div>
+            <p id="runningBatchName">배치를 실행하고 있습니다...</p>
+            <div id="runningProgress" class="running-progress"></div>
+        </div>
     </div>
 </div>
 

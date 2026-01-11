@@ -23,13 +23,15 @@ public class BatchService {
     private final BatchExecutionHistoryRepository historyRepository;
 
     /**
-     * 초기 배치 설정 데이터 생성
+     * 초기 배치 설정 데이터 생성 및 업데이트
      */
     @PostConstruct
     @Transactional
     public void initBatchConfigs() {
+        // 기존 데이터가 있으면 implemented 플래그만 업데이트
         if (batchConfigRepository.count() > 0) {
-            return;  // 이미 데이터가 있으면 스킵
+            updateImplementedFlags();
+            return;
         }
 
         log.info("배치 설정 초기 데이터 생성");
@@ -43,7 +45,7 @@ public class BatchService {
                 "매시간",
                 "GameRoom",
                 BatchConfig.Priority.HIGH,
-                false
+                true  // 구현됨
         ));
 
         // 2. 채팅 정리
@@ -55,7 +57,7 @@ public class BatchService {
                 "매일 03:00",
                 "GameRoomChat",
                 BatchConfig.Priority.MEDIUM,
-                false
+                true  // 구현됨
         ));
 
         // 3. 통계 집계
@@ -67,7 +69,7 @@ public class BatchService {
                 "매일 04:00",
                 "DailyStats",
                 BatchConfig.Priority.HIGH,
-                false
+                true  // 구현됨
         ));
 
         // 4. 랭킹 갱신
@@ -79,7 +81,7 @@ public class BatchService {
                 "매시간",
                 "MemberRanking",
                 BatchConfig.Priority.MEDIUM,
-                false
+                true  // 구현됨
         ));
 
         // 5. 로그인 이력 정리
@@ -91,7 +93,7 @@ public class BatchService {
                 "매주 일요일 05:00",
                 "MemberLoginHistory",
                 BatchConfig.Priority.LOW,
-                false
+                true  // 구현됨
         ));
 
         // 6. 비활성 회원 처리
@@ -103,7 +105,7 @@ public class BatchService {
                 "매월 1일 06:00",
                 "Member",
                 BatchConfig.Priority.LOW,
-                false
+                true  // 구현됨
         ));
 
         // 7. 노래 파일 정합성 검사
@@ -115,7 +117,7 @@ public class BatchService {
                 "매일 02:00",
                 "Song",
                 BatchConfig.Priority.HIGH,
-                false
+                true  // 구현됨
         ));
 
         // 8. 게임 세션 정리 (구현됨)
@@ -139,7 +141,7 @@ public class BatchService {
                 "매주 월요일 07:00",
                 "SongAnalytics",
                 BatchConfig.Priority.LOW,
-                false
+                true  // 구현됨
         ));
 
         // 10. 시스템 상태 리포트
@@ -151,10 +153,44 @@ public class BatchService {
                 "매일 08:00",
                 "SystemReport",
                 BatchConfig.Priority.MEDIUM,
-                false
+                true  // 구현됨
         ));
 
         log.info("배치 설정 초기 데이터 생성 완료: 10개");
+    }
+
+    /**
+     * 모든 배치의 implemented 플래그를 true로 업데이트
+     * (모든 배치가 구현되었으므로)
+     */
+    @Transactional
+    public void updateImplementedFlags() {
+        // 구현된 배치 ID 목록
+        java.util.Set<String> implementedBatchIds = java.util.Set.of(
+                "BATCH_SESSION_CLEANUP",
+                "BATCH_ROOM_CLEANUP",
+                "BATCH_CHAT_CLEANUP",
+                "BATCH_DAILY_STATS",
+                "BATCH_RANKING_UPDATE",
+                "BATCH_LOGIN_HISTORY_CLEANUP",
+                "BATCH_INACTIVE_MEMBER",
+                "BATCH_SONG_FILE_CHECK",
+                "BATCH_SONG_ANALYTICS",
+                "BATCH_SYSTEM_REPORT"
+        );
+
+        int updatedCount = 0;
+        for (BatchConfig config : batchConfigRepository.findAll()) {
+            if (implementedBatchIds.contains(config.getBatchId()) && !config.getImplemented()) {
+                config.setImplemented(true);
+                updatedCount++;
+                log.info("배치 구현 상태 업데이트: {} -> implemented=true", config.getBatchId());
+            }
+        }
+
+        if (updatedCount > 0) {
+            log.info("배치 구현 상태 업데이트 완료: {}개", updatedCount);
+        }
     }
 
     /**

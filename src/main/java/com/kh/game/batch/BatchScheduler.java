@@ -25,6 +25,15 @@ public class BatchScheduler {
     private final TaskScheduler taskScheduler;
     private final BatchService batchService;
     private final SessionCleanupBatch sessionCleanupBatch;
+    private final RoomCleanupBatch roomCleanupBatch;
+    private final ChatCleanupBatch chatCleanupBatch;
+    private final DailyStatsBatch dailyStatsBatch;
+    private final RankingUpdateBatch rankingUpdateBatch;
+    private final LoginHistoryCleanupBatch loginHistoryCleanupBatch;
+    private final InactiveMemberBatch inactiveMemberBatch;
+    private final SongFileCheckBatch songFileCheckBatch;
+    private final SongAnalyticsBatch songAnalyticsBatch;
+    private final SystemReportBatch systemReportBatch;
 
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
@@ -96,6 +105,78 @@ public class BatchScheduler {
                         log.error("배치 실행 중 오류: {}", batchId, e);
                     }
                 };
+            case RoomCleanupBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        roomCleanupBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case ChatCleanupBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        chatCleanupBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case DailyStatsBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        dailyStatsBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case RankingUpdateBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        rankingUpdateBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case LoginHistoryCleanupBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        loginHistoryCleanupBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case InactiveMemberBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        inactiveMemberBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case SongFileCheckBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        songFileCheckBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case SongAnalyticsBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        songAnalyticsBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case SystemReportBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        systemReportBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
             default:
                 return null;
         }
@@ -107,6 +188,33 @@ public class BatchScheduler {
         switch (batchId) {
             case SessionCleanupBatch.BATCH_ID:
                 sessionCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case RoomCleanupBatch.BATCH_ID:
+                roomCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case ChatCleanupBatch.BATCH_ID:
+                chatCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case DailyStatsBatch.BATCH_ID:
+                dailyStatsBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case RankingUpdateBatch.BATCH_ID:
+                rankingUpdateBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case LoginHistoryCleanupBatch.BATCH_ID:
+                loginHistoryCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case InactiveMemberBatch.BATCH_ID:
+                inactiveMemberBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case SongFileCheckBatch.BATCH_ID:
+                songFileCheckBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case SongAnalyticsBatch.BATCH_ID:
+                songAnalyticsBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case SystemReportBatch.BATCH_ID:
+                systemReportBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
                 break;
             default:
                 throw new IllegalArgumentException("실행할 수 없는 배치입니다: " + batchId);

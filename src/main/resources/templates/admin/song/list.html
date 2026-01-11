@@ -48,8 +48,9 @@
                                 <span class="solo-badge" th:classappend="${song.isSolo} ? 'solo' : 'group'"
                                       th:text="${song.isSolo} ? '솔로' : '그룹'"></span>
                     </td>
-                    <td data-label="MP3">
-                        <span th:if="${song.filePath}" class="file-exists">●</span>
+                    <td data-label="MP3" onclick="event.stopPropagation()">
+                        <button th:if="${song.filePath}" class="btn btn-sm btn-play"
+                                th:onclick="'playAudio(\'' + ${song.filePath} + '\', this)'">▶</button>
                         <span th:unless="${song.filePath}" class="file-none">-</span>
                     </td>
                     <td data-label="사용여부">
@@ -179,6 +180,8 @@
     </div>
 </div>
 
+<audio id="audioPlayer" style="display:none;"></audio>
+
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-song.js}"></script>
 <script>
@@ -188,6 +191,37 @@ function toggleRowExpand(row) {
         row.classList.toggle('expanded');
     }
 }
+
+// MP3 재생
+let currentPlayBtn = null;
+const audioPlayer = document.getElementById('audioPlayer');
+
+function playAudio(filePath, btn) {
+    // 같은 버튼 클릭 시 정지
+    if (currentPlayBtn === btn && !audioPlayer.paused) {
+        audioPlayer.pause();
+        btn.textContent = '▶';
+        currentPlayBtn = null;
+        return;
+    }
+
+    // 다른 곡 재생 중이면 정지
+    if (currentPlayBtn && currentPlayBtn !== btn) {
+        currentPlayBtn.textContent = '▶';
+    }
+
+    audioPlayer.src = '/uploads/songs/' + filePath;
+    audioPlayer.play();
+    btn.textContent = '⏸';
+    currentPlayBtn = btn;
+}
+
+audioPlayer.addEventListener('ended', function() {
+    if (currentPlayBtn) {
+        currentPlayBtn.textContent = '▶';
+        currentPlayBtn = null;
+    }
+});
 </script>
 </body>
 </html>

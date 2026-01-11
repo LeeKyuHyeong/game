@@ -1,11 +1,14 @@
 package com.kh.game.config;
 
 import com.kh.game.entity.BadWord;
+import com.kh.game.entity.Member;
 import com.kh.game.repository.BadWordRepository;
+import com.kh.game.repository.MemberRepository;
 import com.kh.game.service.BadWordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -18,10 +21,38 @@ public class DataInitializer implements CommandLineRunner {
 
     private final BadWordRepository badWordRepository;
     private final BadWordService badWordService;
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
+        initAdminAccount();
         initBadWords();
+    }
+
+    /**
+     * 기본 관리자 계정 생성
+     */
+    private void initAdminAccount() {
+        String adminEmail = "admin@admin.com";
+
+        // 이미 관리자 계정이 있는지 확인
+        if (memberRepository.findByEmail(adminEmail).isPresent()) {
+            log.info("관리자 계정이 이미 존재합니다: {}", adminEmail);
+            return;
+        }
+
+        // 기본 관리자 계정 생성
+        Member admin = new Member();
+        admin.setEmail(adminEmail);
+        admin.setPassword(passwordEncoder.encode("admin1234!"));
+        admin.setNickname("관리자");
+        admin.setUsername("admin");
+        admin.setRole(Member.MemberRole.ADMIN);
+        admin.setStatus(Member.MemberStatus.ACTIVE);
+
+        memberRepository.save(admin);
+        log.info("기본 관리자 계정 생성 완료: {} (비밀번호: admin1234!)", adminEmail);
     }
 
     private void initBadWords() {
