@@ -18,6 +18,16 @@
                 <button type="submit" class="btn btn-search">검색</button>
                 <a th:if="${keyword}" href="/admin/song" class="btn btn-reset">초기화</a>
             </form>
+            <div class="filter-section">
+                <select id="artistFilter" onchange="filterByArtist(this.value)">
+                    <option value="">전체 아티스트</option>
+                    <option th:each="artist : ${artists}"
+                            th:value="${artist.name}"
+                            th:text="${artist.name + ' (' + artist.count + '곡)'}"
+                            th:selected="${artist.name == selectedArtist}"></option>
+                </select>
+                <a th:if="${selectedArtist}" href="/admin/song" class="btn btn-reset">필터 초기화</a>
+            </div>
         </div>
 
         <div class="table-container">
@@ -72,21 +82,21 @@
         </div>
 
         <div class="pagination" th:if="${totalPages > 0}">
-            <a th:href="@{/admin/song(page=0, keyword=${keyword})}"
+            <a th:href="@{/admin/song(page=0, keyword=${keyword}, artist=${selectedArtist})}"
                th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
-            <a th:href="@{/admin/song(page=${currentPage - 1}, keyword=${keyword})}"
+            <a th:href="@{/admin/song(page=${currentPage - 1}, keyword=${keyword}, artist=${selectedArtist})}"
                th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
 
             <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
                 <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
-                   th:href="@{/admin/song(page=${i}, keyword=${keyword})}"
+                   th:href="@{/admin/song(page=${i}, keyword=${keyword}, artist=${selectedArtist})}"
                    th:text="${i + 1}"
                    th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
             </th:block>
 
-            <a th:href="@{/admin/song(page=${currentPage + 1}, keyword=${keyword})}"
+            <a th:href="@{/admin/song(page=${currentPage + 1}, keyword=${keyword}, artist=${selectedArtist})}"
                th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
-            <a th:href="@{/admin/song(page=${totalPages - 1}, keyword=${keyword})}"
+            <a th:href="@{/admin/song(page=${totalPages - 1}, keyword=${keyword}, artist=${selectedArtist})}"
                th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
         </div>
     </main>
@@ -222,6 +232,15 @@ audioPlayer.addEventListener('ended', function() {
         currentPlayBtn = null;
     }
 });
+
+// 아티스트 필터
+function filterByArtist(artist) {
+    if (artist) {
+        window.location.href = '/admin/song?artist=' + encodeURIComponent(artist);
+    } else {
+        window.location.href = '/admin/song';
+    }
+}
 </script>
 </body>
 </html>

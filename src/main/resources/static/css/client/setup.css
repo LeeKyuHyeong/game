@@ -410,6 +410,44 @@
     border-radius: 0.5rem;
 }
 
+/* Artist Select */
+.artist-select {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.artist-search-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+}
+
+.artist-search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.artist-list-select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    background: white;
+}
+
+.artist-list-select option {
+    padding: 0.5rem;
+}
+
+.artist-list-select option:checked {
+    background: var(--primary-color);
+    color: white;
+}
+
 /* Checkbox / Toggle Option */
 .checkbox-option {
     display: flex;

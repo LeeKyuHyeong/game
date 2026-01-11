@@ -41,6 +41,7 @@ public class GameGuessController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getSongCount(
             @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) String artistName,
             @RequestParam(required = false) Integer yearFrom,
             @RequestParam(required = false) Integer yearTo,
             @RequestParam(required = false) Boolean soloOnly,
@@ -50,6 +51,7 @@ public class GameGuessController {
 
         GameSettings settings = new GameSettings();
         settings.setFixedGenreId(genreId);
+        settings.setFixedArtistName(artistName);
         settings.setYearFrom(yearFrom);
         settings.setYearTo(yearTo);
         settings.setSoloOnly(soloOnly);
@@ -59,6 +61,20 @@ public class GameGuessController {
         result.put("count", count);
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/artists")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getArtists() {
+        List<Map<String, Object>> artists = songService.getArtistsWithCount();
+        return ResponseEntity.ok(artists);
+    }
+
+    @GetMapping("/artists/search")
+    @ResponseBody
+    public ResponseEntity<List<String>> searchArtists(@RequestParam String keyword) {
+        List<String> artists = songService.searchArtists(keyword);
+        return ResponseEntity.ok(artists);
     }
 
     @GetMapping("/genres-with-count")

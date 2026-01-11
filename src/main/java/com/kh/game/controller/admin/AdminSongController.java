@@ -29,12 +29,17 @@ public class AdminSongController {
     public String list(@RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "10") int size,
                        @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) String artist,
                        Model model) {
         System.out.println("adminSongController!!");
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         Page<Song> songPage;
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
+        if (artist != null && !artist.trim().isEmpty()) {
+            // 아티스트 필터
+            songPage = songService.findByArtist(artist, pageable);
+            model.addAttribute("selectedArtist", artist);
+        } else if (keyword != null && !keyword.trim().isEmpty()) {
             songPage = songService.search(keyword, pageable);
             model.addAttribute("keyword", keyword);
         } else {
@@ -43,6 +48,7 @@ public class AdminSongController {
 
         model.addAttribute("songs", songPage.getContent());
         model.addAttribute("genres", genreService.findActiveGenres());
+        model.addAttribute("artists", songService.getArtistsWithCount());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", songPage.getTotalPages());
         model.addAttribute("totalItems", songPage.getTotalElements());

@@ -18,6 +18,7 @@ public class GameSettings {
     private Boolean soloOnly = false;            // 솔로곡만
     private Boolean groupOnly = false;           // 그룹곡만
     private Long fixedGenreId = null;            // 고정 장르 ID
+    private String fixedArtistName = null;       // 고정 아티스트명
     private Boolean skipAllowed = true;          // 스킵 허용
     private Integer maxSkips = 3;                // 최대 스킵 횟수
     private Integer scorePerCorrect = 100;       // 정답당 기본 점수
@@ -30,7 +31,7 @@ public class GameSettings {
     private Integer maxPlayers = 8;              // 최대 인원
     private Integer totalRounds = 10;            // 총 라운드
     private Boolean privateRoom = false;         // 비공개 방 여부
-    private String gameMode = "RANDOM";          // 게임 모드 (RANDOM, FIXED_GENRE)
+    private String gameMode = "RANDOM";          // 게임 모드 (RANDOM, FIXED_GENRE, FIXED_ARTIST)
 
     // boolean getter는 is로 시작해야 함
     public boolean isPrivateRoom() {

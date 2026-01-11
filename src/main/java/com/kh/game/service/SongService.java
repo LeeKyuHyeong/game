@@ -38,6 +38,10 @@ public class SongService {
         return songRepository.findByTitleContainingOrArtistContaining(keyword, keyword, pageable);
     }
 
+    public Page<Song> findByArtist(String artist, Pageable pageable) {
+        return songRepository.findByArtist(artist, pageable);
+    }
+
     public Optional<Song> findById(Long id) {
         return songRepository.findById(id);
     }
@@ -119,6 +123,11 @@ public class SongService {
                 if (song.getGenre() == null || !song.getGenre().getId().equals(settings.getFixedGenreId())) continue;
             }
 
+            // 아티스트 필터
+            if (settings.getFixedArtistName() != null && !settings.getFixedArtistName().isEmpty()) {
+                if (song.getArtist() == null || !song.getArtist().equals(settings.getFixedArtistName())) continue;
+            }
+
             filtered.add(song);
         }
 
@@ -153,10 +162,33 @@ public class SongService {
                 if (song.getGenre() == null || !song.getGenre().getId().equals(settings.getFixedGenreId())) continue;
             }
 
+            // 아티스트 필터
+            if (settings.getFixedArtistName() != null && !settings.getFixedArtistName().isEmpty()) {
+                if (song.getArtist() == null || !song.getArtist().equals(settings.getFixedArtistName())) continue;
+            }
+
             count++;
         }
 
         return count;
+    }
+
+    // 아티스트 목록 조회 (곡 수 포함)
+    public List<Map<String, Object>> getArtistsWithCount() {
+        List<Object[]> results = songRepository.findDistinctArtistsWithCount();
+        List<Map<String, Object>> artists = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, Object> artist = new HashMap<>();
+            artist.put("name", row[0]);
+            artist.put("count", ((Number) row[1]).intValue());
+            artists.add(artist);
+        }
+        return artists;
+    }
+
+    // 아티스트 검색 (자동완성용)
+    public List<String> searchArtists(String keyword) {
+        return songRepository.findArtistsByKeyword(keyword);
     }
 
     public int getAvailableSongCountByGenreExcluding(Long genreId, List<Long> excludeSongIds) {

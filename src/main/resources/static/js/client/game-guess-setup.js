@@ -156,16 +156,25 @@ function updateConditionUI(elementId, isMet) {
 document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
     radio.addEventListener('change', function() {
         const genreSelect = document.getElementById('genreSelect');
+        const artistSelect = document.getElementById('artistSelect');
         const genreRoundSetting = document.getElementById('genreRoundSetting');
 
         if (this.value === 'FIXED_GENRE') {
             genreSelect.style.display = 'block';
+            artistSelect.style.display = 'none';
             genreRoundSetting.style.display = 'none';
+        } else if (this.value === 'FIXED_ARTIST') {
+            genreSelect.style.display = 'none';
+            artistSelect.style.display = 'block';
+            genreRoundSetting.style.display = 'none';
+            loadArtists();
         } else if (this.value === 'GENRE_PER_ROUND') {
             genreSelect.style.display = 'none';
+            artistSelect.style.display = 'none';
             genreRoundSetting.style.display = 'block';
         } else {
             genreSelect.style.display = 'none';
+            artistSelect.style.display = 'none';
             genreRoundSetting.style.display = 'none';
         }
         updateSongCount();
@@ -175,6 +184,48 @@ document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
 
 // 장르 선택 변경 이벤트
 document.getElementById('fixedGenreId').addEventListener('change', function() {
+    updateSongCount();
+});
+
+// 아티스트 목록 로드
+let allArtists = [];
+async function loadArtists() {
+    try {
+        const response = await fetch('/game/solo/guess/artists');
+        allArtists = await response.json();
+        renderArtistList(allArtists);
+    } catch (error) {
+        console.error('아티스트 목록 로드 오류:', error);
+    }
+}
+
+// 아티스트 목록 렌더링
+function renderArtistList(artists) {
+    const select = document.getElementById('fixedArtistName');
+    select.innerHTML = '<option value="">아티스트를 선택하세요</option>';
+    artists.forEach(artist => {
+        const option = document.createElement('option');
+        option.value = artist.name;
+        option.textContent = `${artist.name} (${artist.count}곡)`;
+        select.appendChild(option);
+    });
+}
+
+// 아티스트 검색 이벤트
+document.getElementById('artistSearchInput').addEventListener('input', function() {
+    const keyword = this.value.toLowerCase();
+    if (!keyword) {
+        renderArtistList(allArtists);
+        return;
+    }
+    const filtered = allArtists.filter(artist =>
+        artist.name.toLowerCase().includes(keyword)
+    );
+    renderArtistList(filtered);
+});
+
+// 아티스트 선택 변경 이벤트
+document.getElementById('fixedArtistName').addEventListener('change', function() {
     updateSongCount();
 });
 
@@ -200,8 +251,11 @@ async function updateSongCount() {
     const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
 
     let genreId = null;
+    let artistName = null;
     if (gameMode === 'FIXED_GENRE') {
         genreId = document.getElementById('fixedGenreId').value || null;
+    } else if (gameMode === 'FIXED_ARTIST') {
+        artistName = document.getElementById('fixedArtistName').value || null;
     }
 
     const yearFrom = document.getElementById('yearFrom').value || null;
@@ -216,6 +270,7 @@ async function updateSongCount() {
     try {
         const params = new URLSearchParams();
         if (genreId) params.append('genreId', genreId);
+        if (artistName) params.append('artistName', artistName);
         if (yearFrom) params.append('yearFrom', yearFrom);
         if (yearTo) params.append('yearTo', yearTo);
         if (soloOnly) params.append('soloOnly', soloOnly);
@@ -276,6 +331,14 @@ function goToStep2() {
         }
     }
 
+    if (gameMode === 'FIXED_ARTIST') {
+        const artistName = document.getElementById('fixedArtistName').value;
+        if (!artistName) {
+            alert('아티스트를 선택해주세요.');
+            return;
+        }
+    }
+
     if (maxAvailableSongs === 0) {
         alert('현재 조건에 맞는 노래가 없습니다. 조건을 변경해주세요.');
         return;
@@ -316,6 +379,16 @@ async function startGame() {
         }
     }
 
+    // 아티스트 체크 (FIXED_ARTIST 모드일 때만)
+    if (gameMode === 'FIXED_ARTIST') {
+        const artistName = document.getElementById('fixedArtistName').value;
+        if (!artistName) {
+            alert('아티스트를 선택해주세요.');
+            goToStep1();
+            return;
+        }
+    }
+
     const totalRounds = getTotalRounds();
 
     // 최종 라운드 수 검증
@@ -338,6 +411,10 @@ async function startGame() {
 
     if (gameMode === 'FIXED_GENRE') {
         settings.fixedGenreId = parseInt(document.getElementById('fixedGenreId').value);
+    }
+
+    if (gameMode === 'FIXED_ARTIST') {
+        settings.fixedArtistName = document.getElementById('fixedArtistName').value;
     }
 
     if (gameMode === 'GENRE_PER_ROUND') {

@@ -52,6 +52,13 @@
                             </span>
                         </label>
                         <label class="mode-option">
+                            <input type="radio" name="gameMode" value="FIXED_ARTIST">
+                            <span class="mode-label">
+                                <strong>아티스트 고정</strong>
+                                <small>선택한 아티스트 노래만 출제</small>
+                            </span>
+                        </label>
+                        <label class="mode-option">
                             <input type="radio" name="gameMode" value="GENRE_PER_ROUND">
                             <span class="mode-label">
                                 <strong>매 라운드 선택</strong>
@@ -66,6 +73,14 @@
                     <select id="fixedGenreId">
                         <option value="">선택하세요</option>
                         <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group artist-select" id="artistSelect" style="display:none;">
+                    <label>아티스트 선택</label>
+                    <input type="text" id="artistSearchInput" placeholder="아티스트명 검색..." class="artist-search-input" autocomplete="off">
+                    <select id="fixedArtistName" size="5" class="artist-list-select">
+                        <option value="">아티스트를 검색하거나 선택하세요</option>
                     </select>
                 </div>
 
