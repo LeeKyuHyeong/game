@@ -187,6 +187,24 @@ function syncAudio(serverPlaying, serverPlayedAt) {
         var elapsedSec = elapsedMs / 1000;
         var startTime = currentSong.startTime || 0;
 
+        var playDuration = currentSong.playDuration || 30;
+
+        // 디버깅: 비정상적인 시간 차이 확인
+        if (elapsedSec > 5) {
+            console.warn('Audio sync warning:', {
+                serverPlayedAt: serverPlayedAt,
+                clientNow: Date.now(),
+                elapsedSec: elapsedSec.toFixed(1),
+                startTime: startTime,
+                playDuration: playDuration
+            });
+        }
+
+        // 음수이거나 재생 시간을 초과하면 처음부터 (시간 동기화 문제 방지)
+        if (elapsedSec < 0 || elapsedSec > playDuration) {
+            elapsedSec = 0;
+        }
+
         audioPlayer.currentTime = startTime + elapsedSec;
 
         if (!isPlaying) {
