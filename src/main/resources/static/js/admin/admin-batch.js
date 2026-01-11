@@ -291,7 +291,7 @@ function refreshSchedules() {
     fetch('/admin/batch/refresh-schedules', { method: 'POST' })
         .then(function(response) {
             return response.json();
-
+        })
         .then(function(result) {
             if (result.success) {
                 alert(result.message + ' (등록: ' + result.scheduledCount + '개)');
