@@ -23,6 +23,7 @@ public class MultiGameService {
     private final SongService songService;
     private final GenreService genreService;
     private final AnswerValidationService answerValidationService;
+    private final MemberService memberService;
     private final ObjectMapper objectMapper;
 
     // 이미 출제된 노래 ID를 방별로 관리
@@ -102,7 +103,7 @@ public class MultiGameService {
 
         // 총 라운드 초과 체크
         if (room.getCurrentRound() > room.getTotalRounds()) {
-            room.setStatus(GameRoom.RoomStatus.FINISHED);
+            finishGame(room);
             result.put("success", true);
             result.put("isGameOver", true);
             return result;
@@ -111,7 +112,7 @@ public class MultiGameService {
         // 노래 선택
         Song song = selectSong(room);
         if (song == null) {
-            room.setStatus(GameRoom.RoomStatus.FINISHED);
+            finishGame(room);
             result.put("success", true);
             result.put("isGameOver", true);
             result.put("message", "출제할 노래가 없습니다.");
@@ -156,7 +157,7 @@ public class MultiGameService {
 
         // 마지막 라운드였으면 게임 종료
         if (room.getCurrentRound() >= room.getTotalRounds()) {
-            room.setStatus(GameRoom.RoomStatus.FINISHED);
+            finishGame(room);
             result.put("success", true);
             result.put("isGameOver", true);
             return result;
@@ -167,7 +168,7 @@ public class MultiGameService {
 
         // 총 라운드 초과 체크
         if (room.getCurrentRound() > room.getTotalRounds()) {
-            room.setStatus(GameRoom.RoomStatus.FINISHED);
+            finishGame(room);
             result.put("success", true);
             result.put("isGameOver", true);
             return result;
@@ -176,7 +177,7 @@ public class MultiGameService {
         // 노래 선택
         Song song = selectSong(room);
         if (song == null) {
-            room.setStatus(GameRoom.RoomStatus.FINISHED);
+            finishGame(room);
             result.put("success", true);
             result.put("isGameOver", true);
             result.put("message", "출제할 노래가 없습니다.");
@@ -477,5 +478,33 @@ public class MultiGameService {
     public void cleanupRoom(GameRoom room) {
         usedSongsByRoom.remove(room.getId());
         room.setStatus(GameRoom.RoomStatus.FINISHED);
+    }
+
+    /**
+     * 게임 종료 처리 - Member 통계 업데이트
+     */
+    @Transactional
+    public void finishGame(GameRoom room) {
+        room.setStatus(GameRoom.RoomStatus.FINISHED);
+        usedSongsByRoom.remove(room.getId());
+
+        // 모든 참가자의 통계를 Member에 반영
+        List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
+        int totalRounds = room.getCurrentRound();  // 실제 진행된 라운드 수
+
+        for (GameRoomParticipant participant : participants) {
+            Member member = participant.getMember();
+            if (member != null) {
+                memberService.addMultiGameResult(
+                        member.getId(),
+                        participant.getScore(),
+                        participant.getCorrectCount(),
+                        totalRounds
+                );
+            }
+        }
+
+        log.info("멀티게임 종료 - 방: {}, 참가자: {}명, 라운드: {}",
+                room.getId(), participants.size(), totalRounds);
     }
 }

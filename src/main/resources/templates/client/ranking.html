@@ -11,8 +11,39 @@
 
     <main class="client-main">
         <div class="ranking-content">
-            <!-- 랭킹 탭 -->
-            <div class="ranking-type-tabs">
+            <!-- 게임 모드 탭 -->
+            <div class="game-mode-tabs">
+                <button class="mode-tab active" data-mode="guess">
+                    <span class="tab-icon">🎧</span>
+                    <span class="tab-label">내가맞추기</span>
+                </button>
+                <button class="mode-tab" data-mode="multi">
+                    <span class="tab-icon">👥</span>
+                    <span class="tab-label">멀티게임</span>
+                </button>
+            </div>
+
+            <!-- 기간 탭 -->
+            <div class="period-tabs">
+                <button class="period-tab active" data-period="all">
+                    <span class="tab-label">전체</span>
+                </button>
+                <button class="period-tab" data-period="weekly">
+                    <span class="tab-label">이번 주</span>
+                </button>
+                <button class="period-tab" data-period="best">
+                    <span class="tab-label">최고기록</span>
+                </button>
+            </div>
+
+            <!-- 최고기록 안내 (best 탭에서만 표시) -->
+            <div class="best-score-notice" id="bestScoreNotice" style="display: none;">
+                <span class="notice-icon">💡</span>
+                <span class="notice-text">전체랜덤 + 10라운드 이상 게임만 집계됩니다</span>
+            </div>
+
+            <!-- 랭킹 기준 탭 (전체 기간에서만 표시) -->
+            <div class="ranking-type-tabs" id="typeTabsContainer">
                 <button class="type-tab active" data-type="score">
                     <span class="tab-icon">🎯</span>
                     <span class="tab-label">총점</span>
@@ -31,18 +62,21 @@
             <div class="top-three-podium" id="topThreePodium">
                 <div class="podium-place second" id="place2">
                     <div class="podium-avatar">🥈</div>
+                    <div class="podium-tier"></div>
                     <div class="podium-name">-</div>
                     <div class="podium-value">-</div>
                     <div class="podium-stand">2</div>
                 </div>
                 <div class="podium-place first" id="place1">
                     <div class="podium-avatar">🥇</div>
+                    <div class="podium-tier"></div>
                     <div class="podium-name">-</div>
                     <div class="podium-value">-</div>
                     <div class="podium-stand">1</div>
                 </div>
                 <div class="podium-place third" id="place3">
                     <div class="podium-avatar">🥉</div>
+                    <div class="podium-tier"></div>
                     <div class="podium-name">-</div>
                     <div class="podium-value">-</div>
                     <div class="podium-stand">3</div>
@@ -70,24 +104,66 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script>
+    let currentMode = 'guess';
+    let currentType = 'score';
+    let currentPeriod = 'all';
+
     document.addEventListener('DOMContentLoaded', function() {
-        loadRanking('score');
+        loadRanking();
         setupTabs();
     });
 
     function setupTabs() {
+        // 게임 모드 탭
+        document.querySelectorAll('.mode-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentMode = this.dataset.mode;
+                loadRanking();
+            });
+        });
+
+        // 기간 탭
+        document.querySelectorAll('.period-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentPeriod = this.dataset.period;
+
+                // 전체 기간일 때만 타입 탭 표시
+                const typeTabsContainer = document.getElementById('typeTabsContainer');
+                const bestScoreNotice = document.getElementById('bestScoreNotice');
+
+                if (currentPeriod === 'all') {
+                    typeTabsContainer.style.display = 'flex';
+                    bestScoreNotice.style.display = 'none';
+                } else if (currentPeriod === 'best') {
+                    typeTabsContainer.style.display = 'none';
+                    bestScoreNotice.style.display = 'flex';
+                } else {
+                    typeTabsContainer.style.display = 'none';
+                    bestScoreNotice.style.display = 'none';
+                }
+
+                loadRanking();
+            });
+        });
+
+        // 랭킹 기준 탭
         document.querySelectorAll('.type-tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
-                loadRanking(this.dataset.type);
+                currentType = this.dataset.type;
+                loadRanking();
             });
         });
     }
 
-    async function loadRanking(type) {
+    async function loadRanking() {
         try {
-            const response = await fetch(`/api/ranking?type=${type}&limit=20`);
+            const response = await fetch(`/api/ranking?mode=${currentMode}&type=${currentType}&period=${currentPeriod}&limit=20`);
             const rankings = await response.json();
 
             if (rankings.length === 0) {
@@ -102,16 +178,16 @@
             document.getElementById('emptyState').style.display = 'none';
 
             // TOP 3 포디움
-            updatePodium(rankings, type);
+            updatePodium(rankings);
 
             // 전체 랭킹 테이블
-            updateTable(rankings, type);
+            updateTable(rankings);
         } catch (error) {
             console.error('랭킹 로딩 오류:', error);
         }
     }
 
-    function updatePodium(rankings, type) {
+    function updatePodium(rankings) {
         const places = [
             { id: 'place1', index: 0 },
             { id: 'place2', index: 1 },
@@ -125,14 +201,20 @@
             if (member) {
                 el.style.display = 'flex';
                 el.querySelector('.podium-name').textContent = member.nickname;
-                el.querySelector('.podium-value').textContent = formatValue(type, member);
+                el.querySelector('.podium-value').textContent = formatValue(member);
+
+                // 티어 배지 추가
+                const tierEl = el.querySelector('.podium-tier');
+                tierEl.textContent = member.tierDisplayName;
+                tierEl.style.color = member.tierColor;
+                tierEl.className = 'podium-tier tier-badge tier-' + member.tier.toLowerCase();
             } else {
                 el.style.display = 'none';
             }
         });
     }
 
-    function updateTable(rankings, type) {
+    function updateTable(rankings) {
         const table = document.getElementById('rankingTable');
 
         table.innerHTML = rankings.map((member, index) => `
@@ -140,10 +222,13 @@
                 <div class="rank-cell">
                     ${index < 3 ? getMedal(index) : (index + 1)}
                 </div>
-                <div class="name-cell">${member.nickname}</div>
+                <div class="name-cell">
+                    <span class="tier-badge tier-${member.tier.toLowerCase()}" style="color: ${member.tierColor}">${member.tierDisplayName}</span>
+                    <span class="member-name">${member.nickname}</span>
+                </div>
                 <div class="stats-cell">
-                    <span class="main-stat">${formatValue(type, member)}</span>
-                    <span class="sub-stat">${formatSubStat(type, member)}</span>
+                    <span class="main-stat">${formatValue(member)}</span>
+                    <span class="sub-stat">${formatSubStat(member)}</span>
                 </div>
             </div>
         `).join('');
@@ -154,8 +239,12 @@
         return medals[index] || (index + 1);
     }
 
-    function formatValue(type, member) {
-        switch(type) {
+    function formatValue(member) {
+        if (currentPeriod === 'best') {
+            return member.totalScore.toLocaleString() + '점';
+        }
+
+        switch(currentType) {
             case 'score':
                 return member.totalScore.toLocaleString() + '점';
             case 'accuracy':
@@ -167,8 +256,15 @@
         }
     }
 
-    function formatSubStat(type, member) {
-        switch(type) {
+    function formatSubStat(member) {
+        if (currentPeriod === 'best') {
+            return '최고 정답률 ' + member.accuracyRate.toFixed(1) + '%';
+        }
+        if (currentPeriod === 'weekly') {
+            return member.totalGames + '게임 · ' + member.accuracyRate.toFixed(1) + '%';
+        }
+
+        switch(currentType) {
             case 'score':
                 return member.totalGames + '게임';
             case 'accuracy':

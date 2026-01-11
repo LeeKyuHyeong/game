@@ -11,12 +11,23 @@
             <h1>🏆 랭킹</h1>
         </header>
 
+        <!-- 게임 모드 필터 -->
+        <div class="game-type-tabs">
+            <a th:href="@{/admin/history/ranking(period=${period}, gameType='all')}"
+               th:classappend="${gameType == 'all' or gameType == null} ? 'active'" class="game-type-tab">전체</a>
+            <a th:href="@{/admin/history/ranking(period=${period}, gameType='guess')}"
+               th:classappend="${gameType == 'guess'} ? 'active'" class="game-type-tab">내가맞추기</a>
+            <a th:href="@{/admin/history/ranking(period=${period}, gameType='host')}"
+               th:classappend="${gameType == 'host'} ? 'active'" class="game-type-tab">게임진행</a>
+        </div>
+
+        <!-- 기간 필터 -->
         <div class="period-tabs">
-            <a th:href="@{/admin/history/ranking(period='daily')}"
+            <a th:href="@{/admin/history/ranking(period='daily', gameType=${gameType})}"
                th:classappend="${period == 'daily'} ? 'active'" class="period-tab">오늘</a>
-            <a th:href="@{/admin/history/ranking(period='weekly')}"
+            <a th:href="@{/admin/history/ranking(period='weekly', gameType=${gameType})}"
                th:classappend="${period == 'weekly'} ? 'active'" class="period-tab">이번 주</a>
-            <a th:href="@{/admin/history/ranking(period='all')}"
+            <a th:href="@{/admin/history/ranking(period='all', gameType=${gameType})}"
                th:classappend="${period == 'all'} ? 'active'" class="period-tab">전체</a>
         </div>
 

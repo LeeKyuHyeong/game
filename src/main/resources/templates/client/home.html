@@ -22,7 +22,7 @@
                     <p>혼자서 노래 맞추기에 도전!</p>
                     <div class="mode-options">
                         <a href="/game/solo/host" class="btn btn-mode">게임 진행용</a>
-                        <a href="/game/solo/guess" class="btn btn-mode primary">내가 맞추기</a>
+                        <button type="button" class="btn btn-mode primary" onclick="handleGuessClick()">내가 맞추기</button>
                     </div>
                 </div>
 
@@ -60,6 +60,20 @@
     <footer class="client-footer">
         <a href="/admin/login" class="admin-link">관리자</a>
     </footer>
+</div>
+
+<!-- 로그인 안내 모달 -->
+<div class="login-prompt-modal" id="loginPromptModal">
+    <div class="modal-overlay" onclick="closeLoginPrompt()"></div>
+    <div class="modal-content">
+        <div class="modal-icon">🎵</div>
+        <h3>로그인하면 더 재미있어요!</h3>
+        <p>회원으로 플레이하면 랭킹에 기록되고,<br>티어 승급의 재미를 느낄 수 있어요.</p>
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" onclick="proceedWithoutLogin()">그냥 할래요</button>
+            <a href="/auth/login?redirect=/game/solo/guess" class="btn btn-primary">로그인하기</a>
+        </div>
+    </div>
 </div>
 
 <script th:src="@{/js/common/common.js}"></script>

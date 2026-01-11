@@ -444,14 +444,19 @@ public class GameGuessController {
                 session.setStatus(GameSession.GameStatus.COMPLETED);
                 session.setEndedAt(LocalDateTime.now());
 
-                // 회원인 경우 통계 업데이트
+                // 회원인 경우 Solo Guess 통계 업데이트
                 if (session.getMember() != null) {
-                    memberService.addGameResult(
+                    // 전체랜덤 여부 확인 (fixedGenreId가 null이면 전체랜덤)
+                    GameSettings settings = gameSessionService.parseSettings(session.getSettings());
+                    boolean isAllRandom = settings.getFixedGenreId() == null;
+
+                    memberService.addGuessGameResult(
                             session.getMember().getId(),
                             session.getTotalScore(),
                             session.getCorrectCount(),
                             session.getCompletedRounds(),
-                            session.getSkipCount()
+                            session.getSkipCount(),
+                            isAllRandom
                     );
                 }
             }

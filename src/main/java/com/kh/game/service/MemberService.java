@@ -185,7 +185,23 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    // ========== 랭킹 ==========
+    // Solo Guess (내가맞추기) 게임 결과 반영
+    @Transactional
+    public void addGuessGameResult(Long memberId, int score, int correct, int rounds, int skip, boolean isAllRandom) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.addGuessGameResult(score, correct, rounds, skip, isAllRandom);
+        memberRepository.save(member);
+    }
+
+    // Multiplayer (멀티게임) 게임 결과 반영
+    @Transactional
+    public void addMultiGameResult(Long memberId, int score, int correct, int rounds) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.addMultiGameResult(score, correct, rounds);
+        memberRepository.save(member);
+    }
+
+    // ========== 랭킹 (전체 - 기존 호환성 유지) ==========
 
     public List<Member> getTopRankingByScore(int limit) {
         return memberRepository.findTopByTotalScore(PageRequest.of(0, limit));
@@ -197,6 +213,54 @@ public class MemberService {
 
     public List<Member> getTopRankingByGames(int limit) {
         return memberRepository.findTopByTotalGames(PageRequest.of(0, limit));
+    }
+
+    // ========== Solo Guess (내가맞추기) 랭킹 ==========
+
+    public List<Member> getGuessRankingByScore(int limit) {
+        return memberRepository.findTopGuessRankingByScore(PageRequest.of(0, limit));
+    }
+
+    public List<Member> getGuessRankingByAccuracy(int limit) {
+        return memberRepository.findTopGuessRankingByAccuracy(PageRequest.of(0, limit));
+    }
+
+    public List<Member> getGuessRankingByGames(int limit) {
+        return memberRepository.findTopGuessRankingByGames(PageRequest.of(0, limit));
+    }
+
+    // ========== Multiplayer (멀티게임) 랭킹 ==========
+
+    public List<Member> getMultiRankingByScore(int limit) {
+        return memberRepository.findTopMultiRankingByScore(PageRequest.of(0, limit));
+    }
+
+    public List<Member> getMultiRankingByAccuracy(int limit) {
+        return memberRepository.findTopMultiRankingByAccuracy(PageRequest.of(0, limit));
+    }
+
+    public List<Member> getMultiRankingByGames(int limit) {
+        return memberRepository.findTopMultiRankingByGames(PageRequest.of(0, limit));
+    }
+
+    // ========== 주간 랭킹 (Weekly) ==========
+
+    public List<Member> getWeeklyGuessRankingByScore(int limit) {
+        return memberRepository.findTopWeeklyGuessRankingByScore(PageRequest.of(0, limit));
+    }
+
+    public List<Member> getWeeklyMultiRankingByScore(int limit) {
+        return memberRepository.findTopWeeklyMultiRankingByScore(PageRequest.of(0, limit));
+    }
+
+    // ========== 최고 기록 랭킹 (Best Score) ==========
+
+    public List<Member> getGuessBestScoreRanking(int limit) {
+        return memberRepository.findTopGuessBestScore(PageRequest.of(0, limit));
+    }
+
+    public List<Member> getMultiBestScoreRanking(int limit) {
+        return memberRepository.findTopMultiBestScore(PageRequest.of(0, limit));
     }
 
     // ========== 로그인 이력 ==========

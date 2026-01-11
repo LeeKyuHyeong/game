@@ -22,48 +22,174 @@ public class RankingController {
     // 랭킹 페이지
     @GetMapping("/ranking")
     public String rankingPage(Model model) {
-        model.addAttribute("scoreRanking", memberService.getTopRankingByScore(20));
-        model.addAttribute("accuracyRanking", memberService.getTopRankingByAccuracy(20));
-        model.addAttribute("gamesRanking", memberService.getTopRankingByGames(20));
+        // 내가맞추기 랭킹
+        model.addAttribute("guessScoreRanking", memberService.getGuessRankingByScore(20));
+        model.addAttribute("guessAccuracyRanking", memberService.getGuessRankingByAccuracy(20));
+        model.addAttribute("guessGamesRanking", memberService.getGuessRankingByGames(20));
+
+        // 멀티게임 랭킹
+        model.addAttribute("multiScoreRanking", memberService.getMultiRankingByScore(20));
+        model.addAttribute("multiAccuracyRanking", memberService.getMultiRankingByAccuracy(20));
+        model.addAttribute("multiGamesRanking", memberService.getMultiRankingByGames(20));
+
+        // 주간 랭킹
+        model.addAttribute("weeklyGuessRanking", memberService.getWeeklyGuessRankingByScore(20));
+        model.addAttribute("weeklyMultiRanking", memberService.getWeeklyMultiRankingByScore(20));
+
+        // 최고 기록 랭킹
+        model.addAttribute("guessBestRanking", memberService.getGuessBestScoreRanking(20));
+        model.addAttribute("multiBestRanking", memberService.getMultiBestScoreRanking(20));
+
         return "client/ranking";
     }
 
-    // 랭킹 API
+    // 랭킹 API (모드별, 기간별 지원)
     @GetMapping("/api/ranking")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getRanking(
+            @RequestParam(defaultValue = "guess") String mode,
             @RequestParam(defaultValue = "score") String type,
+            @RequestParam(defaultValue = "all") String period,
             @RequestParam(defaultValue = "10") int limit) {
 
         List<Member> members;
 
-        switch (type) {
-            case "accuracy":
-                members = memberService.getTopRankingByAccuracy(limit);
-                break;
-            case "games":
-                members = memberService.getTopRankingByGames(limit);
-                break;
-            case "score":
-            default:
-                members = memberService.getTopRankingByScore(limit);
-                break;
+        if ("multi".equals(mode)) {
+            // 멀티게임 랭킹
+            members = getMultiRankingMembers(type, period, limit);
+            return ResponseEntity.ok(toMultiRankingResponse(members, period));
+        } else {
+            // 내가맞추기 랭킹 (기본값)
+            members = getGuessRankingMembers(type, period, limit);
+            return ResponseEntity.ok(toGuessRankingResponse(members, period));
         }
+    }
 
+    // 내가맞추기 랭킹 멤버 조회
+    private List<Member> getGuessRankingMembers(String type, String period, int limit) {
+        if ("weekly".equals(period)) {
+            return memberService.getWeeklyGuessRankingByScore(limit);
+        } else if ("best".equals(period)) {
+            return memberService.getGuessBestScoreRanking(limit);
+        } else {
+            // all (전체)
+            switch (type) {
+                case "accuracy":
+                    return memberService.getGuessRankingByAccuracy(limit);
+                case "games":
+                    return memberService.getGuessRankingByGames(limit);
+                case "score":
+                default:
+                    return memberService.getGuessRankingByScore(limit);
+            }
+        }
+    }
+
+    // 멀티게임 랭킹 멤버 조회
+    private List<Member> getMultiRankingMembers(String type, String period, int limit) {
+        if ("weekly".equals(period)) {
+            return memberService.getWeeklyMultiRankingByScore(limit);
+        } else if ("best".equals(period)) {
+            return memberService.getMultiBestScoreRanking(limit);
+        } else {
+            // all (전체)
+            switch (type) {
+                case "accuracy":
+                    return memberService.getMultiRankingByAccuracy(limit);
+                case "games":
+                    return memberService.getMultiRankingByGames(limit);
+                case "score":
+                default:
+                    return memberService.getMultiRankingByScore(limit);
+            }
+        }
+    }
+
+    // 내가맞추기 랭킹 응답 변환
+    private List<Map<String, Object>> toGuessRankingResponse(List<Member> members, String period) {
         List<Map<String, Object>> result = new ArrayList<>();
         for (Member member : members) {
             Map<String, Object> memberInfo = new HashMap<>();
             memberInfo.put("id", member.getId());
             memberInfo.put("nickname", member.getNickname());
-            memberInfo.put("totalScore", member.getTotalScore());
-            memberInfo.put("totalGames", member.getTotalGames());
-            memberInfo.put("totalCorrect", member.getTotalCorrect());
-            memberInfo.put("totalRounds", member.getTotalRounds());
-            memberInfo.put("accuracyRate", member.getAccuracyRate());
-            memberInfo.put("averageScore", member.getAverageScore());
+
+            // 기간에 따른 점수 표시
+            if ("weekly".equals(period)) {
+                memberInfo.put("totalScore", member.getWeeklyGuessScore() != null ? member.getWeeklyGuessScore() : 0);
+                memberInfo.put("totalGames", member.getWeeklyGuessGames() != null ? member.getWeeklyGuessGames() : 0);
+                memberInfo.put("totalCorrect", member.getWeeklyGuessCorrect() != null ? member.getWeeklyGuessCorrect() : 0);
+                memberInfo.put("totalRounds", member.getWeeklyGuessRounds() != null ? member.getWeeklyGuessRounds() : 0);
+                memberInfo.put("accuracyRate", member.getWeeklyGuessAccuracyRate());
+            } else if ("best".equals(period)) {
+                memberInfo.put("totalScore", member.getBestGuessScore() != null ? member.getBestGuessScore() : 0);
+                memberInfo.put("accuracyRate", member.getBestGuessAccuracy() != null ? member.getBestGuessAccuracy() : 0.0);
+                memberInfo.put("achievedAt", member.getBestGuessAt());
+                // 최고 기록 모드에서는 게임수/라운드수 없음
+                memberInfo.put("totalGames", 1);
+                memberInfo.put("totalCorrect", 0);
+                memberInfo.put("totalRounds", 0);
+            } else {
+                memberInfo.put("totalScore", member.getGuessScore() != null ? member.getGuessScore() : 0);
+                memberInfo.put("totalGames", member.getGuessGames() != null ? member.getGuessGames() : 0);
+                memberInfo.put("totalCorrect", member.getGuessCorrect() != null ? member.getGuessCorrect() : 0);
+                memberInfo.put("totalRounds", member.getGuessRounds() != null ? member.getGuessRounds() : 0);
+                memberInfo.put("accuracyRate", member.getGuessAccuracyRate());
+                memberInfo.put("averageScore", member.getGuessAverageScore());
+            }
+
+            // 티어 정보 추가
+            addTierInfo(memberInfo, member);
+
             result.add(memberInfo);
         }
+        return result;
+    }
 
-        return ResponseEntity.ok(result);
+    // 멀티게임 랭킹 응답 변환
+    private List<Map<String, Object>> toMultiRankingResponse(List<Member> members, String period) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Member member : members) {
+            Map<String, Object> memberInfo = new HashMap<>();
+            memberInfo.put("id", member.getId());
+            memberInfo.put("nickname", member.getNickname());
+
+            // 기간에 따른 점수 표시
+            if ("weekly".equals(period)) {
+                memberInfo.put("totalScore", member.getWeeklyMultiScore() != null ? member.getWeeklyMultiScore() : 0);
+                memberInfo.put("totalGames", member.getWeeklyMultiGames() != null ? member.getWeeklyMultiGames() : 0);
+                memberInfo.put("totalCorrect", member.getWeeklyMultiCorrect() != null ? member.getWeeklyMultiCorrect() : 0);
+                memberInfo.put("totalRounds", member.getWeeklyMultiRounds() != null ? member.getWeeklyMultiRounds() : 0);
+                memberInfo.put("accuracyRate", member.getWeeklyMultiAccuracyRate());
+            } else if ("best".equals(period)) {
+                memberInfo.put("totalScore", member.getBestMultiScore() != null ? member.getBestMultiScore() : 0);
+                memberInfo.put("accuracyRate", member.getBestMultiAccuracy() != null ? member.getBestMultiAccuracy() : 0.0);
+                memberInfo.put("achievedAt", member.getBestMultiAt());
+                // 최고 기록 모드에서는 게임수/라운드수 없음
+                memberInfo.put("totalGames", 1);
+                memberInfo.put("totalCorrect", 0);
+                memberInfo.put("totalRounds", 0);
+            } else {
+                memberInfo.put("totalScore", member.getMultiScore() != null ? member.getMultiScore() : 0);
+                memberInfo.put("totalGames", member.getMultiGames() != null ? member.getMultiGames() : 0);
+                memberInfo.put("totalCorrect", member.getMultiCorrect() != null ? member.getMultiCorrect() : 0);
+                memberInfo.put("totalRounds", member.getMultiRounds() != null ? member.getMultiRounds() : 0);
+                memberInfo.put("accuracyRate", member.getMultiAccuracyRate());
+                memberInfo.put("averageScore", member.getMultiAverageScore());
+            }
+
+            // 티어 정보 추가
+            addTierInfo(memberInfo, member);
+
+            result.add(memberInfo);
+        }
+        return result;
+    }
+
+    // 티어 정보 추가
+    private void addTierInfo(Map<String, Object> memberInfo, Member member) {
+        Member.MemberTier tier = member.getTier() != null ? member.getTier() : Member.MemberTier.BRONZE;
+        memberInfo.put("tier", tier.name());
+        memberInfo.put("tierDisplayName", tier.getDisplayName());
+        memberInfo.put("tierColor", tier.getColor());
     }
 }

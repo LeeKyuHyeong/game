@@ -256,6 +256,117 @@
     color: white;
 }
 
+/* Mode Options - Button Group */
+.mode-options {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+/* Login Prompt Modal */
+.login-prompt-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.login-prompt-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-prompt-modal .modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.login-prompt-modal .modal-content {
+    position: relative;
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    max-width: 360px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlideUp 0.3s ease;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-prompt-modal .modal-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.login-prompt-modal h3 {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.login-prompt-modal p {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.login-prompt-modal .modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.login-prompt-modal .btn {
+    padding: 0.875rem 1.5rem;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.login-prompt-modal .btn-secondary {
+    background: #f1f5f9;
+    color: var(--text-secondary);
+}
+
+.login-prompt-modal .btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+.login-prompt-modal .btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.login-prompt-modal .btn-primary:hover {
+    background: var(--primary-hover);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .home-content {
@@ -389,5 +500,38 @@
     .empty-ranking {
         padding: 1rem;
         font-size: 0.875rem;
+    }
+
+    /* Mode Options Mobile */
+    .mode-options {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .mode-options .btn-mode {
+        width: 100%;
+    }
+
+    /* Login Prompt Modal Mobile */
+    .login-prompt-modal .modal-content {
+        padding: 2rem 1.5rem;
+        border-radius: 1rem;
+    }
+
+    .login-prompt-modal .modal-icon {
+        font-size: 2.5rem;
+    }
+
+    .login-prompt-modal h3 {
+        font-size: 1.125rem;
+    }
+
+    .login-prompt-modal p {
+        font-size: 0.875rem;
+    }
+
+    .login-prompt-modal .btn {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9375rem;
     }
 }

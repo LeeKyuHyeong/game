@@ -32,6 +32,13 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
     @Query("SELECT gs FROM GameSession gs WHERE gs.createdAt >= :startDate AND gs.status = 'COMPLETED' ORDER BY gs.totalScore DESC")
     List<GameSession> findTopScoresSince(@Param("startDate") LocalDateTime startDate, Pageable pageable);
 
+    // 게임 타입별 랭킹 조회
+    @Query("SELECT gs FROM GameSession gs WHERE gs.gameType = :gameType AND gs.status = 'COMPLETED' ORDER BY gs.totalScore DESC")
+    List<GameSession> findTopScoresByGameType(@Param("gameType") GameSession.GameType gameType, Pageable pageable);
+
+    @Query("SELECT gs FROM GameSession gs WHERE gs.gameType = :gameType AND gs.createdAt >= :startDate AND gs.status = 'COMPLETED' ORDER BY gs.totalScore DESC")
+    List<GameSession> findTopScoresByGameTypeSince(@Param("gameType") GameSession.GameType gameType, @Param("startDate") LocalDateTime startDate, Pageable pageable);
+
     @Query("SELECT COUNT(gs) FROM GameSession gs WHERE gs.createdAt >= :startDate")
     Long countGamesSince(@Param("startDate") LocalDateTime startDate);
 

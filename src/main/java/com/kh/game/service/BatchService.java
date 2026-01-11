@@ -157,7 +157,19 @@ public class BatchService {
                 true  // 구현됨
         ));
 
-        log.info("배치 설정 초기 데이터 생성 완료: 10개");
+        // 11. 주간 랭킹 리셋
+        batchConfigRepository.save(new BatchConfig(
+                "BATCH_WEEKLY_RANKING_RESET",
+                "주간 랭킹 리셋",
+                "매주 월요일 주간 통계를 초기화하여 새로운 시즌을 시작합니다.",
+                "0 0 6 * * MON",
+                "매주 월요일 06:00",
+                "Member",
+                BatchConfig.Priority.HIGH,
+                true  // 구현됨
+        ));
+
+        log.info("배치 설정 초기 데이터 생성 완료: 11개");
     }
 
     /**
@@ -177,7 +189,8 @@ public class BatchService {
                 "BATCH_INACTIVE_MEMBER",
                 "BATCH_SONG_FILE_CHECK",
                 "BATCH_SONG_ANALYTICS",
-                "BATCH_SYSTEM_REPORT"
+                "BATCH_SYSTEM_REPORT",
+                "BATCH_WEEKLY_RANKING_RESET"
         );
 
         int updatedCount = 0;
@@ -199,6 +212,21 @@ public class BatchService {
      */
     @Transactional
     public void updateBatchConfigs() {
+        // BATCH_WEEKLY_RANKING_RESET: 새 배치 추가 (기존 DB에 없으면 생성)
+        if (!batchConfigRepository.existsById("BATCH_WEEKLY_RANKING_RESET")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_WEEKLY_RANKING_RESET",
+                    "주간 랭킹 리셋",
+                    "매주 월요일 주간 통계를 초기화하여 새로운 시즌을 시작합니다.",
+                    "0 0 6 * * MON",
+                    "매주 월요일 06:00",
+                    "Member",
+                    BatchConfig.Priority.HIGH,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_WEEKLY_RANKING_RESET 배치 설정 추가 완료");
+        }
+
         // BATCH_SONG_FILE_CHECK: 매일 02:00 -> 매시간으로 변경
         batchConfigRepository.findById("BATCH_SONG_FILE_CHECK").ifPresent(config -> {
             boolean updated = false;

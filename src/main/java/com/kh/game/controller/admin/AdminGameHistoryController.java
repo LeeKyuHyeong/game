@@ -108,22 +108,49 @@ public class AdminGameHistoryController {
     }
 
     @GetMapping("/ranking")
-    public String ranking(@RequestParam(defaultValue = "all") String period, Model model) {
+    public String ranking(
+            @RequestParam(defaultValue = "all") String period,
+            @RequestParam(defaultValue = "all") String gameType,
+            Model model) {
+
         List<GameSession> rankings;
 
-        switch (period) {
-            case "daily":
-                rankings = gameSessionService.getDailyTopScores(50);
-                break;
-            case "weekly":
-                rankings = gameSessionService.getWeeklyTopScores(50);
-                break;
-            default:
-                rankings = gameSessionService.getTopScores(50);
+        // 게임 타입 필터
+        GameSession.GameType type = null;
+        if ("guess".equals(gameType)) {
+            type = GameSession.GameType.SOLO_GUESS;
+        } else if ("host".equals(gameType)) {
+            type = GameSession.GameType.SOLO_HOST;
+        }
+
+        // 기간 + 게임 타입에 따른 조회
+        if (type != null) {
+            switch (period) {
+                case "daily":
+                    rankings = gameSessionService.getDailyTopScoresByGameType(type, 50);
+                    break;
+                case "weekly":
+                    rankings = gameSessionService.getWeeklyTopScoresByGameType(type, 50);
+                    break;
+                default:
+                    rankings = gameSessionService.getTopScoresByGameType(type, 50);
+            }
+        } else {
+            switch (period) {
+                case "daily":
+                    rankings = gameSessionService.getDailyTopScores(50);
+                    break;
+                case "weekly":
+                    rankings = gameSessionService.getWeeklyTopScores(50);
+                    break;
+                default:
+                    rankings = gameSessionService.getTopScores(50);
+            }
         }
 
         model.addAttribute("rankings", rankings);
         model.addAttribute("period", period);
+        model.addAttribute("gameType", gameType);
         model.addAttribute("menu", "ranking");
 
         return "admin/history/ranking";

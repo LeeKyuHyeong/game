@@ -68,6 +68,21 @@ public class GameSessionService {
         return gameSessionRepository.findTopScoresSince(startOfWeek, Pageable.ofSize(limit));
     }
 
+    // 게임 타입별 랭킹 조회
+    public List<GameSession> getTopScoresByGameType(GameSession.GameType gameType, int limit) {
+        return gameSessionRepository.findTopScoresByGameType(gameType, Pageable.ofSize(limit));
+    }
+
+    public List<GameSession> getDailyTopScoresByGameType(GameSession.GameType gameType, int limit) {
+        LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+        return gameSessionRepository.findTopScoresByGameTypeSince(gameType, startOfDay, Pageable.ofSize(limit));
+    }
+
+    public List<GameSession> getWeeklyTopScoresByGameType(GameSession.GameType gameType, int limit) {
+        LocalDateTime startOfWeek = LocalDateTime.now().minusDays(7);
+        return gameSessionRepository.findTopScoresByGameTypeSince(gameType, startOfWeek, Pageable.ofSize(limit));
+    }
+
     public Long getTodayGameCount() {
         LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
         return gameSessionRepository.countGamesSince(startOfDay);
