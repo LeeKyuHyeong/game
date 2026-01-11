@@ -43,7 +43,8 @@
                         <button th:if="${isHost and !room.isHost(p.member)}"
                                 type="button"
                                 class="btn btn-kick"
-                                th:onclick="'kickPlayer(' + ${p.member.id} + ')'">강퇴</button>
+                                th:data-id="${p.member.id}"
+                                onclick="kickPlayer(this.dataset.id)">강퇴</button>
                     </div>
                 </div>
             </div>

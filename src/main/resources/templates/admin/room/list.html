@@ -108,11 +108,11 @@
                         </td>
                         <td data-label="생성일" th:text="${#temporals.format(room.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                         <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
-                            <button class="btn btn-sm btn-info" th:onclick="'viewRoom(' + ${room.id} + ')'">상세</button>
-                            <button class="btn btn-sm btn-primary" th:onclick="'viewChat(' + ${room.id} + ')'">채팅</button>
+                            <button class="btn btn-sm btn-info" th:data-id="${room.id}" onclick="viewRoom(this.dataset.id)">상세</button>
+                            <button class="btn btn-sm btn-primary" th:data-id="${room.id}" onclick="viewChat(this.dataset.id)">채팅</button>
                             <button class="btn btn-sm btn-warning" th:if="${room.status.name() != 'FINISHED'}"
-                                    th:onclick="'closeRoom(' + ${room.id} + ')'">종료</button>
-                            <button class="btn btn-sm btn-delete" th:onclick="'deleteRoom(' + ${room.id} + ')'">삭제</button>
+                                    th:data-id="${room.id}" onclick="closeRoom(this.dataset.id)">종료</button>
+                            <button class="btn btn-sm btn-delete" th:data-id="${room.id}" onclick="deleteRoom(this.dataset.id)">삭제</button>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(rooms)}">

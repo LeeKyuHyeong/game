@@ -93,7 +93,7 @@
                         </td>
                         <td data-label="일시" th:text="${#temporals.format(chat.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
                         <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
-                            <button class="btn btn-sm btn-delete" th:onclick="'deleteChat(' + ${chat.id} + ')'">삭제</button>
+                            <button class="btn btn-sm btn-delete" th:data-id="${chat.id}" onclick="deleteChat(this.dataset.id)">삭제</button>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(chats)}">

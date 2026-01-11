@@ -82,9 +82,9 @@
                         </td>
                         <td data-label="등록일" th:text="${#temporals.format(badWord.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                         <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
-                            <button class="btn btn-sm btn-edit" th:onclick="'editBadWord(' + ${badWord.id} + ')'">수정</button>
-                            <button class="btn btn-sm btn-toggle" th:onclick="'toggleStatus(' + ${badWord.id} + ')'">상태변경</button>
-                            <button class="btn btn-sm btn-delete" th:onclick="'deleteBadWord(' + ${badWord.id} + ')'">삭제</button>
+                            <button class="btn btn-sm btn-edit" th:data-id="${badWord.id}" onclick="editBadWord(this.dataset.id)">수정</button>
+                            <button class="btn btn-sm btn-toggle" th:data-id="${badWord.id}" onclick="toggleStatus(this.dataset.id)">상태변경</button>
+                            <button class="btn btn-sm btn-delete" th:data-id="${badWord.id}" onclick="deleteBadWord(this.dataset.id)">삭제</button>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(badWords)}">
