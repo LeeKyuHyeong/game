@@ -55,6 +55,40 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 - `GameRoom` → has `GameRoomParticipant` → stores `GameRoomChat` (multiplayer mode)
 - `Song` → has multiple `SongAnswer` for fuzzy matching validation
 
+### Frontend Structure
+
+```
+static/
+├── css/
+│   ├── client/
+│   │   ├── client.css      # Index file that @imports all modules
+│   │   ├── base.css        # Common layout, header, footer
+│   │   ├── home.css        # Home page, game modes
+│   │   ├── auth.css        # Login, register pages
+│   │   ├── game-common.css # Shared game elements
+│   │   ├── game-guess.css  # Solo guess mode
+│   │   ├── game-host.css   # Solo host mode
+│   │   ├── game-multi.css  # Multiplayer mode
+│   │   ├── result.css      # Score, podium pages
+│   │   └── ranking.css     # Full ranking page
+│   ├── admin/              # Admin panel styles
+│   └── common/common.css   # Global variables, resets
+├── js/
+│   ├── client/             # Page-specific JS (home.js, etc.)
+│   └── common/common.js    # Shared utilities
+```
+
+### Key Services
+
+- `BadWordService` - Profanity filtering with ConcurrentHashMap cache, auto-reloads on changes
+- `DataInitializer` - Seeds initial bad words (~50 profanities) on startup via CommandLineRunner
+
+### Scoring System
+
+- **Solo Guess:** 10 → 7 → 5 points (3 attempts)
+- **Solo Host:** 100 → 70 → 50 points (3 attempts, host reads clues)
+- **Multiplayer:** 100 points for first correct answer
+
 ## Configuration
 
 - **Dev profile:** Port 8082, MariaDB localhost:3306/song (root/1234)
