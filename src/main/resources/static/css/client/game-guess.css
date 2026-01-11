@@ -266,6 +266,28 @@
     background: #e5e7eb;
 }
 
+/* Modal Search Input */
+.modal-search-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    margin-bottom: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.modal-search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Scrollable List */
+.genre-list.scrollable {
+    max-height: 50vh;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .game-container.guess-mode {
@@ -378,5 +400,15 @@
     .genre-count {
         font-size: 0.7rem;
         padding: 3px 8px;
+    }
+
+    .modal-search-input {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .genre-list.scrollable {
+        max-height: 40vh;
     }
 }

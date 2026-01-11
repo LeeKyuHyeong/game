@@ -5,14 +5,14 @@
 <div class="client-container">
     <header class="client-header compact">
         <a href="/" class="back-home">← 홈으로</a>
-        <h1>🎯 내가 맞추기</h1>
+        <h1>내가 맞추기</h1>
         <p>노래를 듣고 제목을 맞춰보세요!</p>
     </header>
 
     <main class="setup-main">
         <div class="setup-card">
             <div class="setup-step" id="step1">
-                <h2>1. 기본 설정</h2>
+                <h2>게임 설정</h2>
 
                 <div class="form-group">
                     <label>닉네임</label>
@@ -37,75 +37,106 @@
                 <div class="form-group">
                     <label>게임 모드</label>
                     <div class="mode-options">
-                        <label class="mode-option">
-                            <input type="radio" name="gameMode" value="RANDOM" checked>
-                            <span class="mode-label">
-                                <strong>전체 랜덤</strong>
-                                <small>모든 노래 중 랜덤 출제</small>
-                            </span>
-                        </label>
-                        <label class="mode-option">
-                            <input type="radio" name="gameMode" value="FIXED_GENRE">
-                            <span class="mode-label">
-                                <strong>장르 고정</strong>
-                                <small>선택한 장르에서만 출제</small>
-                            </span>
-                        </label>
-                        <label class="mode-option">
-                            <input type="radio" name="gameMode" value="FIXED_ARTIST">
-                            <span class="mode-label">
-                                <strong>아티스트 고정</strong>
-                                <small>선택한 아티스트 노래만 출제</small>
-                            </span>
-                        </label>
-                        <label class="mode-option">
-                            <input type="radio" name="gameMode" value="GENRE_PER_ROUND">
-                            <span class="mode-label">
-                                <strong>매 라운드 선택</strong>
-                                <small>매 라운드마다 장르 선택</small>
-                            </span>
-                        </label>
+                        <!-- 고정 모드 -->
+                        <div class="mode-group">
+                            <div class="mode-group-label">고정 모드</div>
+                            <label class="mode-option">
+                                <input type="radio" name="gameMode" value="RANDOM" checked>
+                                <span class="mode-label">
+                                    <strong>전체 랜덤</strong>
+                                    <small>모든 노래 중 랜덤 출제</small>
+                                </span>
+                            </label>
+                            <label class="mode-option">
+                                <input type="radio" name="gameMode" value="FIXED_GENRE">
+                                <span class="mode-label">
+                                    <strong>장르 고정</strong>
+                                    <small>선택한 장르에서만 출제</small>
+                                </span>
+                            </label>
+                            <label class="mode-option">
+                                <input type="radio" name="gameMode" value="FIXED_ARTIST">
+                                <span class="mode-label">
+                                    <strong>아티스트 고정</strong>
+                                    <small>선택한 아티스트 노래만 출제</small>
+                                </span>
+                            </label>
+                            <label class="mode-option">
+                                <input type="radio" name="gameMode" value="FIXED_YEAR">
+                                <span class="mode-label">
+                                    <strong>연도 고정</strong>
+                                    <small>선택한 연도 노래만 출제</small>
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- 매 라운드 선택 모드 -->
+                        <div class="mode-group">
+                            <div class="mode-group-label">매 라운드 선택</div>
+                            <label class="mode-option">
+                                <input type="radio" name="gameMode" value="GENRE_PER_ROUND">
+                                <span class="mode-label">
+                                    <strong>장르 선택</strong>
+                                    <small>매 라운드마다 장르 선택</small>
+                                </span>
+                            </label>
+                            <label class="mode-option">
+                                <input type="radio" name="gameMode" value="ARTIST_PER_ROUND">
+                                <span class="mode-label">
+                                    <strong>아티스트 선택</strong>
+                                    <small>매 라운드마다 아티스트 선택</small>
+                                </span>
+                            </label>
+                            <label class="mode-option">
+                                <input type="radio" name="gameMode" value="YEAR_PER_ROUND">
+                                <span class="mode-label">
+                                    <strong>연도 선택</strong>
+                                    <small>매 라운드마다 연도 선택</small>
+                                </span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group genre-select" id="genreSelect" style="display:none;">
+                <!-- 장르 선택 (FIXED_GENRE) -->
+                <div class="form-group mode-selection-area" id="genreSelectArea" style="display:none;">
                     <label>장르 선택</label>
-                    <select id="fixedGenreId">
+                    <select id="fixedGenreId" class="mode-select">
                         <option value="">선택하세요</option>
                         <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}"></option>
                     </select>
                 </div>
 
-                <div class="form-group artist-select" id="artistSelect" style="display:none;">
-                    <label>아티스트 선택</label>
-                    <input type="text" id="artistSearchInput" placeholder="아티스트명 검색..." class="artist-search-input" autocomplete="off">
-                    <select id="fixedArtistName" size="5" class="artist-list-select">
-                        <option value="">아티스트를 검색하거나 선택하세요</option>
-                    </select>
-                </div>
-
-                <button type="button" class="btn btn-next" onclick="goToStep2()">다음 →</button>
-            </div>
-
-            <div class="setup-step" id="step2" style="display:none;">
-                <h2>2. 상세 설정 (선택)</h2>
-
-                <div class="form-group">
-                    <label>연도 선택 <span id="yearCountInfo" class="filter-count-info"></span></label>
-                    <div class="multi-select-chips" id="yearChips">
+                <!-- 아티스트 선택 (FIXED_ARTIST) -->
+                <div class="form-group mode-selection-area" id="artistSelectArea" style="display:none;">
+                    <label>아티스트 선택 <span id="artistSelectCountInfo" class="filter-count-info"></span></label>
+                    <input type="text" id="artistSearchInput" placeholder="아티스트명 검색..." class="filter-search-input" autocomplete="off">
+                    <div class="multi-select-chips" id="artistSelectChips">
                         <div class="chips-loading">로딩 중...</div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>아티스트 선택 <span id="artistCountInfo" class="filter-count-info"></span></label>
-                    <input type="text" id="artistFilterInput" placeholder="아티스트명 검색..." class="filter-search-input" autocomplete="off">
-                    <div class="multi-select-chips" id="artistChips">
+                <!-- 연도 선택 (FIXED_YEAR) -->
+                <div class="form-group mode-selection-area" id="yearSelectArea" style="display:none;">
+                    <label>연도 선택 <span id="yearSelectCountInfo" class="filter-count-info"></span></label>
+                    <div class="multi-select-chips" id="yearSelectChips">
                         <div class="chips-loading">로딩 중...</div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <!-- 매 라운드 옵션 -->
+                <div class="form-group mode-selection-area" id="perRoundOptions" style="display:none;">
+                    <label>추가 옵션</label>
+                    <div class="checkbox-option">
+                        <label class="toggle-option">
+                            <input type="checkbox" id="hideEmptyOptions">
+                            <span class="toggle-label">선택 가능한 항목만 표시</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 아티스트 유형 (전체/솔로/그룹) -->
+                <div class="form-group" id="artistTypeArea">
                     <label>아티스트 유형</label>
                     <div class="artist-type-options">
                         <label class="type-option">
@@ -119,16 +150,6 @@
                         <label class="type-option">
                             <input type="radio" name="artistType" value="group">
                             <span>그룹만</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group genre-round-setting" id="genreRoundSetting" style="display:none;">
-                    <label>장르 선택 옵션</label>
-                    <div class="checkbox-option">
-                        <label class="toggle-option">
-                            <input type="checkbox" id="hideEmptyGenres">
-                            <span class="toggle-label">남은 곡이 없는 장르 숨기기</span>
                         </label>
                     </div>
                 </div>
@@ -152,14 +173,6 @@
                             <span class="condition-icon">○</span>
                             <span class="condition-text">10라운드 이상</span>
                         </li>
-                        <li id="conditionYear" class="condition">
-                            <span class="condition-icon">○</span>
-                            <span class="condition-text">연도 필터 미설정</span>
-                        </li>
-                        <li id="conditionArtistFilter" class="condition">
-                            <span class="condition-icon">○</span>
-                            <span class="condition-text">아티스트 필터 미설정</span>
-                        </li>
                         <li id="conditionArtist" class="condition">
                             <span class="condition-icon">○</span>
                             <span class="condition-text">아티스트 유형 전체</span>
@@ -168,10 +181,7 @@
                     <p class="notice-result" id="noticeResult"></p>
                 </div>
 
-                <div class="step-buttons">
-                    <button type="button" class="btn btn-back" onclick="goToStep1()">← 이전</button>
-                    <button type="button" class="btn btn-start" onclick="startGame()">게임 시작! 🎮</button>
-                </div>
+                <button type="button" class="btn btn-start" onclick="startGame()">게임 시작!</button>
             </div>
         </div>
     </main>

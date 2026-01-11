@@ -29,7 +29,8 @@ public class GameSettings {
     private Integer scorePerCorrect = 100;       // 정답당 기본 점수
     private Integer timeBonusRate = 10;          // 시간 보너스 비율
     private Boolean autoNextRound = true;        // 자동 다음 라운드
-    private Boolean hideEmptyGenres = false;     // 남은곡 없는 장르 숨기기
+    private Boolean hideEmptyGenres = false;     // 남은곡 없는 장르 숨기기 (레거시)
+    private Boolean hideEmptyOptions = false;    // 남은곡 없는 옵션 숨기기 (아티스트/연도/장르)
 
     // ========== 멀티게임 설정 ==========
     private String roomName;                     // 방 이름

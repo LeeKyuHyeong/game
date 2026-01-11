@@ -14,11 +14,23 @@ let playStartTime = null; // 현재 재생 시작 시점
 
 // 게임 시작
 document.addEventListener('DOMContentLoaded', function() {
-    // GENRE_PER_ROUND 모드면 장르 선택 모달 표시
+    // 매 라운드 선택 모드 처리
     if (gameMode === 'GENRE_PER_ROUND') {
         showGenreSelectModal(1);
+    } else if (gameMode === 'ARTIST_PER_ROUND') {
+        showArtistSelectModal(1);
+    } else if (gameMode === 'YEAR_PER_ROUND') {
+        showYearSelectModal(1);
     } else {
         loadRound(1);
+    }
+
+    // 아티스트 검색 입력 이벤트
+    const artistSearchInput = document.getElementById('artistSearchInput');
+    if (artistSearchInput) {
+        artistSearchInput.addEventListener('input', function() {
+            renderArtistList(this.value);
+        });
     }
 });
 
@@ -41,8 +53,8 @@ async function showGenreSelectModal(roundNumber) {
 
             if (genre.availableCount === 0) {
                 item.classList.add('disabled');
-                // hideEmptyGenres 설정에 따라 숨김 처리
-                if (hideEmptyGenres) {
+                // hideEmptyOptions 설정에 따라 숨김 처리
+                if (hideEmptyOptions) {
                     item.classList.add('hidden');
                 }
             }
@@ -90,6 +102,163 @@ async function selectGenre(genreId, roundNumber) {
     } catch (error) {
         console.error('장르 선택 오류:', error);
         alert('장르 선택 중 오류가 발생했습니다.');
+    }
+}
+
+// ========== 아티스트 선택 모달 ==========
+
+let allArtistsForModal = [];
+let currentArtistRound = 1;
+
+async function showArtistSelectModal(roundNumber) {
+    const modal = document.getElementById('artistSelectModal');
+    currentArtistRound = roundNumber;
+
+    try {
+        const response = await fetch('/game/solo/guess/artists-with-count');
+        allArtistsForModal = await response.json();
+
+        // 남은 곡 개수 순으로 정렬 (내림차순)
+        allArtistsForModal.sort((a, b) => b.count - a.count);
+
+        renderArtistList();
+
+    } catch (error) {
+        console.error('아티스트 목록 로딩 오류:', error);
+    }
+
+    // 검색 입력 초기화
+    document.getElementById('artistSearchInput').value = '';
+    modal.classList.add('show');
+}
+
+function renderArtistList(filterKeyword = '') {
+    const artistList = document.getElementById('artistList');
+    let artistsToShow = allArtistsForModal;
+
+    if (filterKeyword) {
+        artistsToShow = allArtistsForModal.filter(a =>
+            a.name.toLowerCase().includes(filterKeyword.toLowerCase())
+        );
+    }
+
+    artistList.innerHTML = '';
+
+    artistsToShow.forEach(artist => {
+        const item = document.createElement('div');
+        item.className = 'genre-item';
+
+        if (artist.count === 0) {
+            item.classList.add('disabled');
+            if (hideEmptyOptions) {
+                item.classList.add('hidden');
+            }
+        }
+
+        item.innerHTML = `
+            <span class="genre-name">${artist.name}</span>
+            <span class="genre-count">${artist.count}곡</span>
+        `;
+
+        if (artist.count > 0) {
+            item.addEventListener('click', () => selectArtist(artist.name, currentArtistRound));
+        }
+
+        artistList.appendChild(item);
+    });
+}
+
+async function selectArtist(artistName, roundNumber) {
+    try {
+        const response = await fetch('/game/solo/guess/select-artist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                artist: artistName,
+                roundNumber: roundNumber
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            document.getElementById('artistSelectModal').classList.remove('show');
+            loadRound(roundNumber);
+        } else {
+            alert(result.message || '아티스트 선택에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('아티스트 선택 오류:', error);
+        alert('아티스트 선택 중 오류가 발생했습니다.');
+    }
+}
+
+// ========== 연도 선택 모달 ==========
+
+async function showYearSelectModal(roundNumber) {
+    const modal = document.getElementById('yearSelectModal');
+    const yearList = document.getElementById('yearList');
+
+    try {
+        const response = await fetch('/game/solo/guess/years-with-count');
+        let years = await response.json();
+
+        // 이미 최신순 정렬되어있음
+
+        yearList.innerHTML = '';
+
+        years.forEach(year => {
+            const item = document.createElement('div');
+            item.className = 'genre-item';
+
+            if (year.count === 0) {
+                item.classList.add('disabled');
+                if (hideEmptyOptions) {
+                    item.classList.add('hidden');
+                }
+            }
+
+            item.innerHTML = `
+                <span class="genre-name">${year.year}년</span>
+                <span class="genre-count">${year.count}곡</span>
+            `;
+
+            if (year.count > 0) {
+                item.addEventListener('click', () => selectYear(year.year, roundNumber));
+            }
+
+            yearList.appendChild(item);
+        });
+
+    } catch (error) {
+        console.error('연도 목록 로딩 오류:', error);
+    }
+
+    modal.classList.add('show');
+}
+
+async function selectYear(year, roundNumber) {
+    try {
+        const response = await fetch('/game/solo/guess/select-year', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                year: year,
+                roundNumber: roundNumber
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            document.getElementById('yearSelectModal').classList.remove('show');
+            loadRound(roundNumber);
+        } else {
+            alert(result.message || '연도 선택에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('연도 선택 오류:', error);
+        alert('연도 선택 중 오류가 발생했습니다.');
     }
 }
 
@@ -420,6 +589,10 @@ function nextRound() {
 
         if (gameMode === 'GENRE_PER_ROUND') {
             showGenreSelectModal(nextRoundNumber);
+        } else if (gameMode === 'ARTIST_PER_ROUND') {
+            showArtistSelectModal(nextRoundNumber);
+        } else if (gameMode === 'YEAR_PER_ROUND') {
+            showYearSelectModal(nextRoundNumber);
         } else {
             loadRound(nextRoundNumber);
         }

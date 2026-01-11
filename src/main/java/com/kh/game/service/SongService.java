@@ -238,6 +238,120 @@ public class SongService {
         return filtered.get(0);
     }
 
+    // ========== 매 라운드 선택 모드용 메서드 ==========
+
+    // 아티스트별 사용 가능한 곡 수 (제외 목록 적용)
+    public int getAvailableSongCountByArtistExcluding(String artist, List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+
+        int count = 0;
+        for (Song song : allSongs) {
+            if (song.getArtist() == null || !song.getArtist().equals(artist)) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            count++;
+        }
+
+        return count;
+    }
+
+    // 아티스트로 랜덤 노래 가져오기 (제외 목록 적용)
+    public Song getRandomSongByArtistExcluding(String artist, List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            if (song.getArtist() == null || !song.getArtist().equals(artist)) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            filtered.add(song);
+        }
+
+        if (filtered.isEmpty()) {
+            return null;
+        }
+
+        Collections.shuffle(filtered);
+        return filtered.get(0);
+    }
+
+    // 연도별 사용 가능한 곡 수 (제외 목록 적용)
+    public int getAvailableSongCountByYearExcluding(Integer year, List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+
+        int count = 0;
+        for (Song song : allSongs) {
+            if (song.getReleaseYear() == null || !song.getReleaseYear().equals(year)) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            count++;
+        }
+
+        return count;
+    }
+
+    // 연도로 랜덤 노래 가져오기 (제외 목록 적용)
+    public Song getRandomSongByYearExcluding(Integer year, List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            if (song.getReleaseYear() == null || !song.getReleaseYear().equals(year)) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            filtered.add(song);
+        }
+
+        if (filtered.isEmpty()) {
+            return null;
+        }
+
+        Collections.shuffle(filtered);
+        return filtered.get(0);
+    }
+
+    // 아티스트 목록 조회 (곡 수 포함, 제외 목록 적용)
+    public List<Map<String, Object>> getArtistsWithCountExcluding(List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        Map<String, Integer> artistCountMap = new HashMap<>();
+
+        for (Song song : allSongs) {
+            if (song.getArtist() == null) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            artistCountMap.merge(song.getArtist(), 1, Integer::sum);
+        }
+
+        List<Map<String, Object>> artists = new ArrayList<>();
+        artistCountMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+                    Map<String, Object> artist = new HashMap<>();
+                    artist.put("name", entry.getKey());
+                    artist.put("count", entry.getValue());
+                    artists.add(artist);
+                });
+
+        return artists;
+    }
+
+    // 연도 목록 조회 (곡 수 포함, 제외 목록 적용)
+    public List<Map<String, Object>> getYearsWithCountExcluding(List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        Map<Integer, Integer> yearCountMap = new TreeMap<>(Collections.reverseOrder());
+
+        for (Song song : allSongs) {
+            if (song.getReleaseYear() == null) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            yearCountMap.merge(song.getReleaseYear(), 1, Integer::sum);
+        }
+
+        List<Map<String, Object>> years = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : yearCountMap.entrySet()) {
+            Map<String, Object> yearInfo = new HashMap<>();
+            yearInfo.put("year", entry.getKey());
+            yearInfo.put("count", entry.getValue());
+            years.add(yearInfo);
+        }
+
+        return years;
+    }
+
     // ========== 정답 관련 메서드 ==========
 
     public List<SongAnswer> getAnswers(Long songId) {

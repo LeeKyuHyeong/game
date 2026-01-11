@@ -34,7 +34,7 @@ public class GameSession {
     @Enumerated(EnumType.STRING)
     private GameType gameType;
 
-    @Column(name = "game_mode", nullable = false, length = 20)
+    @Column(name = "game_mode", nullable = false, length = 30)
     @Enumerated(EnumType.STRING)
     private GameMode gameMode;
 
@@ -85,9 +85,13 @@ public class GameSession {
     }
 
     public enum GameMode {
-        RANDOM,
-        GENRE_PER_ROUND,
-        FIXED_GENRE
+        RANDOM,              // 전체 랜덤
+        FIXED_GENRE,         // 장르 고정
+        FIXED_ARTIST,        // 아티스트 고정
+        FIXED_YEAR,          // 연도 고정
+        GENRE_PER_ROUND,     // 매 라운드 장르 선택
+        ARTIST_PER_ROUND,    // 매 라운드 아티스트 선택
+        YEAR_PER_ROUND       // 매 라운드 연도 선택
     }
 
     public enum GameStatus {

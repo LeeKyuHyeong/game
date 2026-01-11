@@ -96,6 +96,25 @@
     </div>
 </div>
 
+<!-- 아티스트 선택 모달 -->
+<div class="modal" id="artistSelectModal">
+    <div class="modal-content genre-select-modal">
+        <div class="genre-modal-header">🎤 아티스트 선택</div>
+        <div class="genre-modal-subtitle">다음 라운드의 아티스트를 선택하세요</div>
+        <input type="text" id="artistSearchInput" class="modal-search-input" placeholder="아티스트 검색..." autocomplete="off">
+        <div class="genre-list scrollable" id="artistList"></div>
+    </div>
+</div>
+
+<!-- 연도 선택 모달 -->
+<div class="modal" id="yearSelectModal">
+    <div class="modal-content genre-select-modal">
+        <div class="genre-modal-header">📅 연도 선택</div>
+        <div class="genre-modal-subtitle">다음 라운드의 연도를 선택하세요</div>
+        <div class="genre-list" id="yearList"></div>
+    </div>
+</div>
+
 <!-- 오디오 요소 -->
 <audio id="audioPlayer" preload="auto"></audio>
 
@@ -104,7 +123,7 @@
     const totalRounds = [[${gameSession.totalRounds}]];
     const nickname = [[${nickname}]];
     const gameMode = [[${gameMode}]];
-    const hideEmptyGenres = [[${settings.hideEmptyGenres}]] || false;
+    const hideEmptyOptions = [[${settings.hideEmptyOptions}]] || false;
 </script>
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/client/game-guess-play.js}"></script>

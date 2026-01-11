@@ -119,6 +119,32 @@ public class GameGuessController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/artists-with-count")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getArtistsWithCount(HttpSession httpSession) {
+        @SuppressWarnings("unchecked")
+        List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("guessPlayedSongIds");
+        if (playedSongIds == null) {
+            playedSongIds = new ArrayList<>();
+        }
+
+        List<Map<String, Object>> artists = songService.getArtistsWithCountExcluding(playedSongIds);
+        return ResponseEntity.ok(artists);
+    }
+
+    @GetMapping("/years-with-count")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getYearsWithCount(HttpSession httpSession) {
+        @SuppressWarnings("unchecked")
+        List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("guessPlayedSongIds");
+        if (playedSongIds == null) {
+            playedSongIds = new ArrayList<>();
+        }
+
+        List<Map<String, Object>> years = songService.getYearsWithCountExcluding(playedSongIds);
+        return ResponseEntity.ok(years);
+    }
+
     @PostMapping("/start")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startGame(
@@ -198,8 +224,8 @@ public class GameGuessController {
             httpSession.setAttribute("guessGameMode", gameMode);
             httpSession.setAttribute("guessScore", 0);
 
-            // GENRE_PER_ROUND 모드가 아닌 경우에만 미리 라운드 생성
-            if (!"GENRE_PER_ROUND".equals(gameMode)) {
+            // 매 라운드 선택 모드가 아닌 경우에만 미리 라운드 생성
+            if (!gameMode.contains("PER_ROUND")) {
                 List<Song> songs = songService.getRandomSongs(totalRounds, settings);
 
                 // 실제 생성된 라운드 수로 업데이트
@@ -318,6 +344,138 @@ public class GameGuessController {
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "장르 선택 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/select-artist")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> selectArtistForRound(
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long sessionId = (Long) httpSession.getAttribute("guessSessionId");
+
+        if (sessionId == null) {
+            result.put("success", false);
+            result.put("message", "세션이 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            String artist = (String) request.get("artist");
+            int roundNumber = (int) request.get("roundNumber");
+
+            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            if (session == null) {
+                result.put("success", false);
+                result.put("message", "게임을 찾을 수 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            @SuppressWarnings("unchecked")
+            List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("guessPlayedSongIds");
+            if (playedSongIds == null) {
+                playedSongIds = new ArrayList<>();
+            }
+
+            Song song = songService.getRandomSongByArtistExcluding(artist, playedSongIds);
+
+            if (song == null) {
+                result.put("success", false);
+                result.put("message", "해당 아티스트의 사용 가능한 노래가 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            GameRound round = new GameRound();
+            round.setGameSession(session);
+            round.setRoundNumber(roundNumber);
+            round.setSong(song);
+            round.setGenre(song.getGenre());
+            round.setPlayStartTime(song.getStartTime());
+            round.setPlayDuration(song.getPlayDuration());
+            round.setStatus(GameRound.RoundStatus.WAITING);
+            session.getRounds().add(round);
+
+            gameSessionService.save(session);
+
+            playedSongIds.add(song.getId());
+            httpSession.setAttribute("guessPlayedSongIds", playedSongIds);
+
+            result.put("success", true);
+            result.put("roundNumber", roundNumber);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "아티스트 선택 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/select-year")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> selectYearForRound(
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long sessionId = (Long) httpSession.getAttribute("guessSessionId");
+
+        if (sessionId == null) {
+            result.put("success", false);
+            result.put("message", "세션이 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            Integer year = (Integer) request.get("year");
+            int roundNumber = (int) request.get("roundNumber");
+
+            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            if (session == null) {
+                result.put("success", false);
+                result.put("message", "게임을 찾을 수 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            @SuppressWarnings("unchecked")
+            List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("guessPlayedSongIds");
+            if (playedSongIds == null) {
+                playedSongIds = new ArrayList<>();
+            }
+
+            Song song = songService.getRandomSongByYearExcluding(year, playedSongIds);
+
+            if (song == null) {
+                result.put("success", false);
+                result.put("message", "해당 연도의 사용 가능한 노래가 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            GameRound round = new GameRound();
+            round.setGameSession(session);
+            round.setRoundNumber(roundNumber);
+            round.setSong(song);
+            round.setGenre(song.getGenre());
+            round.setPlayStartTime(song.getStartTime());
+            round.setPlayDuration(song.getPlayDuration());
+            round.setStatus(GameRound.RoundStatus.WAITING);
+            session.getRounds().add(round);
+
+            gameSessionService.save(session);
+
+            playedSongIds.add(song.getId());
+            httpSession.setAttribute("guessPlayedSongIds", playedSongIds);
+
+            result.put("success", true);
+            result.put("roundNumber", roundNumber);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "연도 선택 중 오류가 발생했습니다: " + e.getMessage());
         }
 
         return ResponseEntity.ok(result);
@@ -495,16 +653,12 @@ public class GameGuessController {
                 // 회원인 경우 Solo Guess 통계 업데이트
                 if (session.getMember() != null) {
                     // 최고기록 랭킹 대상 여부 확인
-                    // 조건: 전체랜덤 + 연도필터없음 + 아티스트유형전체 + 아티스트필터없음
+                    // 조건: 전체랜덤 모드 + 아티스트유형 전체
                     GameSettings settings = gameSessionService.parseSettings(session.getSettings());
-                    boolean isAllRandom = settings.getFixedGenreId() == null;
-                    boolean noYearFilter = (settings.getYearFrom() == null && settings.getYearTo() == null)
-                                           && (settings.getSelectedYears() == null || settings.getSelectedYears().isEmpty());
+                    boolean isRandomMode = session.getGameMode() == GameSession.GameMode.RANDOM;
                     boolean allArtistTypes = !Boolean.TRUE.equals(settings.getSoloOnly())
                                            && !Boolean.TRUE.equals(settings.getGroupOnly());
-                    boolean noArtistFilter = (settings.getFixedArtistName() == null || settings.getFixedArtistName().isEmpty())
-                                           && (settings.getSelectedArtists() == null || settings.getSelectedArtists().isEmpty());
-                    boolean isEligibleForBestScore = isAllRandom && noYearFilter && allArtistTypes && noArtistFilter;
+                    boolean isEligibleForBestScore = isRandomMode && allArtistTypes;
 
                     memberService.addGuessGameResult(
                             session.getMember().getId(),
