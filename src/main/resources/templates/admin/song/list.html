@@ -49,7 +49,8 @@
                     </td>
                     <td data-label="MP3" onclick="event.stopPropagation()">
                         <button th:if="${song.filePath}" class="btn btn-sm btn-play"
-                                th:onclick="'playAudio(\'' + ${song.filePath} + '\', this)'">▶</button>
+                                th:data-filepath="${song.filePath}"
+                                onclick="playAudio(this.dataset.filepath, this)">▶</button>
                         <span th:unless="${song.filePath}" class="file-none">-</span>
                     </td>
                     <td data-label="사용여부">

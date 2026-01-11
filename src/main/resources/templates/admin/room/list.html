@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('방 관리')}"></head>
-<link rel="stylesheet" href="/css/admin/table-mobile-collapse.css">
 <body class="admin-page">
+<link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
 

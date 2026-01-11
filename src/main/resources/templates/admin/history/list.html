@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('게임 이력 관리')}"></head>
-<link rel="stylesheet" href="/css/admin/table-mobile-collapse.css">
-<link rel="stylesheet" href="/css/admin/mobile-stats.css">
 <body class="admin-page history-stats">
+<link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+<link rel="stylesheet" th:href="@{/css/admin/mobile-stats.css}">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
 
