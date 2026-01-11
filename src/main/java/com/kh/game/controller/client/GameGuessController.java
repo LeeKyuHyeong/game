@@ -37,33 +37,36 @@ public class GameGuessController {
         return "client/game/guess/setup";
     }
 
-    @GetMapping("/song-count")
+    @PostMapping("/song-count")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getSongCount(
-            @RequestParam(required = false) Long genreId,
-            @RequestParam(required = false) String artistName,
-            @RequestParam(required = false) List<String> artists,
-            @RequestParam(required = false) Integer yearFrom,
-            @RequestParam(required = false) Integer yearTo,
-            @RequestParam(required = false) List<Integer> years,
-            @RequestParam(required = false) Boolean soloOnly,
-            @RequestParam(required = false) Boolean groupOnly) {
+            @RequestBody Map<String, Object> request) {
 
         Map<String, Object> result = new HashMap<>();
 
         GameSettings settings = new GameSettings();
-        settings.setFixedGenreId(genreId);
-        settings.setFixedArtistName(artistName);
-        settings.setYearFrom(yearFrom);
-        settings.setYearTo(yearTo);
-        settings.setSoloOnly(soloOnly);
-        settings.setGroupOnly(groupOnly);
 
-        // 복수 선택 (새로운 방식)
-        if (years != null && !years.isEmpty()) {
+        if (request.get("genreId") != null) {
+            settings.setFixedGenreId(Long.valueOf(request.get("genreId").toString()));
+        }
+        if (request.get("soloOnly") != null) {
+            settings.setSoloOnly((Boolean) request.get("soloOnly"));
+        }
+        if (request.get("groupOnly") != null) {
+            settings.setGroupOnly((Boolean) request.get("groupOnly"));
+        }
+
+        // 복수 연도 선택
+        if (request.get("years") != null) {
+            @SuppressWarnings("unchecked")
+            List<Integer> years = (List<Integer>) request.get("years");
             settings.setSelectedYears(years);
         }
-        if (artists != null && !artists.isEmpty()) {
+
+        // 복수 아티스트 선택
+        if (request.get("artists") != null) {
+            @SuppressWarnings("unchecked")
+            List<String> artists = (List<String>) request.get("artists");
             settings.setSelectedArtists(artists);
         }
 

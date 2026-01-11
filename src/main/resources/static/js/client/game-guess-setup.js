@@ -335,21 +335,25 @@ async function updateSongCount() {
     if (artistType === 'group') groupOnly = true;
 
     try {
-        const params = new URLSearchParams();
-        if (soloOnly) params.append('soloOnly', soloOnly);
-        if (groupOnly) params.append('groupOnly', groupOnly);
+        const body = {};
+        if (soloOnly) body.soloOnly = soloOnly;
+        if (groupOnly) body.groupOnly = groupOnly;
 
         // 모드별 파라미터
         if (gameMode === 'FIXED_GENRE') {
             const genreId = document.getElementById('fixedGenreId').value;
-            if (genreId) params.append('genreId', genreId);
+            if (genreId) body.genreId = parseInt(genreId);
         } else if (gameMode === 'FIXED_ARTIST') {
-            selectedArtists.forEach(a => params.append('artists', a));
+            if (selectedArtists.length > 0) body.artists = selectedArtists;
         } else if (gameMode === 'FIXED_YEAR') {
-            selectedYears.forEach(y => params.append('years', y));
+            if (selectedYears.length > 0) body.years = selectedYears;
         }
 
-        const response = await fetch(`/game/solo/guess/song-count?${params.toString()}`);
+        const response = await fetch('/game/solo/guess/song-count', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
         const result = await response.json();
 
         maxAvailableSongs = result.count;
