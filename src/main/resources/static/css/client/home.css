@@ -8,13 +8,22 @@
  * - Ranking section and tabs
  */
 
+/* Home Content Container */
+.home-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 800px;
+}
+
 /* Game Modes */
 .game-modes {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
     width: 100%;
-    max-width: 800px;
 }
 
 .mode-card {
@@ -142,14 +151,32 @@
     background: rgba(255, 255, 255, 0.1);
     border-radius: 1.5rem;
     padding: 1.5rem;
-    margin-top: 2rem;
+    width: 100%;
 }
 
-.ranking-section h3 {
+.ranking-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: default;
+}
+
+.ranking-header h3 {
     color: white;
     font-size: 1.25rem;
-    margin-bottom: 1rem;
-    text-align: center;
+    margin: 0;
+}
+
+.ranking-toggle {
+    display: none;
+    color: white;
+    font-size: 0.75rem;
+    transition: transform 0.3s;
+}
+
+.ranking-body {
+    margin-top: 1rem;
 }
 
 .ranking-tabs {
@@ -231,6 +258,10 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+    .home-content {
+        gap: 1rem;
+    }
+
     .game-modes {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -278,13 +309,85 @@
         font-size: 0.75rem;
     }
 
+    /* 랭킹 섹션 아코디언 스타일 */
     .ranking-section {
-        padding: 1rem;
-        margin-top: 1rem;
+        padding: 0;
+        border-radius: 1rem;
     }
 
-    .ranking-section h3 {
+    .ranking-header {
+        padding: 1rem;
+        cursor: pointer;
+        border-radius: 1rem;
+        transition: background 0.2s;
+    }
+
+    .ranking-header:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .ranking-header h3 {
         font-size: 1rem;
+    }
+
+    .ranking-toggle {
+        display: inline;
+    }
+
+    .ranking-section.collapsed .ranking-toggle {
+        transform: rotate(-90deg);
+    }
+
+    .ranking-section.collapsed .ranking-header {
+        border-radius: 1rem;
+    }
+
+    .ranking-body {
+        margin-top: 0;
+        padding: 0 1rem 1rem 1rem;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+
+    .ranking-section.collapsed .ranking-body {
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .ranking-tabs {
         margin-bottom: 0.75rem;
+    }
+
+    .ranking-tab {
+        padding: 0.375rem;
+        font-size: 0.8rem;
+    }
+
+    .ranking-item {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .ranking-item .rank {
+        width: 1.5rem;
+        font-size: 0.875rem;
+    }
+
+    .ranking-item .nickname {
+        font-size: 0.875rem;
+    }
+
+    .ranking-item .value {
+        font-size: 0.75rem;
+    }
+
+    .view-all-link {
+        margin-top: 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .empty-ranking {
+        padding: 1rem;
+        font-size: 0.875rem;
     }
 }

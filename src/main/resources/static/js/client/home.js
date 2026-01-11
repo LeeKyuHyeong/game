@@ -1,7 +1,34 @@
 // Client home page scripts
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
+    setupRankingAccordion();
 });
+
+// 모바일에서 랭킹 섹션 아코디언 토글
+function setupRankingAccordion() {
+    const rankingHeader = document.getElementById('rankingHeader');
+    const rankingSection = document.getElementById('rankingSection');
+
+    if (rankingHeader && rankingSection) {
+        // 모바일에서 기본 접힘 상태
+        if (window.innerWidth <= 768) {
+            rankingSection.classList.add('collapsed');
+        }
+
+        rankingHeader.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                rankingSection.classList.toggle('collapsed');
+            }
+        });
+
+        // 화면 크기 변경 시 처리
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                rankingSection.classList.remove('collapsed');
+            }
+        });
+    }
+}
 
 async function checkLoginStatus() {
     try {

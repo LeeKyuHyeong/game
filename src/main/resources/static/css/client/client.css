@@ -11,6 +11,9 @@
 /* Home page - game modes, rankings */
 @import url('home.css');
 
+/* Full ranking page */
+@import url('ranking.css');
+
 /* Authentication pages - login, register */
 @import url('auth.css');
 

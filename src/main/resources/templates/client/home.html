@@ -14,39 +14,46 @@
     </header>
 
     <main class="client-main">
-        <div class="game-modes">
-            <div class="mode-card">
-                <div class="mode-icon">🎤</div>
-                <h2>솔로 게임</h2>
-                <p>혼자서 노래 맞추기에 도전!</p>
-                <div class="mode-options">
-                    <a href="/game/solo/host" class="btn btn-mode">게임 진행용</a>
-                    <a href="/game/solo/guess" class="btn btn-mode primary">내가 맞추기</a>
+        <div class="home-content">
+            <div class="game-modes">
+                <div class="mode-card">
+                    <div class="mode-icon">🎤</div>
+                    <h2>솔로 게임</h2>
+                    <p>혼자서 노래 맞추기에 도전!</p>
+                    <div class="mode-options">
+                        <a href="/game/solo/host" class="btn btn-mode">게임 진행용</a>
+                        <a href="/game/solo/guess" class="btn btn-mode primary">내가 맞추기</a>
+                    </div>
+                </div>
+
+                <div class="mode-card">
+                    <div class="mode-icon">👥</div>
+                    <h2>멀티 게임</h2>
+                    <p>친구들과 함께 대결!</p>
+                    <div class="mode-options">
+                        <a href="/game/multi" class="btn btn-mode primary">멀티게임 로비</a>
+                    </div>
                 </div>
             </div>
 
-            <div class="mode-card">
-                <div class="mode-icon">👥</div>
-                <h2>멀티 게임</h2>
-                <p>친구들과 함께 대결!</p>
-                <div class="mode-options">
-                    <a href="/game/multi" class="btn btn-mode primary">멀티게임 로비</a>
+            <!-- 랭킹 섹션 (로그인 사용자용) -->
+            <div class="ranking-section" id="rankingSection" style="display:none;">
+                <div class="ranking-header" id="rankingHeader">
+                    <h3>🏆 랭킹</h3>
+                    <span class="ranking-toggle">▼</span>
+                </div>
+                <div class="ranking-body" id="rankingBody">
+                    <div class="ranking-tabs">
+                        <button class="ranking-tab active" data-type="score">총점</button>
+                        <button class="ranking-tab" data-type="accuracy">정답률</button>
+                        <button class="ranking-tab" data-type="games">게임수</button>
+                    </div>
+                    <div class="ranking-list" id="rankingList">
+                        <!-- JS에서 로딩 -->
+                    </div>
+                    <a href="/ranking" class="view-all-link">전체 랭킹 보기 →</a>
                 </div>
             </div>
-        </div>
-
-        <!-- 랭킹 섹션 (로그인 사용자용) -->
-        <div class="ranking-section" id="rankingSection" style="display:none;">
-            <h3>🏆 랭킹</h3>
-            <div class="ranking-tabs">
-                <button class="ranking-tab active" data-type="score">총점</button>
-                <button class="ranking-tab" data-type="accuracy">정답률</button>
-                <button class="ranking-tab" data-type="games">게임수</button>
-            </div>
-            <div class="ranking-list" id="rankingList">
-                <!-- JS에서 로딩 -->
-            </div>
-            <a href="/ranking" class="view-all-link">전체 랭킹 보기 →</a>
         </div>
     </main>
 

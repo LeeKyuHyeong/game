@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('전체 랭킹 - Song Quiz')}"></head>
+<body class="client-page ranking-page">
+<div class="client-container">
+    <header class="client-header compact">
+        <a href="/" class="back-home">← 홈으로</a>
+        <h1>🏆 전체 랭킹</h1>
+        <p>Song Quiz 최고의 플레이어들</p>
+    </header>
+
+    <main class="client-main">
+        <div class="ranking-content">
+            <!-- 랭킹 탭 -->
+            <div class="ranking-type-tabs">
+                <button class="type-tab active" data-type="score">
+                    <span class="tab-icon">🎯</span>
+                    <span class="tab-label">총점</span>
+                </button>
+                <button class="type-tab" data-type="accuracy">
+                    <span class="tab-icon">✅</span>
+                    <span class="tab-label">정답률</span>
+                </button>
+                <button class="type-tab" data-type="games">
+                    <span class="tab-icon">🎮</span>
+                    <span class="tab-label">게임수</span>
+                </button>
+            </div>
+
+            <!-- TOP 3 포디움 -->
+            <div class="top-three-podium" id="topThreePodium">
+                <div class="podium-place second" id="place2">
+                    <div class="podium-avatar">🥈</div>
+                    <div class="podium-name">-</div>
+                    <div class="podium-value">-</div>
+                    <div class="podium-stand">2</div>
+                </div>
+                <div class="podium-place first" id="place1">
+                    <div class="podium-avatar">🥇</div>
+                    <div class="podium-name">-</div>
+                    <div class="podium-value">-</div>
+                    <div class="podium-stand">1</div>
+                </div>
+                <div class="podium-place third" id="place3">
+                    <div class="podium-avatar">🥉</div>
+                    <div class="podium-name">-</div>
+                    <div class="podium-value">-</div>
+                    <div class="podium-stand">3</div>
+                </div>
+            </div>
+
+            <!-- 전체 랭킹 리스트 -->
+            <div class="ranking-table-section">
+                <div class="ranking-table" id="rankingTable">
+                    <!-- JS에서 로딩 -->
+                </div>
+                <div class="empty-state" id="emptyState" style="display:none;">
+                    <span class="empty-icon">📊</span>
+                    <p>아직 랭킹 데이터가 없습니다.</p>
+                    <p class="empty-sub">게임을 플레이하고 랭킹에 도전하세요!</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="client-footer">
+        <a href="/admin/login" class="admin-link">관리자</a>
+    </footer>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRanking('score');
+        setupTabs();
+    });
+
+    function setupTabs() {
+        document.querySelectorAll('.type-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                loadRanking(this.dataset.type);
+            });
+        });
+    }
+
+    async function loadRanking(type) {
+        try {
+            const response = await fetch(`/api/ranking?type=${type}&limit=20`);
+            const rankings = await response.json();
+
+            if (rankings.length === 0) {
+                document.getElementById('topThreePodium').style.display = 'none';
+                document.getElementById('rankingTable').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'flex';
+                return;
+            }
+
+            document.getElementById('topThreePodium').style.display = 'flex';
+            document.getElementById('rankingTable').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+
+            // TOP 3 포디움
+            updatePodium(rankings, type);
+
+            // 전체 랭킹 테이블
+            updateTable(rankings, type);
+        } catch (error) {
+            console.error('랭킹 로딩 오류:', error);
+        }
+    }
+
+    function updatePodium(rankings, type) {
+        const places = [
+            { id: 'place1', index: 0 },
+            { id: 'place2', index: 1 },
+            { id: 'place3', index: 2 }
+        ];
+
+        places.forEach(place => {
+            const el = document.getElementById(place.id);
+            const member = rankings[place.index];
+
+            if (member) {
+                el.style.display = 'flex';
+                el.querySelector('.podium-name').textContent = member.nickname;
+                el.querySelector('.podium-value').textContent = formatValue(type, member);
+            } else {
+                el.style.display = 'none';
+            }
+        });
+    }
+
+    function updateTable(rankings, type) {
+        const table = document.getElementById('rankingTable');
+
+        table.innerHTML = rankings.map((member, index) => `
+            <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
+                <div class="rank-cell">
+                    ${index < 3 ? getMedal(index) : (index + 1)}
+                </div>
+                <div class="name-cell">${member.nickname}</div>
+                <div class="stats-cell">
+                    <span class="main-stat">${formatValue(type, member)}</span>
+                    <span class="sub-stat">${formatSubStat(type, member)}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function getMedal(index) {
+        const medals = ['🥇', '🥈', '🥉'];
+        return medals[index] || (index + 1);
+    }
+
+    function formatValue(type, member) {
+        switch(type) {
+            case 'score':
+                return member.totalScore.toLocaleString() + '점';
+            case 'accuracy':
+                return member.accuracyRate.toFixed(1) + '%';
+            case 'games':
+                return member.totalGames + '게임';
+            default:
+                return '';
+        }
+    }
+
+    function formatSubStat(type, member) {
+        switch(type) {
+            case 'score':
+                return member.totalGames + '게임';
+            case 'accuracy':
+                return member.totalCorrect + '/' + member.totalRounds + '문제';
+            case 'games':
+                return member.totalScore.toLocaleString() + '점';
+            default:
+                return '';
+        }
+    }
+</script>
+</body>
+</html>
