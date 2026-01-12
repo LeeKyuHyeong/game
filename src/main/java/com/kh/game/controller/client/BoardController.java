@@ -87,7 +87,7 @@ public class BoardController {
             Model model) {
 
         if (member == null) {
-            return "redirect:/login?redirect=/board/write";
+            return "redirect:/auth/login?redirect=/board/write";
         }
 
         model.addAttribute("categories", Board.BoardCategory.values());
@@ -104,7 +104,7 @@ public class BoardController {
             Model model) {
 
         if (member == null) {
-            return "redirect:/login?redirect=/board/" + id + "/edit";
+            return "redirect:/auth/login?redirect=/board/" + id + "/edit";
         }
 
         Board board = boardService.findById(id).orElse(null);

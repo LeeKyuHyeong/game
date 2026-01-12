@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{common/fragments/head :: clientHead(${board != null} ? '글 수정' : '글쓰기' + ' - Song Quiz')}"></head>
+<head th:replace="~{common/fragments/head :: clientHead((${board != null} ? '글 수정' : '글쓰기') + ' - Song Quiz')}"></head>
 <body class="client-page board-page">
 <div class="client-container">
     <header class="client-header compact">
-        <a href="/board" class="back-home">← 목록으로</a>
+        <nav class="header-nav">
+            <a href="/" class="btn-home">🏠 홈</a>
+        </nav>
         <h1 th:text="${board != null} ? '✏️ 글 수정' : '✏️ 글쓰기'"></h1>
     </header>
 
@@ -43,9 +45,6 @@
         </div>
     </main>
 
-    <footer class="client-footer">
-        <a href="/admin/login" class="admin-link">관리자</a>
-    </footer>
 </div>
 <script th:src="@{/js/common/common.js}"></script>
 <script th:inline="javascript">

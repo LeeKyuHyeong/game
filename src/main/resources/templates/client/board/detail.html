@@ -4,7 +4,10 @@
 <body class="client-page board-page">
 <div class="client-container">
     <header class="client-header compact">
-        <a href="/board" class="back-home">← 목록으로</a>
+        <nav class="header-nav">
+            <a href="/board" class="back-link">← 목록으로</a>
+            <a href="/" class="btn-home">🏠 홈</a>
+        </nav>
         <h1>💬 커뮤니티</h1>
     </header>
 
@@ -51,7 +54,7 @@
                 </div>
                 <div class="comment-form" th:if="${member == null}">
                     <textarea disabled placeholder="로그인 후 댓글을 작성할 수 있습니다."></textarea>
-                    <a href="/login" class="btn-write" style="padding: 12px 20px;">로그인</a>
+                    <a href="/auth/login" class="btn-write" style="padding: 12px 20px;">로그인</a>
                 </div>
 
                 <!-- Comment List -->
@@ -78,9 +81,6 @@
         </div>
     </main>
 
-    <footer class="client-footer">
-        <a href="/admin/login" class="admin-link">관리자</a>
-    </footer>
 </div>
 <script th:src="@{/js/common/common.js}"></script>
 <script th:inline="javascript">
@@ -93,7 +93,7 @@
             likeBtn.addEventListener('click', async function() {
                 if (!currentMemberId) {
                     alert('로그인이 필요합니다.');
-                    location.href = '/login?redirect=' + location.pathname;
+                    location.href = '/auth/login?redirect=' + location.pathname;
                     return;
                 }
 

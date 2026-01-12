@@ -58,6 +58,41 @@
     color: white;
 }
 
+/* Header Navigation */
+.header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.back-link {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: white;
+}
+
+.btn-home {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+}
+
+.btn-home:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
 /* Main */
 .client-main {
     flex: 1;
@@ -112,6 +147,19 @@
 
     .back-home {
         margin-bottom: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .header-nav {
+        margin-bottom: 0.5rem;
+    }
+
+    .back-link {
+        font-size: 0.75rem;
+    }
+
+    .btn-home {
+        padding: 6px 12px;
         font-size: 0.75rem;
     }
 }

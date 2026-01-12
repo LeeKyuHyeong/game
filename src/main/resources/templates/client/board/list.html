@@ -4,7 +4,10 @@
 <body class="client-page board-page">
 <div class="client-container">
     <header class="client-header compact">
-        <a href="/" class="back-home">← 홈으로</a>
+        <nav class="header-nav">
+            <span></span>
+            <a href="/" class="btn-home">🏠 홈</a>
+        </nav>
         <h1>💬 커뮤니티</h1>
         <p>곡 추천, 의견, 자유로운 이야기</p>
     </header>
@@ -80,14 +83,10 @@
             <!-- Write Button -->
             <div class="board-actions">
                 <a th:href="@{/board/write}" class="btn-write" th:if="${member != null}">✏️ 글쓰기</a>
-                <a th:href="@{/login(redirect='/board/write')}" class="btn-write" th:if="${member == null}">✏️ 로그인 후 글쓰기</a>
+                <a th:href="@{/auth/login(redirect='/board/write')}" class="btn-write" th:if="${member == null}">✏️ 로그인 후 글쓰기</a>
             </div>
         </div>
     </main>
-
-    <footer class="client-footer">
-        <a href="/admin/login" class="admin-link">관리자</a>
-    </footer>
 </div>
 <script th:src="@{/js/common/common.js}"></script>
 </body>

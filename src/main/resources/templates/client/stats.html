@@ -4,7 +4,10 @@
 <body class="client-page stats-page">
 <div class="client-container">
     <header class="client-header compact">
-        <a href="/" class="back-home">← 홈으로</a>
+        <nav class="header-nav">
+            <span></span>
+            <a href="/" class="btn-home">🏠 홈</a>
+        </nav>
         <h1>📊 통계</h1>
         <p>가장 어려운 곡과 자주 틀리는 답변</p>
     </header>
@@ -61,9 +64,6 @@
         </div>
     </main>
 
-    <footer class="client-footer">
-        <a href="/admin/login" class="admin-link">관리자</a>
-    </footer>
 </div>
 <script th:src="@{/js/common/common.js}"></script>
 <style>

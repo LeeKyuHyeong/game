@@ -66,6 +66,7 @@ public class AuthController {
             String sessionToken = memberService.createSessionToken(member.getId());
 
             // 세션에 회원 정보 저장
+            session.setAttribute("member", member);
             session.setAttribute("memberId", member.getId());
             session.setAttribute("memberEmail", member.getEmail());
             session.setAttribute("memberNickname", member.getNickname());
@@ -144,6 +145,7 @@ public class AuthController {
             memberService.invalidateSessionToken(memberId);
         }
 
+        session.removeAttribute("member");
         session.removeAttribute("memberId");
         session.removeAttribute("memberEmail");
         session.removeAttribute("memberNickname");
