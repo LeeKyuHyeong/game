@@ -105,7 +105,7 @@
                                       th:text="${batch.enabled} ? 'ON' : 'OFF'">ON</span>
                             </div>
                         </div>
-                        <span class="batch-priority" th:classappend="${batch.priority.name().toLowerCase()}" th:text="${batch.priority}">HIGH</span>
+                        <span class="batch-priority" th:classappend="${batch.priority != null ? batch.priority.name().toLowerCase() : 'medium'}" th:text="${batch.priority != null ? batch.priority : 'MEDIUM'}">HIGH</span>
                     </div>
 
                     <p class="batch-description" th:text="${batch.description}">배치 설명</p>
