@@ -17,6 +17,9 @@ mvn test
 # Run a single test class
 mvn test -Dtest=GameApplicationTests
 
+# Run a single test method
+mvn test -Dtest=GameApplicationTests#testMethodName
+
 # Docker deployment
 docker-compose up -d
 ```
@@ -55,33 +58,13 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 - `GameRoom` → has `GameRoomParticipant` → stores `GameRoomChat` (multiplayer mode)
 - `Song` → has multiple `SongAnswer` for fuzzy matching validation
 
-### Frontend Structure
-
-```
-static/
-├── css/
-│   ├── client/
-│   │   ├── client.css      # Index file that @imports all modules
-│   │   ├── base.css        # Common layout, header, footer
-│   │   ├── home.css        # Home page, game modes
-│   │   ├── auth.css        # Login, register pages
-│   │   ├── game-common.css # Shared game elements
-│   │   ├── game-guess.css  # Solo guess mode
-│   │   ├── game-host.css   # Solo host mode
-│   │   ├── game-multi.css  # Multiplayer mode
-│   │   ├── result.css      # Score, podium pages
-│   │   └── ranking.css     # Full ranking page
-│   ├── admin/              # Admin panel styles
-│   └── common/common.css   # Global variables, resets
-├── js/
-│   ├── client/             # Page-specific JS (home.js, etc.)
-│   └── common/common.js    # Shared utilities
-```
-
 ### Key Services
 
-- `BadWordService` - Profanity filtering with ConcurrentHashMap cache, auto-reloads on changes
-- `DataInitializer` - Seeds initial bad words (~50 profanities) on startup via CommandLineRunner
+- **AnswerValidationService** - Validates user answers with normalization (lowercase, strip spaces/special chars), checks both `Song.title` and `SongAnswer` table for alternate answers
+- **YouTubeValidationService** - Two-phase validation: oEmbed API check → thumbnail size check (detects deleted videos)
+- **BadWordService** - Profanity filtering with ConcurrentHashMap cache, auto-reloads on changes
+- **SongReportService** - Handles user reports for problematic songs
+- **DataInitializer** - Seeds initial bad words (~50 profanities) on startup via CommandLineRunner
 
 ### Scoring System
 
@@ -92,7 +75,7 @@ static/
 ## Configuration
 
 - **Dev profile:** Port 8082, MariaDB localhost:3306/song (root/1234)
-- **Admin login (dev):** admin / 1234
+- **Admin auth:** DB-based via `Member` table with `role=ADMIN`
 - **File uploads:** `uploads/songs/`, max 50MB
 - **Session timeout:** 30 minutes
 - **Admin routes:** Protected by `AdminInterceptor` (/admin/**)
@@ -100,6 +83,6 @@ static/
 ## CI/CD
 
 GitHub Actions workflow at `.github/workflows/deploy.yml`:
-- Triggers on push to main or manual dispatch
+- Triggers on push to main or manual dispatch (ignores *.md, .claude/**, .gitignore, LICENSE)
 - Builds Docker image → pushes to Docker Hub → deploys to server via SSH
-- Requires secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`, `SERVER_PORT`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `DB_USERNAME`, `DB_PASSWORD`
+- Requires secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`, `SERVER_PORT`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
