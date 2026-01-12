@@ -42,7 +42,11 @@ public class AdminSongController {
         Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
 
-        Page<Song> songPage = songService.searchWithFilters(keyword, artists, genreId, useYn, isSolo, pageable);
+        // 빈 문자열을 null로 변환
+        String keywordParam = (keyword != null && keyword.trim().isEmpty()) ? null : keyword;
+        String useYnParam = (useYn != null && useYn.trim().isEmpty()) ? null : useYn;
+
+        Page<Song> songPage = songService.searchWithFilters(keywordParam, artists, genreId, useYnParam, isSolo, pageable);
 
         model.addAttribute("songs", songPage.getContent());
         model.addAttribute("genres", genreService.findActiveGenres());

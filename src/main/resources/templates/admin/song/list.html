@@ -18,7 +18,7 @@
 
         <!-- Filter Section -->
         <div class="filter-panel">
-            <form id="filterForm" action="/admin/song" method="get">
+            <form id="filterForm" action="/admin/song" method="get" onsubmit="handleFormSubmit()">
                 <input type="hidden" name="page" id="pageInput" th:value="${currentPage}">
                 <input type="hidden" name="sort" th:value="${sort}">
                 <input type="hidden" name="direction" th:value="${direction}">
@@ -81,6 +81,10 @@
                         <div class="artist-list-header">
                             <label class="filter-label">전체 아티스트</label>
                             <div class="artist-list-controls">
+                                <label class="select-all-checkbox">
+                                    <input type="checkbox" id="selectAllArtists" onchange="toggleSelectAllArtists()">
+                                    <span>전체</span>
+                                </label>
                                 <select id="artistSortOrder" class="artist-sort-select" onchange="sortArtistList()">
                                     <option value="count">인기순</option>
                                     <option value="name">가나다순</option>
@@ -423,6 +427,7 @@ function updateSelectedArtists() {
     });
 
     countSpan.textContent = selectedArtists.length;
+    updateSelectAllCheckboxState();
 
     if (selectedArtists.length === 0) {
         tagsContainer.innerHTML = '<span class="no-selection-text">선택된 아티스트가 없습니다</span>';
@@ -465,6 +470,48 @@ function removeArtist(name) {
     updateSelectedArtists();
 }
 
+// 폼 제출 전 처리 - 모든 아티스트 선택 시 체크박스 해제 (필터 적용 안 함)
+function handleFormSubmit() {
+    const checkboxes = document.querySelectorAll('#artistCheckboxGrid input[type="checkbox"]');
+    const allCheckboxes = Array.from(checkboxes);
+    const checkedCount = allCheckboxes.filter(cb => cb.checked).length;
+
+    // 모든 아티스트가 선택되어 있으면 체크박스 해제 (아티스트 필터 적용 안 함)
+    if (checkedCount === allCheckboxes.length && allCheckboxes.length > 0) {
+        allCheckboxes.forEach(cb => {
+            cb.checked = false;
+        });
+    }
+}
+
+// 전체 아티스트 선택/해제
+function toggleSelectAllArtists() {
+    const selectAllCheckbox = document.getElementById('selectAllArtists');
+    const checkboxes = document.querySelectorAll('#artistCheckboxGrid input[type="checkbox"]');
+    const visibleCheckboxes = Array.from(checkboxes).filter(cb => !cb.closest('.artist-checkbox-item').classList.contains('hidden'));
+
+    visibleCheckboxes.forEach(cb => {
+        cb.checked = selectAllCheckbox.checked;
+    });
+    updateSelectedArtists();
+}
+
+// 전체 선택 체크박스 상태 업데이트
+function updateSelectAllCheckboxState() {
+    const selectAllCheckbox = document.getElementById('selectAllArtists');
+    const checkboxes = document.querySelectorAll('#artistCheckboxGrid input[type="checkbox"]');
+    const visibleCheckboxes = Array.from(checkboxes).filter(cb => !cb.closest('.artist-checkbox-item').classList.contains('hidden'));
+
+    if (visibleCheckboxes.length === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    } else {
+        const checkedCount = visibleCheckboxes.filter(cb => cb.checked).length;
+        selectAllCheckbox.checked = checkedCount === visibleCheckboxes.length;
+        selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < visibleCheckboxes.length;
+    }
+}
+
 // 아티스트 검색 필터
 function filterArtistList() {
     const searchInput = document.getElementById('artistSearchInput');
@@ -479,6 +526,7 @@ function filterArtistList() {
             item.classList.add('hidden');
         }
     });
+    updateSelectAllCheckboxState();
 }
 
 // 아티스트 정렬

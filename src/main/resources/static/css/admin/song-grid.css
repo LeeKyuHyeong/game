@@ -264,6 +264,33 @@
     align-items: center;
 }
 
+.select-all-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.625rem;
+    background: rgba(108, 92, 231, 0.15);
+    border: 1px solid var(--primary-color);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.select-all-checkbox:hover {
+    background: rgba(108, 92, 231, 0.25);
+}
+
+.select-all-checkbox input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+    accent-color: var(--primary-color);
+}
+
 .artist-sort-select {
     padding: 0.375rem 0.5rem;
     border: 1px solid var(--border-color);
