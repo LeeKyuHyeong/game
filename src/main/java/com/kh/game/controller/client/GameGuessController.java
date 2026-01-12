@@ -525,6 +525,8 @@ public class GameGuessController {
             Map<String, Object> songInfo = new HashMap<>();
             songInfo.put("id", round.getSong().getId());
             songInfo.put("filePath", round.getSong().getFilePath());
+            songInfo.put("youtubeVideoId", round.getSong().getYoutubeVideoId());
+            songInfo.put("startTime", round.getSong().getStartTime());
             songInfo.put("playDuration", round.getPlayDuration());
             if (round.getSong().getGenre() != null) {
                 songInfo.put("genre", round.getSong().getGenre().getName());

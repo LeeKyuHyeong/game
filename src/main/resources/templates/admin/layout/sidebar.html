@@ -26,6 +26,10 @@
                 <span class="nav-icon">🎶</span>
                 <span class="nav-text">노래 관리</span>
             </a>
+            <a href="/admin/report" class="nav-item" th:classappend="${menu == 'report'} ? 'active'">
+                <span class="nav-icon">🚨</span>
+                <span class="nav-text">곡 신고</span>
+            </a>
             <a href="/admin/answer" class="nav-item" th:classappend="${menu == 'answer'} ? 'active'">
                 <span class="nav-icon">🎯</span>
                 <span class="nav-text">정답 관리</span>

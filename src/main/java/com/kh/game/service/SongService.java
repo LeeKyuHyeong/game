@@ -97,7 +97,7 @@ public class SongService {
     }
 
     public List<Song> getRandomSongs(int count, GameSettings settings) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
 
         // 필터링
         List<Song> filtered = new ArrayList<>();
@@ -157,7 +157,7 @@ public class SongService {
     }
 
     public int getAvailableSongCount(GameSettings settings) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
 
         int count = 0;
         for (Song song : allSongs) {
@@ -183,7 +183,7 @@ public class SongService {
 
     // 연도 목록 조회 (곡 수 포함)
     public List<Map<String, Object>> getYearsWithCount() {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
         Map<Integer, Integer> yearCountMap = new TreeMap<>(Collections.reverseOrder()); // 최신 연도부터
 
         for (Song song : allSongs) {
@@ -208,7 +208,7 @@ public class SongService {
     }
 
     public int getAvailableSongCountByGenreExcluding(Long genreId, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
 
         int count = 0;
         for (Song song : allSongs) {
@@ -221,7 +221,7 @@ public class SongService {
     }
 
     public Song getRandomSongByGenreExcluding(Long genreId, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -242,7 +242,7 @@ public class SongService {
 
     // 아티스트별 사용 가능한 곡 수 (제외 목록 적용)
     public int getAvailableSongCountByArtistExcluding(String artist, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
 
         int count = 0;
         for (Song song : allSongs) {
@@ -256,7 +256,7 @@ public class SongService {
 
     // 아티스트로 랜덤 노래 가져오기 (제외 목록 적용)
     public Song getRandomSongByArtistExcluding(String artist, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -275,7 +275,7 @@ public class SongService {
 
     // 연도별 사용 가능한 곡 수 (제외 목록 적용)
     public int getAvailableSongCountByYearExcluding(Integer year, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
 
         int count = 0;
         for (Song song : allSongs) {
@@ -289,7 +289,7 @@ public class SongService {
 
     // 연도로 랜덤 노래 가져오기 (제외 목록 적용)
     public Song getRandomSongByYearExcluding(Integer year, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -308,7 +308,7 @@ public class SongService {
 
     // 아티스트 목록 조회 (곡 수 포함, 제외 목록 적용)
     public List<Map<String, Object>> getArtistsWithCountExcluding(List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
         Map<String, Integer> artistCountMap = new HashMap<>();
 
         for (Song song : allSongs) {
@@ -332,7 +332,7 @@ public class SongService {
 
     // 연도 목록 조회 (곡 수 포함, 제외 목록 적용)
     public List<Map<String, Object>> getYearsWithCountExcluding(List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
         Map<Integer, Integer> yearCountMap = new TreeMap<>(Collections.reverseOrder());
 
         for (Song song : allSongs) {
@@ -425,7 +425,7 @@ public class SongService {
      * 랜덤 노래 가져오기 (excludeSongIds 제외)
      */
     public Song getRandomSongExcluding(Long genreId, Set<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -450,7 +450,7 @@ public class SongService {
      * 장르별 사용 가능한 노래 수 (excludeSongIds 제외)
      */
     public int getAvailableCountByGenreExcluding(Long genreId, Set<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndFilePathIsNotNull("Y");
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
 
         int count = 0;
         for (Song song : allSongs) {

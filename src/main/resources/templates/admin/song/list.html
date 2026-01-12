@@ -40,7 +40,7 @@
                     <th>장르</th>
                     <th>연도</th>
                     <th>솔로</th>
-                    <th>MP3</th>
+                    <th>YouTube</th>
                     <th>사용여부</th>
                     <th>등록일</th>
                     <th>관리</th>
@@ -57,11 +57,9 @@
                                 <span class="solo-badge" th:classappend="${song.isSolo} ? 'solo' : 'group'"
                                       th:text="${song.isSolo} ? '솔로' : '그룹'"></span>
                     </td>
-                    <td data-label="MP3" onclick="event.stopPropagation()">
-                        <button th:if="${song.filePath}" class="btn btn-sm btn-play"
-                                th:data-filepath="${song.filePath}"
-                                onclick="playAudio(this.dataset.filepath, this)">▶</button>
-                        <span th:unless="${song.filePath}" class="file-none">-</span>
+                    <td data-label="YouTube">
+                        <span th:if="${song.youtubeVideoId}" th:text="${song.youtubeVideoId}" class="youtube-id"></span>
+                        <span th:unless="${song.youtubeVideoId}" class="file-none">-</span>
                     </td>
                     <td data-label="사용여부">
                                 <span class="status" th:classappend="${song.useYn == 'Y'} ? 'active' : 'inactive'"
@@ -108,7 +106,7 @@
             <h2 id="modalTitle">노래 추가</h2>
             <button class="close-btn" onclick="closeModal()">&times;</button>
         </div>
-        <form id="songForm" class="modal-form" enctype="multipart/form-data">
+        <form id="songForm" class="modal-form">
             <input type="hidden" id="songId" name="id">
 
             <div class="form-row">
@@ -123,11 +121,10 @@
             </div>
 
             <div class="form-group">
-                <label for="mp3File">MP3 파일</label>
-                <div class="file-upload-wrapper">
-                    <input type="file" id="mp3File" name="mp3File" accept=".mp3,audio/mpeg">
-                    <div id="currentFile" class="current-file"></div>
-                </div>
+                <label for="youtubeUrl">YouTube URL</label>
+                <input type="text" id="youtubeUrl" name="youtubeUrl"
+                       placeholder="https://www.youtube.com/watch?v=... 또는 https://youtu.be/...">
+                <div id="currentYoutubeId" class="current-file"></div>
             </div>
 
             <div class="form-row">
@@ -190,8 +187,6 @@
     </div>
 </div>
 
-<audio id="audioPlayer" style="display:none;"></audio>
-
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-song.js}"></script>
 <script>
@@ -201,37 +196,6 @@ function toggleRowExpand(row) {
         row.classList.toggle('expanded');
     }
 }
-
-// MP3 재생
-let currentPlayBtn = null;
-const audioPlayer = document.getElementById('audioPlayer');
-
-function playAudio(filePath, btn) {
-    // 같은 버튼 클릭 시 정지
-    if (currentPlayBtn === btn && !audioPlayer.paused) {
-        audioPlayer.pause();
-        btn.textContent = '▶';
-        currentPlayBtn = null;
-        return;
-    }
-
-    // 다른 곡 재생 중이면 정지
-    if (currentPlayBtn && currentPlayBtn !== btn) {
-        currentPlayBtn.textContent = '▶';
-    }
-
-    audioPlayer.src = '/uploads/songs/' + filePath;
-    audioPlayer.play();
-    btn.textContent = '⏸';
-    currentPlayBtn = btn;
-}
-
-audioPlayer.addEventListener('ended', function() {
-    if (currentPlayBtn) {
-        currentPlayBtn.textContent = '▶';
-        currentPlayBtn = null;
-    }
-});
 
 // 아티스트 필터
 function filterByArtist(artist) {

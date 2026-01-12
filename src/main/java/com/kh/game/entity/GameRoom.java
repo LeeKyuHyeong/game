@@ -95,6 +95,7 @@ public class GameRoom {
     }
 
     public enum RoundPhase {
+        PREPARING,      // 참가자 준비 대기 (광고 시청)
         PLAYING,        // 노래 재생 & 답변 대기
         RESULT          // 결과 표시
     }

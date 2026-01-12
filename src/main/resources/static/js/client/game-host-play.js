@@ -6,6 +6,8 @@ let progressInterval = null;
 let playerScores = {};
 let actualTotalRounds = totalRounds; // 서버에서 업데이트될 수 있음
 let isRoundEnded = false; // 라운드 종료 플래그
+let isRoundReady = false; // 준비 완료 플래그
+let youtubePlayerReady = false; // YouTube Player 준비 상태
 
 // 초기화
 players.forEach(player => {
@@ -13,7 +15,28 @@ players.forEach(player => {
 });
 
 // 게임 시작
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // YouTube Player 초기화
+    try {
+        await YouTubePlayerManager.init('youtubePlayerContainer', {
+            onStateChange: function(e) {
+                if (e.data === 0) { // ENDED
+                    pauseAudio();
+                }
+            },
+            onError: function(e) {
+                console.error('YouTube 재생 오류:', e.data);
+                if (currentSong && currentSong.filePath) {
+                    currentSong.youtubeVideoId = null;
+                    loadAudioSource();
+                }
+            }
+        });
+        youtubePlayerReady = true;
+    } catch (error) {
+        console.warn('YouTube Player 초기화 실패:', error);
+    }
+
     // GENRE_PER_ROUND 모드면 장르 선택 모달 표시
     if (gameMode === 'GENRE_PER_ROUND') {
         showGenreSelectModal(1);
@@ -100,15 +123,8 @@ async function selectGenre(genreId, roundNumber) {
 
             document.getElementById('currentRound').textContent = roundNumber;
 
-            // 오디오 설정 - 항상 0초부터 시작
-            if (currentSong && currentSong.filePath) {
-                audioPlayer.src = `/uploads/songs/${currentSong.filePath}`;
-                audioPlayer.currentTime = 0;
-
-                audioPlayer.onloadedmetadata = function() {
-                    updateTimeDisplay();
-                };
-            }
+            // 오디오 소스 로드
+            loadAudioSource();
 
             // UI 리셋
             resetPlayerUI();
@@ -147,15 +163,8 @@ async function loadRound(roundNumber) {
 
         document.getElementById('currentRound').textContent = roundNumber;
 
-        // 오디오 설정 - 항상 0초부터 시작
-        if (currentSong && currentSong.filePath) {
-            audioPlayer.src = `/uploads/songs/${currentSong.filePath}`;
-            audioPlayer.currentTime = 0;
-
-            audioPlayer.onloadedmetadata = function() {
-                updateTimeDisplay();
-            };
-        }
+        // 오디오 소스 로드
+        loadAudioSource();
 
         // UI 리셋
         resetPlayerUI();
@@ -166,8 +175,24 @@ async function loadRound(roundNumber) {
     }
 }
 
+// 오디오 소스 로드 (YouTube 또는 MP3)
+function loadAudioSource() {
+    if (!currentSong) return;
+
+    if (currentSong.youtubeVideoId && youtubePlayerReady) {
+        YouTubePlayerManager.loadVideo(currentSong.youtubeVideoId, currentSong.startTime || 0);
+        updateTimeDisplay();
+    } else if (currentSong.filePath) {
+        audioPlayer.src = `/uploads/songs/${currentSong.filePath}`;
+        audioPlayer.currentTime = 0;
+        audioPlayer.onloadedmetadata = function() {
+            updateTimeDisplay();
+        };
+    }
+}
+
 function togglePlay() {
-    if (!currentSong || !currentSong.filePath) {
+    if (!currentSong || (!currentSong.youtubeVideoId && !currentSong.filePath)) {
         alert('재생할 노래가 없습니다.');
         return;
     }
@@ -180,7 +205,11 @@ function togglePlay() {
 }
 
 function playAudio() {
-    audioPlayer.play();
+    if (currentSong.youtubeVideoId && youtubePlayerReady) {
+        YouTubePlayerManager.play();
+    } else {
+        audioPlayer.play();
+    }
     isPlaying = true;
 
     document.getElementById('playBtn').innerHTML = '<span class="pause-icon">❚❚</span>';
@@ -193,7 +222,11 @@ function playAudio() {
 }
 
 function pauseAudio() {
-    audioPlayer.pause();
+    if (currentSong && currentSong.youtubeVideoId && youtubePlayerReady) {
+        YouTubePlayerManager.pause();
+    } else {
+        audioPlayer.pause();
+    }
     isPlaying = false;
 
     document.getElementById('playBtn').innerHTML = '<span class="play-icon">▶</span>';
@@ -205,8 +238,12 @@ function pauseAudio() {
 }
 
 function stopAudio() {
-    audioPlayer.pause();
-    audioPlayer.currentTime = 0;
+    if (currentSong && currentSong.youtubeVideoId && youtubePlayerReady) {
+        YouTubePlayerManager.stop();
+    } else {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+    }
     isPlaying = false;
 
     document.getElementById('playBtn').innerHTML = '<span class="play-icon">▶</span>';
@@ -222,7 +259,16 @@ function updateProgress() {
     if (!currentSong) return;
 
     const duration = currentSong.playDuration || 10;
-    const currentTime = audioPlayer.currentTime;
+    let currentTime;
+
+    if (currentSong.youtubeVideoId && youtubePlayerReady) {
+        const startTime = currentSong.startTime || 0;
+        currentTime = YouTubePlayerManager.getCurrentTime() - startTime;
+    } else {
+        currentTime = audioPlayer.currentTime;
+    }
+
+    currentTime = Math.max(0, currentTime);
     const progress = Math.min((currentTime / duration) * 100, 100);
 
     document.getElementById('progressBar').style.width = progress + '%';
@@ -236,7 +282,14 @@ function updateProgress() {
 
 function updateTimeDisplay() {
     const duration = currentSong ? (currentSong.playDuration || 10) : 0;
-    const currentTime = Math.max(0, audioPlayer.currentTime);
+    let currentTime;
+
+    if (currentSong && currentSong.youtubeVideoId && youtubePlayerReady) {
+        const startTime = currentSong.startTime || 0;
+        currentTime = Math.max(0, YouTubePlayerManager.getCurrentTime() - startTime);
+    } else {
+        currentTime = Math.max(0, audioPlayer.currentTime);
+    }
 
     document.getElementById('currentTime').textContent = formatTime(Math.min(currentTime, duration));
     document.getElementById('totalTime').textContent = formatTime(duration);
@@ -251,10 +304,39 @@ function formatTime(seconds) {
 function resetPlayerUI() {
     stopAudio();
     isRoundEnded = false; // 라운드 종료 플래그 리셋
+    isRoundReady = false; // 준비 완료 플래그 리셋
     document.querySelectorAll('.player-btn').forEach(btn => {
         btn.classList.remove('selected');
         btn.disabled = false; // 버튼 활성화
     });
+}
+
+// 준비 완료 프롬프트 표시
+function showReadyPrompt() {
+    isRoundReady = false;
+    const playBtn = document.getElementById('playBtn');
+    const readyPrompt = document.getElementById('readyPrompt');
+
+    if (playBtn) {
+        playBtn.disabled = true;
+    }
+    if (readyPrompt) {
+        readyPrompt.style.display = 'block';
+    }
+}
+
+// 준비 완료 처리
+function confirmReady() {
+    isRoundReady = true;
+    const playBtn = document.getElementById('playBtn');
+    const readyPrompt = document.getElementById('readyPrompt');
+
+    if (playBtn) {
+        playBtn.disabled = false;
+    }
+    if (readyPrompt) {
+        readyPrompt.style.display = 'none';
+    }
 }
 
 async function selectWinner(playerName) {

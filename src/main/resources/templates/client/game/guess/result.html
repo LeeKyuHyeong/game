@@ -64,6 +64,7 @@
                         <div th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="fail-info">
                             <span class="fail-text">3회 실패</span>
                         </div>
+                        <button class="btn-report-small" th:data-song-id="${round.song.id}" onclick="openReportModal(this.dataset.songId)">신고</button>
                     </div>
                 </div>
             </div>
@@ -77,5 +78,34 @@
 </div>
 
 <script th:src="@{/js/common/common.js}"></script>
+
+<!-- 신고 모달 -->
+<th:block th:replace="~{common/fragments/report-modal :: reportModal}"></th:block>
+
+<style>
+.btn-report-small {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    font-size: 0.75em;
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.btn-report-small:hover {
+    opacity: 1;
+    background: #fff;
+    color: #dc3545;
+    border-color: #dc3545;
+}
+.round-card {
+    position: relative;
+}
+</style>
 </body>
 </html>

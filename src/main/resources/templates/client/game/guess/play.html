@@ -17,6 +17,15 @@
     </header>
 
     <main class="game-main">
+        <!-- 준비 완료 프롬프트 -->
+        <div id="readyPrompt" class="ready-prompt" style="display: none;">
+            <div class="ready-content">
+                <p class="ready-message">광고가 있다면 먼저 시청해주세요</p>
+                <p class="ready-hint">준비가 되면 아래 버튼을 눌러주세요</p>
+                <button class="btn btn-ready" onclick="confirmReady()">준비 완료</button>
+            </div>
+        </div>
+
         <div class="music-player">
             <div class="player-display">
                 <div class="music-icon" id="musicIcon">🎵</div>
@@ -115,8 +124,10 @@
     </div>
 </div>
 
-<!-- 오디오 요소 -->
+<!-- 오디오 요소 (MP3 fallback) -->
 <audio id="audioPlayer" preload="auto"></audio>
+<!-- YouTube Player 컨테이너 (숨김) -->
+<div id="youtubePlayerContainer" style="position: absolute; width: 0; height: 0; overflow: hidden;"></div>
 
 <script th:inline="javascript">
     const sessionId = [[${gameSession.id}]];
@@ -126,6 +137,53 @@
     const hideEmptyOptions = [[${settings.hideEmptyOptions}]] || false;
 </script>
 <script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/common/youtube-player.js}"></script>
 <script th:src="@{/js/client/game-guess-play.js}"></script>
+
+<style>
+.ready-prompt {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 2px solid #ffd700;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+.ready-content {
+    max-width: 300px;
+    margin: 0 auto;
+}
+.ready-message {
+    font-size: 1.1em;
+    color: #ffd700;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.ready-hint {
+    font-size: 0.9em;
+    color: #aaa;
+    margin-bottom: 16px;
+}
+.btn-ready {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    padding: 14px 40px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-ready:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+.play-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+</style>
 </body>
 </html>

@@ -267,7 +267,8 @@ public class GameHostController {
             songInfo.put("title", song.getTitle());
             songInfo.put("artist", song.getArtist());
             songInfo.put("filePath", song.getFilePath());
-            songInfo.put("startTime", 0); // 항상 0초부터
+            songInfo.put("youtubeVideoId", song.getYoutubeVideoId());
+            songInfo.put("startTime", song.getStartTime() != null ? song.getStartTime() : 0);
             songInfo.put("playDuration", round.getPlayDuration());
             songInfo.put("releaseYear", song.getReleaseYear());
             if (song.getGenre() != null) {
@@ -326,7 +327,8 @@ public class GameHostController {
             songInfo.put("title", round.getSong().getTitle());
             songInfo.put("artist", round.getSong().getArtist());
             songInfo.put("filePath", round.getSong().getFilePath());
-            songInfo.put("startTime", round.getPlayStartTime());
+            songInfo.put("youtubeVideoId", round.getSong().getYoutubeVideoId());
+            songInfo.put("startTime", round.getSong().getStartTime() != null ? round.getSong().getStartTime() : 0);
             songInfo.put("playDuration", round.getPlayDuration());
             songInfo.put("releaseYear", round.getSong().getReleaseYear());
             if (round.getSong().getGenre() != null) {

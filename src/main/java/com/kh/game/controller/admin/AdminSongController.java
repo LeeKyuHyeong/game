@@ -12,10 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/admin/song")
@@ -67,6 +68,7 @@ public class AdminSongController {
                     result.put("title", song.getTitle());
                     result.put("artist", song.getArtist());
                     result.put("filePath", song.getFilePath());
+                    result.put("youtubeVideoId", song.getYoutubeVideoId());
                     result.put("startTime", song.getStartTime());
                     result.put("playDuration", song.getPlayDuration());
                     result.put("genreId", song.getGenre() != null ? song.getGenre().getId() : null);
@@ -84,13 +86,13 @@ public class AdminSongController {
             @RequestParam(required = false) Long id,
             @RequestParam String title,
             @RequestParam String artist,
+            @RequestParam(required = false) String youtubeUrl,
             @RequestParam(required = false) Integer startTime,
             @RequestParam(required = false) Integer playDuration,
             @RequestParam(required = false) Long genreId,
             @RequestParam(required = false) Integer releaseYear,
             @RequestParam(required = false) Boolean isSolo,
-            @RequestParam String useYn,
-            @RequestParam(required = false) MultipartFile mp3File) {
+            @RequestParam String useYn) {
 
         Map<String, Object> result = new HashMap<>();
         try {
@@ -115,12 +117,16 @@ public class AdminSongController {
                 song.setGenre(null);
             }
 
-            if (mp3File != null && !mp3File.isEmpty()) {
-                String filePath = songService.saveFile(mp3File);
-                if (id != null && song.getFilePath() != null) {
-                    songService.deleteFile(song.getFilePath());
+            // YouTube URL 처리
+            if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
+                String videoId = extractYoutubeVideoId(youtubeUrl.trim());
+                if (videoId != null) {
+                    song.setYoutubeVideoId(videoId);
+                } else {
+                    result.put("success", false);
+                    result.put("message", "유효하지 않은 YouTube URL입니다.");
+                    return ResponseEntity.ok(result);
                 }
-                song.setFilePath(filePath);
             }
 
             songService.save(song);
@@ -131,6 +137,34 @@ public class AdminSongController {
             result.put("message", "저장 중 오류가 발생했습니다: " + e.getMessage());
         }
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * YouTube URL에서 Video ID 추출
+     * 지원 형식:
+     * - https://www.youtube.com/watch?v=VIDEO_ID
+     * - https://youtu.be/VIDEO_ID
+     * - https://www.youtube.com/embed/VIDEO_ID
+     * - https://www.youtube.com/shorts/VIDEO_ID
+     */
+    private String extractYoutubeVideoId(String url) {
+        if (url == null || url.isEmpty()) {
+            return null;
+        }
+
+        // 이미 Video ID 형식인 경우 (11자리 영문숫자)
+        if (url.matches("^[a-zA-Z0-9_-]{11}$")) {
+            return url;
+        }
+
+        Pattern pattern = Pattern.compile(
+            "(?:youtube\\.com/(?:watch\\?v=|embed/|shorts/)|youtu\\.be/)([a-zA-Z0-9_-]{11})"
+        );
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
     }
 
     @PostMapping("/delete/{id}")
