@@ -22,7 +22,7 @@
                        th:classappend="${category == cat.name()} ? 'active'"
                        class="category-tab">
                         <span th:text="${cat.description}"></span>
-                        <span class="category-count" th:text="'(' + ${categoryStats[cat]} + ')'"></span>
+                        <span class="category-count" th:text="'(' + ${categoryStats[cat.name()]} + ')'"></span>
                     </a>
                 </th:block>
             </div>

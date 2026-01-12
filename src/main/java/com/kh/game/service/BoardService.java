@@ -153,17 +153,17 @@ public class BoardService {
                 member, Board.BoardStatus.ACTIVE, pageable);
     }
 
-    public Map<Board.BoardCategory, Long> getCategoryStats() {
-        Map<Board.BoardCategory, Long> stats = new HashMap<>();
+    public Map<String, Long> getCategoryStats() {
+        Map<String, Long> stats = new HashMap<>();
         for (Board.BoardCategory cat : Board.BoardCategory.values()) {
-            stats.put(cat, 0L);
+            stats.put(cat.name(), 0L);
         }
 
         List<Object[]> counts = boardRepository.countByCategory(Board.BoardStatus.ACTIVE);
         for (Object[] row : counts) {
             Board.BoardCategory cat = (Board.BoardCategory) row[0];
             Long count = (Long) row[1];
-            stats.put(cat, count);
+            stats.put(cat.name(), count);
         }
         return stats;
     }
