@@ -57,8 +57,17 @@
                                 <span class="solo-badge" th:classappend="${song.isSolo} ? 'solo' : 'group'"
                                       th:text="${song.isSolo} ? '솔로' : '그룹'"></span>
                     </td>
-                    <td data-label="YouTube">
-                        <span th:if="${song.youtubeVideoId}" th:text="${song.youtubeVideoId}" class="youtube-id"></span>
+                    <td data-label="YouTube" onclick="event.stopPropagation()">
+                        <div th:if="${song.youtubeVideoId}" class="youtube-cell">
+                            <span th:text="${song.youtubeVideoId}" class="youtube-id"></span>
+                            <button class="btn btn-sm btn-play"
+                                    th:data-video-id="${song.youtubeVideoId}"
+                                    th:data-start-time="${song.startTime}"
+                                    th:data-duration="${song.playDuration}"
+                                    th:data-title="${song.title}"
+                                    th:data-artist="${song.artist}"
+                                    onclick="openYoutubePreview(this)">▶</button>
+                        </div>
                         <span th:unless="${song.youtubeVideoId}" class="file-none">-</span>
                     </td>
                     <td data-label="사용여부">
@@ -187,6 +196,31 @@
     </div>
 </div>
 
+<!-- YouTube 미리보기 모달 -->
+<div id="youtubePreviewModal" class="modal">
+    <div class="modal-content modal-lg">
+        <div class="modal-header">
+            <h2 id="youtubePreviewTitle">YouTube 미리보기</h2>
+            <button class="close-btn" onclick="closeYoutubePreview()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="youtube-preview-info">
+                <span id="previewSongInfo"></span>
+                <span id="previewTimeInfo" class="time-info"></span>
+            </div>
+            <div class="youtube-player-container">
+                <div id="youtubePlayer"></div>
+            </div>
+            <div class="youtube-preview-status">
+                <span id="previewStatus"></span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeYoutubePreview()">닫기</button>
+        </div>
+    </div>
+</div>
+
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-song.js}"></script>
 <script>
@@ -205,6 +239,114 @@ function filterByArtist(artist) {
         window.location.href = '/admin/song';
     }
 }
+
+// YouTube IFrame API
+let ytPlayer = null;
+let ytApiReady = false;
+
+// YouTube API 로드
+const tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+const firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+function onYouTubeIframeAPIReady() {
+    ytApiReady = true;
+}
+
+// YouTube 미리보기 열기
+function openYoutubePreview(btn) {
+    const videoId = btn.dataset.videoId;
+    const startTime = parseInt(btn.dataset.startTime) || 0;
+    const duration = parseInt(btn.dataset.duration) || 10;
+    const title = btn.dataset.title;
+    const artist = btn.dataset.artist;
+
+    document.getElementById('youtubePreviewTitle').textContent = 'YouTube 미리보기';
+    document.getElementById('previewSongInfo').textContent = `${title} - ${artist}`;
+    document.getElementById('previewTimeInfo').textContent = `시작: ${startTime}초 / 재생: ${duration}초`;
+    document.getElementById('previewStatus').textContent = '로딩 중...';
+
+    document.getElementById('youtubePreviewModal').classList.add('show');
+
+    // 플레이어 생성 또는 영상 변경
+    if (ytApiReady) {
+        if (ytPlayer) {
+            ytPlayer.destroy();
+        }
+        ytPlayer = new YT.Player('youtubePlayer', {
+            height: '360',
+            width: '640',
+            videoId: videoId,
+            playerVars: {
+                'start': startTime,
+                'autoplay': 1,
+                'controls': 1,
+                'rel': 0
+            },
+            events: {
+                'onReady': function(event) {
+                    document.getElementById('previewStatus').textContent = '재생 중';
+                    document.getElementById('previewStatus').style.color = '#10b981';
+                },
+                'onError': function(event) {
+                    let errorMsg = '알 수 없는 오류';
+                    switch(event.data) {
+                        case 2: errorMsg = '잘못된 Video ID'; break;
+                        case 5: errorMsg = 'HTML5 플레이어 오류'; break;
+                        case 100: errorMsg = '영상을 찾을 수 없음 (삭제됨)'; break;
+                        case 101:
+                        case 150: errorMsg = '소유자가 임베드를 허용하지 않음'; break;
+                    }
+                    document.getElementById('previewStatus').textContent = '오류: ' + errorMsg;
+                    document.getElementById('previewStatus').style.color = '#ef4444';
+                },
+                'onStateChange': function(event) {
+                    if (event.data === YT.PlayerState.PLAYING) {
+                        document.getElementById('previewStatus').textContent = '재생 중';
+                        document.getElementById('previewStatus').style.color = '#10b981';
+                    } else if (event.data === YT.PlayerState.PAUSED) {
+                        document.getElementById('previewStatus').textContent = '일시정지';
+                        document.getElementById('previewStatus').style.color = '#f59e0b';
+                    } else if (event.data === YT.PlayerState.ENDED) {
+                        document.getElementById('previewStatus').textContent = '재생 완료';
+                        document.getElementById('previewStatus').style.color = '#6b7280';
+                    }
+                }
+            }
+        });
+    } else {
+        document.getElementById('previewStatus').textContent = 'YouTube API 로딩 중... 잠시 후 다시 시도해주세요.';
+        document.getElementById('previewStatus').style.color = '#f59e0b';
+    }
+}
+
+// YouTube 미리보기 닫기
+function closeYoutubePreview() {
+    if (ytPlayer) {
+        ytPlayer.destroy();
+        ytPlayer = null;
+    }
+    document.getElementById('youtubePlayer').innerHTML = '';
+    document.getElementById('youtubePreviewModal').classList.remove('show');
+}
+
+// ESC 키로 모달 닫기
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const youtubeModal = document.getElementById('youtubePreviewModal');
+        if (youtubeModal && youtubeModal.classList.contains('show')) {
+            closeYoutubePreview();
+        }
+    }
+});
+
+// 모달 외부 클릭 시 닫기
+document.getElementById('youtubePreviewModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeYoutubePreview();
+    }
+});
 </script>
 </body>
 </html>
