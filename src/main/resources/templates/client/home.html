@@ -36,23 +36,12 @@
                 </div>
             </div>
 
-            <!-- 랭킹 섹션 (로그인 사용자용) -->
-            <div class="ranking-section" id="rankingSection" style="display:none;">
-                <div class="ranking-header" id="rankingHeader">
-                    <h3>🏆 랭킹</h3>
-                    <span class="ranking-toggle">▼</span>
+            <!-- 내 순위 섹션 (로그인 사용자용) -->
+            <div class="my-rank-section" id="myRankSection" style="display:none;">
+                <div class="my-rank-content" id="myRankContent">
+                    <!-- JS에서 로딩 -->
                 </div>
-                <div class="ranking-body" id="rankingBody">
-                    <div class="ranking-tabs">
-                        <button class="ranking-tab active" data-type="score">총점</button>
-                        <button class="ranking-tab" data-type="accuracy">정답률</button>
-                        <button class="ranking-tab" data-type="games">게임수</button>
-                    </div>
-                    <div class="ranking-list" id="rankingList">
-                        <!-- JS에서 로딩 -->
-                    </div>
-                    <a href="/ranking" class="view-all-link">전체 랭킹 보기 →</a>
-                </div>
+                <a href="/ranking" class="btn btn-ranking">전체 랭킹 보기</a>
             </div>
         </div>
     </main>
@@ -61,9 +50,7 @@
         <div class="footer-links">
             <a href="/board" class="footer-link">커뮤니티</a>
             <a href="/stats" class="footer-link">통계</a>
-            <a href="/ranking" class="footer-link">랭킹</a>
         </div>
-        <a href="/admin/login" class="admin-link">관리자</a>
     </footer>
 </div>
 

@@ -192,4 +192,53 @@ public class RankingController {
         memberInfo.put("tierDisplayName", tier.getDisplayName());
         memberInfo.put("tierColor", tier.getColor());
     }
+
+    // 내 순위 API
+    @GetMapping("/api/ranking/my")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getMyRanking(
+            @SessionAttribute(value = "memberId", required = false) Long memberId) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (memberId == null) {
+            result.put("loggedIn", false);
+            return ResponseEntity.ok(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        if (member == null) {
+            result.put("loggedIn", false);
+            return ResponseEntity.ok(result);
+        }
+
+        result.put("loggedIn", true);
+        result.put("nickname", member.getNickname());
+
+        // 티어 정보
+        Member.MemberTier tier = member.getTier() != null ? member.getTier() : Member.MemberTier.BRONZE;
+        result.put("tier", tier.name());
+        result.put("tierDisplayName", tier.getDisplayName());
+        result.put("tierColor", tier.getColor());
+
+        // 내가맞추기 순위
+        int guessScore = member.getGuessScore() != null ? member.getGuessScore() : 0;
+        int guessGames = member.getGuessGames() != null ? member.getGuessGames() : 0;
+
+        if (guessGames > 0) {
+            long rank = memberService.getMyGuessRank(guessScore);
+            long total = memberService.getGuessParticipantCount();
+            result.put("guessRank", rank);
+            result.put("guessTotal", total);
+            result.put("guessScore", guessScore);
+            result.put("guessGames", guessGames);
+        } else {
+            result.put("guessRank", 0);
+            result.put("guessTotal", 0);
+            result.put("guessScore", 0);
+            result.put("guessGames", 0);
+        }
+
+        return ResponseEntity.ok(result);
+    }
 }

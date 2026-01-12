@@ -3,34 +3,7 @@ let isUserLoggedIn = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
-    setupRankingAccordion();
 });
-
-// 모바일에서 랭킹 섹션 아코디언 토글
-function setupRankingAccordion() {
-    const rankingHeader = document.getElementById('rankingHeader');
-    const rankingSection = document.getElementById('rankingSection');
-
-    if (rankingHeader && rankingSection) {
-        // 모바일에서 기본 접힘 상태
-        if (window.innerWidth <= 768) {
-            rankingSection.classList.add('collapsed');
-        }
-
-        rankingHeader.addEventListener('click', function() {
-            if (window.innerWidth <= 768) {
-                rankingSection.classList.toggle('collapsed');
-            }
-        });
-
-        // 화면 크기 변경 시 처리
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                rankingSection.classList.remove('collapsed');
-            }
-        });
-    }
-}
 
 async function checkLoginStatus() {
     try {
@@ -41,14 +14,14 @@ async function checkLoginStatus() {
 
         if (result.isLoggedIn) {
             isUserLoggedIn = true;
+            const adminBtn = result.role === 'ADMIN' ? '<a href="/admin/login" class="btn btn-admin">관리자</a>' : '';
             userInfo.innerHTML = `
                 <span class="user-greeting">안녕하세요, <strong>${result.nickname}</strong>님!</span>
                 <button class="btn btn-logout" onclick="logout()">로그아웃</button>
+                ${adminBtn}
             `;
-            // 랭킹 섹션 표시
-            document.getElementById('rankingSection').style.display = 'block';
-            loadRanking('score');
-            setupRankingTabs();
+            // 내 순위 섹션 표시
+            loadMyRanking();
         } else {
             isUserLoggedIn = false;
             userInfo.innerHTML = `
@@ -105,49 +78,37 @@ async function logout() {
     }
 }
 
-function setupRankingTabs() {
-    document.querySelectorAll('.ranking-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.ranking-tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            loadRanking(this.dataset.type);
-        });
-    });
-}
-
-async function loadRanking(type) {
+async function loadMyRanking() {
     try {
-        const response = await fetch(`/api/ranking?type=${type}&limit=5`);
-        const rankings = await response.json();
+        const response = await fetch('/api/ranking/my');
+        const data = await response.json();
 
-        const list = document.getElementById('rankingList');
+        const section = document.getElementById('myRankSection');
+        const content = document.getElementById('myRankContent');
 
-        if (rankings.length === 0) {
-            list.innerHTML = '<div class="empty-ranking">아직 랭킹 데이터가 없습니다.</div>';
+        if (!data.loggedIn) {
             return;
         }
 
-        list.innerHTML = rankings.map((member, index) => `
-            <div class="ranking-item">
-                <span class="rank">${index + 1}</span>
-                <span class="nickname">${member.nickname}</span>
-                <span class="value">${formatRankValue(type, member)}</span>
-            </div>
-        `).join('');
-    } catch (error) {
-        console.error('랭킹 로딩 오류:', error);
-    }
-}
+        section.style.display = 'block';
 
-function formatRankValue(type, member) {
-    switch(type) {
-        case 'score':
-            return member.totalScore.toLocaleString() + '점';
-        case 'accuracy':
-            return member.accuracyRate.toFixed(1) + '%';
-        case 'games':
-            return member.totalGames + '게임';
-        default:
-            return '';
+        if (data.guessGames > 0) {
+            content.innerHTML = `
+                <div class="my-rank-info">
+                    <span class="tier-badge" style="background: ${data.tierColor}">${data.tierDisplayName}</span>
+                    <span class="rank-text">내 순위: <strong>${data.guessRank}위</strong> / ${data.guessTotal}명</span>
+                    <span class="score-text">총점 ${data.guessScore.toLocaleString()}점</span>
+                </div>
+            `;
+        } else {
+            content.innerHTML = `
+                <div class="my-rank-info">
+                    <span class="tier-badge" style="background: ${data.tierColor}">${data.tierDisplayName}</span>
+                    <span class="rank-text">아직 게임 기록이 없습니다</span>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('내 순위 로딩 오류:', error);
     }
 }

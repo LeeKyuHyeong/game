@@ -95,6 +95,16 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.bestMultiScore > 0 ORDER BY m.bestMultiScore DESC")
     List<Member> findTopMultiBestScore(Pageable pageable);
 
+    // ========== 내 순위 조회 ==========
+
+    // 내가맞추기 총점 순위 (나보다 높은 점수 가진 사람 수)
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.guessGames > 0 AND m.guessScore > :score")
+    long countMembersWithHigherGuessScore(int score);
+
+    // 내가맞추기 총 참여자 수
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.guessGames > 0")
+    long countGuessParticipants();
+
     // ========== 티어별 조회 ==========
 
     // 티어별 회원 수

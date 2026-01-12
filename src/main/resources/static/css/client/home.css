@@ -146,114 +146,73 @@
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* Ranking Section */
-.ranking-section {
+.btn-admin {
+    background: rgba(255, 193, 7, 0.2);
+    border: 1px solid rgba(255, 193, 7, 0.5);
+    color: #ffc107;
+}
+
+.btn-admin:hover {
+    background: rgba(255, 193, 7, 0.3);
+    color: #ffd54f;
+}
+
+/* My Rank Section */
+.my-rank-section {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 1.5rem;
-    padding: 1.5rem;
+    border-radius: 1rem;
+    padding: 1.25rem 1.5rem;
     width: 100%;
-}
-
-.ranking-header {
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 0.5rem;
-    cursor: default;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
-.ranking-header h3 {
-    color: white;
-    font-size: 1.25rem;
-    margin: 0;
+.my-rank-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
-.ranking-toggle {
-    display: none;
-    color: white;
+.tier-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
     font-size: 0.75rem;
-    transition: transform 0.3s;
-}
-
-.ranking-body {
-    margin-top: 1rem;
-}
-
-.ranking-tabs {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.ranking-tab {
-    flex: 1;
-    padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    border-radius: 0.5rem;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.ranking-tab:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.ranking-tab.active {
-    background: white;
-    color: var(--primary-color);
     font-weight: 600;
+    color: white;
 }
 
-.ranking-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+.rank-text {
+    color: white;
+    font-size: 0.9375rem;
 }
 
-.ranking-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 0.5rem;
-}
-
-.ranking-item .rank {
-    width: 2rem;
-    font-weight: 700;
+.rank-text strong {
+    font-size: 1.125rem;
     color: #fbbf24;
 }
 
-.ranking-item .nickname {
-    flex: 1;
-    color: white;
-}
-
-.ranking-item .value {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.875rem;
-}
-
-.empty-ranking {
-    text-align: center;
-    padding: 2rem;
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.view-all-link {
-    display: block;
-    text-align: center;
-    margin-top: 1rem;
+.score-text {
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.875rem;
-    text-decoration: none;
 }
 
-.view-all-link:hover {
-    color: white;
+.btn-ranking {
+    padding: 0.625rem 1.25rem;
+    background: white;
+    color: var(--primary-color);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.btn-ranking:hover {
+    background: #f3f4f6;
 }
 
 /* Mode Options - Button Group */
@@ -420,86 +379,40 @@
         font-size: 0.75rem;
     }
 
-    /* 랭킹 섹션 아코디언 스타일 */
-    .ranking-section {
-        padding: 0;
-        border-radius: 1rem;
-    }
-
-    .ranking-header {
+    /* 내 순위 섹션 모바일 */
+    .my-rank-section {
+        flex-direction: column;
         padding: 1rem;
-        cursor: pointer;
-        border-radius: 1rem;
-        transition: background 0.2s;
+        gap: 0.75rem;
     }
 
-    .ranking-header:hover {
-        background: rgba(255, 255, 255, 0.05);
+    .my-rank-info {
+        justify-content: center;
+        gap: 0.5rem;
     }
 
-    .ranking-header h3 {
+    .tier-badge {
+        font-size: 0.6875rem;
+        padding: 0.1875rem 0.5rem;
+    }
+
+    .rank-text {
+        font-size: 0.8125rem;
+    }
+
+    .rank-text strong {
         font-size: 1rem;
     }
 
-    .ranking-toggle {
-        display: inline;
-    }
-
-    .ranking-section.collapsed .ranking-toggle {
-        transform: rotate(-90deg);
-    }
-
-    .ranking-section.collapsed .ranking-header {
-        border-radius: 1rem;
-    }
-
-    .ranking-body {
-        margin-top: 0;
-        padding: 0 1rem 1rem 1rem;
-        overflow: hidden;
-        transition: max-height 0.3s ease, padding 0.3s ease;
-    }
-
-    .ranking-section.collapsed .ranking-body {
-        max-height: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-    }
-
-    .ranking-tabs {
-        margin-bottom: 0.75rem;
-    }
-
-    .ranking-tab {
-        padding: 0.375rem;
-        font-size: 0.8rem;
-    }
-
-    .ranking-item {
-        padding: 0.5rem 0.75rem;
-    }
-
-    .ranking-item .rank {
-        width: 1.5rem;
-        font-size: 0.875rem;
-    }
-
-    .ranking-item .nickname {
-        font-size: 0.875rem;
-    }
-
-    .ranking-item .value {
+    .score-text {
         font-size: 0.75rem;
     }
 
-    .view-all-link {
-        margin-top: 0.75rem;
-        font-size: 0.8rem;
-    }
-
-    .empty-ranking {
-        padding: 1rem;
-        font-size: 0.875rem;
+    .btn-ranking {
+        width: 100%;
+        text-align: center;
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
     }
 
     /* Mode Options Mobile */

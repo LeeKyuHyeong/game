@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +31,7 @@ public class AdminSongController {
     public String list(@RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "20") int size,
                        @RequestParam(required = false) String keyword,
-                       @RequestParam(required = false) String artist,
+                       @RequestParam(required = false) List<String> artists,
                        @RequestParam(required = false) Long genreId,
                        @RequestParam(required = false) String useYn,
                        @RequestParam(required = false) Boolean isSolo,
@@ -41,7 +42,7 @@ public class AdminSongController {
         Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
 
-        Page<Song> songPage = songService.searchWithFilters(keyword, artist, genreId, useYn, isSolo, pageable);
+        Page<Song> songPage = songService.searchWithFilters(keyword, artists, genreId, useYn, isSolo, pageable);
 
         model.addAttribute("songs", songPage.getContent());
         model.addAttribute("genres", genreService.findActiveGenres());
@@ -54,7 +55,7 @@ public class AdminSongController {
 
         // Filter parameters
         model.addAttribute("keyword", keyword);
-        model.addAttribute("selectedArtist", artist);
+        model.addAttribute("selectedArtists", artists);
         model.addAttribute("selectedGenreId", genreId);
         model.addAttribute("selectedUseYn", useYn);
         model.addAttribute("selectedIsSolo", isSolo);

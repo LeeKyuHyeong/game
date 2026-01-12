@@ -270,6 +270,15 @@ public class MemberService {
         return memberRepository.findTopGuessRankingByGames(PageRequest.of(0, limit));
     }
 
+    // 내 순위 조회
+    public long getMyGuessRank(int score) {
+        return memberRepository.countMembersWithHigherGuessScore(score) + 1;
+    }
+
+    public long getGuessParticipantCount() {
+        return memberRepository.countGuessParticipants();
+    }
+
     // ========== Multiplayer (멀티게임) 랭킹 ==========
 
     public List<Member> getMultiRankingByScore(int limit) {

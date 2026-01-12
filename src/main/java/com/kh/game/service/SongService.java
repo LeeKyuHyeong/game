@@ -47,6 +47,13 @@ public class SongService {
         return songRepository.searchWithFilters(keyword, artist, genreId, useYn, isSolo, pageable);
     }
 
+    public Page<Song> searchWithFilters(String keyword, List<String> artists, Long genreId, String useYn, Boolean isSolo, Pageable pageable) {
+        if (artists != null && !artists.isEmpty()) {
+            return songRepository.searchWithFiltersMultipleArtists(keyword, artists, genreId, useYn, isSolo, pageable);
+        }
+        return songRepository.searchWithFilters(keyword, null, genreId, useYn, isSolo, pageable);
+    }
+
     public List<String> getAllArtists() {
         return songRepository.findAllDistinctArtists();
     }

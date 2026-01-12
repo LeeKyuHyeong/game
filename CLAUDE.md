@@ -20,8 +20,11 @@ mvn test -Dtest=GameApplicationTests
 # Run a single test method
 mvn test -Dtest=GameApplicationTests#testMethodName
 
-# Docker deployment
+# Docker deployment (production)
 docker-compose up -d
+
+# View logs
+docker-compose logs -f app
 ```
 
 ## Architecture Overview
@@ -38,19 +41,22 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 
 ### Package Structure (`com.kh.game`)
 
-- **controller/client/** - User-facing: `AuthController`, `GameGuessController`, `GameHostController`, `MultiGameController`
-- **controller/admin/** - Admin panel: song/genre/user management, batch operations
-- **service/** - Business logic: `GameSessionService`, `MultiGameService`, `SongService`, `MemberService`
-- **entity/** - JPA entities: `Member`, `Song`, `GameSession`, `GameRoom`, `GameRoomParticipant`
+- **controller/client/** - User-facing: `AuthController`, `GameGuessController`, `GameHostController`, `MultiGameController`, `RankingController`, `SongReportController`
+- **controller/admin/** - Admin panel: `AdminSongController`, `AdminGenreController`, `AdminBatchController`, `AdminBadWordController`, `AdminRoomController`, `AdminChatController`, `AdminSongReportController`
+- **service/** - Business logic: `GameSessionService`, `MultiGameService`, `SongService`, `MemberService`, `GameRoomService`, `AnswerValidationService`, `YouTubeValidationService`
+- **entity/** - JPA entities: `Member`, `Song`, `SongAnswer`, `Genre`, `GameSession`, `GameRound`, `GameRoundAttempt`, `GameRoom`, `GameRoomParticipant`, `GameRoomChat`, `BadWord`, `SongReport`, `BatchConfig`, `DailyStats`
 - **repository/** - Spring Data JPA repositories
-- **batch/** - Scheduled tasks: `BatchScheduler`, `SessionCleanupBatch`
-- **config/** - `SecurityConfig` (BCrypt), `WebConfig` (interceptors, file upload)
+- **batch/** - 12 scheduled batch jobs managed by `BatchScheduler`
+- **config/** - `SecurityConfig` (BCrypt), `WebConfig` (interceptors, file upload), `SchedulerConfig`, `DataInitializer`
+- **util/** - `AnswerGeneratorUtil` (English→Korean phonetic conversion for song titles)
+- **dto/** - `GameSettings` (multiplayer room configuration)
+- **interceptor/** - `AdminInterceptor`, `SessionValidationInterceptor`
 
 ### Game Modes
 
 1. **Solo Guess** - User guesses songs with 3 attempts (10/7/5 points)
-2. **Solo Host** - User reads clues for others to guess
-3. **Multiplayer** - Room-based game with real-time chat, first correct answer scores 100 points
+2. **Solo Host** - User reads clues for others to guess (100/70/50 points)
+3. **Multiplayer** - Room-based game with real-time chat polling, first correct answer scores 100 points
 
 ### Key Data Flow
 
@@ -58,13 +64,31 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 - `GameRoom` → has `GameRoomParticipant` → stores `GameRoomChat` (multiplayer mode)
 - `Song` → has multiple `SongAnswer` for fuzzy matching validation
 
+### Multiplayer Flow
+
+1. Create room → join room → toggle ready
+2. Host starts game → `PREPARING` phase (all participants load song)
+3. Each participant calls `/round-ready` when ready
+4. Host starts round → `PLAYING` phase (song plays, chat for answers)
+5. First correct answer wins → show answer → next round or game end
+
 ### Key Services
 
-- **AnswerValidationService** - Validates user answers with normalization (lowercase, strip spaces/special chars), checks both `Song.title` and `SongAnswer` table for alternate answers
+- **AnswerValidationService** - Validates user answers with normalization (lowercase, strip spaces/special chars, keep only alphanumeric + Korean), checks both `Song.title` and `SongAnswer` table
+- **AnswerGeneratorUtil** - Generates answer variants including English→Korean phonetic conversion using word/phoneme mapping tables (~700 common words)
 - **YouTubeValidationService** - Two-phase validation: oEmbed API check → thumbnail size check (detects deleted videos)
 - **BadWordService** - Profanity filtering with ConcurrentHashMap cache, auto-reloads on changes
 - **SongReportService** - Handles user reports for problematic songs
 - **DataInitializer** - Seeds initial bad words (~50 profanities) on startup via CommandLineRunner
+
+### Batch Jobs (managed by BatchScheduler)
+
+All batches are DB-configurable via `BatchConfig` table with cron expressions:
+- `SessionCleanupBatch`, `RoomCleanupBatch`, `ChatCleanupBatch` - Cleanup expired data
+- `DailyStatsBatch`, `RankingUpdateBatch`, `WeeklyRankingResetBatch` - Stats & rankings
+- `LoginHistoryCleanupBatch`, `InactiveMemberBatch` - Member management
+- `SongFileCheckBatch`, `SongAnalyticsBatch`, `YouTubeVideoCheckBatch` - Song integrity
+- `SystemReportBatch` - System health reports
 
 ### Scoring System
 
@@ -74,11 +98,13 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 
 ## Configuration
 
-- **Dev profile:** Port 8082, MariaDB localhost:3306/song (root/1234)
+- **Dev profile:** Port 8082, MariaDB localhost:3306/song (root/1234), JPA ddl-auto=update
+- **Prod profile:** Uses environment variables for DB credentials, Docker volumes for persistence
 - **Admin auth:** DB-based via `Member` table with `role=ADMIN`
 - **File uploads:** `uploads/songs/`, max 50MB
 - **Session timeout:** 30 minutes
 - **Admin routes:** Protected by `AdminInterceptor` (/admin/**)
+- **Docker memory:** App 512MB, DB 256MB
 
 ## CI/CD
 

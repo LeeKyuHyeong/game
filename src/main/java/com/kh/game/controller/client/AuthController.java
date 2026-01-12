@@ -177,6 +177,7 @@ public class AuthController {
             result.put("memberId", session.getAttribute("memberId"));
             result.put("nickname", session.getAttribute("memberNickname"));
             result.put("email", session.getAttribute("memberEmail"));
+            result.put("role", session.getAttribute("memberRole"));
         } else {
             result.put("isLoggedIn", false);
         }

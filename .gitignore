@@ -31,5 +31,24 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Claude Code ###
 tmpclaude-*
 .claude/
+.mcp.json
+mcp-servers/
+
+### Node/Playwright ###
+node_modules/
+playwright-report/
+test-results/
+package.json
+package-lock.json
+playwright.config.ts
+specs/
+tests/
+seed.spec.ts
+sql-output/
+
+### Misc ###
+nul

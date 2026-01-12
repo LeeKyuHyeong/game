@@ -48,7 +48,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     @Query("SELECT DISTINCT s.artist FROM Song s WHERE s.useYn = 'Y' AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) AND LOWER(s.artist) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY s.artist")
     List<String> findArtistsByKeyword(@Param("keyword") String keyword);
 
-    // 복합 필터 검색 (관리자용)
+    // 복합 필터 검색 (관리자용) - 단일 아티스트
     @Query("SELECT s FROM Song s WHERE " +
             "(:keyword IS NULL OR LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(s.artist) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
             "(:artist IS NULL OR s.artist = :artist) AND " +
@@ -58,6 +58,21 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     Page<Song> searchWithFilters(
             @Param("keyword") String keyword,
             @Param("artist") String artist,
+            @Param("genreId") Long genreId,
+            @Param("useYn") String useYn,
+            @Param("isSolo") Boolean isSolo,
+            Pageable pageable);
+
+    // 복합 필터 검색 (관리자용) - 다중 아티스트
+    @Query("SELECT s FROM Song s WHERE " +
+            "(:keyword IS NULL OR LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(s.artist) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+            "(s.artist IN :artists) AND " +
+            "(:genreId IS NULL OR s.genre.id = :genreId) AND " +
+            "(:useYn IS NULL OR s.useYn = :useYn) AND " +
+            "(:isSolo IS NULL OR s.isSolo = :isSolo)")
+    Page<Song> searchWithFiltersMultipleArtists(
+            @Param("keyword") String keyword,
+            @Param("artists") List<String> artists,
             @Param("genreId") Long genreId,
             @Param("useYn") String useYn,
             @Param("isSolo") Boolean isSolo,

@@ -34,7 +34,7 @@ public class DataInitializer implements CommandLineRunner {
      * 기본 관리자 계정 생성
      */
     private void initAdminAccount() {
-        String adminEmail = "admin@admin.com";
+        String adminEmail = "a@a.com";
 
         // 이미 관리자 계정이 있는지 확인
         if (memberRepository.findByEmail(adminEmail).isPresent()) {
@@ -45,7 +45,7 @@ public class DataInitializer implements CommandLineRunner {
         // 기본 관리자 계정 생성
         Member admin = new Member();
         admin.setEmail(adminEmail);
-        admin.setPassword(passwordEncoder.encode("admin1234!"));
+        admin.setPassword(passwordEncoder.encode("123!@#"));
         admin.setNickname("관리자");
         admin.setUsername("admin");
         admin.setRole(Member.MemberRole.ADMIN);
