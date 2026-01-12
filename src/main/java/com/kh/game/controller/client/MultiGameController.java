@@ -634,6 +634,39 @@ public class MultiGameController {
     }
 
     /**
+     * 라운드 준비 완료 API (참가자) - PREPARING 단계에서 호출
+     */
+    @PostMapping("/room/{roomCode}/round-ready")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> setRoundReady(
+            @PathVariable String roomCode,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+
+        if (member == null || room == null) {
+            result.put("success", false);
+            result.put("message", "정보를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        Map<String, Object> readyResult = multiGameService.setRoundReady(room, member);
+        result.putAll(readyResult);
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * 라운드 정보 조회 API (폴링용)
      */
     @GetMapping("/room/{roomCode}/round")

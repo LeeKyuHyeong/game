@@ -29,6 +29,9 @@ public class Song {
     @Column(name = "file_path")
     private String filePath;
 
+    @Column(name = "youtube_video_id", length = 20)
+    private String youtubeVideoId;
+
     @Column(name = "start_time")
     private Integer startTime;
 

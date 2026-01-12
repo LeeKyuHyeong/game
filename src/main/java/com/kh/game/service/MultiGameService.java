@@ -119,27 +119,89 @@ public class MultiGameService {
             return result;
         }
 
-        // 라운드 상태 설정
+        // 라운드 상태 설정 - PREPARING 단계로 시작
         room.setCurrentSong(song);
-        room.setRoundPhase(GameRoom.RoundPhase.PLAYING);
+        room.setRoundPhase(GameRoom.RoundPhase.PREPARING);
         room.setRoundStartTime(LocalDateTime.now());
         room.setWinner(null);  // 정답자 초기화
 
-        // 오디오 재생 시작
-        room.setAudioPlaying(true);
-        room.setAudioPlayedAt(System.currentTimeMillis());
+        // 모든 참가자의 라운드 준비 상태 초기화
+        List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
+        for (GameRoomParticipant p : participants) {
+            p.setRoundReady(false);
+        }
+
+        // 오디오는 아직 재생하지 않음 (PREPARING 단계)
+        room.setAudioPlaying(false);
+        room.setAudioPlayedAt(null);
 
         // 사용된 노래 기록
         usedSongsByRoom.computeIfAbsent(room.getId(), k -> new HashSet<>()).add(song.getId());
 
         // 시스템 메시지
-        addSystemMessage(room, host, "🎵 라운드 " + room.getCurrentRound() + " 시작! 노래를 맞춰보세요!");
+        addSystemMessage(room, host, "📺 라운드 " + room.getCurrentRound() + " - 광고가 있다면 먼저 시청해주세요. 준비되면 '준비 완료' 버튼을 눌러주세요!");
 
         result.put("success", true);
         result.put("isGameOver", false);
         result.put("currentRound", room.getCurrentRound());
 
         return result;
+    }
+
+    /**
+     * 참가자 라운드 준비 완료
+     */
+    @Transactional
+    public Map<String, Object> setRoundReady(GameRoom room, Member member) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (room.getRoundPhase() != GameRoom.RoundPhase.PREPARING) {
+            result.put("success", false);
+            result.put("message", "준비 단계가 아닙니다.");
+            return result;
+        }
+
+        GameRoomParticipant participant = participantRepository.findByGameRoomAndMember(room, member)
+                .orElse(null);
+        if (participant == null) {
+            result.put("success", false);
+            result.put("message", "참가자가 아닙니다.");
+            return result;
+        }
+
+        participant.setRoundReady(true);
+        result.put("success", true);
+
+        // 모든 참가자가 준비됐는지 체크
+        boolean allReady = checkAllRoundReady(room);
+        result.put("allReady", allReady);
+
+        if (allReady) {
+            // 자동으로 PLAYING 단계로 전환
+            startPlaying(room);
+        }
+
+        return result;
+    }
+
+    /**
+     * 모든 참가자가 라운드 준비 완료했는지 체크
+     */
+    private boolean checkAllRoundReady(GameRoom room) {
+        List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
+        return participants.stream().allMatch(GameRoomParticipant::getRoundReady);
+    }
+
+    /**
+     * PREPARING에서 PLAYING으로 전환 (모든 참가자 준비 완료 시)
+     */
+    private void startPlaying(GameRoom room) {
+        room.setRoundPhase(GameRoom.RoundPhase.PLAYING);
+        room.setRoundStartTime(LocalDateTime.now());  // 실제 재생 시작 시간으로 리셋
+        room.setAudioPlaying(true);
+        room.setAudioPlayedAt(System.currentTimeMillis());
+
+        addSystemMessage(room, room.getHost(), "🎵 모든 참가자 준비 완료! 노래를 맞춰보세요!");
     }
 
     /**
@@ -184,21 +246,27 @@ public class MultiGameService {
             return result;
         }
 
-        // 라운드 상태 설정
+        // 라운드 상태 설정 - PREPARING 단계로 시작
         room.setCurrentSong(song);
-        room.setRoundPhase(GameRoom.RoundPhase.PLAYING);
+        room.setRoundPhase(GameRoom.RoundPhase.PREPARING);
         room.setRoundStartTime(LocalDateTime.now());
         room.setWinner(null);
 
-        // 오디오 재생 시작
-        room.setAudioPlaying(true);
-        room.setAudioPlayedAt(System.currentTimeMillis());
+        // 모든 참가자의 라운드 준비 상태 초기화
+        List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
+        for (GameRoomParticipant p : participants) {
+            p.setRoundReady(false);
+        }
+
+        // 오디오는 아직 재생하지 않음 (PREPARING 단계)
+        room.setAudioPlaying(false);
+        room.setAudioPlayedAt(null);
 
         // 사용된 노래 기록
         usedSongsByRoom.computeIfAbsent(room.getId(), k -> new HashSet<>()).add(song.getId());
 
         // 시스템 메시지
-        addSystemMessage(room, host, "🎵 라운드 " + room.getCurrentRound() + " 시작! 노래를 맞춰보세요!");
+        addSystemMessage(room, host, "📺 라운드 " + room.getCurrentRound() + " - 광고가 있다면 먼저 시청해주세요. 준비되면 '준비 완료' 버튼을 눌러주세요!");
 
         result.put("success", true);
         result.put("isGameOver", false);
@@ -363,10 +431,11 @@ public class MultiGameService {
         }
 
         Song currentSong = room.getCurrentSong();
-        // PLAYING 상태에서 노래 파일 정보 (정답은 숨김)
-        if (currentSong != null && room.getRoundPhase() == GameRoom.RoundPhase.PLAYING) {
+        // PREPARING 또는 PLAYING 상태에서 노래 파일 정보 (정답은 숨김)
+        if (currentSong != null && (room.getRoundPhase() == GameRoom.RoundPhase.PREPARING || room.getRoundPhase() == GameRoom.RoundPhase.PLAYING)) {
             Map<String, Object> songInfo = new HashMap<>();
             songInfo.put("id", currentSong.getId());
+            songInfo.put("youtubeVideoId", currentSong.getYoutubeVideoId());
             songInfo.put("filePath", currentSong.getFilePath());
             songInfo.put("startTime", currentSong.getStartTime());
             songInfo.put("playDuration", currentSong.getPlayDuration());
@@ -395,6 +464,7 @@ public class MultiGameService {
             pInfo.put("score", p.getScore());
             pInfo.put("correctCount", p.getCorrectCount());
             pInfo.put("isHost", room.isHost(p.getMember()));
+            pInfo.put("roundReady", p.getRoundReady());  // 라운드 준비 상태 추가
             participantInfos.add(pInfo);
         }
 

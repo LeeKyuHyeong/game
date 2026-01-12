@@ -29,7 +29,10 @@ public class GameRoomParticipant {
     private Member member;
 
     @Column(nullable = false)
-    private Boolean isReady = false;  // 준비 상태
+    private Boolean isReady = false;  // 대기실 준비 상태
+
+    @Column(nullable = false)
+    private Boolean roundReady = false;  // 라운드 준비 상태 (광고 시청 완료)
 
     @Column(nullable = false)
     private Integer score = 0;  // 현재 게임 점수

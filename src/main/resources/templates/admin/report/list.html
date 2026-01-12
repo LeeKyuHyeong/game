@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('곡 신고 관리')}"></head>
+<body class="admin-page">
+<link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+    <main class="main-content">
+        <header class="content-header">
+            <h1>곡 신고 관리</h1>
+            <span th:if="${pendingCount > 0}" class="pending-badge">
+                대기 <span th:text="${pendingCount}"></span>건
+            </span>
+        </header>
+
+        <div class="search-bar">
+            <div class="filter-section">
+                <select id="statusFilter" onchange="filterByStatus(this.value)">
+                    <option value="">전체 상태</option>
+                    <option value="PENDING" th:selected="${selectedStatus == 'PENDING'}">대기</option>
+                    <option value="CONFIRMED" th:selected="${selectedStatus == 'CONFIRMED'}">확인됨</option>
+                    <option value="REJECTED" th:selected="${selectedStatus == 'REJECTED'}">반려</option>
+                    <option value="RESOLVED" th:selected="${selectedStatus == 'RESOLVED'}">해결됨</option>
+                </select>
+                <a th:if="${selectedStatus}" href="/admin/report" class="btn btn-reset">필터 초기화</a>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>곡 정보</th>
+                    <th>신고 유형</th>
+                    <th>신고자</th>
+                    <th>상태</th>
+                    <th>신고일</th>
+                    <th>관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="report : ${reports}" onclick="toggleRowExpand(this)">
+                    <td data-label="ID" th:text="${report.id}"></td>
+                    <td data-label="곡 정보">
+                        <div class="song-info-cell">
+                            <span class="song-title" th:text="${report.song.title}"></span>
+                            <span class="song-artist" th:text="${report.song.artist}"></span>
+                        </div>
+                    </td>
+                    <td data-label="신고 유형">
+                        <span class="report-type-badge"
+                              th:classappend="${report.reportType.name()}"
+                              th:text="${report.reportType.description}"></span>
+                    </td>
+                    <td data-label="신고자" th:text="${report.member != null} ? ${report.member.nickname} : '게스트'"></td>
+                    <td data-label="상태">
+                        <span class="status-badge"
+                              th:classappend="${report.status.name()}"
+                              th:text="${report.status.description}"></span>
+                    </td>
+                    <td data-label="신고일" th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                        <button class="btn btn-sm btn-edit"
+                                th:data-id="${report.id}"
+                                th:data-song-title="${report.song.title}"
+                                th:data-song-artist="${report.song.artist}"
+                                th:data-report-type="${report.reportType.description}"
+                                th:data-description="${report.description}"
+                                th:data-status="${report.status.name()}"
+                                onclick="openProcessModal(this)">처리</button>
+                        <button th:if="${report.status.name() == 'CONFIRMED'}"
+                                class="btn btn-sm btn-delete"
+                                th:data-id="${report.id}"
+                                onclick="disableSong(this.dataset.id)">곡 비활성화</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(reports)}">
+                    <td colspan="7" class="empty-row">신고 내역이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" th:if="${totalPages > 0}">
+            <a th:href="@{/admin/report(page=0, status=${selectedStatus})}"
+               th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
+            <a th:href="@{/admin/report(page=${currentPage - 1}, status=${selectedStatus})}"
+               th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
+
+            <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                   th:href="@{/admin/report(page=${i}, status=${selectedStatus})}"
+                   th:text="${i + 1}"
+                   th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
+            </th:block>
+
+            <a th:href="@{/admin/report(page=${currentPage + 1}, status=${selectedStatus})}"
+               th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
+            <a th:href="@{/admin/report(page=${totalPages - 1}, status=${selectedStatus})}"
+               th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
+        </div>
+    </main>
+</div>
+
+<!-- 처리 모달 -->
+<div id="processModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>신고 처리</h2>
+            <button class="close-btn" onclick="closeProcessModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="report-detail">
+                <p><strong>곡:</strong> <span id="modalSongTitle"></span> - <span id="modalSongArtist"></span></p>
+                <p><strong>신고 유형:</strong> <span id="modalReportType"></span></p>
+                <p><strong>상세 내용:</strong> <span id="modalDescription"></span></p>
+            </div>
+            <input type="hidden" id="processReportId">
+            <div class="form-group">
+                <label>처리 상태</label>
+                <select id="processStatus">
+                    <option value="PENDING">대기</option>
+                    <option value="CONFIRMED">확인됨 (문제 있음)</option>
+                    <option value="REJECTED">반려 (문제 없음)</option>
+                    <option value="RESOLVED">해결됨</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>관리자 메모</label>
+                <textarea id="adminNote" rows="3" placeholder="처리 내용을 입력하세요"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeProcessModal()">취소</button>
+            <button class="btn btn-primary" onclick="processReport()">처리</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.pending-badge {
+    background: #ff4444;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    margin-left: 12px;
+}
+
+.song-info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.song-info-cell .song-title {
+    font-weight: 500;
+}
+.song-info-cell .song-artist {
+    font-size: 0.85em;
+    color: #888;
+}
+
+.report-type-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+.report-type-badge.AD {
+    background: #fff3cd;
+    color: #856404;
+}
+.report-type-badge.UNPLAYABLE {
+    background: #f8d7da;
+    color: #721c24;
+}
+.report-type-badge.OTHER {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+.status-badge.PENDING {
+    background: #fff3cd;
+    color: #856404;
+}
+.status-badge.CONFIRMED {
+    background: #cce5ff;
+    color: #004085;
+}
+.status-badge.REJECTED {
+    background: #e2e3e5;
+    color: #383d41;
+}
+.status-badge.RESOLVED {
+    background: #d4edda;
+    color: #155724;
+}
+
+.report-detail {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.report-detail p {
+    margin: 8px 0;
+}
+</style>
+
+<script>
+function filterByStatus(status) {
+    if (status) {
+        window.location.href = '/admin/report?status=' + status;
+    } else {
+        window.location.href = '/admin/report';
+    }
+}
+
+function openProcessModal(btn) {
+    const id = btn.dataset.id;
+    const songTitle = btn.dataset.songTitle;
+    const songArtist = btn.dataset.songArtist;
+    const reportType = btn.dataset.reportType;
+    const description = btn.dataset.description || '(없음)';
+    const status = btn.dataset.status;
+
+    document.getElementById('processReportId').value = id;
+    document.getElementById('modalSongTitle').textContent = songTitle;
+    document.getElementById('modalSongArtist').textContent = songArtist;
+    document.getElementById('modalReportType').textContent = reportType;
+    document.getElementById('modalDescription').textContent = description;
+    document.getElementById('processStatus').value = status;
+    document.getElementById('adminNote').value = '';
+
+    document.getElementById('processModal').classList.add('show');
+}
+
+function closeProcessModal() {
+    document.getElementById('processModal').classList.remove('show');
+}
+
+async function processReport() {
+    const id = document.getElementById('processReportId').value;
+    const status = document.getElementById('processStatus').value;
+    const adminNote = document.getElementById('adminNote').value;
+
+    try {
+        const response = await fetch('/admin/report/process/' + id, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status, adminNote })
+        });
+
+        const result = await response.json();
+        alert(result.message);
+
+        if (result.success) {
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('처리 오류:', error);
+        alert('처리 중 오류가 발생했습니다.');
+    }
+}
+
+async function disableSong(reportId) {
+    if (!confirm('해당 곡을 비활성화하시겠습니까?\n게임에서 더 이상 출제되지 않습니다.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/admin/report/disable-song/' + reportId, {
+            method: 'POST'
+        });
+
+        const result = await response.json();
+        alert(result.message);
+
+        if (result.success) {
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('비활성화 오류:', error);
+        alert('비활성화 중 오류가 발생했습니다.');
+    }
+}
+
+function toggleRowExpand(row) {
+    row.classList.toggle('expanded');
+}
+</script>
+</body>
+</html>
