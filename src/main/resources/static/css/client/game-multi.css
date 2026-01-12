@@ -2000,3 +2000,22 @@
         font-size: 0.7rem;
     }
 }
+
+/* Skip Song Button (Host Only - Playback Error) */
+.btn-skip-song {
+    display: block;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f59e0b;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-skip-song:hover {
+    background: #d97706;
+}

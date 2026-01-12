@@ -25,13 +25,16 @@ document.addEventListener('DOMContentLoaded', async function() {
                     pauseAudio();
                 }
             },
-            onError: function(e) {
+            onError: function(e, errorInfo) {
                 console.error('YouTube 재생 오류:', e.data);
                 // MP3 fallback이 있으면 시도
                 if (currentSong && currentSong.filePath) {
                     console.log('MP3 fallback 시도');
                     currentSong.youtubeVideoId = null;
                     loadAudioSource();
+                } else {
+                    // MP3 없으면 재생 불가 처리
+                    handlePlaybackError(errorInfo);
                 }
             }
         });
@@ -58,7 +61,46 @@ document.addEventListener('DOMContentLoaded', async function() {
             renderArtistList(this.value);
         });
     }
+
+    // 대체된 곡 알림 표시
+    showReplacedSongsNotice();
 });
+
+// 라운드 축소 알림 표시
+function showReplacedSongsNotice() {
+    const roundsReducedJson = sessionStorage.getItem('roundsReduced');
+    if (roundsReducedJson) {
+        sessionStorage.removeItem('roundsReduced'); // 한 번 표시 후 삭제
+
+        const info = JSON.parse(roundsReducedJson);
+        const notice = document.createElement('div');
+        notice.className = 'rounds-reduced-notice';
+
+        // 랭킹 미충족 경고 (10라운드 이상 요청했는데 실제 10라운드 미만인 경우)
+        let rankingWarning = '';
+        if (info.requested >= 10 && info.actual < 10) {
+            rankingWarning = '<div class="ranking-warning">랭킹 등록 조건(10라운드) 미충족</div>';
+        }
+
+        notice.innerHTML = `
+            <div class="notice-content">
+                <span class="notice-icon">&#x26A0;</span>
+                <div class="notice-text">
+                    <div class="main-message">재생 불가 곡으로 인해 ${info.requested}라운드 → ${info.actual}라운드로 축소되었습니다</div>
+                    ${rankingWarning}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(notice);
+
+        // 5초 후 페이드아웃 (랭킹 경고가 있으면 더 오래 표시)
+        const duration = rankingWarning ? 5000 : 3500;
+        setTimeout(() => {
+            notice.classList.add('fade-out');
+            setTimeout(() => notice.remove(), 500);
+        }, duration);
+    }
+}
 
 async function showGenreSelectModal(roundNumber) {
     const modal = document.getElementById('genreSelectModal');
@@ -737,3 +779,134 @@ document.getElementById('answerInput').addEventListener('keydown', function(e) {
         submitAnswer();
     }
 });
+
+// ========== 재생 실패 처리 ==========
+
+/**
+ * YouTube 재생 실패 시 처리
+ * @param {object} errorInfo - 에러 정보 (code, message, isPlaybackError)
+ */
+function handlePlaybackError(errorInfo) {
+    if (!currentSong) return;
+
+    console.log('재생 실패 처리:', errorInfo);
+
+    // 재생 불가 에러인 경우에만 처리
+    if (errorInfo && errorInfo.isPlaybackError) {
+        // 1. 자동 신고 (서버에 재생 불가 보고)
+        reportUnplayableSong(currentSong.id, errorInfo.code);
+
+        // 2. 에러 모달 표시
+        showPlaybackErrorModal(errorInfo);
+    }
+}
+
+/**
+ * 재생 불가 곡 자동 신고
+ */
+async function reportUnplayableSong(songId, errorCode) {
+    try {
+        await fetch('/api/song-report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                songId: songId,
+                reportType: 'UNPLAYABLE',
+                description: '자동 신고: YouTube 에러 코드 ' + errorCode
+            })
+        });
+        console.log('재생 불가 곡 자동 신고 완료');
+    } catch (error) {
+        console.error('자동 신고 실패:', error);
+    }
+}
+
+/**
+ * 재생 실패 모달 표시
+ */
+function showPlaybackErrorModal(errorInfo) {
+    // 기존 모달이 있으면 제거
+    let modal = document.getElementById('playbackErrorModal');
+    if (modal) {
+        modal.remove();
+    }
+
+    // 모달 생성
+    modal = document.createElement('div');
+    modal.id = 'playbackErrorModal';
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content playback-error-modal">
+            <div class="error-icon">⚠️</div>
+            <h3>재생할 수 없는 곡입니다</h3>
+            <p class="error-message">${errorInfo ? errorInfo.message : '알 수 없는 오류'}</p>
+            <div class="auto-report-notice">
+                <span class="auto-report-badge">✓ 자동 신고 완료</span>
+                <p>관리자가 확인 후 조치합니다</p>
+            </div>
+            <div class="error-actions">
+                <button class="btn-skip" onclick="skipUnplayableRound()">다음 곡으로 넘어가기</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+/**
+ * 재생 불가로 인한 라운드 스킵 (정답 모달 없이 바로 다음으로)
+ */
+async function skipUnplayableRound() {
+    // 에러 모달 닫기
+    const modal = document.getElementById('playbackErrorModal');
+    if (modal) {
+        modal.remove();
+    }
+
+    if (!currentSong) return;
+    if (isRoundEnded) return;
+
+    isRoundEnded = true;
+    stopAudio();
+
+    try {
+        const response = await fetch('/game/solo/guess/answer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                roundNumber: currentRound,
+                answer: null,
+                isSkip: true
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            skipCount++;
+            document.getElementById('skipCount').textContent = skipCount;
+
+            // 정답 모달 없이 바로 다음 라운드로
+            if (result.isGameOver) {
+                window.location.href = '/game/solo/guess/result';
+            } else {
+                const nextRoundNumber = currentRound + 1;
+                if (gameMode === 'GENRE_PER_ROUND') {
+                    showGenreSelectModal(nextRoundNumber);
+                } else if (gameMode === 'ARTIST_PER_ROUND') {
+                    showArtistSelectModal(nextRoundNumber);
+                } else if (gameMode === 'YEAR_PER_ROUND') {
+                    showYearSelectModal(nextRoundNumber);
+                } else {
+                    loadRound(nextRoundNumber);
+                }
+            }
+        } else {
+            isRoundEnded = false;
+            alert(result.message);
+        }
+    } catch (error) {
+        isRoundEnded = false;
+        console.error('스킵 오류:', error);
+    }
+}

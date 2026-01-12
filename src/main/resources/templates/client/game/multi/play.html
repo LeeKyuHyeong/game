@@ -83,6 +83,7 @@
                         <span class="winner-name" id="winnerName">홍길동</span>
                         <span class="winner-score">+100점</span>
                     </div>
+                    <button class="btn-report-inline" onclick="openReportModal(currentSong ? currentSong.id : null)">문제 신고</button>
                 </div>
 
                 <!-- 방장 전용: 다음 라운드 버튼 -->
@@ -132,6 +133,9 @@
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/common/youtube-player.js}"></script>
 <script th:src="@{/js/client/multi-play.js}"></script>
+
+<!-- 신고 모달 -->
+<th:block th:replace="~{common/fragments/report-modal :: reportModal}"></th:block>
 
 <style>
 /* PREPARING 단계 스타일 */
@@ -206,6 +210,24 @@
 }
 .not-ready-badge {
     color: #aaa;
+}
+/* 신고 버튼 */
+.btn-report-inline {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: transparent;
+    color: #888;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-report-inline:hover {
+    background: #f8f9fa;
+    color: #666;
+    border-color: #ccc;
 }
 </style>
 </body>

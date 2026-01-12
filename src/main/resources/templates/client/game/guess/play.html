@@ -85,6 +85,7 @@
         </div>
         <div class="user-answer-info" id="userAnswerInfo"></div>
         <button class="btn btn-next-round" id="nextRoundBtn" onclick="nextRound()">다음 라운드 →</button>
+        <button class="btn-report-inline" onclick="openReportModal(currentSong.id)">문제 신고</button>
     </div>
 </div>
 
@@ -140,6 +141,9 @@
 <script th:src="@{/js/common/youtube-player.js}"></script>
 <script th:src="@{/js/client/game-guess-play.js}"></script>
 
+<!-- 신고 모달 -->
+<th:block th:replace="~{common/fragments/report-modal :: reportModal}"></th:block>
+
 <style>
 .ready-prompt {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -183,6 +187,23 @@
 .play-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+.btn-report-inline {
+    display: block;
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: transparent;
+    color: #888;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-report-inline:hover {
+    background: #f8f9fa;
+    color: #666;
+    border-color: #ccc;
 }
 </style>
 </body>

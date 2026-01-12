@@ -476,6 +476,14 @@ async function startGame() {
         const result = await response.json();
 
         if (result.success) {
+            // 라운드 축소 정보 저장 (play 페이지에서 표시)
+            if (result.reducedCount && result.reducedCount > 0) {
+                sessionStorage.setItem('roundsReduced', JSON.stringify({
+                    requested: result.requestedRounds,
+                    actual: result.actualRounds,
+                    reduced: result.reducedCount
+                }));
+            }
             window.location.href = '/game/solo/guess/play';
         } else {
             alert(result.message || '게임 시작에 실패했습니다.');

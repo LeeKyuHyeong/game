@@ -139,8 +139,13 @@ public class GameHostController {
             httpSession.setAttribute("gameMode", gameMode);
 
             // GENRE_PER_ROUND 모드가 아닌 경우에만 미리 라운드 생성
+            int replacedCount = 0;
             if (!"GENRE_PER_ROUND".equals(gameMode)) {
-                List<Song> songs = songService.getRandomSongs(totalRounds, settings);
+                // YouTube 사전 검증 포함된 노래 목록 가져오기
+                SongService.ValidatedSongsResult validatedResult =
+                        songService.getRandomSongsWithValidation(totalRounds, settings);
+                List<Song> songs = validatedResult.getSongs();
+                replacedCount = validatedResult.getReplacedCount();
 
                 // 실제 생성된 라운드 수로 업데이트
                 int actualRounds = songs.size();
@@ -164,6 +169,9 @@ public class GameHostController {
             result.put("success", true);
             result.put("sessionId", savedSession.getId());
             result.put("gameMode", gameMode);
+            result.put("requestedRounds", totalRounds);
+            result.put("actualRounds", savedSession.getTotalRounds());
+            result.put("reducedCount", totalRounds - savedSession.getTotalRounds());
 
         } catch (Exception e) {
             result.put("success", false);
@@ -231,8 +239,10 @@ public class GameHostController {
                 playedSongIds = new ArrayList<>();
             }
 
-            // 해당 장르에서 아직 플레이하지 않은 노래 중 랜덤으로 1곡 선택
-            Song song = songService.getRandomSongByGenreExcluding(genreId, playedSongIds);
+            // YouTube 사전 검증 포함
+            SongService.ValidatedSongResult validatedResult =
+                    songService.getValidatedSongByGenre(genreId, playedSongIds);
+            Song song = validatedResult.getSong();
 
             if (song == null) {
                 result.put("success", false);

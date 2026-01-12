@@ -9,6 +9,16 @@ const YouTubePlayerManager = {
     onReadyCallback: null,
     onStateChangeCallback: null,
     onErrorCallback: null,
+    lastError: null,  // 마지막 에러 정보
+
+    // YouTube 에러 코드 설명
+    ERROR_CODES: {
+        2: '잘못된 파라미터',
+        5: 'HTML5 플레이어 오류',
+        100: '영상을 찾을 수 없음',
+        101: '임베드가 차단됨',
+        150: '임베드가 차단됨'
+    },
 
     /**
      * YouTube IFrame API 초기화
@@ -73,9 +83,19 @@ const YouTubePlayerManager = {
                     if (this.onStateChangeCallback) this.onStateChangeCallback(e);
                 },
                 onError: (e) => {
-                    console.error('YouTube Player Error:', e.data);
-                    // 에러 코드: 2=잘못된 파라미터, 5=HTML5 에러, 100=영상없음, 101/150=임베드 차단
-                    if (this.onErrorCallback) this.onErrorCallback(e);
+                    const errorCode = e.data;
+                    const errorMessage = this.ERROR_CODES[errorCode] || '알 수 없는 오류';
+                    console.error('YouTube Player Error:', errorCode, errorMessage);
+
+                    // 에러 정보 저장
+                    this.lastError = {
+                        code: errorCode,
+                        message: errorMessage,
+                        timestamp: Date.now(),
+                        isPlaybackError: [100, 101, 150].includes(errorCode)  // 재생 불가 에러
+                    };
+
+                    if (this.onErrorCallback) this.onErrorCallback(e, this.lastError);
                 }
             }
         });
@@ -213,5 +233,37 @@ const YouTubePlayerManager = {
      */
     ready() {
         return this.isReady;
+    },
+
+    /**
+     * 마지막 에러 정보 조회
+     * @returns {object|null} 에러 정보 또는 null
+     */
+    getLastError() {
+        return this.lastError;
+    },
+
+    /**
+     * 에러 상태 초기화
+     */
+    clearError() {
+        this.lastError = null;
+    },
+
+    /**
+     * 재생 불가 에러인지 확인
+     * @returns {boolean}
+     */
+    hasPlaybackError() {
+        return this.lastError && this.lastError.isPlaybackError;
+    },
+
+    /**
+     * 에러 메시지 조회
+     * @param {number} errorCode - YouTube 에러 코드
+     * @returns {string} 에러 메시지
+     */
+    getErrorMessage(errorCode) {
+        return this.ERROR_CODES[errorCode] || '알 수 없는 오류';
     }
 };

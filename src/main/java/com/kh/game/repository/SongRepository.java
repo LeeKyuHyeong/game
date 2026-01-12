@@ -19,6 +19,8 @@ public interface SongRepository extends JpaRepository<Song, Long> {
 
     List<Song> findByUseYnAndFilePathIsNotNull(String useYn);
 
+    List<Song> findByUseYnAndYoutubeVideoIdIsNotNull(String useYn);
+
     // YouTube 또는 MP3 파일이 있는 곡 조회
     @Query("SELECT s FROM Song s WHERE s.useYn = :useYn AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL)")
     List<Song> findByUseYnAndHasAudioSource(@Param("useYn") String useYn);

@@ -33,6 +33,7 @@ public class BatchScheduler {
     private final InactiveMemberBatch inactiveMemberBatch;
     private final SongFileCheckBatch songFileCheckBatch;
     private final SongAnalyticsBatch songAnalyticsBatch;
+    private final YouTubeVideoCheckBatch youTubeVideoCheckBatch;
     private final SystemReportBatch systemReportBatch;
     private final WeeklyRankingResetBatch weeklyRankingResetBatch;
 
@@ -170,6 +171,14 @@ public class BatchScheduler {
                         log.error("배치 실행 중 오류: {}", batchId, e);
                     }
                 };
+            case YouTubeVideoCheckBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        youTubeVideoCheckBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
             case SystemReportBatch.BATCH_ID:
                 return () -> {
                     try {
@@ -221,6 +230,9 @@ public class BatchScheduler {
                 break;
             case SongAnalyticsBatch.BATCH_ID:
                 songAnalyticsBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case YouTubeVideoCheckBatch.BATCH_ID:
+                youTubeVideoCheckBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
                 break;
             case SystemReportBatch.BATCH_ID:
                 systemReportBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);

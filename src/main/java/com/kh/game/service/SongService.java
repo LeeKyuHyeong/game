@@ -26,6 +26,7 @@ public class SongService {
 
     private final SongRepository songRepository;
     private final SongAnswerRepository songAnswerRepository;
+    private final YouTubeValidationService youTubeValidationService;
 
     @Value("${file.upload-dir:uploads/songs}")
     private String uploadDir;
@@ -460,5 +461,226 @@ public class SongService {
         }
 
         return count;
+    }
+
+    /**
+     * 랜덤 노래 가져오기 (YouTube 검증 포함, excludeSongIds 제외)
+     * 멀티플레이어용
+     */
+    public Song getValidatedRandomSongExcluding(Long genreId, Set<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            // 장르 필터 (genreId가 null이면 전체)
+            if (genreId != null) {
+                if (song.getGenre() == null || !song.getGenre().getId().equals(genreId)) continue;
+            }
+            // 제외 목록 체크
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            filtered.add(song);
+        }
+
+        Collections.shuffle(filtered);
+
+        // YouTube 검증하면서 유효한 곡 반환
+        for (Song song : filtered) {
+            if (song.getYoutubeVideoId() != null && !song.getYoutubeVideoId().isEmpty()) {
+                YouTubeValidationService.ValidationResult result =
+                        youTubeValidationService.validateVideo(song.getYoutubeVideoId());
+
+                if (!result.isValid()) {
+                    continue; // 다음 곡 시도
+                }
+            }
+            return song;
+        }
+
+        return null;
+    }
+
+    // ========== YouTube 사전 검증 메서드 ==========
+
+    /**
+     * YouTube 검증 결과를 포함한 랜덤 노래 목록 가져오기
+     * 무효한 곡은 자동으로 대체됨
+     *
+     * @return ValidatedSongsResult (노래 목록 + 대체된 곡 수)
+     */
+    public ValidatedSongsResult getRandomSongsWithValidation(int count, GameSettings settings) {
+        // 여유분 포함해서 후보 가져오기 (대체용으로 2배 요청)
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+
+        // 필터링
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            if (!matchesSettings(song, settings)) continue;
+            filtered.add(song);
+        }
+
+        Collections.shuffle(filtered);
+
+        List<Song> validSongs = new ArrayList<>();
+        Set<Long> usedSongIds = new HashSet<>();
+        int replacedCount = 0;
+        int validationFailCount = 0;
+
+        for (Song song : filtered) {
+            if (validSongs.size() >= count) break;
+            if (usedSongIds.contains(song.getId())) continue;
+
+            // YouTube 검증
+            if (song.getYoutubeVideoId() != null && !song.getYoutubeVideoId().isEmpty()) {
+                YouTubeValidationService.ValidationResult result =
+                        youTubeValidationService.validateVideo(song.getYoutubeVideoId());
+
+                if (!result.isValid()) {
+                    validationFailCount++;
+                    continue; // 다음 곡으로 (대체됨)
+                }
+            }
+
+            validSongs.add(song);
+            usedSongIds.add(song.getId());
+        }
+
+        // 검증 실패로 인해 대체된 곡 수 계산
+        // count 요청했는데 실제로 validationFailCount개가 스킵됨
+        replacedCount = Math.min(validationFailCount, count);
+
+        return new ValidatedSongsResult(validSongs, replacedCount);
+    }
+
+    /**
+     * 단일 곡 YouTube 검증 후 유효한 곡 반환 (장르 기준)
+     * 무효시 같은 장르의 다른 곡으로 대체
+     */
+    public ValidatedSongResult getValidatedSongByGenre(Long genreId, List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            if (song.getGenre() == null || !song.getGenre().getId().equals(genreId)) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            filtered.add(song);
+        }
+
+        Collections.shuffle(filtered);
+
+        for (Song song : filtered) {
+            if (song.getYoutubeVideoId() != null && !song.getYoutubeVideoId().isEmpty()) {
+                YouTubeValidationService.ValidationResult result =
+                        youTubeValidationService.validateVideo(song.getYoutubeVideoId());
+
+                if (!result.isValid()) {
+                    continue; // 다음 곡 시도
+                }
+            }
+            return new ValidatedSongResult(song, false);
+        }
+
+        return new ValidatedSongResult(null, false);
+    }
+
+    /**
+     * 단일 곡 YouTube 검증 후 유효한 곡 반환 (아티스트 기준)
+     */
+    public ValidatedSongResult getValidatedSongByArtist(String artist, List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            if (song.getArtist() == null || !song.getArtist().equals(artist)) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            filtered.add(song);
+        }
+
+        Collections.shuffle(filtered);
+
+        for (Song song : filtered) {
+            if (song.getYoutubeVideoId() != null && !song.getYoutubeVideoId().isEmpty()) {
+                YouTubeValidationService.ValidationResult result =
+                        youTubeValidationService.validateVideo(song.getYoutubeVideoId());
+
+                if (!result.isValid()) {
+                    continue;
+                }
+            }
+            return new ValidatedSongResult(song, false);
+        }
+
+        return new ValidatedSongResult(null, false);
+    }
+
+    /**
+     * 단일 곡 YouTube 검증 후 유효한 곡 반환 (연도 기준)
+     */
+    public ValidatedSongResult getValidatedSongByYear(Integer year, List<Long> excludeSongIds) {
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            if (song.getReleaseYear() == null || !song.getReleaseYear().equals(year)) continue;
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            filtered.add(song);
+        }
+
+        Collections.shuffle(filtered);
+
+        for (Song song : filtered) {
+            if (song.getYoutubeVideoId() != null && !song.getYoutubeVideoId().isEmpty()) {
+                YouTubeValidationService.ValidationResult result =
+                        youTubeValidationService.validateVideo(song.getYoutubeVideoId());
+
+                if (!result.isValid()) {
+                    continue;
+                }
+            }
+            return new ValidatedSongResult(song, false);
+        }
+
+        return new ValidatedSongResult(null, false);
+    }
+
+    /**
+     * 검증된 노래 목록 결과
+     */
+    public static class ValidatedSongsResult {
+        private final List<Song> songs;
+        private final int replacedCount;
+
+        public ValidatedSongsResult(List<Song> songs, int replacedCount) {
+            this.songs = songs;
+            this.replacedCount = replacedCount;
+        }
+
+        public List<Song> getSongs() {
+            return songs;
+        }
+
+        public int getReplacedCount() {
+            return replacedCount;
+        }
+    }
+
+    /**
+     * 검증된 단일 노래 결과
+     */
+    public static class ValidatedSongResult {
+        private final Song song;
+        private final boolean wasReplaced;
+
+        public ValidatedSongResult(Song song, boolean wasReplaced) {
+            this.song = song;
+            this.wasReplaced = wasReplaced;
+        }
+
+        public Song getSong() {
+            return song;
+        }
+
+        public boolean wasReplaced() {
+            return wasReplaced;
+        }
     }
 }

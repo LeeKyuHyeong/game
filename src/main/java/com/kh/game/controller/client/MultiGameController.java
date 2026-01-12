@@ -667,6 +667,43 @@ public class MultiGameController {
     }
 
     /**
+     * 곡 스킵 API (방장만) - 재생 오류 시 다른 곡으로 변경
+     */
+    @PostMapping("/room/{roomCode}/skip-song")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> skipSong(
+            @PathVariable String roomCode,
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+
+        if (member == null || room == null) {
+            result.put("success", false);
+            result.put("message", "정보를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        Long songId = request.get("songId") != null ?
+                Long.valueOf(request.get("songId").toString()) : null;
+
+        Map<String, Object> skipResult = multiGameService.skipCurrentSong(room, member, songId);
+        result.putAll(skipResult);
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * 라운드 정보 조회 API (폴링용)
      */
     @GetMapping("/room/{roomCode}/round")

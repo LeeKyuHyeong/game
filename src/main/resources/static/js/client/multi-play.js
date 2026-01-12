@@ -29,11 +29,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                     isPlaying = false;
                 }
             },
-            onError: function(e) {
+            onError: function(e, errorInfo) {
                 console.error('YouTube 재생 오류:', e.data);
                 if (currentSong && currentSong.filePath) {
                     currentSong.youtubeVideoId = null;
                     loadSong(currentSong);
+                } else {
+                    // MP3 없으면 재생 불가 처리
+                    handlePlaybackError(errorInfo);
                 }
             }
         });
@@ -616,3 +619,94 @@ audioPlayer.addEventListener('error', function() {
     console.error('오디오 재생 오류');
     isPlaying = false;
 });
+
+// ========== 재생 실패 처리 ==========
+
+/**
+ * YouTube 재생 실패 시 처리 (Multiplayer)
+ * @param {object} errorInfo - 에러 정보 (code, message, isPlaybackError)
+ */
+function handlePlaybackError(errorInfo) {
+    if (!currentSong) return;
+
+    console.log('재생 실패 처리:', errorInfo);
+
+    // 재생 불가 에러인 경우에만 처리
+    if (errorInfo && errorInfo.isPlaybackError) {
+        // 1. 자동 신고 (서버에 재생 불가 보고)
+        reportUnplayableSong(currentSong.id, errorInfo.code);
+
+        // 2. 로컬 알림 표시 (채팅에 시스템 메시지 추가)
+        showPlaybackErrorNotice(errorInfo);
+    }
+}
+
+/**
+ * 재생 불가 곡 자동 신고
+ */
+async function reportUnplayableSong(songId, errorCode) {
+    try {
+        await fetch('/api/song-report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                songId: songId,
+                reportType: 'UNPLAYABLE',
+                description: '자동 신고: YouTube 에러 코드 ' + errorCode
+            })
+        });
+        console.log('재생 불가 곡 자동 신고 완료');
+    } catch (error) {
+        console.error('자동 신고 실패:', error);
+    }
+}
+
+/**
+ * 재생 불가 알림 표시 (채팅 영역에 로컬 메시지 + 방장에게 스킵 버튼)
+ */
+function showPlaybackErrorNotice(errorInfo) {
+    var container = document.getElementById('chatMessages');
+    var div = document.createElement('div');
+    div.className = 'chat-message system-message playback-error-notice';
+
+    var html = '<span class="system-text">⚠️ 이 곡을 재생할 수 없습니다<br>' +
+        '<small style="color:#888;">(' + (errorInfo ? errorInfo.message : '알 수 없는 오류') +
+        ') - ✓ 자동 신고 완료</small></span>';
+
+    // 방장에게만 스킵 버튼 표시
+    if (isHost && currentSong) {
+        html += '<button class="btn-skip-song" onclick="skipUnplayableSong(' + currentSong.id + ')">다른 곡으로 변경</button>';
+    }
+
+    div.innerHTML = html;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+/**
+ * 재생 불가 곡 스킵 (방장만)
+ */
+async function skipUnplayableSong(songId) {
+    try {
+        const response = await fetch('/game/multi/room/' + roomCode + '/skip-song', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ songId: songId })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            if (result.isGameOver) {
+                // 게임 종료
+                window.location.href = '/game/multi/room/' + roomCode + '/result';
+            }
+            // 성공 시 폴링에서 새 곡 정보를 받아옴
+        } else {
+            alert(result.message || '스킵에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('스킵 요청 실패:', error);
+        alert('스킵 요청 중 오류가 발생했습니다.');
+    }
+}
