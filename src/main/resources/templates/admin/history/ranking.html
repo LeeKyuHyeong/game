@@ -2,98 +2,170 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: adminHead('랭킹')}"></head>
 <link rel="stylesheet" href="/css/admin/mobile-stats.css">
+<link rel="stylesheet" th:href="@{/css/admin/ranking-tier.css}">
 <body class="admin-page ranking-mobile">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
-
     <main class="main-content">
         <header class="content-header">
             <h1>🏆 랭킹</h1>
         </header>
 
-        <!-- 게임 모드 필터 -->
-        <div class="game-type-tabs">
-            <a th:href="@{/admin/history/ranking(period=${period}, gameType='all')}"
-               th:classappend="${gameType == 'all' or gameType == null} ? 'active'" class="game-type-tab">전체</a>
-            <a th:href="@{/admin/history/ranking(period=${period}, gameType='guess')}"
-               th:classappend="${gameType == 'guess'} ? 'active'" class="game-type-tab">내가맞추기</a>
-            <a th:href="@{/admin/history/ranking(period=${period}, gameType='host')}"
-               th:classappend="${gameType == 'host'} ? 'active'" class="game-type-tab">게임진행</a>
-        </div>
-
-        <!-- 기간 필터 -->
-        <div class="period-tabs">
-            <a th:href="@{/admin/history/ranking(period='daily', gameType=${gameType})}"
-               th:classappend="${period == 'daily'} ? 'active'" class="period-tab">오늘</a>
-            <a th:href="@{/admin/history/ranking(period='weekly', gameType=${gameType})}"
-               th:classappend="${period == 'weekly'} ? 'active'" class="period-tab">이번 주</a>
-            <a th:href="@{/admin/history/ranking(period='all', gameType=${gameType})}"
-               th:classappend="${period == 'all'} ? 'active'" class="period-tab">전체</a>
-        </div>
-
-        <div class="ranking-container">
-            <div class="top-three" th:if="${#lists.size(rankings) >= 3}">
-                <div class="rank-card second">
-                    <div class="rank-medal">🥈</div>
-                    <div class="rank-number">2</div>
-                    <div class="rank-nickname" th:text="${rankings[1].nickname}"></div>
-                    <div class="rank-score" th:text="${rankings[1].totalScore} + '점'"></div>
-                    <div class="rank-info" th:text="'정답률 ' + ${#numbers.formatDecimal(rankings[1].accuracyRate, 0, 1)} + '%'"></div>
+        <!-- Tier Distribution Dashboard -->
+        <div class="tier-dashboard">
+            <h2>🎖️ 티어 분포 현황 <span style="font-size: 0.9rem; color: rgba(255,255,255,0.5);">총 [[${totalMembers}]]명</span></h2>
+            <div class="tier-cards">
+                <div class="tier-card MASTER">
+                    <div class="tier-icon">👑</div>
+                    <div class="tier-name">MASTER</div>
+                    <div class="tier-count" th:text="${tierDistribution['MASTER']}">0</div>
+                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['MASTER'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
                 </div>
-                <div class="rank-card first">
-                    <div class="rank-medal">🥇</div>
-                    <div class="rank-number">1</div>
-                    <div class="rank-nickname" th:text="${rankings[0].nickname}"></div>
-                    <div class="rank-score" th:text="${rankings[0].totalScore} + '점'"></div>
-                    <div class="rank-info" th:text="'정답률 ' + ${#numbers.formatDecimal(rankings[0].accuracyRate, 0, 1)} + '%'"></div>
+                <div class="tier-card DIAMOND">
+                    <div class="tier-icon">💎</div>
+                    <div class="tier-name">DIAMOND</div>
+                    <div class="tier-count" th:text="${tierDistribution['DIAMOND']}">0</div>
+                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['DIAMOND'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
                 </div>
-                <div class="rank-card third">
-                    <div class="rank-medal">🥉</div>
-                    <div class="rank-number">3</div>
-                    <div class="rank-nickname" th:text="${rankings[2].nickname}"></div>
-                    <div class="rank-score" th:text="${rankings[2].totalScore} + '점'"></div>
-                    <div class="rank-info" th:text="'정답률 ' + ${#numbers.formatDecimal(rankings[2].accuracyRate, 0, 1)} + '%'"></div>
+                <div class="tier-card PLATINUM">
+                    <div class="tier-icon">🔮</div>
+                    <div class="tier-name">PLATINUM</div>
+                    <div class="tier-count" th:text="${tierDistribution['PLATINUM']}">0</div>
+                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['PLATINUM'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
+                </div>
+                <div class="tier-card GOLD">
+                    <div class="tier-icon">🏅</div>
+                    <div class="tier-name">GOLD</div>
+                    <div class="tier-count" th:text="${tierDistribution['GOLD']}">0</div>
+                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['GOLD'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
+                </div>
+                <div class="tier-card SILVER">
+                    <div class="tier-icon">🥈</div>
+                    <div class="tier-name">SILVER</div>
+                    <div class="tier-count" th:text="${tierDistribution['SILVER']}">0</div>
+                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['SILVER'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
+                </div>
+                <div class="tier-card BRONZE">
+                    <div class="tier-icon">🥉</div>
+                    <div class="tier-name">BRONZE</div>
+                    <div class="tier-count" th:text="${tierDistribution['BRONZE']}">0</div>
+                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['BRONZE'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
                 </div>
             </div>
-
-            <div class="table-container">
-                <table class="data-table ranking-table">
-                    <thead>
-                    <tr>
-                        <th>순위</th>
-                        <th>별명</th>
-                        <th>점수</th>
-                        <th>정답</th>
-                        <th>정답률</th>
-                        <th>게임유형</th>
-                        <th>플레이 시간</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="rank, idx : ${rankings}" th:classappend="${idx.index < 3} ? 'top-rank'">
-                        <td>
-                            <span class="rank-num" th:text="${idx.index + 1}"></span>
-                        </td>
-                        <td th:text="${rank.nickname}"></td>
-                        <td class="score-cell" th:text="${rank.totalScore}"></td>
-                        <td th:text="${rank.correctCount} + '/' + ${rank.completedRounds}"></td>
-                        <td th:text="${#numbers.formatDecimal(rank.accuracyRate, 0, 1)} + '%'"></td>
-                        <td>
-                                    <span class="type-badge small" th:classappend="${rank.gameType.name()}"
-                                          th:text="${rank.gameType.name() == 'SOLO_HOST'} ? '진행용' : '맞추기'"></span>
-                        </td>
-                        <td th:text="${#temporals.format(rank.startedAt, 'MM-dd HH:mm')}"></td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(rankings)}">
-                        <td colspan="7" class="empty-row">랭킹 데이터가 없습니다.</td>
-                    </tr>
-                    </tbody>
-                </table>
+            <div class="tier-chart">
+                <h3>📊 티어별 회원 분포</h3>
+                <div class="chart-bars">
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">MASTER</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar MASTER" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['MASTER'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['MASTER']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">DIAMOND</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar DIAMOND" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['DIAMOND'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['DIAMOND']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">PLATINUM</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar PLATINUM" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['PLATINUM'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['PLATINUM']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">GOLD</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar GOLD" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['GOLD'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['GOLD']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">SILVER</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar SILVER" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['SILVER'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['SILVER']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">BRONZE</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar BRONZE" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['BRONZE'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['BRONZE']}"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Rank Type Tabs -->
+        <div class="rank-type-tabs">
+            <a th:href="@{/admin/history/ranking(rankType='total')}" th:classappend="${rankType == 'total' or rankType == null} ? 'active'" class="rank-type-tab">🏆 전체 랭킹</a>
+            <a th:href="@{/admin/history/ranking(rankType='guess')}" th:classappend="${rankType == 'guess'} ? 'active'" class="rank-type-tab">🎵 내가맞추기</a>
+            <a th:href="@{/admin/history/ranking(rankType='multi')}" th:classappend="${rankType == 'multi'} ? 'active'" class="rank-type-tab">👥 멀티게임</a>
+            <a th:href="@{/admin/history/ranking(rankType='weekly')}" th:classappend="${rankType == 'weekly'} ? 'active'" class="rank-type-tab">📅 주간</a>
+            <a th:href="@{/admin/history/ranking(rankType='best')}" th:classappend="${rankType == 'best'} ? 'active'" class="rank-type-tab">⭐ 최고기록</a>
+        </div>
+
+        <!-- TOP 10 Rankers -->
+        <div class="top-rankers" th:if="${!#lists.isEmpty(memberRankings)}">
+            <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 10}">
+                <div class="ranker-card" th:classappend="${idx.index == 0} ? 'top-1' : (${idx.index == 1} ? 'top-2' : (${idx.index == 2} ? 'top-3' : ''))">
+                    <div class="ranker-rank">
+                        <span th:if="${idx.index == 0}">🥇 1위</span>
+                        <span th:if="${idx.index == 1}">🥈 2위</span>
+                        <span th:if="${idx.index == 2}">🥉 3위</span>
+                        <span th:if="${idx.index > 2}" th:text="${idx.index + 1} + '위'"></span>
+                    </div>
+                    <div class="ranker-tier-badge" th:classappend="${member.tier?.name()}" th:text="${member.tier?.name()}">BRONZE</div>
+                    <div class="ranker-nickname" th:text="${member.nickname}">닉네임</div>
+                    <div class="ranker-score" th:text="${member.totalScore} + '점'">0점</div>
+                    <div class="ranker-stats">
+                        게임 <span th:text="${member.totalGames}">0</span>회 |
+                        정답률 <span th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)}">0</span>%
+                    </div>
+                </div>
+            </th:block>
+        </div>
+
+        <!-- Ranking Table -->
+        <div class="ranking-table-container">
+            <table class="member-ranking-table">
+                <thead>
+                <tr>
+                    <th style="width: 60px;">순위</th>
+                    <th style="width: 80px;">티어</th>
+                    <th>닉네임</th>
+                    <th>점수</th>
+                    <th>게임수</th>
+                    <th>정답률</th>
+                    <th>가입일</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="member, idx : ${memberRankings}">
+                    <td>
+                        <span th:if="${idx.index == 0}" class="rank-medal">🥇</span>
+                        <span th:if="${idx.index == 1}" class="rank-medal">🥈</span>
+                        <span th:if="${idx.index == 2}" class="rank-medal">🥉</span>
+                        <span th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
+                    </td>
+                    <td>
+                        <span class="table-tier-badge" th:classappend="${member.tier?.name()}" th:text="${member.tier?.name()}">BRONZE</span>
+                    </td>
+                    <td th:text="${member.nickname}">닉네임</td>
+                    <td th:text="${#numbers.formatInteger(member.totalScore, 0, 'COMMA')}">0</td>
+                    <td th:text="${member.totalGames}">0</td>
+                    <td th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)} + '%'">0%</td>
+                    <td th:text="${member.createdAt != null} ? ${#temporals.format(member.createdAt, 'yyyy-MM-dd')} : '-'">-</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(memberRankings)}">
+                    <td colspan="7" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+                        랭킹 데이터가 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </main>
 </div>
-
 <script th:src="@{/js/common/common.js}"></script>
 </body>
 </html>

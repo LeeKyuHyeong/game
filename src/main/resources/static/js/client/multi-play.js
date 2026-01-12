@@ -377,6 +377,9 @@ function updateProgress() {
 }
 
 function formatTime(seconds) {
+    if (isNaN(seconds) || seconds === null || seconds === undefined) {
+        return '0:00';
+    }
     var mins = Math.floor(seconds / 60);
     var secs = Math.floor(seconds % 60);
     return mins + ':' + secs.toString().padStart(2, '0');

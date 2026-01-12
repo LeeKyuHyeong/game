@@ -3,7 +3,10 @@ package com.kh.game.controller.admin;
 import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.GameRound;
 import com.kh.game.entity.GameSession;
+import com.kh.game.entity.Member;
 import com.kh.game.service.GameSessionService;
+import com.kh.game.service.MemberService;
+import com.kh.game.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +28,8 @@ import java.util.Map;
 public class AdminGameHistoryController {
 
     private final GameSessionService gameSessionService;
+    private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     @GetMapping
     public String list(@RequestParam(defaultValue = "0") int page,
@@ -109,48 +115,52 @@ public class AdminGameHistoryController {
 
     @GetMapping("/ranking")
     public String ranking(
-            @RequestParam(defaultValue = "all") String period,
-            @RequestParam(defaultValue = "all") String gameType,
+            @RequestParam(defaultValue = "total") String rankType,
             Model model) {
 
-        List<GameSession> rankings;
+        // 티어 분포 조회
+        Map<String, Long> tierDistribution = new LinkedHashMap<>();
+        tierDistribution.put("MASTER", 0L);
+        tierDistribution.put("DIAMOND", 0L);
+        tierDistribution.put("PLATINUM", 0L);
+        tierDistribution.put("GOLD", 0L);
+        tierDistribution.put("SILVER", 0L);
+        tierDistribution.put("BRONZE", 0L);
 
-        // 게임 타입 필터
-        GameSession.GameType type = null;
-        if ("guess".equals(gameType)) {
-            type = GameSession.GameType.SOLO_GUESS;
-        } else if ("host".equals(gameType)) {
-            type = GameSession.GameType.SOLO_HOST;
-        }
-
-        // 기간 + 게임 타입에 따른 조회
-        if (type != null) {
-            switch (period) {
-                case "daily":
-                    rankings = gameSessionService.getDailyTopScoresByGameType(type, 50);
-                    break;
-                case "weekly":
-                    rankings = gameSessionService.getWeeklyTopScoresByGameType(type, 50);
-                    break;
-                default:
-                    rankings = gameSessionService.getTopScoresByGameType(type, 50);
-            }
-        } else {
-            switch (period) {
-                case "daily":
-                    rankings = gameSessionService.getDailyTopScores(50);
-                    break;
-                case "weekly":
-                    rankings = gameSessionService.getWeeklyTopScores(50);
-                    break;
-                default:
-                    rankings = gameSessionService.getTopScores(50);
+        List<Object[]> tierCounts = memberRepository.countByTier();
+        long totalMembers = 0;
+        for (Object[] row : tierCounts) {
+            if (row[0] != null) {
+                String tierName = ((Member.MemberTier) row[0]).name();
+                Long count = (Long) row[1];
+                tierDistribution.put(tierName, count);
+                totalMembers += count;
             }
         }
 
-        model.addAttribute("rankings", rankings);
-        model.addAttribute("period", period);
-        model.addAttribute("gameType", gameType);
+        // 랭킹 타입에 따른 회원 조회
+        List<Member> memberRankings;
+        switch (rankType) {
+            case "guess":
+                memberRankings = memberService.getGuessRankingByScore(50);
+                break;
+            case "multi":
+                memberRankings = memberService.getMultiRankingByScore(50);
+                break;
+            case "weekly":
+                memberRankings = memberService.getWeeklyGuessRankingByScore(50);
+                break;
+            case "best":
+                memberRankings = memberService.getGuessBestScoreRanking(50);
+                break;
+            default:
+                memberRankings = memberService.getTopRankingByScore(50);
+        }
+
+        model.addAttribute("tierDistribution", tierDistribution);
+        model.addAttribute("totalMembers", totalMembers);
+        model.addAttribute("memberRankings", memberRankings);
+        model.addAttribute("rankType", rankType);
         model.addAttribute("menu", "ranking");
 
         return "admin/history/ranking";

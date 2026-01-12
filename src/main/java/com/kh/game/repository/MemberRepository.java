@@ -100,4 +100,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // 티어별 회원 수
     @Query("SELECT m.tier, COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' GROUP BY m.tier ORDER BY m.tier")
     List<Object[]> countByTier();
+
+    // ========== 관리자용 조회 ==========
+
+    // 권한별 조회
+    Page<Member> findByRole(Member.MemberRole role, Pageable pageable);
+
+    // 상태별 회원 수
+    long countByStatus(Member.MemberStatus status);
+
+    // 권한별 회원 수
+    long countByRole(Member.MemberRole role);
 }

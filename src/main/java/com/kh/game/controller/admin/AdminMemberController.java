@@ -1,0 +1,171 @@
+package com.kh.game.controller.admin;
+
+import com.kh.game.entity.Member;
+import com.kh.game.service.MemberService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Controller
+@RequestMapping("/admin/member")
+@RequiredArgsConstructor
+public class AdminMemberController {
+
+    private final MemberService memberService;
+
+    @GetMapping
+    public String list(@RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "20") int size,
+                       @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) String status,
+                       @RequestParam(required = false) String role,
+                       Model model) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Member> memberPage;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            memberPage = memberService.search(keyword, pageable);
+            model.addAttribute("keyword", keyword);
+        } else if (status != null && !status.isEmpty()) {
+            memberPage = memberService.findByStatus(Member.MemberStatus.valueOf(status), pageable);
+            model.addAttribute("status", status);
+        } else if (role != null && !role.isEmpty()) {
+            memberPage = memberService.findByRole(Member.MemberRole.valueOf(role), pageable);
+            model.addAttribute("role", role);
+        } else {
+            memberPage = memberService.findAll(pageable);
+        }
+
+        // 통계
+        long totalCount = memberService.count();
+        long activeCount = memberService.countByStatus(Member.MemberStatus.ACTIVE);
+        long bannedCount = memberService.countByStatus(Member.MemberStatus.BANNED);
+        long adminCount = memberService.countByRole(Member.MemberRole.ADMIN);
+
+        model.addAttribute("members", memberPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", memberPage.getTotalPages());
+        model.addAttribute("totalItems", memberPage.getTotalElements());
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("activeCount", activeCount);
+        model.addAttribute("bannedCount", bannedCount);
+        model.addAttribute("adminCount", adminCount);
+        model.addAttribute("menu", "member");
+
+        return "admin/member/list";
+    }
+
+    @GetMapping("/detail/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> detail(@PathVariable Long id) {
+        return memberService.findById(id)
+                .map(member -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("id", member.getId());
+                    result.put("email", member.getEmail());
+                    result.put("nickname", member.getNickname());
+                    result.put("username", member.getUsername());
+                    result.put("role", member.getRole().name());
+                    result.put("status", member.getStatus().name());
+                    result.put("tier", member.getTier().name());
+                    result.put("tierDisplayName", member.getTierDisplayName());
+                    result.put("totalGames", member.getTotalGames());
+                    result.put("totalScore", member.getTotalScore());
+                    result.put("accuracyRate", String.format("%.1f", member.getAccuracyRate()));
+                    result.put("guessGames", member.getGuessGames());
+                    result.put("guessScore", member.getGuessScore());
+                    result.put("multiGames", member.getMultiGames());
+                    result.put("multiScore", member.getMultiScore());
+                    result.put("lastLoginAt", member.getLastLoginAt());
+                    result.put("createdAt", member.getCreatedAt());
+                    return ResponseEntity.ok(result);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/update-status/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateStatus(@PathVariable Long id,
+                                                            @RequestParam String status) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            memberService.updateStatus(id, Member.MemberStatus.valueOf(status));
+            result.put("success", true);
+            result.put("message", "상태가 변경되었습니다.");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "상태 변경 중 오류가 발생했습니다.");
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/update-role/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateRole(@PathVariable Long id,
+                                                          @RequestParam String role) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            memberService.updateRole(id, Member.MemberRole.valueOf(role));
+            result.put("success", true);
+            result.put("message", "권한이 변경되었습니다.");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "권한 변경 중 오류가 발생했습니다.");
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/reset-weekly/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> resetWeeklyStats(@PathVariable Long id) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            memberService.resetWeeklyStats(id);
+            result.put("success", true);
+            result.put("message", "주간 통계가 초기화되었습니다.");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "초기화 중 오류가 발생했습니다.");
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/reset-password/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> resetPassword(@PathVariable Long id) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            String tempPassword = memberService.resetPasswordToDefault(id);
+            result.put("success", true);
+            result.put("message", "비밀번호가 초기화되었습니다. 임시 비밀번호: " + tempPassword);
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "비밀번호 초기화 중 오류가 발생했습니다.");
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/kick-session/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> kickSession(@PathVariable Long id) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            memberService.invalidateSessionToken(id);
+            result.put("success", true);
+            result.put("message", "세션이 강제 종료되었습니다.");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "세션 종료 중 오류가 발생했습니다.");
+        }
+        return ResponseEntity.ok(result);
+    }
+}

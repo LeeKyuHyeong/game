@@ -104,6 +104,26 @@ public class MemberService {
         return memberRepository.findByEmailContainingOrNicknameContaining(keyword, keyword, pageable);
     }
 
+    public Page<Member> findByStatus(Member.MemberStatus status, Pageable pageable) {
+        return memberRepository.findByStatus(status, pageable);
+    }
+
+    public Page<Member> findByRole(Member.MemberRole role, Pageable pageable) {
+        return memberRepository.findByRole(role, pageable);
+    }
+
+    public long count() {
+        return memberRepository.count();
+    }
+
+    public long countByStatus(Member.MemberStatus status) {
+        return memberRepository.countByStatus(status);
+    }
+
+    public long countByRole(Member.MemberRole role) {
+        return memberRepository.countByRole(role);
+    }
+
     @Transactional
     public void updateNickname(Long memberId, String nickname) {
         Member member = memberRepository.findById(memberId).orElseThrow();
@@ -126,6 +146,26 @@ public class MemberService {
     public void updateStatus(Long memberId, Member.MemberStatus status) {
         Member member = memberRepository.findById(memberId).orElseThrow();
         member.setStatus(status);
+    }
+
+    @Transactional
+    public void updateRole(Long memberId, Member.MemberRole role) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.setRole(role);
+    }
+
+    @Transactional
+    public void resetWeeklyStats(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.resetWeeklyStats();
+    }
+
+    @Transactional
+    public String resetPasswordToDefault(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        String tempPassword = "temp" + System.currentTimeMillis() % 10000;
+        member.setPassword(passwordEncoder.encode(tempPassword));
+        return tempPassword;
     }
 
     // ========== 로그인 ==========

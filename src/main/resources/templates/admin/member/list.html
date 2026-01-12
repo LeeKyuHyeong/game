@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('회원 관리')}"></head>
+<body class="admin-page">
+<link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+    <main class="main-content">
+        <header class="content-header">
+            <h1>회원 관리</h1>
+        </header>
+
+        <!-- 통계 카드 -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${totalCount}">0</div>
+                <div class="stat-label">전체 회원</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${activeCount}">0</div>
+                <div class="stat-label">활성 회원</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${bannedCount}">0</div>
+                <div class="stat-label">정지 회원</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${adminCount}">0</div>
+                <div class="stat-label">관리자</div>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <form action="/admin/member" method="get" class="search-form">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="이메일 또는 닉네임 검색">
+                <select name="status" class="form-select">
+                    <option value="">전체 상태</option>
+                    <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">활성</option>
+                    <option value="INACTIVE" th:selected="${status == 'INACTIVE'}">비활성</option>
+                    <option value="BANNED" th:selected="${status == 'BANNED'}">정지</option>
+                </select>
+                <select name="role" class="form-select">
+                    <option value="">전체 권한</option>
+                    <option value="USER" th:selected="${role == 'USER'}">일반 사용자</option>
+                    <option value="ADMIN" th:selected="${role == 'ADMIN'}">관리자</option>
+                </select>
+                <button type="submit" class="btn btn-search">검색</button>
+                <a th:if="${keyword != null or status != null or role != null}" href="/admin/member" class="btn btn-reset">초기화</a>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>이메일</th>
+                    <th>닉네임</th>
+                    <th>티어</th>
+                    <th>총 점수</th>
+                    <th>게임 수</th>
+                    <th>권한</th>
+                    <th>상태</th>
+                    <th>가입일</th>
+                    <th>관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="member : ${members}" onclick="toggleRowExpand(this)">
+                    <td data-label="ID" th:text="${member.id}"></td>
+                    <td data-label="이메일" th:text="${member.email}"></td>
+                    <td data-label="닉네임" th:text="${member.nickname}"></td>
+                    <td data-label="티어">
+                        <span class="tier-badge" th:style="'background-color:' + ${member.tierColor}"
+                              th:text="${member.tierDisplayName}"></span>
+                    </td>
+                    <td data-label="총 점수" th:text="${#numbers.formatInteger(member.totalScore, 0, 'COMMA')}"></td>
+                    <td data-label="게임 수" th:text="${member.totalGames}"></td>
+                    <td data-label="권한">
+                        <span class="role-badge" th:classappend="${member.role.name() == 'ADMIN'} ? 'admin' : 'user'"
+                              th:text="${member.role.name() == 'ADMIN'} ? '관리자' : '사용자'"></span>
+                    </td>
+                    <td data-label="상태">
+                        <span class="status" th:classappend="${member.status.name()}"
+                              th:text="${member.status.name() == 'ACTIVE'} ? '활성' : (${member.status.name() == 'BANNED'} ? '정지' : '비활성')"></span>
+                    </td>
+                    <td data-label="가입일" th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd')}"></td>
+                    <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                        <button class="btn btn-sm btn-info" th:data-id="${member.id}" onclick="viewDetail(this.dataset.id)">상세</button>
+                        <button class="btn btn-sm btn-edit" th:data-id="${member.id}" onclick="openStatusModal(this.dataset.id)">상태</button>
+                        <button class="btn btn-sm btn-toggle" th:data-id="${member.id}" onclick="openRoleModal(this.dataset.id)">권한</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(members)}">
+                    <td colspan="10" class="empty-row">등록된 회원이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" th:if="${totalPages > 0}">
+            <a th:href="@{/admin/member(page=0, keyword=${keyword}, status=${status}, role=${role})}"
+               th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
+            <a th:href="@{/admin/member(page=${currentPage - 1}, keyword=${keyword}, status=${status}, role=${role})}"
+               th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
+
+            <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                   th:href="@{/admin/member(page=${i}, keyword=${keyword}, status=${status}, role=${role})}"
+                   th:text="${i + 1}"
+                   th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
+            </th:block>
+
+            <a th:href="@{/admin/member(page=${currentPage + 1}, keyword=${keyword}, status=${status}, role=${role})}"
+               th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
+            <a th:href="@{/admin/member(page=${totalPages - 1}, keyword=${keyword}, status=${status}, role=${role})}"
+               th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
+        </div>
+    </main>
+</div>
+
+<!-- 회원 상세 모달 -->
+<div id="detailModal" class="modal">
+    <div class="modal-content modal-md">
+        <div class="modal-header">
+            <h2>회원 상세 정보</h2>
+            <button class="close-btn" onclick="closeModal('detailModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="detailContent">
+            <!-- 동적으로 채워짐 -->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-warning" id="resetPasswordBtn" onclick="resetPassword()">비밀번호 초기화</button>
+            <button type="button" class="btn btn-danger" id="kickSessionBtn" onclick="kickSession()">세션 강제 종료</button>
+            <button type="button" class="btn btn-cancel" onclick="closeModal('detailModal')">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 상태 변경 모달 -->
+<div id="statusModal" class="modal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h2>회원 상태 변경</h2>
+            <button class="close-btn" onclick="closeModal('statusModal')">&times;</button>
+        </div>
+        <form id="statusForm" class="modal-form">
+            <input type="hidden" id="statusMemberId" name="id">
+            <div class="form-group">
+                <label>상태 선택</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="status" value="ACTIVE"> 활성
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="status" value="INACTIVE"> 비활성
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="status" value="BANNED"> 정지
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" onclick="closeModal('statusModal')">취소</button>
+                <button type="submit" class="btn btn-primary">변경</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 권한 변경 모달 -->
+<div id="roleModal" class="modal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h2>회원 권한 변경</h2>
+            <button class="close-btn" onclick="closeModal('roleModal')">&times;</button>
+        </div>
+        <form id="roleForm" class="modal-form">
+            <input type="hidden" id="roleMemberId" name="id">
+            <div class="form-group">
+                <label>권한 선택</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="role" value="USER"> 일반 사용자
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="role" value="ADMIN"> 관리자
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" onclick="closeModal('roleModal')">취소</button>
+                <button type="submit" class="btn btn-primary">변경</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: var(--card-bg, #1a1a2e);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+    border: 1px solid var(--border-color, #333);
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: var(--primary-color, #6c5ce7);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-muted, #888);
+    margin-top: 0.25rem;
+}
+
+.tier-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #000;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.role-badge.admin {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.role-badge.user {
+    background: #3498db;
+    color: #fff;
+}
+
+.status.ACTIVE {
+    background: #27ae60;
+    color: #fff;
+}
+
+.status.INACTIVE {
+    background: #95a5a6;
+    color: #fff;
+}
+
+.status.BANNED {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.btn-info {
+    background: #3498db;
+    color: #fff;
+}
+
+.btn-info:hover {
+    background: #2980b9;
+}
+
+.form-select {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color, #333);
+    border-radius: 4px;
+    background: var(--input-bg, #16213e);
+    color: var(--text-color, #fff);
+    min-width: 120px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.detail-item {
+    padding: 0.75rem;
+    background: var(--card-bg, #1a1a2e);
+    border-radius: 4px;
+}
+
+.detail-label {
+    font-size: 0.75rem;
+    color: var(--text-muted, #888);
+    margin-bottom: 0.25rem;
+}
+
+.detail-value {
+    font-weight: bold;
+}
+
+.detail-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color, #333);
+}
+
+.detail-section h3 {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: var(--primary-color, #6c5ce7);
+}
+
+.modal-md {
+    max-width: 600px;
+}
+
+@media (max-width: 768px) {
+    .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-form {
+        flex-wrap: wrap;
+    }
+
+    .form-select {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+}
+</style>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/admin/admin-member.js}"></script>
+<script>
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+</script>
+</body>
+</html>
