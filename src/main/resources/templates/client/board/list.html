@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('커뮤니티 - Song Quiz')}"></head>
+<body class="client-page board-page">
+<div class="client-container">
+    <header class="client-header compact">
+        <a href="/" class="back-home">← 홈으로</a>
+        <h1>💬 커뮤니티</h1>
+        <p>곡 추천, 의견, 자유로운 이야기</p>
+    </header>
+
+    <main class="client-main">
+        <div class="board-content">
+            <!-- Category Tabs -->
+            <div class="category-tabs">
+                <a th:href="@{/board}" th:classappend="${category == null} ? 'active'" class="category-tab">
+                    전체
+                    <span class="category-count" th:text="'(' + ${totalItems} + ')'"></span>
+                </a>
+                <th:block th:each="cat : ${categories}">
+                    <a th:href="@{/board(category=${cat.name()})}"
+                       th:classappend="${category == cat.name()} ? 'active'"
+                       class="category-tab">
+                        <span th:text="${cat.description}"></span>
+                        <span class="category-count" th:text="'(' + ${categoryStats[cat]} + ')'"></span>
+                    </a>
+                </th:block>
+            </div>
+
+            <!-- Search -->
+            <form class="board-search" th:action="@{/board}" method="get">
+                <input type="hidden" name="category" th:value="${category}" th:if="${category != null}">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="검색어를 입력하세요">
+                <button type="submit">검색</button>
+            </form>
+
+            <!-- Board List -->
+            <div class="board-table" th:if="${!#lists.isEmpty(boards)}">
+                <th:block th:each="board : ${boards}">
+                    <a th:href="@{/board/{id}(id=${board.id})}" class="board-row">
+                        <span class="board-category-badge" th:classappend="${board.category.name()}"
+                              th:text="${board.category.description}"></span>
+                        <div class="board-info">
+                            <div class="board-title" th:text="${board.title}"></div>
+                            <div class="board-meta">
+                                <span th:text="${board.member.nickname}"></span>
+                                <span th:text="${#temporals.format(board.createdAt, 'MM.dd HH:mm')}"></span>
+                            </div>
+                        </div>
+                        <div class="board-stats">
+                            <span class="board-stat">👁 <span th:text="${board.viewCount}">0</span></span>
+                            <span class="board-stat">❤️ <span th:text="${board.likeCount}">0</span></span>
+                            <span class="board-stat">💬 <span th:text="${board.commentCount}">0</span></span>
+                        </div>
+                    </a>
+                </th:block>
+            </div>
+
+            <!-- Empty State -->
+            <div class="board-empty" th:if="${#lists.isEmpty(boards)}">
+                <div class="board-empty-icon">📝</div>
+                <p th:if="${keyword != null}">검색 결과가 없습니다.</p>
+                <p th:if="${keyword == null}">아직 게시글이 없습니다.<br>첫 번째 글을 작성해보세요!</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" th:if="${totalPages > 1}">
+                <a th:href="@{/board(page=${currentPage - 1}, category=${category}, keyword=${keyword})}"
+                   th:classappend="${currentPage == 0} ? 'disabled'" class="page-btn">이전</a>
+                <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                       th:href="@{/board(page=${i}, category=${category}, keyword=${keyword})}"
+                       th:classappend="${i == currentPage} ? 'active'"
+                       th:text="${i + 1}" class="page-btn"></a>
+                </th:block>
+                <a th:href="@{/board(page=${currentPage + 1}, category=${category}, keyword=${keyword})}"
+                   th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-btn">다음</a>
+            </div>
+
+            <!-- Write Button -->
+            <div class="board-actions">
+                <a th:href="@{/board/write}" class="btn-write" th:if="${member != null}">✏️ 글쓰기</a>
+                <a th:href="@{/login(redirect='/board/write')}" class="btn-write" th:if="${member == null}">✏️ 로그인 후 글쓰기</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="client-footer">
+        <a href="/admin/login" class="admin-link">관리자</a>
+    </footer>
+</div>
+<script th:src="@{/js/common/common.js}"></script>
+</body>
+</html>

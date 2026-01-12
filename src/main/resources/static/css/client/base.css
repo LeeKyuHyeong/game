@@ -115,3 +115,32 @@
         font-size: 0.75rem;
     }
 }
+
+/* Footer Links */
+.footer-links {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.footer-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.footer-link:hover {
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .footer-links {
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .footer-link {
+        font-size: 0.85rem;
+    }
+}

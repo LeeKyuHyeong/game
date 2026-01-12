@@ -34,3 +34,6 @@
 
 /* Result pages - scores, rounds, podium */
 @import url('result.css');
+
+/* Community board */
+@import url('board.css');

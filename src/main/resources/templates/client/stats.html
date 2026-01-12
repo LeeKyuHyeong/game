@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('통계 - Song Quiz')}"></head>
+<body class="client-page stats-page">
+<div class="client-container">
+    <header class="client-header compact">
+        <a href="/" class="back-home">← 홈으로</a>
+        <h1>📊 통계</h1>
+        <p>가장 어려운 곡과 자주 틀리는 답변</p>
+    </header>
+
+    <main class="client-main">
+        <div class="stats-content">
+            <!-- 어려운 곡 TOP 10 -->
+            <div class="stats-section">
+                <h2 class="section-title">💀 가장 어려운 곡 TOP 10</h2>
+                <p class="section-desc">정답률이 가장 낮은 곡들입니다</p>
+
+                <div class="hard-songs-list" th:if="${!#lists.isEmpty(hardestSongs)}">
+                    <div class="hard-song-item" th:each="song, idx : ${hardestSongs}">
+                        <div class="rank-badge" th:classappend="${idx.index < 3} ? 'top-' + (idx.index + 1) : ''">
+                            <span th:text="${idx.index + 1}">1</span>
+                        </div>
+                        <div class="song-info">
+                            <span class="song-title" th:text="${song.title}">제목</span>
+                            <span class="song-artist" th:text="${song.artist}">아티스트</span>
+                        </div>
+                        <div class="song-stats">
+                            <div class="rate-badge" th:classappend="${song.correctRate < 30} ? 'hard' : (${song.correctRate < 50} ? 'medium' : 'easy')">
+                                <span th:text="${song.correctRate} + '%'">0%</span>
+                            </div>
+                            <span class="play-count" th:text="${song.totalPlays} + '회'">0회</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-message" th:if="${#lists.isEmpty(hardestSongs)}">
+                    <span class="empty-icon">📈</span>
+                    <p>아직 충분한 플레이 데이터가 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- 자주 틀리는 답변 TOP 10 -->
+            <div class="stats-section">
+                <h2 class="section-title">❌ 자주 틀리는 답변 TOP 10</h2>
+                <p class="section-desc">다른 사람들이 가장 많이 틀린 답변들</p>
+
+                <div class="wrong-answers-list" th:if="${!#lists.isEmpty(commonWrongAnswers)}">
+                    <div class="wrong-answer-item" th:each="item, idx : ${commonWrongAnswers}">
+                        <div class="rank-num" th:text="${idx.index + 1}">1</div>
+                        <span class="wrong-text" th:text="${item.answer}">오답</span>
+                        <span class="wrong-count" th:text="${item.count} + '회'">0회</span>
+                    </div>
+                </div>
+
+                <div class="empty-message" th:if="${#lists.isEmpty(commonWrongAnswers)}">
+                    <span class="empty-icon">📝</span>
+                    <p>아직 오답 데이터가 없습니다.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="client-footer">
+        <a href="/admin/login" class="admin-link">관리자</a>
+    </footer>
+</div>
+<script th:src="@{/js/common/common.js}"></script>
+<style>
+    .stats-content {
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+    }
+    .stats-section {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(10px);
+    }
+    .section-title {
+        color: white;
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+    }
+    .section-desc {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+    .hard-songs-list, .wrong-answers-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .hard-song-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 16px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        transition: background 0.2s;
+    }
+    .hard-song-item:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+    .rank-badge {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: white;
+        flex-shrink: 0;
+    }
+    .rank-badge.top-1 { background: linear-gradient(135deg, #ffd700, #ffb347); color: #1a1a2e; }
+    .rank-badge.top-2 { background: linear-gradient(135deg, #c0c0c0, #a8a8a8); color: #1a1a2e; }
+    .rank-badge.top-3 { background: linear-gradient(135deg, #cd7f32, #b87333); }
+    .song-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .song-title {
+        color: white;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .song-artist {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+    }
+    .song-stats {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+    }
+    .rate-badge {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .rate-badge.hard { background: rgba(255, 71, 87, 0.3); color: #ff4757; }
+    .rate-badge.medium { background: rgba(255, 193, 7, 0.3); color: #ffc107; }
+    .rate-badge.easy { background: rgba(76, 175, 80, 0.3); color: #4caf50; }
+    .play-count {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+    }
+    .wrong-answer-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+    }
+    .rank-num {
+        width: 24px;
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 600;
+        text-align: center;
+    }
+    .wrong-text {
+        flex: 1;
+        color: #ff6b6b;
+        font-weight: 500;
+    }
+    .wrong-count {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+    }
+    .empty-message {
+        text-align: center;
+        padding: 40px 20px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    .empty-icon {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 12px;
+    }
+    @media (max-width: 768px) {
+        .stats-section {
+            padding: 16px;
+        }
+        .hard-song-item {
+            padding: 12px;
+        }
+        .section-title {
+            font-size: 1.1rem;
+        }
+    }
+</style>
+</body>
+</html>

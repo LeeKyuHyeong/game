@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('오답 통계')}"></head>
+<link rel="stylesheet" th:href="@{/css/admin/stats.css}">
+<body class="admin-page">
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+    <main class="main-content">
+        <header class="content-header">
+            <h1>❌ 오답 통계</h1>
+            <p>사용자들이 자주 틀리는 답변과 어려운 곡을 분석합니다.</p>
+        </header>
+
+        <!-- 요약 카드 -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-info">
+                    <span class="stat-value" th:text="${summary.totalWrongCount}">0</span>
+                    <span class="stat-label">총 오답 수</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔤</div>
+                <div class="stat-info">
+                    <span class="stat-value" th:text="${summary.uniqueWrongAnswers}">0</span>
+                    <span class="stat-label">고유 오답 종류</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 탭 네비게이션 -->
+        <div class="stats-tabs">
+            <button class="stats-tab active" data-tab="common">자주 틀리는 답변</button>
+            <button class="stats-tab" data-tab="hardest">어려운 곡 TOP</button>
+            <button class="stats-tab" data-tab="recent">최근 오답</button>
+        </div>
+
+        <!-- 자주 틀리는 답변 -->
+        <div class="stats-panel" id="commonPanel">
+            <div class="panel-header">
+                <h3>🔥 자주 틀리는 답변 TOP 20</h3>
+            </div>
+            <div class="wrong-answer-list">
+                <div class="wrong-answer-item" th:each="item, idx : ${commonWrongAnswers}">
+                    <span class="rank" th:text="${idx.index + 1}">1</span>
+                    <span class="answer" th:text="${item.answer}">답변</span>
+                    <span class="count" th:text="${item.count} + '회'">0회</span>
+                </div>
+                <div class="empty-state" th:if="${#lists.isEmpty(commonWrongAnswers)}">
+                    <p>아직 오답 데이터가 없습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 어려운 곡 TOP -->
+        <div class="stats-panel" id="hardestPanel" style="display:none;">
+            <div class="panel-header">
+                <h3>💀 가장 어려운 곡 TOP 20</h3>
+                <span class="panel-desc">최소 5회 이상 플레이된 곡 기준</span>
+            </div>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">순위</th>
+                        <th>곡 정보</th>
+                        <th style="width:100px;">정답률</th>
+                        <th style="width:100px;">플레이</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="song, idx : ${hardestSongs}">
+                        <td>
+                            <span class="rank-badge" th:classappend="${idx.index < 3} ? 'top-' + (idx.index + 1) : ''">
+                                <span th:text="${idx.index + 1}">1</span>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="song-info">
+                                <span class="song-title" th:text="${song.title}">제목</span>
+                                <span class="song-artist" th:text="${song.artist}">아티스트</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="rate-bar">
+                                <div class="rate-fill" th:style="'width:' + ${song.correctRate} + '%'"></div>
+                                <span class="rate-text" th:text="${song.correctRate} + '%'">0%</span>
+                            </div>
+                        </td>
+                        <td th:text="${song.totalPlays} + '회'">0회</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(hardestSongs)}">
+                        <td colspan="4" class="empty-state">
+                            아직 충분한 플레이 데이터가 없습니다.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 최근 오답 -->
+        <div class="stats-panel" id="recentPanel" style="display:none;">
+            <div class="panel-header">
+                <h3>🕐 최근 오답 내역</h3>
+            </div>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th style="width:200px;">오답</th>
+                        <th>정답 곡</th>
+                        <th style="width:150px;">시간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${recentWrongAnswers}">
+                        <td>
+                            <span class="wrong-text" th:text="${item.userAnswer}">오답</span>
+                        </td>
+                        <td>
+                            <div class="song-info">
+                                <span class="song-title" th:text="${item.songTitle}">제목</span>
+                                <span class="song-artist" th:text="${item.artist}">아티스트</span>
+                            </div>
+                        </td>
+                        <td th:text="${#temporals.format(item.createdAt, 'MM.dd HH:mm')}">01.01 00:00</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(recentWrongAnswers)}">
+                        <td colspan="3" class="empty-state">
+                            아직 오답 데이터가 없습니다.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/common/common.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 탭 전환
+        document.querySelectorAll('.stats-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                const tabName = this.dataset.tab;
+                document.querySelectorAll('.stats-panel').forEach(panel => {
+                    panel.style.display = 'none';
+                });
+                document.getElementById(tabName + 'Panel').style.display = 'block';
+            });
+        });
+    });
+</script>
+<style>
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: white;
+    }
+    .stat-icon {
+        font-size: 2rem;
+    }
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: block;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    .stats-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .stats-tab {
+        padding: 10px 20px;
+        background: #2d3748;
+        border: 1px solid #4a5568;
+        border-radius: 8px;
+        color: #a0aec0;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    .stats-tab:hover {
+        background: #4a5568;
+        color: #fff;
+    }
+    .stats-tab.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #fff;
+        border-color: transparent;
+    }
+    .stats-panel {
+        background: #1a1a2e;
+        border-radius: 12px;
+        padding: 20px;
+    }
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .panel-header h3 {
+        color: #fff;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+    .panel-desc {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.5);
+    }
+    .wrong-answer-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .wrong-answer-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 16px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+    }
+    .wrong-answer-item .rank {
+        width: 30px;
+        height: 30px;
+        background: #667eea;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #fff;
+    }
+    .wrong-answer-item .answer {
+        flex: 1;
+        color: #e2e8f0;
+        font-size: 0.95rem;
+    }
+    .wrong-answer-item .count {
+        color: #a0aec0;
+        font-size: 0.85rem;
+    }
+    .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .stats-table th {
+        background: #2d3748;
+        padding: 12px 16px;
+        text-align: left;
+        color: #a0aec0;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .stats-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #2d3748;
+        color: #e2e8f0;
+        font-size: 0.9rem;
+    }
+    .stats-table tr:hover td {
+        background: rgba(255,255,255,0.05);
+    }
+    .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: #4a5568;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .rank-badge.top-1 { background: linear-gradient(135deg, #ffd700, #ffb347); color: #1a1a2e; }
+    .rank-badge.top-2 { background: linear-gradient(135deg, #c0c0c0, #a8a8a8); color: #1a1a2e; }
+    .rank-badge.top-3 { background: linear-gradient(135deg, #cd7f32, #b87333); color: #fff; }
+    .song-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .song-title {
+        font-weight: 500;
+    }
+    .song-artist {
+        font-size: 0.8rem;
+        color: #a0aec0;
+    }
+    .rate-bar {
+        position: relative;
+        width: 100%;
+        height: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .rate-fill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        background: linear-gradient(90deg, #ff4757, #ff6b81);
+        border-radius: 10px;
+        transition: width 0.3s;
+    }
+    .rate-text {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #fff;
+    }
+    .wrong-text {
+        color: #ff4757;
+        font-weight: 500;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: rgba(255,255,255,0.5);
+    }
+    @media (max-width: 768px) {
+        .stats-cards {
+            grid-template-columns: 1fr;
+        }
+        .stats-tabs {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            padding-bottom: 8px;
+        }
+        .stats-tab {
+            flex-shrink: 0;
+        }
+        .stats-table {
+            font-size: 0.85rem;
+        }
+        .stats-table th, .stats-table td {
+            padding: 10px 12px;
+        }
+    }
+</style>
+</body>
+</html>

@@ -62,6 +62,10 @@
                 <span class="nav-icon">🏆</span>
                 <span class="nav-text">랭킹</span>
             </a>
+            <a href="/admin/stats/wrong-answers" class="nav-item" th:classappend="${menu == 'wrong-stats'} ? 'active'">
+                <span class="nav-icon">❌</span>
+                <span class="nav-text">오답 통계</span>
+            </a>
             <a href="/admin/login-history" class="nav-item" th:classappend="${menu == 'login-history'} ? 'active'">
                 <span class="nav-icon">🔐</span>
                 <span class="nav-text">로그인 이력</span>

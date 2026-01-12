@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead(${board.title} + ' - Song Quiz')}"></head>
+<body class="client-page board-page">
+<div class="client-container">
+    <header class="client-header compact">
+        <a href="/board" class="back-home">← 목록으로</a>
+        <h1>💬 커뮤니티</h1>
+    </header>
+
+    <main class="client-main">
+        <div class="board-content">
+            <!-- Board Detail -->
+            <div class="board-detail">
+                <div class="board-detail-header">
+                    <span class="board-category-badge" th:classappend="${board.category.name()}"
+                          th:text="${board.category.description}"></span>
+                    <h2 class="board-detail-title" th:text="${board.title}"></h2>
+                    <div class="board-detail-meta">
+                        <span class="board-author" th:text="${board.member.nickname}"></span>
+                        <span th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
+                        <span>조회 <span th:text="${board.viewCount}">0</span></span>
+                    </div>
+                </div>
+
+                <div class="board-detail-content" th:text="${board.content}"></div>
+
+                <div class="board-detail-actions">
+                    <button class="like-btn" th:classappend="${isLiked} ? 'liked'" id="likeBtn"
+                            th:data-board-id="${board.id}">
+                        <span th:text="${isLiked} ? '❤️' : '🤍'"></span>
+                        <span th:text="${board.likeCount}">0</span>
+                    </button>
+
+                    <div class="action-btns" th:if="${member != null and (member.id == board.member.id or member.role.name() == 'ADMIN')}">
+                        <a th:href="@{/board/{id}/edit(id=${board.id})}" class="btn-edit"
+                           th:if="${member.id == board.member.id}">수정</a>
+                        <button class="btn-delete" id="deleteBtn" th:data-board-id="${board.id}">삭제</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h3 class="comments-title">💬 댓글 <span th:text="${#lists.size(comments)}">0</span></h3>
+
+                <!-- Comment Form -->
+                <div class="comment-form" th:if="${member != null}">
+                    <textarea id="commentContent" placeholder="댓글을 입력하세요 (최대 500자)"></textarea>
+                    <button id="commentBtn" th:data-board-id="${board.id}">등록</button>
+                </div>
+                <div class="comment-form" th:if="${member == null}">
+                    <textarea disabled placeholder="로그인 후 댓글을 작성할 수 있습니다."></textarea>
+                    <a href="/login" class="btn-write" style="padding: 12px 20px;">로그인</a>
+                </div>
+
+                <!-- Comment List -->
+                <div class="comment-list" id="commentList">
+                    <th:block th:each="comment : ${comments}">
+                        <div class="comment-item" th:data-comment-id="${comment.id}">
+                            <div class="comment-header">
+                                <span class="comment-author" th:text="${comment.member.nickname}"></span>
+                                <span>
+                                    <span class="comment-time" th:text="${#temporals.format(comment.createdAt, 'MM.dd HH:mm')}"></span>
+                                    <button class="comment-delete" th:if="${member != null and (member.id == comment.member.id or member.role.name() == 'ADMIN')}"
+                                            th:data-comment-id="${comment.id}">삭제</button>
+                                </span>
+                            </div>
+                            <div class="comment-content" th:text="${comment.content}"></div>
+                        </div>
+                    </th:block>
+
+                    <div class="comment-empty" th:if="${#lists.isEmpty(comments)}">
+                        아직 댓글이 없습니다.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="client-footer">
+        <a href="/admin/login" class="admin-link">관리자</a>
+    </footer>
+</div>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:inline="javascript">
+    const currentMemberId = [[${member?.id}]];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Like button
+        const likeBtn = document.getElementById('likeBtn');
+        if (likeBtn) {
+            likeBtn.addEventListener('click', async function() {
+                if (!currentMemberId) {
+                    alert('로그인이 필요합니다.');
+                    location.href = '/login?redirect=' + location.pathname;
+                    return;
+                }
+
+                const boardId = this.dataset.boardId;
+                try {
+                    const response = await fetch(`/api/board/${boardId}/like`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        this.querySelector('span:first-child').textContent = result.liked ? '❤️' : '🤍';
+                        this.querySelector('span:last-child').textContent = result.likeCount;
+                        this.classList.toggle('liked', result.liked);
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error('좋아요 오류:', error);
+                }
+            });
+        }
+
+        // Delete board
+        const deleteBtn = document.getElementById('deleteBtn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', async function() {
+                if (!confirm('정말 삭제하시겠습니까?')) return;
+
+                const boardId = this.dataset.boardId;
+                try {
+                    const response = await fetch(`/api/board/${boardId}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('삭제되었습니다.');
+                        location.href = '/board';
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error('삭제 오류:', error);
+                }
+            });
+        }
+
+        // Add comment
+        const commentBtn = document.getElementById('commentBtn');
+        if (commentBtn) {
+            commentBtn.addEventListener('click', async function() {
+                const content = document.getElementById('commentContent').value.trim();
+                if (!content) {
+                    alert('댓글 내용을 입력하세요.');
+                    return;
+                }
+
+                const boardId = this.dataset.boardId;
+                try {
+                    const response = await fetch(`/api/board/${boardId}/comment`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error('댓글 작성 오류:', error);
+                }
+            });
+        }
+
+        // Delete comment
+        document.querySelectorAll('.comment-delete').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!confirm('댓글을 삭제하시겠습니까?')) return;
+
+                const commentId = this.dataset.commentId;
+                try {
+                    const response = await fetch(`/api/board/comment/${commentId}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        this.closest('.comment-item').remove();
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error('댓글 삭제 오류:', error);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

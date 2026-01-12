@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead(${board != null} ? '글 수정' : '글쓰기' + ' - Song Quiz')}"></head>
+<body class="client-page board-page">
+<div class="client-container">
+    <header class="client-header compact">
+        <a href="/board" class="back-home">← 목록으로</a>
+        <h1 th:text="${board != null} ? '✏️ 글 수정' : '✏️ 글쓰기'"></h1>
+    </header>
+
+    <main class="client-main">
+        <div class="board-content">
+            <div class="write-form">
+                <div class="form-group">
+                    <label for="category">카테고리</label>
+                    <select id="category" th:disabled="${board != null}">
+                        <option value="">카테고리 선택</option>
+                        <th:block th:each="cat : ${categories}">
+                            <option th:value="${cat.name()}" th:text="${cat.description}"
+                                    th:selected="${board != null and board.category == cat}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">제목</label>
+                    <input type="text" id="title" placeholder="제목을 입력하세요 (2~100자)"
+                           th:value="${board?.title}" maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="content">내용</label>
+                    <textarea id="content" placeholder="내용을 입력하세요 (최소 10자)" th:text="${board?.content}"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/board" class="btn-cancel">취소</a>
+                    <button type="button" id="submitBtn" class="btn-submit"
+                            th:data-board-id="${board?.id}"
+                            th:text="${board != null} ? '수정' : '등록'">등록</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="client-footer">
+        <a href="/admin/login" class="admin-link">관리자</a>
+    </footer>
+</div>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:inline="javascript">
+    const isEditMode = [[${board != null}]];
+    const boardId = [[${board?.id}]];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const submitBtn = document.getElementById('submitBtn');
+
+        submitBtn.addEventListener('click', async function() {
+            const category = document.getElementById('category').value;
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+
+            if (!isEditMode && !category) {
+                alert('카테고리를 선택하세요.');
+                return;
+            }
+
+            if (title.length < 2 || title.length > 100) {
+                alert('제목은 2~100자로 입력하세요.');
+                return;
+            }
+
+            if (content.length < 10) {
+                alert('내용은 10자 이상 입력하세요.');
+                return;
+            }
+
+            try {
+                let response;
+                if (isEditMode) {
+                    response = await fetch(`/api/board/${boardId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, content })
+                    });
+                } else {
+                    response = await fetch('/api/board', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ category, title, content })
+                    });
+                }
+
+                const result = await response.json();
+                if (result.success) {
+                    if (isEditMode) {
+                        location.href = `/board/${boardId}`;
+                    } else {
+                        location.href = `/board/${result.boardId}`;
+                    }
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('저장 오류:', error);
+                alert('저장 중 오류가 발생했습니다.');
+            }
+        });
+    });
+</script>
+</body>
+</html>
