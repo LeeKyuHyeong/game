@@ -43,13 +43,24 @@ public class AdminAnswerController {
         }
 
         Map<Long, Long> answerCounts = new HashMap<>();
+        Map<Long, List<SongAnswer>> songAnswersMap = new HashMap<>();
+        Map<Long, SongAnswer> primaryAnswerMap = new HashMap<>();
         for (Song song : songs.getContent()) {
-            long count = songAnswerRepository.findBySongId(song.getId()).size();
-            answerCounts.put(song.getId(), count);
+            List<SongAnswer> answers = songAnswerRepository.findBySongIdOrderByIsPrimaryDesc(song.getId());
+            answerCounts.put(song.getId(), (long) answers.size());
+            songAnswersMap.put(song.getId(), answers);
+            // 대표 정답 추출 (isPrimary가 true인 것 또는 첫 번째)
+            SongAnswer primary = answers.stream()
+                    .filter(SongAnswer::getIsPrimary)
+                    .findFirst()
+                    .orElse(answers.isEmpty() ? null : answers.get(0));
+            primaryAnswerMap.put(song.getId(), primary);
         }
 
         model.addAttribute("songs", songs);
         model.addAttribute("answerCounts", answerCounts);
+        model.addAttribute("songAnswersMap", songAnswersMap);
+        model.addAttribute("primaryAnswerMap", primaryAnswerMap);
         model.addAttribute("keyword", keyword);
         model.addAttribute("menu", "answer");
 

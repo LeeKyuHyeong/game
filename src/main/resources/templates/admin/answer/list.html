@@ -39,9 +39,9 @@
                         <th>ID</th>
                         <th>제목</th>
                         <th>아티스트</th>
-                        <th>장르</th>
-                        <th>연도</th>
-                        <th>정답 개수</th>
+                        <th class="hide-mobile">장르</th>
+                        <th class="hide-mobile">연도</th>
+                        <th class="answer-preview-th">정답 목록</th>
                         <th>상태</th>
                         <th>관리</th>
                     </tr>
@@ -55,12 +55,21 @@
                             <span class="song-title" th:text="${song.title}"></span>
                         </td>
                         <td data-label="아티스트" th:text="${song.artist}"></td>
-                        <td data-label="장르" th:text="${song.genre != null} ? ${song.genre.name} : '-'"></td>
-                        <td data-label="연도" th:text="${song.releaseYear} ?: '-'"></td>
-                        <td data-label="정답 개수">
-                            <span class="answer-count"
-                                  th:classappend="${answerCounts[song.id] > 0} ? 'has-answers' : 'no-answers'"
-                                  th:text="${answerCounts[song.id]} + '개'"></span>
+                        <td data-label="장르" class="hide-mobile" th:text="${song.genre != null} ? ${song.genre.name} : '-'"></td>
+                        <td data-label="연도" class="hide-mobile" th:text="${song.releaseYear} ?: '-'"></td>
+                        <td data-label="정답 목록" class="answer-preview-td">
+                            <div class="answer-preview-wrapper" th:if="${songAnswersMap[song.id] != null and !songAnswersMap[song.id].isEmpty()}">
+                                <!-- 대표 정답만 표시 -->
+                                <span class="answer-tag primary" th:if="${primaryAnswerMap[song.id] != null}" th:text="${primaryAnswerMap[song.id].answer}"></span>
+                                <span class="answer-more-count" th:if="${songAnswersMap[song.id].size() > 1}" th:text="'+' + (${songAnswersMap[song.id].size()} - 1)"></span>
+                                <!-- Hover시 전체 정답 표시 -->
+                                <div class="answer-tooltip">
+                                    <span class="answer-tag" th:each="answer : ${songAnswersMap[song.id]}"
+                                          th:classappend="${answer.isPrimary} ? 'primary'"
+                                          th:text="${answer.answer}"></span>
+                                </div>
+                            </div>
+                            <span class="no-answer-text" th:if="${songAnswersMap[song.id] == null or songAnswersMap[song.id].isEmpty()}">-</span>
                         </td>
                         <td data-label="상태">
                             <span class="status" th:classappend="${song.useYn == 'Y'} ? 'active' : 'inactive'"

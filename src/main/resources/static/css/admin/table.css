@@ -206,10 +206,157 @@
     background: #fef2f2 !important;
 }
 
+/* ========== YouTube Cell ========== */
+.youtube-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.youtube-id {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #64748b;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* YouTube Preview Modal */
+.youtube-preview-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+}
+
+.youtube-preview-info .time-info {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.youtube-player-container {
+    display: flex;
+    justify-content: center;
+    background: #000;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    min-height: 360px;
+}
+
+.youtube-preview-status {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* ========== Answer Preview (Inline Tags) ========== */
+.answer-preview-th {
+    min-width: 200px;
+}
+
+.answer-preview-td {
+    position: relative;
+    max-width: 300px;
+}
+
+.answer-preview-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    position: relative;
+}
+
+.answer-tag {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.7rem;
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.answer-tag.primary {
+    background: #dbeafe;
+    color: #1e40af;
+    font-weight: 500;
+}
+
+.answer-more-count {
+    font-size: 0.7rem;
+    color: #64748b;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.no-answer-text {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+/* Hover Tooltip - 기본: 아래쪽 표시 */
+.answer-tooltip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    max-width: 400px;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 0.25rem;
+}
+
+.answer-preview-wrapper:hover .answer-tooltip {
+    display: flex;
+}
+
+.answer-tooltip .answer-tag {
+    max-width: none;
+    overflow: visible;
+}
+
+/* 마지막 3개 행: 위쪽 표시 */
+tr:nth-last-child(-n+3) .answer-tooltip {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: 0.25rem;
+}
+
+/* Hide on mobile */
+.hide-mobile {
+    display: table-cell;
+}
+
 /* ========== Responsive ========== */
 @media (max-width: 768px) {
     .table-actions {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .answer-preview-th,
+    .answer-preview-td {
+        display: none !important;
     }
 }
