@@ -440,11 +440,11 @@
     backdrop-filter: blur(10px);
 }
 
-.form-group {
+.write-form .form-group {
     margin-bottom: 20px;
 }
 
-.form-group label {
+.write-form .form-group label {
     display: block;
     color: white;
     font-weight: 500;
@@ -452,9 +452,9 @@
     font-size: 0.95rem;
 }
 
-.form-group select,
-.form-group input,
-.form-group textarea {
+.write-form .form-group select,
+.write-form .form-group input,
+.write-form .form-group textarea {
     width: 100%;
     padding: 14px 16px;
     background: rgba(255, 255, 255, 0.15);
@@ -464,30 +464,30 @@
     font-size: 1rem;
 }
 
-.form-group select option {
+.write-form .form-group select option {
     background: #667eea;
     color: white;
 }
 
-.form-group textarea {
+.write-form .form-group textarea {
     min-height: 300px;
     resize: vertical;
     line-height: 1.7;
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
+.write-form .form-group input::placeholder,
+.write-form .form-group textarea::placeholder {
     color: rgba(255, 255, 255, 0.5);
 }
 
-.form-actions {
+.write-form .form-actions {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
     margin-top: 24px;
 }
 
-.btn-cancel {
+.write-form .btn-cancel {
     padding: 14px 28px;
     background: rgba(255, 255, 255, 0.2);
     border: none;
@@ -498,7 +498,7 @@
     font-size: 1rem;
 }
 
-.btn-submit {
+.write-form .btn-submit {
     padding: 14px 28px;
     background: white;
     border: none;
@@ -510,7 +510,7 @@
     transition: transform 0.2s;
 }
 
-.btn-submit:hover {
+.write-form .btn-submit:hover {
     transform: translateY(-2px);
 }
 
@@ -593,11 +593,12 @@
         padding: 16px;
     }
 
-    .form-actions {
+    .write-form .form-actions {
         flex-direction: column;
     }
 
-    .btn-cancel, .btn-submit {
+    .write-form .btn-cancel,
+    .write-form .btn-submit {
         width: 100%;
         text-align: center;
     }
