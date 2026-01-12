@@ -41,10 +41,10 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 
 ### Package Structure (`com.kh.game`)
 
-- **controller/client/** - User-facing: `AuthController`, `GameGuessController`, `GameHostController`, `MultiGameController`, `RankingController`, `SongReportController`
-- **controller/admin/** - Admin panel: `AdminSongController`, `AdminGenreController`, `AdminBatchController`, `AdminBadWordController`, `AdminRoomController`, `AdminChatController`, `AdminSongReportController`
-- **service/** - Business logic: `GameSessionService`, `MultiGameService`, `SongService`, `MemberService`, `GameRoomService`, `AnswerValidationService`, `YouTubeValidationService`
-- **entity/** - JPA entities: `Member`, `Song`, `SongAnswer`, `Genre`, `GameSession`, `GameRound`, `GameRoundAttempt`, `GameRoom`, `GameRoomParticipant`, `GameRoomChat`, `BadWord`, `SongReport`, `BatchConfig`, `DailyStats`
+- **controller/client/** - User-facing: `AuthController`, `GameGuessController`, `GameHostController`, `MultiGameController`, `RankingController`, `SongReportController`, `BoardController`, `StatsController`
+- **controller/admin/** - Admin panel: `AdminSongController`, `AdminGenreController`, `AdminBatchController`, `AdminBadWordController`, `AdminRoomController`, `AdminChatController`, `AdminSongReportController`, `AdminMemberController`, `AdminGameHistoryController`, `AdminStatsController`, `AdminAnswerController`, `AdminLoginHistoryController`
+- **service/** - Business logic: `GameSessionService`, `MultiGameService`, `SongService`, `MemberService`, `GameRoomService`, `AnswerValidationService`, `YouTubeValidationService`, `BoardService`, `WrongAnswerStatsService`
+- **entity/** - JPA entities: `Member`, `MemberLoginHistory`, `Song`, `SongAnswer`, `Genre`, `GameSession`, `GameRound`, `GameRoundAttempt`, `GameRoom`, `GameRoomParticipant`, `GameRoomChat`, `BadWord`, `SongReport`, `BatchConfig`, `BatchExecutionHistory`, `DailyStats`, `Board`, `BoardComment`, `BoardLike`
 - **repository/** - Spring Data JPA repositories
 - **batch/** - 12 scheduled batch jobs managed by `BatchScheduler`
 - **config/** - `SecurityConfig` (BCrypt), `WebConfig` (interceptors, file upload), `SchedulerConfig`, `DataInitializer`
@@ -63,6 +63,7 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 - `GameSession` → contains `GameRound` → tracks `GameRoundAttempt` (solo mode)
 - `GameRoom` → has `GameRoomParticipant` → stores `GameRoomChat` (multiplayer mode)
 - `Song` → has multiple `SongAnswer` for fuzzy matching validation
+- `Board` → has `BoardComment` and `BoardLike` (community board)
 
 ### Multiplayer Flow
 
@@ -80,6 +81,7 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 - **BadWordService** - Profanity filtering with ConcurrentHashMap cache, auto-reloads on changes
 - **SongReportService** - Handles user reports for problematic songs
 - **DataInitializer** - Seeds initial bad words (~50 profanities) on startup via CommandLineRunner
+- **BoardService** - Community board CRUD with category filtering, comments, and likes
 
 ### Batch Jobs (managed by BatchScheduler)
 
@@ -95,6 +97,12 @@ All batches are DB-configurable via `BatchConfig` table with cron expressions:
 - **Solo Guess:** 10 → 7 → 5 points (3 attempts)
 - **Solo Host:** 100 → 70 → 50 points (3 attempts, host reads clues)
 - **Multiplayer:** 100 points for first correct answer
+
+### Community Board
+
+- Categories: REQUEST (곡 추천/요청), OPINION (의견/후기), QUESTION (질문), FREE (자유)
+- Features: Comments, likes, view count tracking
+- Status: ACTIVE, DELETED, HIDDEN
 
 ## Configuration
 
