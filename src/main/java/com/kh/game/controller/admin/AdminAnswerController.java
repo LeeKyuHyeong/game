@@ -31,9 +31,12 @@ public class AdminAnswerController {
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sort,
+            @RequestParam(defaultValue = "desc") String direction,
             Model model) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
         Page<Song> songs;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -49,7 +52,6 @@ public class AdminAnswerController {
             List<SongAnswer> answers = songAnswerRepository.findBySongIdOrderByIsPrimaryDesc(song.getId());
             answerCounts.put(song.getId(), (long) answers.size());
             songAnswersMap.put(song.getId(), answers);
-            // 대표 정답 추출 (isPrimary가 true인 것 또는 첫 번째)
             SongAnswer primary = answers.stream()
                     .filter(SongAnswer::getIsPrimary)
                     .findFirst()
@@ -62,6 +64,11 @@ public class AdminAnswerController {
         model.addAttribute("songAnswersMap", songAnswersMap);
         model.addAttribute("primaryAnswerMap", primaryAnswerMap);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
+        model.addAttribute("totalPages", songs.getTotalPages());
+        model.addAttribute("sort", sort);
+        model.addAttribute("direction", direction);
         model.addAttribute("menu", "answer");
 
         return "admin/answer/list";

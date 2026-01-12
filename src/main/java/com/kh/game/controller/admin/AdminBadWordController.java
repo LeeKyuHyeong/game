@@ -30,27 +30,33 @@ public class AdminBadWordController {
                        @RequestParam(defaultValue = "20") int size,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String active,
+                       @RequestParam(defaultValue = "createdAt") String sort,
+                       @RequestParam(defaultValue = "desc") String direction,
                        Model model) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
         Page<BadWord> badWordPage;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             badWordPage = badWordService.search(keyword, pageable);
-            model.addAttribute("keyword", keyword);
         } else if (active != null && !active.isEmpty()) {
             boolean isActive = "Y".equals(active);
             badWordPage = badWordService.findByActive(isActive, pageable);
-            model.addAttribute("active", active);
         } else {
             badWordPage = badWordService.findAll(pageable);
         }
 
         model.addAttribute("badWords", badWordPage.getContent());
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
         model.addAttribute("totalPages", badWordPage.getTotalPages());
         model.addAttribute("totalItems", badWordPage.getTotalElements());
         model.addAttribute("activeCount", badWordService.countActive());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("active", active);
+        model.addAttribute("sort", sort);
+        model.addAttribute("direction", direction);
         model.addAttribute("menu", "badword");
 
         return "admin/badword/list";

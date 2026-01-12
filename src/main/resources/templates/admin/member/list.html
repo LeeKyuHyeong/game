@@ -51,23 +51,31 @@
         </div>
 
         <div class="table-container">
-            <table class="data-table">
+            <table class="data-table sortable-table">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>이메일</th>
-                    <th>닉네임</th>
+                    <th class="col-no">No</th>
+                    <th class="col-id sortable" th:classappend="${sort == 'id'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('id')">ID <span class="sort-icon"></span></th>
+                    <th class="sortable" th:classappend="${sort == 'email'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('email')">이메일 <span class="sort-icon"></span></th>
+                    <th class="sortable" th:classappend="${sort == 'nickname'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('nickname')">닉네임 <span class="sort-icon"></span></th>
                     <th>티어</th>
-                    <th>총 점수</th>
-                    <th>게임 수</th>
+                    <th class="sortable" th:classappend="${sort == 'totalScore'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('totalScore')">총 점수 <span class="sort-icon"></span></th>
+                    <th class="sortable" th:classappend="${sort == 'totalGames'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('totalGames')">게임 수 <span class="sort-icon"></span></th>
                     <th>권한</th>
                     <th>상태</th>
-                    <th>가입일</th>
+                    <th class="sortable" th:classappend="${sort == 'createdAt'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('createdAt')">가입일 <span class="sort-icon"></span></th>
                     <th>관리</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="member : ${members}" onclick="toggleRowExpand(this)">
+                <tr th:each="member, iterStat : ${members}" onclick="toggleRowExpand(this)">
+                    <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
                     <td data-label="ID" th:text="${member.id}"></td>
                     <td data-label="이메일" th:text="${member.email}"></td>
                     <td data-label="닉네임" th:text="${member.nickname}"></td>
@@ -93,28 +101,28 @@
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(members)}">
-                    <td colspan="10" class="empty-row">등록된 회원이 없습니다.</td>
+                    <td colspan="11" class="empty-row">등록된 회원이 없습니다.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
         <div class="pagination" th:if="${totalPages > 0}">
-            <a th:href="@{/admin/member(page=0, keyword=${keyword}, status=${status}, role=${role})}"
+            <a th:href="@{/admin/member(page=0, keyword=${keyword}, status=${status}, role=${role}, sort=${sort}, direction=${direction})}"
                th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
-            <a th:href="@{/admin/member(page=${currentPage - 1}, keyword=${keyword}, status=${status}, role=${role})}"
+            <a th:href="@{/admin/member(page=${currentPage - 1}, keyword=${keyword}, status=${status}, role=${role}, sort=${sort}, direction=${direction})}"
                th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
 
             <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
                 <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
-                   th:href="@{/admin/member(page=${i}, keyword=${keyword}, status=${status}, role=${role})}"
+                   th:href="@{/admin/member(page=${i}, keyword=${keyword}, status=${status}, role=${role}, sort=${sort}, direction=${direction})}"
                    th:text="${i + 1}"
                    th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
             </th:block>
 
-            <a th:href="@{/admin/member(page=${currentPage + 1}, keyword=${keyword}, status=${status}, role=${role})}"
+            <a th:href="@{/admin/member(page=${currentPage + 1}, keyword=${keyword}, status=${status}, role=${role}, sort=${sort}, direction=${direction})}"
                th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
-            <a th:href="@{/admin/member(page=${totalPages - 1}, keyword=${keyword}, status=${status}, role=${role})}"
+            <a th:href="@{/admin/member(page=${totalPages - 1}, keyword=${keyword}, status=${status}, role=${role}, sort=${sort}, direction=${direction})}"
                th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
         </div>
     </main>
@@ -344,11 +352,26 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-member.js}"></script>
-<script>
+<script th:inline="javascript">
+const currentSort = [[${sort}]];
+const currentDirection = [[${direction}]];
+
 function toggleRowExpand(row) {
     if (window.innerWidth <= 768) {
         row.classList.toggle('expanded');
     }
+}
+
+function sortBy(column) {
+    const params = new URLSearchParams(window.location.search);
+    if (currentSort === column) {
+        params.set('direction', currentDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+        params.set('sort', column);
+        params.set('direction', 'desc');
+    }
+    params.set('page', '0');
+    window.location.href = '/admin/member?' + params.toString();
 }
 </script>
 </body>

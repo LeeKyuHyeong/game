@@ -28,32 +28,39 @@ public class AdminSongController {
 
     @GetMapping
     public String list(@RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "10") int size,
+                       @RequestParam(defaultValue = "20") int size,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String artist,
+                       @RequestParam(required = false) Long genreId,
+                       @RequestParam(required = false) String useYn,
+                       @RequestParam(required = false) Boolean isSolo,
+                       @RequestParam(defaultValue = "id") String sort,
+                       @RequestParam(defaultValue = "desc") String direction,
+                       @RequestParam(defaultValue = "table") String viewMode,
                        Model model) {
-        System.out.println("adminSongController!!");
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        Page<Song> songPage;
+        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
 
-        if (artist != null && !artist.trim().isEmpty()) {
-            // 아티스트 필터
-            songPage = songService.findByArtist(artist, pageable);
-            model.addAttribute("selectedArtist", artist);
-        } else if (keyword != null && !keyword.trim().isEmpty()) {
-            songPage = songService.search(keyword, pageable);
-            model.addAttribute("keyword", keyword);
-        } else {
-            songPage = songService.findAll(pageable);
-        }
+        Page<Song> songPage = songService.searchWithFilters(keyword, artist, genreId, useYn, isSolo, pageable);
 
         model.addAttribute("songs", songPage.getContent());
         model.addAttribute("genres", genreService.findActiveGenres());
         model.addAttribute("artists", songService.getArtistsWithCount());
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
         model.addAttribute("totalPages", songPage.getTotalPages());
         model.addAttribute("totalItems", songPage.getTotalElements());
         model.addAttribute("menu", "song");
+
+        // Filter parameters
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedArtist", artist);
+        model.addAttribute("selectedGenreId", genreId);
+        model.addAttribute("selectedUseYn", useYn);
+        model.addAttribute("selectedIsSolo", isSolo);
+        model.addAttribute("sort", sort);
+        model.addAttribute("direction", direction);
+        model.addAttribute("viewMode", viewMode);
 
         return "admin/song/list";
     }

@@ -28,19 +28,19 @@ public class AdminMemberController {
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String status,
                        @RequestParam(required = false) String role,
+                       @RequestParam(defaultValue = "id") String sort,
+                       @RequestParam(defaultValue = "desc") String direction,
                        Model model) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
         Page<Member> memberPage;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             memberPage = memberService.search(keyword, pageable);
-            model.addAttribute("keyword", keyword);
         } else if (status != null && !status.isEmpty()) {
             memberPage = memberService.findByStatus(Member.MemberStatus.valueOf(status), pageable);
-            model.addAttribute("status", status);
         } else if (role != null && !role.isEmpty()) {
             memberPage = memberService.findByRole(Member.MemberRole.valueOf(role), pageable);
-            model.addAttribute("role", role);
         } else {
             memberPage = memberService.findAll(pageable);
         }
@@ -53,12 +53,18 @@ public class AdminMemberController {
 
         model.addAttribute("members", memberPage.getContent());
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
         model.addAttribute("totalPages", memberPage.getTotalPages());
         model.addAttribute("totalItems", memberPage.getTotalElements());
         model.addAttribute("totalCount", totalCount);
         model.addAttribute("activeCount", activeCount);
         model.addAttribute("bannedCount", bannedCount);
         model.addAttribute("adminCount", adminCount);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("status", status);
+        model.addAttribute("role", role);
+        model.addAttribute("sort", sort);
+        model.addAttribute("direction", direction);
         model.addAttribute("menu", "member");
 
         return "admin/member/list";

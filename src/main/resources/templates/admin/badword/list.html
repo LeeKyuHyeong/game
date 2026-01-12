@@ -58,19 +58,24 @@
 
             <!-- 테이블 -->
             <div class="table-container">
-                <table class="data-table">
+                <table class="data-table sortable-table">
                     <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>비속어</th>
+                        <th class="col-no">No</th>
+                        <th class="col-id sortable" th:classappend="${sort == 'id'} ? ('sorted-' + ${direction})"
+                            onclick="sortBy('id')">ID <span class="sort-icon"></span></th>
+                        <th class="sortable" th:classappend="${sort == 'word'} ? ('sorted-' + ${direction})"
+                            onclick="sortBy('word')">비속어 <span class="sort-icon"></span></th>
                         <th>대체 문자</th>
                         <th>상태</th>
-                        <th>등록일</th>
+                        <th class="sortable" th:classappend="${sort == 'createdAt'} ? ('sorted-' + ${direction})"
+                            onclick="sortBy('createdAt')">등록일 <span class="sort-icon"></span></th>
                         <th>관리</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="badWord : ${badWords}" onclick="toggleRowExpand(this)">
+                    <tr th:each="badWord, iterStat : ${badWords}" onclick="toggleRowExpand(this)">
+                        <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
                         <td data-label="ID" th:text="${badWord.id}"></td>
                         <td data-label="비속어">
                             <code class="badword-text" th:text="${badWord.word}"></code>
@@ -88,7 +93,7 @@
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(badWords)}">
-                        <td colspan="6" class="empty-row">등록된 비속어가 없습니다.</td>
+                        <td colspan="7" class="empty-row">등록된 비속어가 없습니다.</td>
                     </tr>
                     </tbody>
                 </table>
@@ -96,21 +101,21 @@
 
             <!-- 페이지네이션 -->
             <div class="pagination" th:if="${totalPages > 0}">
-                <a th:href="@{/admin/badword(page=0, keyword=${keyword}, active=${active})}"
+                <a th:href="@{/admin/badword(page=0, keyword=${keyword}, active=${active}, sort=${sort}, direction=${direction})}"
                    th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
-                <a th:href="@{/admin/badword(page=${currentPage - 1}, keyword=${keyword}, active=${active})}"
+                <a th:href="@{/admin/badword(page=${currentPage - 1}, keyword=${keyword}, active=${active}, sort=${sort}, direction=${direction})}"
                    th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
 
                 <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
                     <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
-                       th:href="@{/admin/badword(page=${i}, keyword=${keyword}, active=${active})}"
+                       th:href="@{/admin/badword(page=${i}, keyword=${keyword}, active=${active}, sort=${sort}, direction=${direction})}"
                        th:text="${i + 1}"
                        th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
                 </th:block>
 
-                <a th:href="@{/admin/badword(page=${currentPage + 1}, keyword=${keyword}, active=${active})}"
+                <a th:href="@{/admin/badword(page=${currentPage + 1}, keyword=${keyword}, active=${active}, sort=${sort}, direction=${direction})}"
                    th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
-                <a th:href="@{/admin/badword(page=${totalPages - 1}, keyword=${keyword}, active=${active})}"
+                <a th:href="@{/admin/badword(page=${totalPages - 1}, keyword=${keyword}, active=${active}, sort=${sort}, direction=${direction})}"
                    th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
             </div>
         </div>
@@ -221,11 +226,26 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-badword.js}"></script>
-<script>
+<script th:inline="javascript">
+const currentSort = [[${sort}]];
+const currentDirection = [[${direction}]];
+
 function toggleRowExpand(row) {
     if (window.innerWidth <= 768) {
         row.classList.toggle('expanded');
     }
+}
+
+function sortBy(column) {
+    const params = new URLSearchParams(window.location.search);
+    if (currentSort === column) {
+        params.set('direction', currentDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+        params.set('sort', column);
+        params.set('direction', 'desc');
+    }
+    params.set('page', '0');
+    window.location.href = '/admin/badword?' + params.toString();
 }
 </script>
 </body>

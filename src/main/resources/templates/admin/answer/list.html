@@ -33,23 +33,29 @@
 
             <!-- 목록 -->
             <div class="table-container">
-                <table class="data-table">
+                <table class="data-table sortable-table">
                     <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>제목</th>
-                        <th>아티스트</th>
+                        <th class="col-no">No</th>
+                        <th class="col-id sortable" th:classappend="${sort == 'id'} ? ('sorted-' + ${direction})"
+                            onclick="sortBy('id')">ID <span class="sort-icon"></span></th>
+                        <th class="sortable" th:classappend="${sort == 'title'} ? ('sorted-' + ${direction})"
+                            onclick="sortBy('title')">제목 <span class="sort-icon"></span></th>
+                        <th class="sortable" th:classappend="${sort == 'artist'} ? ('sorted-' + ${direction})"
+                            onclick="sortBy('artist')">아티스트 <span class="sort-icon"></span></th>
                         <th class="hide-mobile">장르</th>
-                        <th class="hide-mobile">연도</th>
+                        <th class="hide-mobile sortable" th:classappend="${sort == 'releaseYear'} ? ('sorted-' + ${direction})"
+                            onclick="sortBy('releaseYear')">연도 <span class="sort-icon"></span></th>
                         <th class="answer-preview-th">정답 목록</th>
                         <th>상태</th>
                         <th>관리</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="song : ${songs.content}"
+                    <tr th:each="song, iterStat : ${songs.content}"
                         th:classappend="${answerCounts[song.id] == 0} ? 'no-answer-row'"
                         onclick="toggleRowExpand(this)">
+                        <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
                         <td data-label="ID" th:text="${song.id}"></td>
                         <td data-label="제목">
                             <span class="song-title" th:text="${song.title}"></span>
@@ -86,30 +92,30 @@
                         </td>
                     </tr>
                     <tr th:if="${songs.content.isEmpty()}">
-                        <td colspan="8" class="empty-row">등록된 노래가 없습니다.</td>
+                        <td colspan="9" class="empty-row">등록된 노래가 없습니다.</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
 
             <!-- 페이징 -->
-            <div class="pagination" th:if="${songs.totalPages > 0}">
-                <a th:href="@{/admin/answer(page=0, keyword=${keyword})}"
-                   th:classappend="${songs.number == 0} ? 'disabled'" class="page-link">«</a>
-                <a th:href="@{/admin/answer(page=${songs.number - 1}, keyword=${keyword})}"
-                   th:classappend="${songs.number == 0} ? 'disabled'" class="page-link">‹</a>
+            <div class="pagination" th:if="${totalPages > 0}">
+                <a th:href="@{/admin/answer(page=0, keyword=${keyword}, sort=${sort}, direction=${direction})}"
+                   th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
+                <a th:href="@{/admin/answer(page=${currentPage - 1}, keyword=${keyword}, sort=${sort}, direction=${direction})}"
+                   th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
 
-                <th:block th:each="i : ${#numbers.sequence(0, songs.totalPages - 1)}">
-                    <a th:if="${i >= songs.number - 2 and i <= songs.number + 2}"
-                       th:href="@{/admin/answer(page=${i}, keyword=${keyword})}"
+                <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                       th:href="@{/admin/answer(page=${i}, keyword=${keyword}, sort=${sort}, direction=${direction})}"
                        th:text="${i + 1}"
-                       th:classappend="${i == songs.number} ? 'active'" class="page-link"></a>
+                       th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
                 </th:block>
 
-                <a th:href="@{/admin/answer(page=${songs.number + 1}, keyword=${keyword})}"
-                   th:classappend="${songs.number >= songs.totalPages - 1} ? 'disabled'" class="page-link">›</a>
-                <a th:href="@{/admin/answer(page=${songs.totalPages - 1}, keyword=${keyword})}"
-                   th:classappend="${songs.number >= songs.totalPages - 1} ? 'disabled'" class="page-link">»</a>
+                <a th:href="@{/admin/answer(page=${currentPage + 1}, keyword=${keyword}, sort=${sort}, direction=${direction})}"
+                   th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
+                <a th:href="@{/admin/answer(page=${totalPages - 1}, keyword=${keyword}, sort=${sort}, direction=${direction})}"
+                   th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
             </div>
 
             <!-- 안내 -->
@@ -205,11 +211,26 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-answer.js}"></script>
-<script>
+<script th:inline="javascript">
+const currentSort = [[${sort}]];
+const currentDirection = [[${direction}]];
+
 function toggleRowExpand(row) {
     if (window.innerWidth <= 768) {
         row.classList.toggle('expanded');
     }
+}
+
+function sortBy(column) {
+    const params = new URLSearchParams(window.location.search);
+    if (currentSort === column) {
+        params.set('direction', currentDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+        params.set('sort', column);
+        params.set('direction', 'desc');
+    }
+    params.set('page', '0');
+    window.location.href = '/admin/answer?' + params.toString();
 }
 </script>
 </body>

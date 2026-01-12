@@ -3,59 +3,142 @@
 <head th:replace="~{common/fragments/head :: adminHead('노래 관리')}"></head>
 <body class="admin-page">
 <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+<link rel="stylesheet" th:href="@{/css/admin/song-grid.css}">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
 
     <main class="main-content">
         <header class="content-header">
             <h1>노래 관리</h1>
-            <button class="btn btn-primary" onclick="openModal()">+ 노래 추가</button>
+            <div class="header-actions">
+                <span class="total-count">총 <strong th:text="${totalItems}">0</strong>곡</span>
+                <button class="btn btn-primary" onclick="openModal()">+ 노래 추가</button>
+            </div>
         </header>
 
-        <div class="search-bar">
-            <form action="/admin/song" method="get" class="search-form">
-                <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 아티스트 검색">
-                <button type="submit" class="btn btn-search">검색</button>
-                <a th:if="${keyword}" href="/admin/song" class="btn btn-reset">초기화</a>
+        <!-- Filter Section -->
+        <div class="filter-panel">
+            <form id="filterForm" action="/admin/song" method="get">
+                <input type="hidden" name="sort" th:value="${sort}">
+                <input type="hidden" name="direction" th:value="${direction}">
+                <input type="hidden" name="viewMode" th:value="${viewMode}">
+
+                <!-- Search -->
+                <div class="filter-row">
+                    <div class="search-box">
+                        <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 아티스트 검색">
+                        <button type="submit" class="btn btn-search">검색</button>
+                    </div>
+                </div>
+
+                <!-- Checkbox Filters -->
+                <div class="filter-row filter-checkboxes">
+                    <!-- Genre Filter -->
+                    <div class="filter-group">
+                        <label class="filter-label">장르</label>
+                        <div class="checkbox-list">
+                            <label class="checkbox-item" th:each="genre : ${genres}">
+                                <input type="radio" name="genreId" th:value="${genre.id}"
+                                       th:checked="${selectedGenreId == genre.id}">
+                                <span th:text="${genre.name}"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Use Status Filter -->
+                    <div class="filter-group">
+                        <label class="filter-label">사용여부</label>
+                        <div class="checkbox-list">
+                            <label class="checkbox-item">
+                                <input type="radio" name="useYn" value="Y" th:checked="${selectedUseYn == 'Y'}">
+                                <span>사용</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="radio" name="useYn" value="N" th:checked="${selectedUseYn == 'N'}">
+                                <span>미사용</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Solo/Group Filter -->
+                    <div class="filter-group">
+                        <label class="filter-label">솔로/그룹</label>
+                        <div class="checkbox-list">
+                            <label class="checkbox-item">
+                                <input type="radio" name="isSolo" value="true" th:checked="${selectedIsSolo == true}">
+                                <span>솔로</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="radio" name="isSolo" value="false" th:checked="${selectedIsSolo == false}">
+                                <span>그룹</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Artist Filter -->
+                    <div class="filter-group">
+                        <label class="filter-label">아티스트</label>
+                        <select name="artist" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                            <option value="">전체</option>
+                            <option th:each="a : ${artists}"
+                                    th:value="${a.name}"
+                                    th:text="${a.name + ' (' + a.count + ')'}"
+                                    th:selected="${selectedArtist == a.name}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-sm btn-primary">필터 적용</button>
+                    <a href="/admin/song" class="btn btn-sm btn-reset">초기화</a>
+                </div>
             </form>
-            <div class="filter-section">
-                <select id="artistFilter" onchange="filterByArtist(this.value)">
-                    <option value="">전체 아티스트</option>
-                    <option th:each="artist : ${artists}"
-                            th:value="${artist.name}"
-                            th:text="${artist.name + ' (' + artist.count + '곡)'}"
-                            th:selected="${artist.name == selectedArtist}"></option>
-                </select>
-                <a th:if="${selectedArtist}" href="/admin/song" class="btn btn-reset">필터 초기화</a>
+
+            <!-- View Mode Toggle -->
+            <div class="view-toggle">
+                <button type="button" class="view-btn" th:classappend="${viewMode == 'table'} ? 'active'" onclick="setViewMode('table')">
+                    <span class="icon">☰</span> 테이블
+                </button>
+                <button type="button" class="view-btn" th:classappend="${viewMode == 'grid'} ? 'active'" onclick="setViewMode('grid')">
+                    <span class="icon">▦</span> 그리드
+                </button>
             </div>
         </div>
 
-        <div class="table-container">
-            <table class="data-table">
+        <!-- Table View -->
+        <div class="table-container" th:if="${viewMode == 'table'}">
+            <table class="data-table sortable-table">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>제목</th>
-                    <th>아티스트</th>
+                    <th class="col-no">No</th>
+                    <th class="col-id sortable" th:classappend="${sort == 'id'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('id')">ID <span class="sort-icon"></span></th>
+                    <th class="sortable" th:classappend="${sort == 'title'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('title')">제목 <span class="sort-icon"></span></th>
+                    <th class="sortable" th:classappend="${sort == 'artist'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('artist')">아티스트 <span class="sort-icon"></span></th>
                     <th>장르</th>
-                    <th>연도</th>
+                    <th class="sortable" th:classappend="${sort == 'releaseYear'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('releaseYear')">연도 <span class="sort-icon"></span></th>
                     <th>솔로</th>
                     <th>YouTube</th>
                     <th>사용여부</th>
-                    <th>등록일</th>
+                    <th class="sortable" th:classappend="${sort == 'createdAt'} ? ('sorted-' + ${direction})"
+                        onclick="sortBy('createdAt')">등록일 <span class="sort-icon"></span></th>
                     <th>관리</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="song : ${songs}" onclick="toggleRowExpand(this)">
+                <tr th:each="song, iterStat : ${songs}" onclick="toggleRowExpand(this)">
+                    <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
                     <td data-label="ID" th:text="${song.id}"></td>
                     <td data-label="제목" th:text="${song.title}"></td>
                     <td data-label="아티스트" th:text="${song.artist}"></td>
                     <td data-label="장르" th:text="${song.genre != null} ? ${song.genre.name} : '-'"></td>
                     <td data-label="연도" th:text="${song.releaseYear} ?: '-'"></td>
                     <td data-label="솔로">
-                                <span class="solo-badge" th:classappend="${song.isSolo} ? 'solo' : 'group'"
-                                      th:text="${song.isSolo} ? '솔로' : '그룹'"></span>
+                        <span class="solo-badge" th:classappend="${song.isSolo} ? 'solo' : 'group'"
+                              th:text="${song.isSolo} ? '솔로' : '그룹'"></span>
                     </td>
                     <td data-label="YouTube" onclick="event.stopPropagation()">
                         <div th:if="${song.youtubeVideoId}" class="youtube-cell">
@@ -71,8 +154,8 @@
                         <span th:unless="${song.youtubeVideoId}" class="file-none">-</span>
                     </td>
                     <td data-label="사용여부">
-                                <span class="status" th:classappend="${song.useYn == 'Y'} ? 'active' : 'inactive'"
-                                      th:text="${song.useYn == 'Y'} ? '사용' : '미사용'"></span>
+                        <span class="status" th:classappend="${song.useYn == 'Y'} ? 'active' : 'inactive'"
+                              th:text="${song.useYn == 'Y'} ? '사용' : '미사용'"></span>
                     </td>
                     <td data-label="등록일" th:text="${#temporals.format(song.createdAt, 'yyyy-MM-dd')}"></td>
                     <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
@@ -82,28 +165,67 @@
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(songs)}">
-                    <td colspan="10" class="empty-row">등록된 노래가 없습니다.</td>
+                    <td colspan="11" class="empty-row">등록된 노래가 없습니다.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
+        <!-- Grid View -->
+        <div class="song-grid" th:if="${viewMode == 'grid'}">
+            <div th:each="song, iterStat : ${songs}" class="song-card" th:classappend="${song.useYn == 'N'} ? 'disabled'">
+                <div class="song-card-header">
+                    <span class="song-no" th:text="'#' + ${currentPage * size + iterStat.index + 1}"></span>
+                    <span class="song-id" th:text="'ID: ' + ${song.id}"></span>
+                    <span class="status" th:classappend="${song.useYn == 'Y'} ? 'active' : 'inactive'"
+                          th:text="${song.useYn == 'Y'} ? '사용' : '미사용'"></span>
+                </div>
+                <div class="song-card-body">
+                    <h3 class="song-title" th:text="${song.title}">제목</h3>
+                    <p class="song-artist" th:text="${song.artist}">아티스트</p>
+                    <div class="song-meta">
+                        <span th:if="${song.genre}" class="meta-badge genre" th:text="${song.genre.name}"></span>
+                        <span th:if="${song.releaseYear}" class="meta-badge year" th:text="${song.releaseYear}"></span>
+                        <span class="meta-badge" th:classappend="${song.isSolo} ? 'solo' : 'group'"
+                              th:text="${song.isSolo} ? '솔로' : '그룹'"></span>
+                    </div>
+                </div>
+                <div class="song-card-footer">
+                    <button th:if="${song.youtubeVideoId}" class="btn btn-sm btn-play"
+                            th:data-video-id="${song.youtubeVideoId}"
+                            th:data-start-time="${song.startTime}"
+                            th:data-duration="${song.playDuration}"
+                            th:data-title="${song.title}"
+                            th:data-artist="${song.artist}"
+                            onclick="openYoutubePreview(this)">▶ 미리듣기</button>
+                    <div class="card-actions">
+                        <button class="btn btn-sm btn-edit" th:data-id="${song.id}" onclick="editSong(this.dataset.id)">수정</button>
+                        <button class="btn btn-sm btn-toggle" th:data-id="${song.id}" onclick="toggleStatus(this.dataset.id)">상태</button>
+                        <button class="btn btn-sm btn-delete" th:data-id="${song.id}" onclick="deleteSong(this.dataset.id)">삭제</button>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(songs)}" class="empty-grid">
+                <p>등록된 노래가 없습니다.</p>
+            </div>
+        </div>
+
         <div class="pagination" th:if="${totalPages > 0}">
-            <a th:href="@{/admin/song(page=0, keyword=${keyword}, artist=${selectedArtist})}"
+            <a th:href="@{/admin/song(page=0, keyword=${keyword}, artist=${selectedArtist}, genreId=${selectedGenreId}, useYn=${selectedUseYn}, isSolo=${selectedIsSolo}, sort=${sort}, direction=${direction}, viewMode=${viewMode})}"
                th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
-            <a th:href="@{/admin/song(page=${currentPage - 1}, keyword=${keyword}, artist=${selectedArtist})}"
+            <a th:href="@{/admin/song(page=${currentPage - 1}, keyword=${keyword}, artist=${selectedArtist}, genreId=${selectedGenreId}, useYn=${selectedUseYn}, isSolo=${selectedIsSolo}, sort=${sort}, direction=${direction}, viewMode=${viewMode})}"
                th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
 
             <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
                 <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
-                   th:href="@{/admin/song(page=${i}, keyword=${keyword}, artist=${selectedArtist})}"
+                   th:href="@{/admin/song(page=${i}, keyword=${keyword}, artist=${selectedArtist}, genreId=${selectedGenreId}, useYn=${selectedUseYn}, isSolo=${selectedIsSolo}, sort=${sort}, direction=${direction}, viewMode=${viewMode})}"
                    th:text="${i + 1}"
                    th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
             </th:block>
 
-            <a th:href="@{/admin/song(page=${currentPage + 1}, keyword=${keyword}, artist=${selectedArtist})}"
+            <a th:href="@{/admin/song(page=${currentPage + 1}, keyword=${keyword}, artist=${selectedArtist}, genreId=${selectedGenreId}, useYn=${selectedUseYn}, isSolo=${selectedIsSolo}, sort=${sort}, direction=${direction}, viewMode=${viewMode})}"
                th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
-            <a th:href="@{/admin/song(page=${totalPages - 1}, keyword=${keyword}, artist=${selectedArtist})}"
+            <a th:href="@{/admin/song(page=${totalPages - 1}, keyword=${keyword}, artist=${selectedArtist}, genreId=${selectedGenreId}, useYn=${selectedUseYn}, isSolo=${selectedIsSolo}, sort=${sort}, direction=${direction}, viewMode=${viewMode})}"
                th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
         </div>
     </main>
@@ -223,7 +345,11 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-song.js}"></script>
-<script>
+<script th:inline="javascript">
+const currentSort = [[${sort}]];
+const currentDirection = [[${direction}]];
+const currentViewMode = [[${viewMode}]];
+
 // 행 펼치기/접기 (모바일)
 function toggleRowExpand(row) {
     if (window.innerWidth <= 768) {
@@ -231,13 +357,26 @@ function toggleRowExpand(row) {
     }
 }
 
-// 아티스트 필터
-function filterByArtist(artist) {
-    if (artist) {
-        window.location.href = '/admin/song?artist=' + encodeURIComponent(artist);
+// 정렬
+function sortBy(column) {
+    const form = document.getElementById('filterForm');
+    const sortInput = form.querySelector('input[name="sort"]');
+    const directionInput = form.querySelector('input[name="direction"]');
+
+    if (currentSort === column) {
+        directionInput.value = currentDirection === 'asc' ? 'desc' : 'asc';
     } else {
-        window.location.href = '/admin/song';
+        sortInput.value = column;
+        directionInput.value = 'desc';
     }
+    form.submit();
+}
+
+// 뷰 모드 변경
+function setViewMode(mode) {
+    const form = document.getElementById('filterForm');
+    form.querySelector('input[name="viewMode"]').value = mode;
+    form.submit();
 }
 
 // YouTube IFrame API
@@ -269,7 +408,6 @@ function openYoutubePreview(btn) {
 
     document.getElementById('youtubePreviewModal').classList.add('show');
 
-    // 플레이어 생성 또는 영상 변경
     if (ytApiReady) {
         if (ytPlayer) {
             ytPlayer.destroy();

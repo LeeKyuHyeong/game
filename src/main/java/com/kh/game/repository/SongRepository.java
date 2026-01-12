@@ -47,4 +47,23 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     // 아티스트 검색 (자동완성용) - YouTube 또는 MP3
     @Query("SELECT DISTINCT s.artist FROM Song s WHERE s.useYn = 'Y' AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) AND LOWER(s.artist) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY s.artist")
     List<String> findArtistsByKeyword(@Param("keyword") String keyword);
+
+    // 복합 필터 검색 (관리자용)
+    @Query("SELECT s FROM Song s WHERE " +
+            "(:keyword IS NULL OR LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(s.artist) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+            "(:artist IS NULL OR s.artist = :artist) AND " +
+            "(:genreId IS NULL OR s.genre.id = :genreId) AND " +
+            "(:useYn IS NULL OR s.useYn = :useYn) AND " +
+            "(:isSolo IS NULL OR s.isSolo = :isSolo)")
+    Page<Song> searchWithFilters(
+            @Param("keyword") String keyword,
+            @Param("artist") String artist,
+            @Param("genreId") Long genreId,
+            @Param("useYn") String useYn,
+            @Param("isSolo") Boolean isSolo,
+            Pageable pageable);
+
+    // 전체 아티스트 목록 (관리자용 - 전체 곡 대상)
+    @Query("SELECT DISTINCT s.artist FROM Song s WHERE s.artist IS NOT NULL ORDER BY s.artist")
+    List<String> findAllDistinctArtists();
 }

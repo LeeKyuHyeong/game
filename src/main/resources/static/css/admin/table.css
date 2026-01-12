@@ -344,6 +344,54 @@ tr:nth-last-child(-n+3) .answer-tooltip {
     display: table-cell;
 }
 
+/* ========== Sortable Table ========== */
+.sortable-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 1.5rem;
+}
+
+.sortable-table th.sortable:hover {
+    background: #e2e8f0;
+}
+
+.sortable-table th .sort-icon {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.3;
+    font-size: 0.75rem;
+}
+
+.sortable-table th .sort-icon::after {
+    content: '\21C5';
+}
+
+.sortable-table th.sorted-asc .sort-icon,
+.sortable-table th.sorted-desc .sort-icon {
+    opacity: 1;
+    color: var(--primary-color);
+}
+
+.sortable-table th.sorted-asc .sort-icon::after {
+    content: '\2191';
+}
+
+.sortable-table th.sorted-desc .sort-icon::after {
+    content: '\2193';
+}
+
+.col-no {
+    width: 50px;
+    text-align: center;
+}
+
+.col-id {
+    width: 60px;
+}
+
 /* ========== Responsive ========== */
 @media (max-width: 768px) {
     .table-actions {

@@ -27,21 +27,27 @@ public class AdminGenreController {
     public String list(@RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "20") int size,
                        @RequestParam(required = false) String keyword,
+                       @RequestParam(defaultValue = "displayOrder") String sort,
+                       @RequestParam(defaultValue = "asc") String direction,
                        Model model) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "displayOrder"));
+        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
         Page<Genre> genrePage;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             genrePage = genreService.search(keyword, pageable);
-            model.addAttribute("keyword", keyword);
         } else {
             genrePage = genreService.findAll(pageable);
         }
 
         model.addAttribute("genres", genrePage.getContent());
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
         model.addAttribute("totalPages", genrePage.getTotalPages());
         model.addAttribute("totalItems", genrePage.getTotalElements());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("sort", sort);
+        model.addAttribute("direction", direction);
         model.addAttribute("menu", "genre");
 
         return "admin/genre/list";
