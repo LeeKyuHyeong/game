@@ -10,6 +10,7 @@ const YouTubePlayerManager = {
     onStateChangeCallback: null,
     onErrorCallback: null,
     lastError: null,  // 마지막 에러 정보
+    mediaSessionInterval: null,  // 메타데이터 덮어씌우기 인터벌
 
     // YouTube 에러 코드 설명
     ERROR_CODES: {
@@ -111,6 +112,7 @@ const YouTubePlayerManager = {
             console.warn('YouTube Player not ready');
             return;
         }
+        this.startMediaSessionProtection();  // 로드 시점부터 메타데이터 숨김
         this.player.cueVideoById({
             videoId: videoId,
             startSeconds: startTime
@@ -122,6 +124,7 @@ const YouTubePlayerManager = {
      */
     play() {
         if (this.isReady && this.player) {
+            this.startMediaSessionProtection();  // 메타데이터 숨김 시작
             this.player.playVideo();
         }
     },
@@ -140,6 +143,7 @@ const YouTubePlayerManager = {
      */
     stop() {
         if (this.isReady && this.player) {
+            this.stopMediaSessionProtection();  // 메타데이터 숨김 중지
             this.player.stopVideo();
         }
     },
@@ -265,5 +269,57 @@ const YouTubePlayerManager = {
      */
     getErrorMessage(errorCode) {
         return this.ERROR_CODES[errorCode] || '알 수 없는 오류';
+    },
+
+    /**
+     * Media Session 메타데이터를 가짜 정보로 덮어씌움
+     * 볼륨 조절 시 제목/아티스트 노출 방지
+     */
+    hideMediaMetadata() {
+        if ('mediaSession' in navigator) {
+            try {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: '🎵 ???',
+                    artist: '누구의 노래일까요?',
+                    album: 'Song Quiz Game',
+                    artwork: []
+                });
+                // 미디어 컨트롤 버튼 비활성화
+                navigator.mediaSession.setActionHandler('play', null);
+                navigator.mediaSession.setActionHandler('pause', null);
+                navigator.mediaSession.setActionHandler('seekbackward', null);
+                navigator.mediaSession.setActionHandler('seekforward', null);
+                navigator.mediaSession.setActionHandler('previoustrack', null);
+                navigator.mediaSession.setActionHandler('nexttrack', null);
+            } catch (e) {
+                // Media Session API 미지원 브라우저
+            }
+        }
+    },
+
+    /**
+     * Media Session 메타데이터 주기적 덮어씌우기 시작
+     * YouTube가 메타데이터를 다시 설정하는 것을 방지
+     */
+    startMediaSessionProtection() {
+        this.hideMediaMetadata();
+        // 기존 인터벌 정리
+        if (this.mediaSessionInterval) {
+            clearInterval(this.mediaSessionInterval);
+        }
+        // 500ms마다 덮어씌움 (YouTube가 다시 설정해도 바로 가림)
+        this.mediaSessionInterval = setInterval(() => {
+            this.hideMediaMetadata();
+        }, 500);
+    },
+
+    /**
+     * Media Session 보호 중지
+     */
+    stopMediaSessionProtection() {
+        if (this.mediaSessionInterval) {
+            clearInterval(this.mediaSessionInterval);
+            this.mediaSessionInterval = null;
+        }
     }
 };

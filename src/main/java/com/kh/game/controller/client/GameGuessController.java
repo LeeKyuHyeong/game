@@ -675,12 +675,16 @@ public class GameGuessController {
                 // 회원인 경우 Solo Guess 통계 업데이트
                 if (session.getMember() != null) {
                     // 최고기록 랭킹 대상 여부 확인
-                    // 조건: 전체랜덤 모드 + 아티스트유형 전체
+                    // 조건: 전체랜덤 모드 + 모든 필터 미적용 (장르/아티스트/연도/솔로그룹)
                     GameSettings settings = gameSessionService.parseSettings(session.getSettings());
                     boolean isRandomMode = session.getGameMode() == GameSession.GameMode.RANDOM;
                     boolean allArtistTypes = !Boolean.TRUE.equals(settings.getSoloOnly())
                                            && !Boolean.TRUE.equals(settings.getGroupOnly());
-                    boolean isEligibleForBestScore = isRandomMode && allArtistTypes;
+                    boolean noGenreFilter = settings.getFixedGenreId() == null;
+                    boolean noArtistFilter = (settings.getSelectedArtists() == null || settings.getSelectedArtists().isEmpty())
+                                           && (settings.getFixedArtistName() == null || settings.getFixedArtistName().isEmpty());
+                    boolean noYearFilter = settings.getSelectedYears() == null || settings.getSelectedYears().isEmpty();
+                    boolean isEligibleForBestScore = isRandomMode && allArtistTypes && noGenreFilter && noArtistFilter && noYearFilter;
 
                     memberService.addGuessGameResult(
                             session.getMember().getId(),
