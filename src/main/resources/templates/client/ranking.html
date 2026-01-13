@@ -261,16 +261,17 @@
                 el.querySelector('.podium-name').textContent = member.nickname;
                 el.querySelector('.podium-value').textContent = formatValue(member);
 
-                // 티어 배지 추가 (멀티게임은 멀티 티어 사용)
+                // 티어 배지 추가 (멀티게임만 표시)
                 const tierEl = el.querySelector('.podium-tier');
                 if (currentMode === 'multi') {
                     tierEl.textContent = member.multiTierDisplayName || '';
                     tierEl.style.color = member.multiTierColor || '#cd7f32';
                     tierEl.className = 'podium-tier tier-badge tier-' + (member.multiTier || 'BRONZE').toLowerCase();
+                    tierEl.style.display = 'block';
                 } else {
-                    tierEl.textContent = member.tierDisplayName;
-                    tierEl.style.color = member.tierColor;
-                    tierEl.className = 'podium-tier tier-badge tier-' + member.tier.toLowerCase();
+                    // 내가맞추기에서는 티어 숨김
+                    tierEl.textContent = '';
+                    tierEl.style.display = 'none';
                 }
             } else {
                 el.style.display = 'none';
@@ -282,10 +283,11 @@
         const table = document.getElementById('rankingTable');
 
         table.innerHTML = rankings.map((member, index) => {
-            // 멀티게임은 멀티 티어 사용
-            const tierName = currentMode === 'multi' ? (member.multiTier || 'BRONZE') : member.tier;
-            const tierColor = currentMode === 'multi' ? (member.multiTierColor || '#cd7f32') : member.tierColor;
-            const tierDisplayName = currentMode === 'multi' ? (member.multiTierDisplayName || '') : member.tierDisplayName;
+            // 멀티게임만 티어 표시
+            const showTier = currentMode === 'multi';
+            const tierName = member.multiTier || 'BRONZE';
+            const tierColor = member.multiTierColor || '#cd7f32';
+            const tierDisplayName = member.multiTierDisplayName || '';
 
             return `
                 <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
@@ -293,7 +295,7 @@
                         ${index < 3 ? getMedal(index) : (index + 1)}
                     </div>
                     <div class="name-cell">
-                        <span class="tier-badge tier-${tierName.toLowerCase()}" style="color: ${tierColor}">${tierDisplayName}</span>
+                        ${showTier ? `<span class="tier-badge tier-${tierName.toLowerCase()}" style="color: ${tierColor}">${tierDisplayName}</span>` : ''}
                         <span class="member-name">${member.nickname}</span>
                     </div>
                     <div class="stats-cell">
