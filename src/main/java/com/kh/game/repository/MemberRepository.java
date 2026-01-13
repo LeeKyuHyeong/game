@@ -40,17 +40,29 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // ========== Solo Guess (내가맞추기) 랭킹 조회 ==========
 
-    // 총점 기준
+    // 1. 누적 총점 기준
     @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.guessGames > 0 ORDER BY m.guessScore DESC")
     List<Member> findTopGuessRankingByScore(Pageable pageable);
 
-    // 정답률 기준
+    // 2. 평균 정답률 기준
     @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.guessRounds > 0 ORDER BY (m.guessCorrect * 1.0 / m.guessRounds) DESC")
     List<Member> findTopGuessRankingByAccuracy(Pageable pageable);
 
-    // 게임 수 기준
+    // 3. 평균 점수 기준 (게임당 평균)
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.guessGames > 0 ORDER BY (m.guessScore * 1.0 / m.guessGames) DESC")
+    List<Member> findTopGuessRankingByAvgScore(Pageable pageable);
+
+    // 4. 최다 정답 기준
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.guessCorrect > 0 ORDER BY m.guessCorrect DESC")
+    List<Member> findTopGuessRankingByCorrect(Pageable pageable);
+
+    // 5. 플레이왕 - 게임 수 기준
     @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.guessGames > 0 ORDER BY m.guessGames DESC")
     List<Member> findTopGuessRankingByGames(Pageable pageable);
+
+    // 6. 도전왕 - 라운드 수 기준
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.guessRounds > 0 ORDER BY m.guessRounds DESC")
+    List<Member> findTopGuessRankingByRounds(Pageable pageable);
 
     // ========== Multiplayer (멀티게임) 랭킹 조회 ==========
 
@@ -105,9 +117,32 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.guessGames > 0")
     long countGuessParticipants();
 
-    // ========== 티어별 조회 ==========
+    // ========== 멀티게임 LP 티어 랭킹 조회 ==========
 
-    // 티어별 회원 수
+    // 멀티 티어 + LP 기준 (티어 내림차순, 같은 티어면 LP 내림차순)
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.multiGames > 0 ORDER BY m.multiTier DESC, m.multiLp DESC")
+    List<Member> findTopMultiTierRanking(Pageable pageable);
+
+    // 멀티게임 1등 횟수 기준
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.multiWins > 0 ORDER BY m.multiWins DESC")
+    List<Member> findTopMultiWins(Pageable pageable);
+
+    // 멀티게임 Top3 횟수 기준
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.multiTop3 > 0 ORDER BY m.multiTop3 DESC")
+    List<Member> findTopMultiTop3(Pageable pageable);
+
+    // 내 멀티 티어 순위 (나보다 높은 티어 + LP 가진 사람 수)
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.multiGames > 0 " +
+           "AND (m.multiTier > :tier OR (m.multiTier = :tier AND m.multiLp > :lp))")
+    long countMembersWithHigherMultiTier(com.kh.game.entity.MultiTier tier, int lp);
+
+    // 멀티 티어별 회원 수
+    @Query("SELECT m.multiTier, COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.multiGames > 0 GROUP BY m.multiTier ORDER BY m.multiTier")
+    List<Object[]> countByMultiTier();
+
+    // ========== 티어별 조회 (통합) ==========
+
+    // 통합 티어별 회원 수
     @Query("SELECT m.tier, COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' GROUP BY m.tier ORDER BY m.tier")
     List<Object[]> countByTier();
 

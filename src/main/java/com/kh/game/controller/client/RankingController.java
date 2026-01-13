@@ -72,12 +72,18 @@ public class RankingController {
         } else if ("best".equals(period)) {
             return memberService.getGuessBestScoreRanking(limit);
         } else {
-            // all (전체)
+            // all (전체) - 6가지 랭킹 타입
             switch (type) {
                 case "accuracy":
                     return memberService.getGuessRankingByAccuracy(limit);
+                case "avgScore":
+                    return memberService.getGuessRankingByAvgScore(limit);
+                case "correct":
+                    return memberService.getGuessRankingByCorrect(limit);
                 case "games":
                     return memberService.getGuessRankingByGames(limit);
+                case "rounds":
+                    return memberService.getGuessRankingByRounds(limit);
                 case "score":
                 default:
                     return memberService.getGuessRankingByScore(limit);
@@ -91,6 +97,12 @@ public class RankingController {
             return memberService.getWeeklyMultiRankingByScore(limit);
         } else if ("best".equals(period)) {
             return memberService.getMultiBestScoreRanking(limit);
+        } else if ("tier".equals(period)) {
+            // LP 티어 랭킹
+            return memberService.getMultiTierRanking(limit);
+        } else if ("wins".equals(period)) {
+            // 1등 횟수 랭킹
+            return memberService.getMultiWinsRanking(limit);
         } else {
             // all (전체)
             switch (type) {
@@ -168,6 +180,20 @@ public class RankingController {
                 memberInfo.put("totalGames", 1);
                 memberInfo.put("totalCorrect", 0);
                 memberInfo.put("totalRounds", 0);
+            } else if ("tier".equals(period)) {
+                // LP 티어 랭킹
+                memberInfo.put("multiLp", member.getMultiLp() != null ? member.getMultiLp() : 0);
+                memberInfo.put("multiWins", member.getMultiWins() != null ? member.getMultiWins() : 0);
+                memberInfo.put("multiTop3", member.getMultiTop3() != null ? member.getMultiTop3() : 0);
+                memberInfo.put("totalGames", member.getMultiGames() != null ? member.getMultiGames() : 0);
+                memberInfo.put("totalScore", 0);  // 티어 랭킹에서는 점수 대신 LP 표시
+                memberInfo.put("accuracyRate", member.getMultiAccuracyRate());
+            } else if ("wins".equals(period)) {
+                // 1등 횟수 랭킹
+                memberInfo.put("multiWins", member.getMultiWins() != null ? member.getMultiWins() : 0);
+                memberInfo.put("totalGames", member.getMultiGames() != null ? member.getMultiGames() : 0);
+                memberInfo.put("totalScore", member.getMultiWins() != null ? member.getMultiWins() : 0);  // 1등 횟수를 점수로 표시
+                memberInfo.put("accuracyRate", member.getMultiAccuracyRate());
             } else {
                 memberInfo.put("totalScore", member.getMultiScore() != null ? member.getMultiScore() : 0);
                 memberInfo.put("totalGames", member.getMultiGames() != null ? member.getMultiGames() : 0);
@@ -177,20 +203,29 @@ public class RankingController {
                 memberInfo.put("averageScore", member.getMultiAverageScore());
             }
 
-            // 티어 정보 추가
+            // 티어 정보 추가 (통합 + 멀티)
             addTierInfo(memberInfo, member);
+            addMultiTierInfo(memberInfo, member);
 
             result.add(memberInfo);
         }
         return result;
     }
 
-    // 티어 정보 추가
+    // 통합 티어 정보 추가
     private void addTierInfo(Map<String, Object> memberInfo, Member member) {
         Member.MemberTier tier = member.getTier() != null ? member.getTier() : Member.MemberTier.BRONZE;
         memberInfo.put("tier", tier.name());
         memberInfo.put("tierDisplayName", tier.getDisplayName());
         memberInfo.put("tierColor", tier.getColor());
+    }
+
+    // 멀티게임 LP 티어 정보 추가
+    private void addMultiTierInfo(Map<String, Object> memberInfo, Member member) {
+        memberInfo.put("multiTier", member.getMultiTier() != null ? member.getMultiTier().name() : "BRONZE");
+        memberInfo.put("multiTierDisplayName", member.getMultiTierDisplayName());
+        memberInfo.put("multiTierColor", member.getMultiTierColor());
+        memberInfo.put("multiLp", member.getMultiLp() != null ? member.getMultiLp() : 0);
     }
 
     // 내 순위 API

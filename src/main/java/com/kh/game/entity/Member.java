@@ -127,7 +127,7 @@ public class Member {
     @Column(name = "best_multi_at")
     private LocalDateTime bestMultiAt;
 
-    // ========== 티어 시스템 ==========
+    // ========== 티어 시스템 (통합) ==========
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tier", length = 20)
@@ -135,6 +135,24 @@ public class Member {
 
     @Column(name = "tier_updated_at")
     private LocalDateTime tierUpdatedAt;
+
+    // ========== 멀티게임 전용 LP 티어 시스템 ==========
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "multi_tier", length = 20)
+    private MultiTier multiTier = MultiTier.BRONZE;
+
+    @Column(name = "multi_lp")
+    private Integer multiLp = 0;
+
+    @Column(name = "multi_tier_updated_at")
+    private LocalDateTime multiTierUpdatedAt;
+
+    @Column(name = "multi_wins")
+    private Integer multiWins = 0;  // 1등 횟수
+
+    @Column(name = "multi_top3")
+    private Integer multiTop3 = 0;  // Top3 횟수
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -373,5 +391,80 @@ public class Member {
 
     public String getTierColor() {
         return tier != null ? tier.getColor() : MemberTier.BRONZE.getColor();
+    }
+
+    // ========== 멀티게임 LP 티어 메서드 ==========
+
+    public String getMultiTierDisplayName() {
+        return multiTier != null ? multiTier.getDisplayName() : MultiTier.BRONZE.getDisplayName();
+    }
+
+    public String getMultiTierColor() {
+        return multiTier != null ? multiTier.getColor() : MultiTier.BRONZE.getColor();
+    }
+
+    /**
+     * LP 적용 및 티어 변동 처리
+     * @param lpChange LP 변화량 (양수: 획득, 음수: 차감)
+     * @return 티어 변동 여부 ("PROMOTED", "DEMOTED", null)
+     */
+    public String applyLpChange(int lpChange) {
+        if (this.multiTier == null) {
+            this.multiTier = MultiTier.BRONZE;
+        }
+        if (this.multiLp == null) {
+            this.multiLp = 0;
+        }
+
+        MultiTier oldTier = this.multiTier;
+        int newLp = this.multiLp + lpChange;
+        String tierChange = null;
+
+        // LP가 100 이상 -> 승급 처리
+        while (newLp >= MultiTier.MAX_LP && this.multiTier.canPromote()) {
+            newLp -= MultiTier.MAX_LP;
+            this.multiTier = this.multiTier.getNextTier();
+            tierChange = "PROMOTED";
+        }
+
+        // LP가 0 미만 -> 강등 처리
+        while (newLp < MultiTier.MIN_LP && this.multiTier.canDemote()) {
+            this.multiTier = this.multiTier.getPreviousTier();
+            newLp += MultiTier.MAX_LP;  // 이전 티어의 LP로 전환 (예: -20 -> 80)
+            tierChange = "DEMOTED";
+        }
+
+        // 브론즈에서 LP가 음수면 0으로 고정
+        if (newLp < 0 && !this.multiTier.canDemote()) {
+            newLp = 0;
+        }
+
+        // 챌린저에서 LP가 100 이상이면 유지 (랭킹 구분용으로 무제한 허용)
+        // 단, MAX_LP 이상이면 MAX_LP - 1로 고정 (승급 불가이므로)
+        if (!this.multiTier.canPromote() && newLp >= MultiTier.MAX_LP) {
+            // 챌린저는 LP 무제한 누적 가능 (랭킹 순위 구분용)
+        }
+
+        this.multiLp = newLp;
+
+        // 티어가 변경되었으면 시간 기록
+        if (tierChange != null) {
+            this.multiTierUpdatedAt = LocalDateTime.now();
+        }
+
+        return tierChange;
+    }
+
+    /**
+     * 멀티게임 순위 통계 업데이트
+     * @param rank 게임에서의 순위 (1등, 2등, ...)
+     */
+    public void updateMultiRankStats(int rank) {
+        if (rank == 1) {
+            this.multiWins = (this.multiWins == null ? 0 : this.multiWins) + 1;
+        }
+        if (rank <= 3) {
+            this.multiTop3 = (this.multiTop3 == null ? 0 : this.multiTop3) + 1;
+        }
     }
 }

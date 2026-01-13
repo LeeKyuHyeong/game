@@ -2,6 +2,66 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: clientHead('게임 결과 - Song Quiz')}"></head>
 <body class="client-page result-page">
+<style>
+    .tier-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        margin-right: 6px;
+    }
+    .lp-change {
+        font-weight: bold;
+        margin-left: 8px;
+    }
+    .lp-change.positive {
+        color: #22c55e;
+    }
+    .lp-change.negative {
+        color: #ef4444;
+    }
+    .lp-change.neutral {
+        color: #6b7280;
+    }
+    .podium-tier {
+        margin-top: 4px;
+    }
+    .podium-lp {
+        font-size: 0.85rem;
+        margin-top: 4px;
+    }
+    .player-tier-info {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .ranking-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+    .ranking-item.me {
+        background: rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+    .player-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+    }
+    .stats-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+</style>
+
 <div class="client-container">
     <header class="result-header">
         <h1>🏆 게임 종료!</h1>
@@ -13,9 +73,18 @@
             <!-- 2등 -->
             <div class="podium-item second" th:if="${#lists.size(results) > 1}">
                 <div class="podium-rank">🥈</div>
+                <div class="podium-tier">
+                    <span class="tier-badge" th:style="'background-color:' + ${results[1].multiTierColor} + '; color: #000;'"
+                          th:text="${results[1].multiTierDisplayName}">브론즈</span>
+                </div>
                 <div class="podium-player second-name" th:text="${results[1].nickname}">2등</div>
                 <div class="podium-score" th:text="${results[1].score} + '점'">0점</div>
-                <div class="podium-correct" th:text="'정답: ' + ${results[1].correctCount} + '개'">정답: 0개</div>
+                <div class="podium-lp">
+                    <span class="lp-change"
+                          th:classappend="${results[1].lpChange > 0} ? 'positive' : (${results[1].lpChange < 0} ? 'negative' : 'neutral')">
+                        <span th:if="${results[1].lpChange > 0}">+</span><span th:text="${results[1].lpChange}">0</span> LP
+                    </span>
+                </div>
                 <div class="podium-stand second-stand">2</div>
             </div>
 
@@ -23,18 +92,35 @@
             <div class="podium-item first" th:if="${#lists.size(results) > 0}">
                 <div class="podium-crown">👑</div>
                 <div class="podium-rank">🥇</div>
+                <div class="podium-tier">
+                    <span class="tier-badge" th:style="'background-color:' + ${results[0].multiTierColor} + '; color: #000;'"
+                          th:text="${results[0].multiTierDisplayName}">브론즈</span>
+                </div>
                 <div class="podium-player first-name" th:text="${results[0].nickname}">1등</div>
                 <div class="podium-score" th:text="${results[0].score} + '점'">0점</div>
-                <div class="podium-correct" th:text="'정답: ' + ${results[0].correctCount} + '개'">정답: 0개</div>
+                <div class="podium-lp">
+                    <span class="lp-change positive">
+                        +<span th:text="${results[0].lpChange}">100</span> LP
+                    </span>
+                </div>
                 <div class="podium-stand first-stand">1</div>
             </div>
 
             <!-- 3등 -->
             <div class="podium-item third" th:if="${#lists.size(results) > 2}">
                 <div class="podium-rank">🥉</div>
+                <div class="podium-tier">
+                    <span class="tier-badge" th:style="'background-color:' + ${results[2].multiTierColor} + '; color: #000;'"
+                          th:text="${results[2].multiTierDisplayName}">브론즈</span>
+                </div>
                 <div class="podium-player third-name" th:text="${results[2].nickname}">3등</div>
                 <div class="podium-score" th:text="${results[2].score} + '점'">0점</div>
-                <div class="podium-correct" th:text="'정답: ' + ${results[2].correctCount} + '개'">정답: 0개</div>
+                <div class="podium-lp">
+                    <span class="lp-change"
+                          th:classappend="${results[2].lpChange > 0} ? 'positive' : (${results[2].lpChange < 0} ? 'negative' : 'neutral')">
+                        <span th:if="${results[2].lpChange > 0}">+</span><span th:text="${results[2].lpChange}">0</span> LP
+                    </span>
+                </div>
                 <div class="podium-stand third-stand">3</div>
             </div>
         </div>
@@ -46,13 +132,23 @@
                 <div th:each="r : ${results}" class="ranking-item"
                      th:classappend="${r.memberId == member.id} ? 'me' : ''">
                     <span class="rank" th:text="${r.rank}">1</span>
-                    <span class="player-name">
-                        <span th:if="${r.isHost}">👑 </span>
-                        <span th:text="${r.nickname}">닉네임</span>
-                        <span th:if="${r.memberId == member.id}" class="me-badge">(나)</span>
-                    </span>
-                    <span class="correct-count" th:text="'정답 ' + ${r.correctCount} + '개'">정답 0개</span>
-                    <span class="total-score" th:text="${r.score} + '점'">0점</span>
+                    <div class="player-info">
+                        <span class="tier-badge" th:style="'background-color:' + ${r.multiTierColor} + '; color: #000;'"
+                              th:text="${r.multiTierDisplayName}">브론즈</span>
+                        <span class="player-name">
+                            <span th:if="${r.isHost}">👑 </span>
+                            <span th:text="${r.nickname}">닉네임</span>
+                            <span th:if="${r.memberId == member.id}" class="me-badge">(나)</span>
+                        </span>
+                    </div>
+                    <div class="stats-info">
+                        <span class="lp-change"
+                              th:classappend="${r.lpChange > 0} ? 'positive' : (${r.lpChange < 0} ? 'negative' : 'neutral')">
+                            <span th:if="${r.lpChange > 0}">+</span><span th:text="${r.lpChange}">0</span> LP
+                        </span>
+                        <span class="correct-count" th:text="'정답 ' + ${r.correctCount} + '개'">정답 0개</span>
+                        <span class="total-score" th:text="${r.score} + '점'">0점</span>
+                    </div>
                 </div>
             </div>
         </div>

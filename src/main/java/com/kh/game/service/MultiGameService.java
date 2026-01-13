@@ -24,6 +24,7 @@ public class MultiGameService {
     private final GenreService genreService;
     private final AnswerValidationService answerValidationService;
     private final MemberService memberService;
+    private final MultiTierService multiTierService;
     private final ObjectMapper objectMapper;
 
     // 이미 출제된 노래 ID를 방별로 관리
@@ -643,22 +644,36 @@ public class MultiGameService {
     }
 
     /**
-     * 최종 결과 조회
+     * 최종 결과 조회 (LP 정보 포함)
      */
     public List<Map<String, Object>> getFinalResult(GameRoom room) {
         List<GameRoomParticipant> participants = participantRepository.findByGameRoomOrderByScoreDesc(room);
+        int totalPlayers = participants.size();
         List<Map<String, Object>> result = new ArrayList<>();
 
         int rank = 1;
         for (GameRoomParticipant p : participants) {
+            Member member = p.getMember();
             Map<String, Object> pInfo = new HashMap<>();
-            pInfo.put("rank", rank++);
-            pInfo.put("memberId", p.getMember().getId());
-            pInfo.put("nickname", p.getMember().getNickname());
+            pInfo.put("rank", rank);
+            pInfo.put("memberId", member.getId());
+            pInfo.put("nickname", member.getNickname());
             pInfo.put("score", p.getScore());
             pInfo.put("correctCount", p.getCorrectCount());
-            pInfo.put("isHost", room.isHost(p.getMember()));
+            pInfo.put("isHost", room.isHost(member));
+
+            // 멀티 티어 정보 추가
+            pInfo.put("multiTier", member.getMultiTier() != null ? member.getMultiTier().name() : "BRONZE");
+            pInfo.put("multiTierDisplayName", member.getMultiTierDisplayName());
+            pInfo.put("multiTierColor", member.getMultiTierColor());
+            pInfo.put("multiLp", member.getMultiLp() != null ? member.getMultiLp() : 0);
+
+            // LP 변화량 계산 (표시용)
+            int lpChange = multiTierService.calculateLpChange(totalPlayers, rank);
+            pInfo.put("lpChange", lpChange);
+
             result.add(pInfo);
+            rank++;
         }
 
         return result;
@@ -719,30 +734,53 @@ public class MultiGameService {
     }
 
     /**
-     * 게임 종료 처리 - Member 통계 업데이트
+     * 게임 종료 처리 - Member 통계 업데이트 및 LP 적용
      */
     @Transactional
-    public void finishGame(GameRoom room) {
+    public List<MultiTierService.LpChangeResult> finishGame(GameRoom room) {
         room.setStatus(GameRoom.RoomStatus.FINISHED);
         usedSongsByRoom.remove(room.getId());
 
         // 모든 참가자의 통계를 Member에 반영
         List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
         int totalRounds = room.getCurrentRound();  // 실제 진행된 라운드 수
+        int totalPlayers = participants.size();
 
-        for (GameRoomParticipant participant : participants) {
+        // 점수순 정렬 (순위 계산용)
+        List<GameRoomParticipant> rankedParticipants = participants.stream()
+                .sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
+                .toList();
+
+        List<MultiTierService.LpChangeResult> lpResults = new ArrayList<>();
+
+        for (int i = 0; i < rankedParticipants.size(); i++) {
+            GameRoomParticipant participant = rankedParticipants.get(i);
             Member member = participant.getMember();
+            int rank = i + 1;
+
             if (member != null) {
+                // 기존 통계 업데이트
                 memberService.addMultiGameResult(
                         member.getId(),
                         participant.getScore(),
                         participant.getCorrectCount(),
                         totalRounds
                 );
+
+                // LP 적용 및 티어 변동 처리
+                MultiTierService.LpChangeResult lpResult = multiTierService.applyGameResult(
+                        member.getId(),
+                        totalPlayers,
+                        rank,
+                        participant.getScore()
+                );
+                lpResults.add(lpResult);
             }
         }
 
         log.info("멀티게임 종료 - 방: {}, 참가자: {}명, 라운드: {}",
-                room.getId(), participants.size(), totalRounds);
+                room.getId(), totalPlayers, totalRounds);
+
+        return lpResults;
     }
 }

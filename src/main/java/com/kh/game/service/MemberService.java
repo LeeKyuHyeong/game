@@ -258,16 +258,34 @@ public class MemberService {
 
     // ========== Solo Guess (내가맞추기) 랭킹 ==========
 
+    // 1. 누적 총점
     public List<Member> getGuessRankingByScore(int limit) {
         return memberRepository.findTopGuessRankingByScore(PageRequest.of(0, limit));
     }
 
+    // 2. 평균 정답률
     public List<Member> getGuessRankingByAccuracy(int limit) {
         return memberRepository.findTopGuessRankingByAccuracy(PageRequest.of(0, limit));
     }
 
+    // 3. 평균 점수
+    public List<Member> getGuessRankingByAvgScore(int limit) {
+        return memberRepository.findTopGuessRankingByAvgScore(PageRequest.of(0, limit));
+    }
+
+    // 4. 최다 정답
+    public List<Member> getGuessRankingByCorrect(int limit) {
+        return memberRepository.findTopGuessRankingByCorrect(PageRequest.of(0, limit));
+    }
+
+    // 5. 플레이왕 (게임 수)
     public List<Member> getGuessRankingByGames(int limit) {
         return memberRepository.findTopGuessRankingByGames(PageRequest.of(0, limit));
+    }
+
+    // 6. 도전왕 (라운드 수)
+    public List<Member> getGuessRankingByRounds(int limit) {
+        return memberRepository.findTopGuessRankingByRounds(PageRequest.of(0, limit));
     }
 
     // 내 순위 조회
@@ -311,6 +329,20 @@ public class MemberService {
 
     public List<Member> getMultiBestScoreRanking(int limit) {
         return memberRepository.findTopMultiBestScore(PageRequest.of(0, limit));
+    }
+
+    // ========== 멀티게임 LP 티어 랭킹 ==========
+
+    public List<Member> getMultiTierRanking(int limit) {
+        return memberRepository.findTopMultiTierRanking(PageRequest.of(0, limit));
+    }
+
+    public List<Member> getMultiWinsRanking(int limit) {
+        return memberRepository.findTopMultiWins(PageRequest.of(0, limit));
+    }
+
+    public List<Member> getMultiTop3Ranking(int limit) {
+        return memberRepository.findTopMultiTop3(PageRequest.of(0, limit));
     }
 
     // ========== 로그인 이력 ==========

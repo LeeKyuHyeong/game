@@ -42,8 +42,9 @@
                 <span class="notice-text">전체랜덤 + 필터없음 + 10라운드 이상 게임만 집계됩니다</span>
             </div>
 
-            <!-- 랭킹 기준 탭 (전체 기간에서만 표시) -->
-            <div class="ranking-type-tabs" id="typeTabsContainer">
+
+            <!-- 내가맞추기 랭킹 기준 탭 (6가지) -->
+            <div class="ranking-type-tabs guess-type-tabs" id="guessTypeTabsContainer">
                 <button class="type-tab active" data-type="score">
                     <span class="tab-icon">🎯</span>
                     <span class="tab-label">총점</span>
@@ -52,10 +53,28 @@
                     <span class="tab-icon">✅</span>
                     <span class="tab-label">정답률</span>
                 </button>
+                <button class="type-tab" data-type="avgScore">
+                    <span class="tab-icon">📊</span>
+                    <span class="tab-label">평균점수</span>
+                </button>
+                <button class="type-tab" data-type="correct">
+                    <span class="tab-icon">🏅</span>
+                    <span class="tab-label">최다정답</span>
+                </button>
                 <button class="type-tab" data-type="games">
                     <span class="tab-icon">🎮</span>
-                    <span class="tab-label">게임수</span>
+                    <span class="tab-label">플레이왕</span>
                 </button>
+                <button class="type-tab" data-type="rounds">
+                    <span class="tab-icon">🔥</span>
+                    <span class="tab-label">도전왕</span>
+                </button>
+            </div>
+
+            <!-- 멀티게임 LP 랭킹 안내 -->
+            <div class="best-score-notice" id="multiLpNotice" style="display: none;">
+                <span class="notice-icon">🏆</span>
+                <span class="notice-text">멀티게임 순위에 따라 LP를 획득하여 티어가 결정됩니다</span>
             </div>
 
             <!-- TOP 3 포디움 -->
@@ -120,45 +139,84 @@
                 document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 currentMode = this.dataset.mode;
-                loadRanking();
-            });
-        });
 
-        // 기간 탭
-        document.querySelectorAll('.period-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                currentPeriod = this.dataset.period;
+                // 모드에 따른 UI 전환
+                updateTypeTabsVisibility();
 
-                // 전체 기간일 때만 타입 탭 표시
-                const typeTabsContainer = document.getElementById('typeTabsContainer');
-                const bestScoreNotice = document.getElementById('bestScoreNotice');
+                // 타입 리셋 (모드 변경 시)
+                currentType = 'score';
+                document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.type-tab[data-type="score"]').forEach(t => t.classList.add('active'));
 
-                if (currentPeriod === 'all') {
-                    typeTabsContainer.style.display = 'flex';
-                    bestScoreNotice.style.display = 'none';
-                } else if (currentPeriod === 'best') {
-                    typeTabsContainer.style.display = 'none';
-                    bestScoreNotice.style.display = 'flex';
+                // 멀티게임은 period 무시 (항상 tier 랭킹)
+                if (currentMode === 'multi') {
+                    currentPeriod = 'tier';
                 } else {
-                    typeTabsContainer.style.display = 'none';
-                    bestScoreNotice.style.display = 'none';
+                    currentPeriod = 'all';
+                    document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelector('.period-tab[data-period="all"]').classList.add('active');
                 }
 
                 loadRanking();
             });
         });
 
-        // 랭킹 기준 탭
-        document.querySelectorAll('.type-tab').forEach(tab => {
+        // 기간 탭 (내가맞추기 모드에서만 동작)
+        document.querySelectorAll('.period-tab').forEach(tab => {
             tab.addEventListener('click', function() {
-                document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+                if (currentMode === 'multi') return; // 멀티게임에서는 기간 탭 무시
+
+                document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentPeriod = this.dataset.period;
+
+                // 전체 기간일 때만 타입 탭 표시
+                updateTypeTabsVisibility();
+
+                loadRanking();
+            });
+        });
+
+        // 랭킹 기준 탭 (내가맞추기)
+        document.querySelectorAll('#guessTypeTabsContainer .type-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('#guessTypeTabsContainer .type-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 currentType = this.dataset.type;
                 loadRanking();
             });
         });
+    }
+
+    function updateTypeTabsVisibility() {
+        const guessTypeTabsContainer = document.getElementById('guessTypeTabsContainer');
+        const bestScoreNotice = document.getElementById('bestScoreNotice');
+        const multiLpNotice = document.getElementById('multiLpNotice');
+        const periodTabs = document.querySelector('.period-tabs');
+
+        // 공지 초기화
+        bestScoreNotice.style.display = 'none';
+        multiLpNotice.style.display = 'none';
+
+        if (currentMode === 'multi') {
+            // 멀티게임: 기간 탭/타입 탭 숨기고 LP 안내 표시
+            periodTabs.style.display = 'none';
+            guessTypeTabsContainer.style.display = 'none';
+            multiLpNotice.style.display = 'flex';
+        } else {
+            // 내가맞추기: 기간 탭 표시
+            periodTabs.style.display = 'flex';
+
+            if (currentPeriod === 'all') {
+                guessTypeTabsContainer.style.display = 'flex';
+            } else if (currentPeriod === 'best') {
+                guessTypeTabsContainer.style.display = 'none';
+                bestScoreNotice.style.display = 'flex';
+            } else {
+                // weekly
+                guessTypeTabsContainer.style.display = 'none';
+            }
+        }
     }
 
     async function loadRanking() {
@@ -203,11 +261,17 @@
                 el.querySelector('.podium-name').textContent = member.nickname;
                 el.querySelector('.podium-value').textContent = formatValue(member);
 
-                // 티어 배지 추가
+                // 티어 배지 추가 (멀티게임은 멀티 티어 사용)
                 const tierEl = el.querySelector('.podium-tier');
-                tierEl.textContent = member.tierDisplayName;
-                tierEl.style.color = member.tierColor;
-                tierEl.className = 'podium-tier tier-badge tier-' + member.tier.toLowerCase();
+                if (currentMode === 'multi') {
+                    tierEl.textContent = member.multiTierDisplayName || '';
+                    tierEl.style.color = member.multiTierColor || '#cd7f32';
+                    tierEl.className = 'podium-tier tier-badge tier-' + (member.multiTier || 'BRONZE').toLowerCase();
+                } else {
+                    tierEl.textContent = member.tierDisplayName;
+                    tierEl.style.color = member.tierColor;
+                    tierEl.className = 'podium-tier tier-badge tier-' + member.tier.toLowerCase();
+                }
             } else {
                 el.style.display = 'none';
             }
@@ -217,21 +281,28 @@
     function updateTable(rankings) {
         const table = document.getElementById('rankingTable');
 
-        table.innerHTML = rankings.map((member, index) => `
-            <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
-                <div class="rank-cell">
-                    ${index < 3 ? getMedal(index) : (index + 1)}
+        table.innerHTML = rankings.map((member, index) => {
+            // 멀티게임은 멀티 티어 사용
+            const tierName = currentMode === 'multi' ? (member.multiTier || 'BRONZE') : member.tier;
+            const tierColor = currentMode === 'multi' ? (member.multiTierColor || '#cd7f32') : member.tierColor;
+            const tierDisplayName = currentMode === 'multi' ? (member.multiTierDisplayName || '') : member.tierDisplayName;
+
+            return `
+                <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
+                    <div class="rank-cell">
+                        ${index < 3 ? getMedal(index) : (index + 1)}
+                    </div>
+                    <div class="name-cell">
+                        <span class="tier-badge tier-${tierName.toLowerCase()}" style="color: ${tierColor}">${tierDisplayName}</span>
+                        <span class="member-name">${member.nickname}</span>
+                    </div>
+                    <div class="stats-cell">
+                        <span class="main-stat">${formatValue(member)}</span>
+                        <span class="sub-stat">${formatSubStat(member)}</span>
+                    </div>
                 </div>
-                <div class="name-cell">
-                    <span class="tier-badge tier-${member.tier.toLowerCase()}" style="color: ${member.tierColor}">${member.tierDisplayName}</span>
-                    <span class="member-name">${member.nickname}</span>
-                </div>
-                <div class="stats-cell">
-                    <span class="main-stat">${formatValue(member)}</span>
-                    <span class="sub-stat">${formatSubStat(member)}</span>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function getMedal(index) {
@@ -240,23 +311,45 @@
     }
 
     function formatValue(member) {
+        // 멀티게임: LP만 표시
+        if (currentMode === 'multi') {
+            return (member.multiLp || 0) + ' LP';
+        }
+
+        // 내가맞추기
         if (currentPeriod === 'best') {
             return member.totalScore.toLocaleString() + '점';
         }
+        if (currentPeriod === 'weekly') {
+            return member.totalScore.toLocaleString() + '점';
+        }
 
+        // 내가맞추기 6가지 타입
         switch(currentType) {
             case 'score':
                 return member.totalScore.toLocaleString() + '점';
             case 'accuracy':
                 return member.accuracyRate.toFixed(1) + '%';
+            case 'avgScore':
+                return (member.averageScore || 0).toFixed(1) + '점';
+            case 'correct':
+                return member.totalCorrect + '개';
             case 'games':
                 return member.totalGames + '게임';
+            case 'rounds':
+                return member.totalRounds + '라운드';
             default:
-                return '';
+                return member.totalScore.toLocaleString() + '점';
         }
     }
 
     function formatSubStat(member) {
+        // 멀티게임: 1등/Top3 횟수 표시
+        if (currentMode === 'multi') {
+            return '1등 ' + (member.multiWins || 0) + '회 · Top3 ' + (member.multiTop3 || 0) + '회';
+        }
+
+        // 내가맞추기
         if (currentPeriod === 'best') {
             return '최고 정답률 ' + member.accuracyRate.toFixed(1) + '%';
         }
@@ -264,15 +357,22 @@
             return member.totalGames + '게임 · ' + member.accuracyRate.toFixed(1) + '%';
         }
 
+        // 내가맞추기 6가지 타입
         switch(currentType) {
             case 'score':
-                return member.totalGames + '게임';
+                return member.totalGames + '게임 · ' + member.accuracyRate.toFixed(1) + '%';
             case 'accuracy':
                 return member.totalCorrect + '/' + member.totalRounds + '문제';
+            case 'avgScore':
+                return member.totalGames + '게임 · 총 ' + member.totalScore.toLocaleString() + '점';
+            case 'correct':
+                return member.totalRounds + '라운드 · ' + member.accuracyRate.toFixed(1) + '%';
             case 'games':
-                return member.totalScore.toLocaleString() + '점';
+                return member.totalScore.toLocaleString() + '점 · ' + member.accuracyRate.toFixed(1) + '%';
+            case 'rounds':
+                return member.totalGames + '게임 · ' + member.totalCorrect + '정답';
             default:
-                return '';
+                return member.totalGames + '게임';
         }
     }
 </script>
