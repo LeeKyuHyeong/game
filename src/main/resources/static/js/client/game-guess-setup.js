@@ -84,6 +84,7 @@ function handleGameModeChange() {
             break;
         case 'FIXED_ARTIST':
             document.getElementById('artistSelectArea').style.display = 'block';
+            document.getElementById('artistTypeArea').style.display = 'none'; // 아티스트 유형 숨김
             renderArtistChips();
             break;
         case 'FIXED_YEAR':
@@ -95,6 +96,11 @@ function handleGameModeChange() {
         case 'YEAR_PER_ROUND':
             document.getElementById('perRoundOptions').style.display = 'block';
             break;
+    }
+
+    // 아티스트 고정 모드가 아니면 아티스트 유형 영역 표시
+    if (gameMode !== 'FIXED_ARTIST') {
+        document.getElementById('artistTypeArea').style.display = 'block';
     }
 
     updateSongCount();
@@ -172,15 +178,17 @@ function updateRankingNotice() {
     const loggedIn = typeof isLoggedIn !== 'undefined' && isLoggedIn;
     const artistType = document.querySelector('input[name="artistType"]:checked').value;
 
-    const conditionLoginMet = loggedIn;
     const conditionModeMet = gameMode === 'RANDOM';
+    const conditionLoginMet = loggedIn;
     const conditionRoundsMet = rounds >= 10;
-    const conditionArtistMet = artistType === 'all';
+    // 아티스트 고정 모드에서는 아티스트 유형 조건 미충족
+    const conditionArtistMet = gameMode === 'FIXED_ARTIST' ? false : artistType === 'all';
 
-    updateConditionUI('conditionLogin', conditionLoginMet);
-    updateConditionUI('conditionMode', conditionModeMet);
-    updateConditionUI('conditionRounds', conditionRoundsMet);
-    updateConditionUI('conditionArtist', conditionArtistMet);
+    // 전체 랜덤 모드가 아니면 다른 조건들 비활성화 표시
+    updateConditionUI('conditionMode', conditionModeMet, false);
+    updateConditionUI('conditionLogin', conditionLoginMet, !conditionModeMet);
+    updateConditionUI('conditionRounds', conditionRoundsMet, !conditionModeMet);
+    updateConditionUI('conditionArtist', conditionArtistMet, !conditionModeMet);
 
     const resultEl = document.getElementById('noticeResult');
     const allMet = conditionLoginMet && conditionModeMet && conditionRoundsMet && conditionArtistMet;
@@ -190,20 +198,31 @@ function updateRankingNotice() {
         resultEl.className = 'notice-result success';
     } else {
         const missing = [];
-        if (!conditionLoginMet) missing.push('로그인');
         if (!conditionModeMet) missing.push('전체 랜덤 모드');
-        if (!conditionRoundsMet) missing.push('10라운드 이상');
-        if (!conditionArtistMet) missing.push('아티스트 유형 전체');
+        else {
+            if (!conditionLoginMet) missing.push('로그인');
+            if (!conditionRoundsMet) missing.push('10라운드 이상');
+            if (!conditionArtistMet) missing.push('아티스트 유형 전체');
+        }
         resultEl.textContent = `조건 미충족: ${missing.join(', ')}`;
         resultEl.className = 'notice-result warning';
     }
 }
 
-function updateConditionUI(elementId, isMet) {
+function updateConditionUI(elementId, isMet, disabled = false) {
     const el = document.getElementById(elementId);
     if (!el) return;
     const iconEl = el.querySelector('.condition-icon');
 
+    // 비활성화 상태 처리
+    if (disabled) {
+        el.classList.add('disabled');
+        el.classList.remove('met', 'unmet');
+        iconEl.textContent = '−';
+        return;
+    }
+
+    el.classList.remove('disabled');
     if (isMet) {
         el.classList.add('met');
         el.classList.remove('unmet');
