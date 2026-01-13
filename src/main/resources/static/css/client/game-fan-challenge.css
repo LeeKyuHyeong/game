@@ -1,6 +1,37 @@
 /* 최고 팬 챌린지 스타일 */
 
 /* ========== Setup 페이지 ========== */
+
+/* 다크 테마 설정 카드 */
+.setup-card.fan-challenge-card {
+    background: var(--bg-primary, #121212);
+    color: var(--text-primary, #fff);
+}
+
+.fan-challenge-card .setup-step h3 {
+    color: var(--text-primary, #fff);
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.fan-challenge-card .input-text {
+    background: var(--bg-secondary, #1a1a1a);
+    border: 1px solid var(--border-color, #333);
+    color: var(--text-primary, #fff);
+    padding: 0.75rem;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.fan-challenge-card .input-text::placeholder {
+    color: var(--text-secondary, #888);
+}
+
+.fan-challenge-card .input-text:focus {
+    outline: none;
+    border-color: var(--primary-color, #ffd700);
+}
+
 .fan-challenge-card .challenge-intro {
     text-align: center;
     padding: 2rem 0;
@@ -90,7 +121,8 @@
 /* 아티스트 목록 */
 .artist-list-container h4 {
     margin-bottom: 0.75rem;
-    color: var(--text-secondary, #aaa);
+    color: var(--text-primary, #fff);
+    font-size: 0.9rem;
 }
 
 .artist-list {
@@ -111,10 +143,12 @@
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
+    color: var(--text-primary, #fff);
 }
 
 .artist-item:hover {
     border-color: var(--primary-color, #ffd700);
+    background: var(--bg-hover, #2a2a2a);
 }
 
 .artist-item.selected {
@@ -125,7 +159,7 @@
 
 .song-count {
     font-size: 0.85rem;
-    color: var(--text-secondary, #aaa);
+    color: var(--text-secondary, #888);
 }
 
 .artist-item.selected .song-count {
@@ -133,10 +167,15 @@
 }
 
 /* 규칙 섹션 */
-.rules-section {
+.fan-challenge-card .rules-section {
     background: var(--bg-secondary, #1a1a1a);
     padding: 1.5rem;
     border-radius: 12px;
+}
+
+.fan-challenge-card .rules-section h3 {
+    color: var(--text-primary, #fff);
+    margin-bottom: 1rem;
 }
 
 .rules-list {
@@ -150,6 +189,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.5rem 0;
+    color: var(--text-primary, #fff);
 }
 
 .rule-icon {
@@ -758,13 +798,68 @@
 
 /* 모바일 대응 */
 @media (max-width: 600px) {
+    /* Setup 페이지 모바일 */
+    .fan-challenge-card .challenge-intro {
+        padding: 1rem 0;
+        margin-bottom: 1rem;
+    }
+
+    .fan-challenge-card .challenge-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .fan-challenge-card .challenge-intro h2 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .fan-challenge-card .challenge-desc {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .fan-challenge-card .setup-step {
+        margin-bottom: 1rem;
+    }
+
+    .fan-challenge-card .setup-step h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
     .artist-list {
         grid-template-columns: repeat(2, 1fr);
+        max-height: 200px;
+        gap: 0.375rem;
+    }
+
+    .artist-item {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .fan-challenge-card .rules-section {
+        padding: 1rem;
+    }
+
+    .rules-list li {
+        padding: 0.375rem 0;
+        font-size: 0.85rem;
+    }
+
+    .rule-icon {
+        font-size: 1rem;
+    }
+
+    /* Play 페이지 모바일 - 컴팩트 */
+    .game-container.fan-challenge {
+        min-height: 100dvh;
     }
 
     .game-header {
-        flex-wrap: wrap;
-        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        gap: 0.375rem;
     }
 
     .header-center {
@@ -774,12 +869,157 @@
         justify-content: center;
     }
 
+    .header-left .artist-name {
+        font-size: 0.85rem;
+    }
+
+    .round-info {
+        font-size: 0.85rem;
+    }
+
+    .life {
+        font-size: 1.1rem;
+    }
+
+    .correct-count {
+        font-size: 0.85rem;
+    }
+
+    .btn-quit {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.8rem;
+    }
+
+    .game-main {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    /* 준비 화면 컴팩트 */
+    .ready-content {
+        padding: 1.5rem;
+    }
+
+    .ready-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .ready-content h2 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .ready-content p {
+        font-size: 0.85rem;
+    }
+
+    .btn-ready {
+        margin-top: 1rem;
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+    }
+
+    /* 게임 화면 컴팩트 */
+    .game-screen {
+        gap: 1rem;
+    }
+
+    .timer-section {
+        margin-bottom: 0;
+    }
+
+    .timer-bar-container {
+        height: 12px;
+        margin-bottom: 0.25rem;
+    }
+
     .timer-text {
-        font-size: 2rem;
+        font-size: 1.5rem;
+    }
+
+    .player-section {
+        padding: 1rem;
+    }
+
+    .music-icon {
+        font-size: 2.5rem;
+    }
+
+    .now-playing {
+        font-size: 0.85rem;
     }
 
     .answer-section {
         flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .answer-input {
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+
+    .btn-submit {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    /* 정답 모달 컴팩트 */
+    .modal-content {
+        padding: 1.25rem;
+        max-width: 320px;
+    }
+
+    .answer-result {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .answer-info {
+        margin-bottom: 1rem;
+    }
+
+    .correct-answer {
+        font-size: 1.1rem;
+    }
+
+    .modal-stats {
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+    }
+
+    .btn-next {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* 게임오버 모달 컴팩트 */
+    .gameover-title {
+        font-size: 1.5rem;
+    }
+
+    .gameover-message {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-result {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+    }
+
+    /* Result 페이지 모바일 */
+    .fan-challenge-result {
+        padding: 1rem;
     }
 
     .stats-row {
@@ -788,5 +1028,19 @@
 
     .rounds-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .round-card {
+        padding: 0.75rem;
+    }
+
+    .round-number {
+        font-size: 0.75rem;
+    }
+
+    .round-song {
+        font-size: 0.85rem;
+        margin: 0.25rem 0;
     }
 }
