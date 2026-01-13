@@ -496,7 +496,18 @@ function updateProgress() {
 
     if (currentTime >= duration) {
         pauseAudio();
+        disablePlayButton();
     }
+}
+
+// 재생 시간 종료 후 버튼 비활성화
+function disablePlayButton() {
+    const playBtn = document.getElementById('playBtn');
+    if (playBtn) {
+        playBtn.disabled = true;
+        playBtn.innerHTML = '<span class="play-icon">▶</span>';
+    }
+    document.getElementById('playerStatus').textContent = '재생 완료';
 }
 
 function updateTimeDisplay() {
@@ -554,6 +565,11 @@ function resetUI() {
     playStartTime = null; // 재생 시작 시점 리셋
     lastPossibleScore = 100; // 점수 리셋
     document.getElementById('answerInput').value = '';
+    // 재생 버튼 다시 활성화
+    const playBtn = document.getElementById('playBtn');
+    if (playBtn) {
+        playBtn.disabled = false;
+    }
     // 피드백 메시지 초기화
     const feedbackEl = document.getElementById('attemptFeedback');
     if (feedbackEl) {

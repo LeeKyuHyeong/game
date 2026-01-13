@@ -857,6 +857,36 @@
         display: none;
     }
 
+    /* Nav 영역 스크롤 + Footer 하단 고정 */
+    .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.5rem;
+    }
+
+    /* 스크롤바 스타일 */
+    .sidebar-nav::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+    }
+
+    /* Footer 항상 하단 고정 */
+    .sidebar-footer {
+        flex-shrink: 0;
+        padding: 0.75rem 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: #0f172a;
+    }
+
     .main-content {
         margin-left: 0;
         padding-top: 4rem; /* 햄버거 버튼 공간 */

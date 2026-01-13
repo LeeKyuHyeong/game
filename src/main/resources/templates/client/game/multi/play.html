@@ -32,20 +32,6 @@
                 </div>
             </div>
 
-            <!-- 준비 단계 (광고 시청 후 준비 완료) -->
-            <div class="round-preparing" id="roundPreparing" style="display:none;">
-                <div class="preparing-content">
-                    <div class="preparing-icon">📺</div>
-                    <h2>라운드 <span id="preparingRound">1</span> 준비</h2>
-                    <p class="preparing-message">광고가 있다면 먼저 시청해주세요</p>
-                    <p class="preparing-hint">모든 참가자가 준비 완료하면 노래가 자동 재생됩니다</p>
-                    <p class="ready-status-count" id="readyStatusCount">0 / 0 명 준비 완료</p>
-                    <button class="btn btn-round-ready" id="roundReadyBtn" onclick="setRoundReady()">
-                        준비 완료
-                    </button>
-                </div>
-            </div>
-
             <!-- 플레이 상태 -->
             <div class="round-playing" id="roundPlaying" style="display:none;">
                 <div class="music-player">
@@ -138,79 +124,6 @@
 <th:block th:replace="~{common/fragments/report-modal :: reportModal}"></th:block>
 
 <style>
-/* PREPARING 단계 스타일 */
-.round-preparing {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border-radius: 16px;
-    padding: 32px;
-    text-align: center;
-    border: 2px solid #ffd700;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
-}
-.preparing-content {
-    max-width: 400px;
-    margin: 0 auto;
-}
-.preparing-icon {
-    font-size: 3em;
-    margin-bottom: 16px;
-    animation: pulse 1.5s ease-in-out infinite;
-}
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-.preparing-content h2 {
-    color: #fff;
-    margin-bottom: 12px;
-}
-.preparing-message {
-    font-size: 1.1em;
-    color: #ffd700;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-.preparing-hint {
-    font-size: 0.9em;
-    color: #aaa;
-    margin-bottom: 12px;
-}
-.ready-status-count {
-    font-size: 1em;
-    color: #4CAF50;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-.btn-round-ready {
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    color: white;
-    padding: 14px 40px;
-    font-size: 1.1em;
-    font-weight: 600;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.btn-round-ready:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
-}
-.btn-round-ready:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-.btn-round-ready.ready-done {
-    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-}
-/* 스코어보드 준비 상태 표시 */
-.ready-badge {
-    color: #4CAF50;
-    font-weight: bold;
-}
-.not-ready-badge {
-    color: #aaa;
-}
 /* 신고 버튼 */
 .btn-report-inline {
     display: inline-block;

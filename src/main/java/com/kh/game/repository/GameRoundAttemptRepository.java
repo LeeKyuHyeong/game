@@ -60,4 +60,13 @@ public interface GameRoundAttemptRepository extends JpaRepository<GameRoundAttem
             "WHERE gra.isCorrect = false AND gr.song IS NOT NULL " +
             "ORDER BY gra.createdAt DESC")
     List<Object[]> findRecentWrongAnswers();
+
+    // 오답+정답 쌍으로 그룹핑 (어떤 곡에서 어떤 오답이 몇 번 나왔는지)
+    @Query("SELECT gra.userAnswer, gr.song.id, gr.song.title, gr.song.artist, COUNT(gra) as cnt " +
+            "FROM GameRoundAttempt gra " +
+            "JOIN gra.gameRound gr " +
+            "WHERE gra.isCorrect = false AND gr.song IS NOT NULL " +
+            "GROUP BY gra.userAnswer, gr.song.id, gr.song.title, gr.song.artist " +
+            "ORDER BY cnt DESC")
+    List<Object[]> findMostCommonWrongAnswersWithSong();
 }

@@ -120,6 +120,31 @@ public class WrongAnswerStatsService {
     }
 
     /**
+     * 오답+정답 쌍으로 그룹핑된 흔한 오답 목록
+     * (같은 오답이라도 다른 곡에서 나왔으면 별도로 집계)
+     */
+    public List<Map<String, Object>> getMostCommonWrongAnswersWithSong(int limit) {
+        List<Object[]> results = attemptRepository.findMostCommonWrongAnswersWithSong();
+        List<Map<String, Object>> wrongAnswers = new ArrayList<>();
+
+        int count = 0;
+        for (Object[] row : results) {
+            if (count >= limit) break;
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("answer", row[0]);
+            item.put("songId", row[1]);
+            item.put("songTitle", row[2]);
+            item.put("artist", row[3]);
+            item.put("count", row[4]);
+            wrongAnswers.add(item);
+            count++;
+        }
+
+        return wrongAnswers;
+    }
+
+    /**
      * 오답 통계 요약
      */
     public Map<String, Object> getStatsSummary() {

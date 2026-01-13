@@ -53,7 +53,7 @@ public class AdminAnswerController {
             answerCounts.put(song.getId(), (long) answers.size());
             songAnswersMap.put(song.getId(), answers);
             SongAnswer primary = answers.stream()
-                    .filter(SongAnswer::getIsPrimary)
+                    .filter(a -> Boolean.TRUE.equals(a.getIsPrimary()))
                     .findFirst()
                     .orElse(answers.isEmpty() ? null : answers.get(0));
             primaryAnswerMap.put(song.getId(), primary);

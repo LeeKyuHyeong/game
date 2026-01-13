@@ -40,17 +40,42 @@
         <div class="stats-panel" id="commonPanel">
             <div class="panel-header">
                 <h3>🔥 자주 틀리는 답변 TOP 20</h3>
+                <span class="panel-desc">오답과 정답 곡 쌍으로 그룹핑</span>
             </div>
-            <div class="wrong-answer-list">
-                <div class="wrong-answer-item" th:each="item, idx : ${commonWrongAnswers}">
-                    <span class="rank" th:text="${idx.index + 1}">1</span>
-                    <span class="answer" th:text="${item.answer}">답변</span>
-                    <span class="count" th:text="${item.count} + '회'">0회</span>
-                </div>
-                <div class="empty-state" th:if="${#lists.isEmpty(commonWrongAnswers)}">
-                    <p>아직 오답 데이터가 없습니다.</p>
-                </div>
-            </div>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">순위</th>
+                        <th style="width:200px;">오답</th>
+                        <th>정답 곡</th>
+                        <th style="width:80px;">횟수</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item, idx : ${commonWrongAnswers}">
+                        <td data-label="순위">
+                            <span class="rank-badge" th:classappend="${idx.index < 3} ? 'top-' + (idx.index + 1) : ''">
+                                <span th:text="${idx.index + 1}">1</span>
+                            </span>
+                        </td>
+                        <td data-label="오답">
+                            <span class="wrong-text" th:text="${item.answer}">오답</span>
+                        </td>
+                        <td data-label="정답 곡">
+                            <div class="song-info">
+                                <span class="song-title" th:text="${item.songTitle}">제목</span>
+                                <span class="song-artist" th:text="${item.artist}">아티스트</span>
+                            </div>
+                        </td>
+                        <td data-label="횟수" th:text="${item.count} + '회'">0회</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(commonWrongAnswers)}" class="empty-row">
+                        <td colspan="4" class="empty-state">
+                            아직 오답 데이터가 없습니다.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- 어려운 곡 TOP -->
@@ -70,26 +95,26 @@
                 </thead>
                 <tbody>
                     <tr th:each="song, idx : ${hardestSongs}">
-                        <td>
+                        <td data-label="순위">
                             <span class="rank-badge" th:classappend="${idx.index < 3} ? 'top-' + (idx.index + 1) : ''">
                                 <span th:text="${idx.index + 1}">1</span>
                             </span>
                         </td>
-                        <td>
+                        <td data-label="곡 정보">
                             <div class="song-info">
                                 <span class="song-title" th:text="${song.title}">제목</span>
                                 <span class="song-artist" th:text="${song.artist}">아티스트</span>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="정답률">
                             <div class="rate-bar">
                                 <div class="rate-fill" th:style="'width:' + ${song.correctRate} + '%'"></div>
                                 <span class="rate-text" th:text="${song.correctRate} + '%'">0%</span>
                             </div>
                         </td>
-                        <td th:text="${song.totalPlays} + '회'">0회</td>
+                        <td data-label="플레이" th:text="${song.totalPlays} + '회'">0회</td>
                     </tr>
-                    <tr th:if="${#lists.isEmpty(hardestSongs)}">
+                    <tr th:if="${#lists.isEmpty(hardestSongs)}" class="empty-row">
                         <td colspan="4" class="empty-state">
                             아직 충분한 플레이 데이터가 없습니다.
                         </td>
@@ -113,18 +138,18 @@
                 </thead>
                 <tbody>
                     <tr th:each="item : ${recentWrongAnswers}">
-                        <td>
+                        <td data-label="오답">
                             <span class="wrong-text" th:text="${item.userAnswer}">오답</span>
                         </td>
-                        <td>
+                        <td data-label="정답 곡">
                             <div class="song-info">
                                 <span class="song-title" th:text="${item.songTitle}">제목</span>
                                 <span class="song-artist" th:text="${item.artist}">아티스트</span>
                             </div>
                         </td>
-                        <td th:text="${#temporals.format(item.createdAt, 'MM.dd HH:mm')}">01.01 00:00</td>
+                        <td data-label="시간" th:text="${#temporals.format(item.createdAt, 'MM.dd HH:mm')}">01.01 00:00</td>
                     </tr>
-                    <tr th:if="${#lists.isEmpty(recentWrongAnswers)}">
+                    <tr th:if="${#lists.isEmpty(recentWrongAnswers)}" class="empty-row">
                         <td colspan="3" class="empty-state">
                             아직 오답 데이터가 없습니다.
                         </td>
@@ -354,12 +379,125 @@
         }
         .stats-tab {
             flex-shrink: 0;
-        }
-        .stats-table {
+            padding: 8px 16px;
             font-size: 0.85rem;
         }
-        .stats-table th, .stats-table td {
-            padding: 10px 12px;
+        .stats-panel {
+            padding: 12px;
+        }
+        .panel-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        .panel-header h3 {
+            font-size: 1rem;
+        }
+
+        /* 테이블을 카드 뷰로 변환 */
+        .stats-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .stats-table thead {
+            display: none;
+        }
+        .stats-table tbody {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .stats-table tbody tr {
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stats-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* 셀 스타일 */
+        .stats-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .stats-table td:last-child {
+            border-bottom: none;
+        }
+
+        /* 라벨 표시 */
+        .stats-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #a0aec0;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            margin-right: 12px;
+        }
+
+        /* 순위 셀 - 카드 상단에 강조 표시 */
+        .stats-table td[data-label="순위"] {
+            order: -1;
+            justify-content: flex-start;
+            padding-bottom: 12px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stats-table td[data-label="순위"]::before {
+            display: none;
+        }
+        .stats-table td[data-label="순위"] .rank-badge {
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
+        }
+
+        /* 오답 셀 강조 */
+        .stats-table td[data-label="오답"] {
+            order: -1;
+            padding-top: 0;
+        }
+        .stats-table td[data-label="오답"] .wrong-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* 곡 정보 */
+        .stats-table td .song-info {
+            text-align: right;
+        }
+        .stats-table td .song-title {
+            font-size: 0.9rem;
+        }
+        .stats-table td .song-artist {
+            font-size: 0.75rem;
+        }
+
+        /* 정답률 바 */
+        .stats-table td .rate-bar {
+            width: 100px;
+            height: 18px;
+        }
+        .stats-table td .rate-text {
+            font-size: 0.7rem;
+        }
+
+        /* 빈 상태 */
+        .stats-table tbody tr.empty-row {
+            padding: 30px;
+        }
+        .stats-table tbody tr.empty-row td {
+            justify-content: center;
+        }
+        .stats-table tbody tr.empty-row td::before {
+            display: none;
         }
     }
 </style>

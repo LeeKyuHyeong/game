@@ -1,10 +1,9 @@
 // 게임 상태
 let currentRound = 0;
-let currentPhase = null;  // null, PREPARING, PLAYING, RESULT
+let currentPhase = null;  // null, PLAYING, RESULT
 let currentSong = null;
 let isPlaying = false;
 let youtubePlayerReady = false;
-let isRoundReady = false;  // 내가 라운드 준비 완료 했는지
 
 // DOM 요소
 const audioPlayer = document.getElementById('audioPlayer');
@@ -56,9 +55,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 });
 
-// 페이지 떠날 때 정리
+// 페이지 떠날 때 정리 및 방 나가기
 window.addEventListener('beforeunload', function() {
     stopPolling();
+    // sendBeacon으로 방 나가기 요청 (페이지 언로드되어도 전송 보장)
+    navigator.sendBeacon('/game/multi/room/' + roomCode + '/leave');
+});
+
+// 뒤로가기/앞으로가기 시에도 나가기 처리
+window.addEventListener('pagehide', function() {
+    stopPolling();
+    navigator.sendBeacon('/game/multi/room/' + roomCode + '/leave');
 });
 
 // ========== 폴링 ==========
@@ -128,19 +135,10 @@ async function fetchRoundInfo() {
         // 오디오 동기화
         syncAudio(result.audioPlaying, result.audioPlayedAt);
 
-        // 스코어보드 업데이트 및 내 준비 상태 동기화
+        // 스코어보드 업데이트
         if (result.participants) {
-            // 내 roundReady 상태 동기화 (새 라운드 시작 시 서버에서 false로 초기화됨)
-            var myParticipant = result.participants.find(function(p) { return p.memberId === myMemberId; });
-            if (myParticipant) {
-                isRoundReady = myParticipant.roundReady;
-                // PREPARING 상태일 때만 버튼 업데이트
-                if (currentPhase === 'PREPARING') {
-                    updateRoundReadyButton();
-                }
-            }
+            updateScoreboard(result.participants);
         }
-        updateScoreboard(result.participants);
 
         // 결과 단계일 때 정답/정답자 표시
         if (currentPhase === 'RESULT') {
@@ -161,19 +159,10 @@ async function fetchRoundInfo() {
 
 function updatePhaseUI() {
     document.getElementById('roundWaiting').style.display = 'none';
-    document.getElementById('roundPreparing').style.display = 'none';
     document.getElementById('roundPlaying').style.display = 'none';
     document.getElementById('roundResult').style.display = 'none';
 
-    if (currentPhase === 'PREPARING') {
-        // 광고 시청 후 준비 완료 단계
-        document.getElementById('roundPreparing').style.display = 'block';
-        document.getElementById('preparingRound').textContent = currentRound;
-        stopProgressUpdate();
-        // 내가 이미 준비했는지 체크하지 않고, 버튼 상태만 업데이트
-        // isRoundReady는 fetchRoundInfo에서 참가자 정보로 동기화됨
-        updateRoundReadyButton();
-    } else if (currentPhase === 'PLAYING') {
+    if (currentPhase === 'PLAYING') {
         document.getElementById('roundPlaying').style.display = 'block';
         startProgressUpdate();
     } else if (currentPhase === 'RESULT') {
@@ -222,54 +211,6 @@ function updateNextRoundButton() {
 
 function resetNextRoundButton() {
     updateNextRoundButton();
-}
-
-// ========== 라운드 준비 (PREPARING 단계) ==========
-
-function updateRoundReadyButton() {
-    var btn = document.getElementById('roundReadyBtn');
-    if (!btn) return;
-
-    if (isRoundReady) {
-        btn.disabled = true;
-        btn.textContent = '준비 완료!';
-        btn.classList.add('ready-done');
-    } else {
-        btn.disabled = false;
-        btn.textContent = '준비 완료';
-        btn.classList.remove('ready-done');
-    }
-}
-
-async function setRoundReady() {
-    if (isRoundReady) return;
-
-    var btn = document.getElementById('roundReadyBtn');
-    btn.disabled = true;
-    btn.textContent = '처리 중...';
-
-    try {
-        const response = await fetch('/game/multi/room/' + roomCode + '/round-ready', {
-            method: 'POST'
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            isRoundReady = true;
-            btn.textContent = '준비 완료!';
-            btn.classList.add('ready-done');
-        } else {
-            btn.disabled = false;
-            btn.textContent = '준비 완료';
-            alert(result.message || '준비 처리 실패');
-        }
-
-    } catch (error) {
-        console.error('라운드 준비 오류:', error);
-        btn.disabled = false;
-        btn.textContent = '준비 완료';
-    }
 }
 
 // ========== 오디오 동기화 ==========
@@ -491,30 +432,14 @@ function updateScoreboard(participants) {
         var hostIcon = p.isHost ? '👑 ' : '';
         var meBadge = p.memberId === myMemberId ? ' (나)' : '';
 
-        // PREPARING 단계에서 준비 상태 표시
-        var readyBadge = '';
-        if (currentPhase === 'PREPARING') {
-            readyBadge = p.roundReady ? ' <span class="ready-badge">✓</span>' : ' <span class="not-ready-badge">...</span>';
-        }
-
         html += '<div class="score-item ' + meClass + '">' +
             '<span class="rank">' + (index + 1) + '</span>' +
-            '<span class="player-name">' + hostIcon + escapeHtml(p.nickname) + meBadge + readyBadge + '</span>' +
+            '<span class="player-name">' + hostIcon + escapeHtml(p.nickname) + meBadge + '</span>' +
             '<span class="player-score">' + p.score + '</span>' +
         '</div>';
     });
 
     container.innerHTML = html;
-
-    // PREPARING 단계에서 준비 인원 카운트 업데이트
-    if (currentPhase === 'PREPARING') {
-        var readyCount = participants.filter(function(p) { return p.roundReady; }).length;
-        var totalCount = participants.length;
-        var readyStatus = document.getElementById('readyStatusCount');
-        if (readyStatus) {
-            readyStatus.textContent = readyCount + ' / ' + totalCount + ' 명 준비 완료';
-        }
-    }
 }
 
 // ========== 정답/정답자 표시 ==========

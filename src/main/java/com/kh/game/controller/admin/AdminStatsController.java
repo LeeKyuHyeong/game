@@ -22,8 +22,8 @@ public class AdminStatsController {
         // 요약 정보
         Map<String, Object> summary = wrongAnswerStatsService.getStatsSummary();
 
-        // 가장 흔한 오답 TOP 20
-        List<Map<String, Object>> commonWrongAnswers = wrongAnswerStatsService.getMostCommonWrongAnswers(20);
+        // 가장 흔한 오답 TOP 20 (오답+정답 쌍으로 그룹핑)
+        List<Map<String, Object>> commonWrongAnswers = wrongAnswerStatsService.getMostCommonWrongAnswersWithSong(20);
 
         // 가장 어려운 곡 TOP 20 (최소 5회 이상 플레이된 곡)
         List<Map<String, Object>> hardestSongs = wrongAnswerStatsService.getHardestSongs(5, 20);

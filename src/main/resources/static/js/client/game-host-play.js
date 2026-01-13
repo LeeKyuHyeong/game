@@ -308,10 +308,21 @@ function updateProgress() {
     document.getElementById('progressBar').style.width = progress + '%';
     updateTimeDisplay();
 
-    // 재생 시간 초과 시 자동 정지
+    // 재생 시간 초과 시 자동 정지 및 버튼 비활성화
     if (currentTime >= duration) {
         pauseAudio();
+        disablePlayButton();
     }
+}
+
+// 재생 시간 종료 후 버튼 비활성화
+function disablePlayButton() {
+    const playBtn = document.getElementById('playBtn');
+    if (playBtn) {
+        playBtn.disabled = true;
+        playBtn.innerHTML = '<span class="play-icon">▶</span>';
+    }
+    document.getElementById('playerStatus').textContent = '재생 완료';
 }
 
 function updateTimeDisplay() {
@@ -342,6 +353,11 @@ function resetPlayerUI() {
     stopAudio();
     isRoundEnded = false; // 라운드 종료 플래그 리셋
     isRoundReady = false; // 준비 완료 플래그 리셋
+    // 재생 버튼 다시 활성화
+    const playBtn = document.getElementById('playBtn');
+    if (playBtn) {
+        playBtn.disabled = false;
+    }
     document.querySelectorAll('.player-btn').forEach(btn => {
         btn.classList.remove('selected');
         btn.disabled = false; // 버튼 활성화

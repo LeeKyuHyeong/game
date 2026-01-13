@@ -483,6 +483,53 @@ public class MultiGameController {
     }
 
     /**
+     * 강퇴 API (방장만)
+     */
+    @PostMapping("/room/{roomCode}/kick/{targetMemberId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> kickParticipant(
+            @PathVariable String roomCode,
+            @PathVariable Long targetMemberId,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+
+        if (member == null || room == null) {
+            result.put("success", false);
+            result.put("message", "정보를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        Member targetMember = memberService.findById(targetMemberId).orElse(null);
+        if (targetMember == null) {
+            result.put("success", false);
+            result.put("message", "강퇴 대상을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            gameRoomService.kickParticipant(room, member, targetMember);
+            result.put("success", true);
+            result.put("message", targetMember.getNickname() + "님이 강퇴되었습니다.");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * 방 상태 조회 API (폴링용)
      */
     @GetMapping("/room/{roomCode}/status")

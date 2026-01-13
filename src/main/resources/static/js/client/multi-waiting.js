@@ -9,10 +9,19 @@ document.addEventListener('DOMContentLoaded', function() {
     startChatPolling();
 });
 
-// 페이지 떠날 때 폴링 중지
+// 페이지 떠날 때 폴링 중지 및 방 나가기
 window.addEventListener('beforeunload', function() {
     stopPolling();
     stopChatPolling();
+    // sendBeacon으로 방 나가기 요청 (페이지 언로드되어도 전송 보장)
+    navigator.sendBeacon(`/game/multi/room/${roomCode}/leave`);
+});
+
+// 뒤로가기/앞으로가기 시에도 나가기 처리
+window.addEventListener('pagehide', function() {
+    stopPolling();
+    stopChatPolling();
+    navigator.sendBeacon(`/game/multi/room/${roomCode}/leave`);
 });
 
 // 폴링 시작
