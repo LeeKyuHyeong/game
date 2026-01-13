@@ -53,12 +53,22 @@
                     <p class="hint-sub">먼저 맞추는 사람이 100점!</p>
                     <p class="hint-note">💡 공백, 특수문자, 대소문자 구분 없이 정답 인정</p>
                 </div>
+
+                <!-- 포기 버튼 및 투표 현황 -->
+                <div class="skip-vote-section">
+                    <button class="btn btn-skip-vote" id="skipVoteBtn" onclick="voteSkipRound()">
+                        ⏭️ 포기
+                    </button>
+                    <div class="skip-vote-status" id="skipVoteStatus">
+                        <span id="skipVoteCount">0</span> / <span id="skipVoteTotal">0</span> 포기
+                    </div>
+                </div>
             </div>
 
             <!-- 결과 상태 -->
             <div class="round-result" id="roundResult" style="display:none;">
                 <div class="answer-reveal">
-                    <h2>🎉 정답!</h2>
+                    <h2 id="resultTitle">🎉 정답!</h2>
                     <div class="answer-info-card">
                         <div class="song-title" id="answerTitle">노래 제목</div>
                         <div class="song-artist" id="answerArtist">아티스트</div>
@@ -68,6 +78,9 @@
                         <span class="winner-label">정답자</span>
                         <span class="winner-name" id="winnerName">홍길동</span>
                         <span class="winner-score">+100점</span>
+                    </div>
+                    <div class="no-winner-info" id="noWinnerInfo" style="display:none;">
+                        <span class="no-winner-label">⏭️ 모두 포기!</span>
                     </div>
                     <button class="btn-report-inline" onclick="openReportModal(currentSong ? currentSong.id : null)">문제 신고</button>
                 </div>
@@ -141,6 +154,57 @@
     background: #f8f9fa;
     color: #666;
     border-color: #ccc;
+}
+
+/* 포기 버튼 섹션 */
+.skip-vote-section {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.btn-skip-vote {
+    padding: 10px 24px;
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-skip-vote:hover:not(:disabled) {
+    background: #e9ecef;
+    border-color: #ccc;
+}
+.btn-skip-vote:disabled {
+    background: #e9ecef;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+.btn-skip-vote.voted {
+    background: #fff3cd;
+    color: #856404;
+    border-color: #ffc107;
+}
+.skip-vote-status {
+    font-size: 0.85em;
+    color: #888;
+}
+
+/* 모두 포기 정보 */
+.no-winner-info {
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: #fff3cd;
+    border-radius: 8px;
+}
+.no-winner-label {
+    color: #856404;
+    font-size: 1.1em;
+    font-weight: 500;
 }
 </style>
 </body>

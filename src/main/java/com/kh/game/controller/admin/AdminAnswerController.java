@@ -89,16 +89,20 @@ public class AdminAnswerController {
         List<SongAnswer> answers = songAnswerRepository.findBySongIdOrderByIsPrimaryDesc(songId);
 
         result.put("success", true);
-        result.put("song", Map.of(
-                "id", song.getId(),
-                "title", song.getTitle(),
-                "artist", song.getArtist()
-        ));
-        result.put("answers", answers.stream().map(a -> Map.of(
-                "id", a.getId(),
-                "answer", a.getAnswer(),
-                "isPrimary", a.getIsPrimary()
-        )).collect(Collectors.toList()));
+
+        Map<String, Object> songInfo = new HashMap<>();
+        songInfo.put("id", song.getId());
+        songInfo.put("title", song.getTitle() != null ? song.getTitle() : "");
+        songInfo.put("artist", song.getArtist() != null ? song.getArtist() : "");
+        result.put("song", songInfo);
+
+        result.put("answers", answers.stream().map(a -> {
+            Map<String, Object> answerInfo = new HashMap<>();
+            answerInfo.put("id", a.getId());
+            answerInfo.put("answer", a.getAnswer() != null ? a.getAnswer() : "");
+            answerInfo.put("isPrimary", Boolean.TRUE.equals(a.getIsPrimary()));
+            return answerInfo;
+        }).collect(Collectors.toList()));
 
         return ResponseEntity.ok(result);
     }

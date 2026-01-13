@@ -125,6 +125,9 @@ public class MultiGameService {
         room.setRoundStartTime(LocalDateTime.now());
         room.setWinner(null);  // 정답자 초기화
 
+        // 스킵 투표 초기화
+        resetSkipVotes(room);
+
         // 오디오 바로 재생
         room.setAudioPlaying(true);
         room.setAudioPlayedAt(System.currentTimeMillis());
@@ -258,6 +261,108 @@ public class MultiGameService {
     }
 
     /**
+     * 라운드 스킵 투표
+     */
+    @Transactional
+    public Map<String, Object> voteSkipRound(GameRoom room, Member member) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (room.getRoundPhase() != GameRoom.RoundPhase.PLAYING) {
+            result.put("success", false);
+            result.put("message", "현재 스킵 투표를 할 수 없는 상태입니다.");
+            return result;
+        }
+
+        // 이미 정답자가 있으면 투표 불가
+        if (room.getWinner() != null) {
+            result.put("success", false);
+            result.put("message", "이미 정답자가 있습니다.");
+            return result;
+        }
+
+        GameRoomParticipant participant = participantRepository.findByGameRoomAndMember(room, member)
+                .orElse(null);
+        if (participant == null) {
+            result.put("success", false);
+            result.put("message", "참가자가 아닙니다.");
+            return result;
+        }
+
+        // 이미 스킵 투표했는지 확인
+        if (Boolean.TRUE.equals(participant.getSkipVote())) {
+            result.put("success", false);
+            result.put("message", "이미 스킵 투표를 하셨습니다.");
+            return result;
+        }
+
+        participant.setSkipVote(true);
+        result.put("success", true);
+
+        // 모든 참가자가 스킵 투표했는지 체크
+        boolean allSkipped = checkAllSkipVotes(room);
+        result.put("allSkipped", allSkipped);
+
+        if (allSkipped) {
+            // 라운드 스킵 처리
+            handleRoundSkip(room);
+            result.put("roundSkipped", true);
+        }
+
+        return result;
+    }
+
+    /**
+     * 모든 참가자가 스킵 투표했는지 체크
+     */
+    private boolean checkAllSkipVotes(GameRoom room) {
+        List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
+        return participants.stream().allMatch(p -> Boolean.TRUE.equals(p.getSkipVote()));
+    }
+
+    /**
+     * 라운드 스킵 처리 (모든 참가자가 포기한 경우)
+     */
+    private void handleRoundSkip(GameRoom room) {
+        // 오디오 정지
+        room.setAudioPlaying(false);
+        room.setAudioPlayedAt(null);
+
+        // 라운드 결과로 전환 (정답자 없음)
+        room.setRoundPhase(GameRoom.RoundPhase.RESULT);
+
+        // 정답 정보 시스템 메시지
+        Song song = room.getCurrentSong();
+        if (song != null) {
+            String skipMessage = String.format("⏭️ 모든 참가자가 포기했습니다. 정답: %s - %s", song.getArtist(), song.getTitle());
+            addSystemMessage(room, room.getHost(), skipMessage);
+        }
+    }
+
+    /**
+     * 스킵 투표 현황 조회
+     */
+    public Map<String, Object> getSkipVoteStatus(GameRoom room) {
+        List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
+        long votedCount = participants.stream().filter(p -> Boolean.TRUE.equals(p.getSkipVote())).count();
+
+        Map<String, Object> status = new HashMap<>();
+        status.put("votedCount", votedCount);
+        status.put("totalCount", participants.size());
+        status.put("allSkipped", votedCount == participants.size());
+        return status;
+    }
+
+    /**
+     * 참가자들의 스킵 투표 초기화
+     */
+    private void resetSkipVotes(GameRoom room) {
+        List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
+        for (GameRoomParticipant p : participants) {
+            p.setSkipVote(false);
+        }
+    }
+
+    /**
      * 다음 라운드로 (방장만) - RESULT 상태에서 호출, 바로 다음 라운드 시작
      */
     @Transactional
@@ -304,6 +409,9 @@ public class MultiGameService {
         room.setRoundPhase(GameRoom.RoundPhase.PLAYING);
         room.setRoundStartTime(LocalDateTime.now());
         room.setWinner(null);
+
+        // 스킵 투표 초기화
+        resetSkipVotes(room);
 
         // 오디오 바로 재생
         room.setAudioPlaying(true);
@@ -505,6 +613,7 @@ public class MultiGameService {
         // 참가자별 점수 (PLAYING 상태도 포함)
         List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
         List<Map<String, Object>> participantInfos = new ArrayList<>();
+        int skipVoteCount = 0;
         for (GameRoomParticipant p : participants) {
             Map<String, Object> pInfo = new HashMap<>();
             pInfo.put("memberId", p.getMember().getId());
@@ -513,8 +622,18 @@ public class MultiGameService {
             pInfo.put("correctCount", p.getCorrectCount());
             pInfo.put("isHost", room.isHost(p.getMember()));
             pInfo.put("roundReady", p.getRoundReady());  // 라운드 준비 상태 추가
+            pInfo.put("skipVote", p.getSkipVote());  // 스킵 투표 상태 추가
             participantInfos.add(pInfo);
+            if (Boolean.TRUE.equals(p.getSkipVote())) {
+                skipVoteCount++;
+            }
         }
+
+        // 스킵 투표 현황
+        Map<String, Object> skipVoteStatus = new HashMap<>();
+        skipVoteStatus.put("votedCount", skipVoteCount);
+        skipVoteStatus.put("totalCount", participants.size());
+        info.put("skipVoteStatus", skipVoteStatus);
 
         // 점수순 정렬
         participantInfos.sort((a, b) -> (Integer) b.get("score") - (Integer) a.get("score"));

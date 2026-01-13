@@ -4,6 +4,7 @@ let currentPhase = null;  // null, PLAYING, RESULT
 let currentSong = null;
 let isPlaying = false;
 let youtubePlayerReady = false;
+let mySkipVoted = false;  // 내가 스킵 투표했는지
 
 // DOM 요소
 const audioPlayer = document.getElementById('audioPlayer');
@@ -112,6 +113,9 @@ async function fetchRoundInfo() {
         if (result.currentRound !== currentRound) {
             currentRound = result.currentRound;
             document.getElementById('currentRound').textContent = currentRound;
+            // 라운드 변경 시 스킵 투표 상태 초기화
+            mySkipVoted = false;
+            resetSkipVoteUI();
         }
 
         // 페이즈 변경 감지
@@ -138,6 +142,19 @@ async function fetchRoundInfo() {
         // 스코어보드 업데이트
         if (result.participants) {
             updateScoreboard(result.participants);
+            // 내 스킵 투표 상태 확인
+            var myParticipant = result.participants.find(function(p) {
+                return p.memberId === myMemberId;
+            });
+            if (myParticipant && myParticipant.skipVote) {
+                mySkipVoted = true;
+                updateSkipVoteButton();
+            }
+        }
+
+        // 스킵 투표 현황 업데이트
+        if (result.skipVoteStatus && currentPhase === 'PLAYING') {
+            updateSkipVoteStatus(result.skipVoteStatus);
         }
 
         // 결과 단계일 때 정답/정답자 표시
@@ -147,6 +164,9 @@ async function fetchRoundInfo() {
             }
             if (result.winnerNickname) {
                 showWinner(result.winnerNickname);
+            } else {
+                // 정답자가 없는 경우 (모두 포기)
+                showNoWinner();
             }
         }
 
@@ -457,6 +477,67 @@ function showAnswer(answer) {
 function showWinner(nickname) {
     document.getElementById('winnerName').textContent = nickname;
     document.getElementById('winnerInfo').style.display = 'flex';
+    document.getElementById('noWinnerInfo').style.display = 'none';
+    document.getElementById('resultTitle').textContent = '🎉 정답!';
+}
+
+function showNoWinner() {
+    document.getElementById('winnerInfo').style.display = 'none';
+    document.getElementById('noWinnerInfo').style.display = 'block';
+    document.getElementById('resultTitle').textContent = '⏭️ 라운드 스킵';
+}
+
+// ========== 스킵 투표 ==========
+
+async function voteSkipRound() {
+    if (mySkipVoted) return;
+
+    var btn = document.getElementById('skipVoteBtn');
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/game/multi/room/' + roomCode + '/skip-vote', {
+            method: 'POST'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            mySkipVoted = true;
+            updateSkipVoteButton();
+        } else {
+            alert(result.message || '포기 투표 실패');
+            btn.disabled = false;
+        }
+
+    } catch (error) {
+        console.error('포기 투표 오류:', error);
+        btn.disabled = false;
+    }
+}
+
+function updateSkipVoteButton() {
+    var btn = document.getElementById('skipVoteBtn');
+    if (mySkipVoted) {
+        btn.disabled = true;
+        btn.textContent = '✓ 포기함';
+        btn.classList.add('voted');
+    }
+}
+
+function updateSkipVoteStatus(status) {
+    document.getElementById('skipVoteCount').textContent = status.votedCount;
+    document.getElementById('skipVoteTotal').textContent = status.totalCount;
+}
+
+function resetSkipVoteUI() {
+    var btn = document.getElementById('skipVoteBtn');
+    if (btn) {
+        btn.disabled = false;
+        btn.textContent = '⏭️ 포기';
+        btn.classList.remove('voted');
+    }
+    document.getElementById('skipVoteCount').textContent = '0';
 }
 
 // ========== 방장 컨트롤 ==========

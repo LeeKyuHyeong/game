@@ -35,6 +35,9 @@ public class GameRoomParticipant {
     private Boolean roundReady = false;  // 라운드 준비 상태 (광고 시청 완료)
 
     @Column(nullable = false)
+    private Boolean skipVote = false;  // 라운드 스킵 투표 여부
+
+    @Column(nullable = false)
     private Integer score = 0;  // 현재 게임 점수
 
     @Column(nullable = false)
