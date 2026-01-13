@@ -37,6 +37,9 @@ public class BatchScheduler {
     private final SystemReportBatch systemReportBatch;
     private final WeeklyRankingResetBatch weeklyRankingResetBatch;
     private final BoardCleanupBatch boardCleanupBatch;
+    private final BatchExecutionHistoryCleanupBatch batchExecutionHistoryCleanupBatch;
+    private final GameRoundAttemptCleanupBatch gameRoundAttemptCleanupBatch;
+    private final DuplicateSongCheckBatch duplicateSongCheckBatch;
 
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
@@ -204,6 +207,30 @@ public class BatchScheduler {
                         log.error("배치 실행 중 오류: {}", batchId, e);
                     }
                 };
+            case BatchExecutionHistoryCleanupBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        batchExecutionHistoryCleanupBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case GameRoundAttemptCleanupBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        gameRoundAttemptCleanupBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case DuplicateSongCheckBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        duplicateSongCheckBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
             default:
                 return null;
         }
@@ -251,6 +278,15 @@ public class BatchScheduler {
                 break;
             case BoardCleanupBatch.BATCH_ID:
                 boardCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case BatchExecutionHistoryCleanupBatch.BATCH_ID:
+                batchExecutionHistoryCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case GameRoundAttemptCleanupBatch.BATCH_ID:
+                gameRoundAttemptCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case DuplicateSongCheckBatch.BATCH_ID:
+                duplicateSongCheckBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
                 break;
             default:
                 throw new IllegalArgumentException("실행할 수 없는 배치입니다: " + batchId);

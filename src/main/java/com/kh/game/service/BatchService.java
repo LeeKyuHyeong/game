@@ -181,7 +181,55 @@ public class BatchService {
                 true  // 구현됨
         ));
 
-        log.info("배치 설정 초기 데이터 생성 완료: 12개");
+        // 13. 배치 실행 이력 정리
+        batchConfigRepository.save(new BatchConfig(
+                "BATCH_EXECUTION_HISTORY_CLEANUP",
+                "배치 실행 이력 정리",
+                "30일이 지난 배치 실행 이력을 삭제하여 DB 용량을 관리합니다.",
+                "0 0 4 * * SUN",
+                "매주 일요일 04:00",
+                "BatchExecutionHistory",
+                BatchConfig.Priority.LOW,
+                true  // 구현됨
+        ));
+
+        // 14. 게임 라운드 시도 기록 정리
+        batchConfigRepository.save(new BatchConfig(
+                "BATCH_GAME_ROUND_ATTEMPT_CLEANUP",
+                "게임 시도 기록 정리",
+                "30일이 지난 게임 라운드 시도 기록을 삭제하여 DB 용량을 관리합니다.",
+                "0 0 4 * * SUN",
+                "매주 일요일 04:00",
+                "GameRoundAttempt",
+                BatchConfig.Priority.MEDIUM,
+                true  // 구현됨
+        ));
+
+        // 15. 중복 곡 검사
+        batchConfigRepository.save(new BatchConfig(
+                "BATCH_DUPLICATE_SONG_CHECK",
+                "중복 곡 검사",
+                "같은 YouTube ID로 등록된 중복 곡을 찾아 나중에 생성된 곡을 비활성화합니다.",
+                "0 0 5 * * *",
+                "매일 05:00",
+                "Song",
+                BatchConfig.Priority.MEDIUM,
+                true  // 구현됨
+        ));
+
+        // 16. YouTube 영상 유효성 검사
+        batchConfigRepository.save(new BatchConfig(
+                "BATCH_YOUTUBE_VIDEO_CHECK",
+                "YouTube 영상 유효성 검사",
+                "YouTube 영상의 삭제 여부와 임베드 가능 여부를 검사하고, 문제 있는 노래를 비활성화합니다.",
+                "0 0 2 * * *",
+                "매일 02:00",
+                "Song",
+                BatchConfig.Priority.HIGH,
+                true  // 구현됨
+        ));
+
+        log.info("배치 설정 초기 데이터 생성 완료: 16개");
     }
 
     /**
@@ -203,7 +251,11 @@ public class BatchService {
                 "BATCH_SONG_ANALYTICS",
                 "BATCH_SYSTEM_REPORT",
                 "BATCH_WEEKLY_RANKING_RESET",
-                "BATCH_BOARD_CLEANUP"
+                "BATCH_BOARD_CLEANUP",
+                "BATCH_EXECUTION_HISTORY_CLEANUP",
+                "BATCH_GAME_ROUND_ATTEMPT_CLEANUP",
+                "BATCH_DUPLICATE_SONG_CHECK",
+                "BATCH_YOUTUBE_VIDEO_CHECK"
         );
 
         int updatedCount = 0;
@@ -282,6 +334,66 @@ public class BatchService {
                     true  // 구현됨
             ));
             log.info("BATCH_BOARD_CLEANUP 배치 설정 추가 완료");
+        }
+
+        // BATCH_EXECUTION_HISTORY_CLEANUP: 새 배치 추가 (기존 DB에 없으면 생성)
+        if (!batchConfigRepository.existsById("BATCH_EXECUTION_HISTORY_CLEANUP")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_EXECUTION_HISTORY_CLEANUP",
+                    "배치 실행 이력 정리",
+                    "30일이 지난 배치 실행 이력을 삭제하여 DB 용량을 관리합니다.",
+                    "0 0 4 * * SUN",
+                    "매주 일요일 04:00",
+                    "BatchExecutionHistory",
+                    BatchConfig.Priority.LOW,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_EXECUTION_HISTORY_CLEANUP 배치 설정 추가 완료");
+        }
+
+        // BATCH_GAME_ROUND_ATTEMPT_CLEANUP: 새 배치 추가 (기존 DB에 없으면 생성)
+        if (!batchConfigRepository.existsById("BATCH_GAME_ROUND_ATTEMPT_CLEANUP")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_GAME_ROUND_ATTEMPT_CLEANUP",
+                    "게임 시도 기록 정리",
+                    "30일이 지난 게임 라운드 시도 기록을 삭제하여 DB 용량을 관리합니다.",
+                    "0 0 4 * * SUN",
+                    "매주 일요일 04:00",
+                    "GameRoundAttempt",
+                    BatchConfig.Priority.MEDIUM,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_GAME_ROUND_ATTEMPT_CLEANUP 배치 설정 추가 완료");
+        }
+
+        // BATCH_DUPLICATE_SONG_CHECK: 새 배치 추가 (기존 DB에 없으면 생성)
+        if (!batchConfigRepository.existsById("BATCH_DUPLICATE_SONG_CHECK")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_DUPLICATE_SONG_CHECK",
+                    "중복 곡 검사",
+                    "같은 YouTube ID로 등록된 중복 곡을 찾아 나중에 생성된 곡을 비활성화합니다.",
+                    "0 0 5 * * *",
+                    "매일 05:00",
+                    "Song",
+                    BatchConfig.Priority.MEDIUM,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_DUPLICATE_SONG_CHECK 배치 설정 추가 완료");
+        }
+
+        // BATCH_YOUTUBE_VIDEO_CHECK: 새 배치 추가 (기존 DB에 없으면 생성)
+        if (!batchConfigRepository.existsById("BATCH_YOUTUBE_VIDEO_CHECK")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_YOUTUBE_VIDEO_CHECK",
+                    "YouTube 영상 유효성 검사",
+                    "YouTube 영상의 삭제 여부와 임베드 가능 여부를 검사하고, 문제 있는 노래를 비활성화합니다.",
+                    "0 0 2 * * *",
+                    "매일 02:00",
+                    "Song",
+                    BatchConfig.Priority.HIGH,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_YOUTUBE_VIDEO_CHECK 배치 설정 추가 완료");
         }
     }
 
