@@ -116,9 +116,6 @@
         </div>
     </main>
 
-    <footer class="client-footer">
-        <a href="/admin/song" class="admin-link">관리자</a>
-    </footer>
 </div>
 
 <script th:src="@{/js/common/common.js}"></script>
@@ -140,9 +137,6 @@
                 this.classList.add('active');
                 currentMode = this.dataset.mode;
 
-                // 모드에 따른 UI 전환
-                updateTypeTabsVisibility();
-
                 // 타입 리셋 (모드 변경 시)
                 currentType = 'score';
                 document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
@@ -156,6 +150,9 @@
                     document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
                     document.querySelector('.period-tab[data-period="all"]').classList.add('active');
                 }
+
+                // 모드에 따른 UI 전환 (period 설정 후 호출)
+                updateTypeTabsVisibility();
 
                 loadRanking();
             });

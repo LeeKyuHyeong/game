@@ -13,7 +13,14 @@
     </header>
 
     <main class="client-main">
-        <div class="stats-content">
+        <!-- 탭 메뉴 -->
+        <div class="stats-tabs">
+            <button class="tab-btn active" data-tab="global">📊 전체 통계</button>
+            <button class="tab-btn" data-tab="my" th:if="${member != null}">👤 내 기록</button>
+        </div>
+
+        <!-- 전체 통계 탭 -->
+        <div class="stats-content tab-content active" id="tab-global">
             <!-- 어려운 곡 TOP 10 -->
             <div class="stats-section">
                 <h2 class="section-title">💀 가장 어려운 곡 TOP 10</h2>
@@ -62,16 +69,211 @@
                 </div>
             </div>
         </div>
+
+        <!-- 내 기록 탭 -->
+        <div class="stats-content tab-content" id="tab-my" th:if="${member != null}">
+            <!-- 내가 가장 많이 맞춘 곡 -->
+            <div class="stats-section">
+                <h2 class="section-title">🏆 내가 가장 많이 맞춘 곡</h2>
+                <p class="section-desc">정답 횟수가 많은 곡들</p>
+
+                <div class="hard-songs-list" th:if="${!#lists.isEmpty(myMostCorrect)}">
+                    <div class="hard-song-item" th:each="song, idx : ${myMostCorrect}">
+                        <div class="rank-badge" th:classappend="${idx.index < 3} ? 'top-' + (idx.index + 1) : ''">
+                            <span th:text="${idx.index + 1}">1</span>
+                        </div>
+                        <div class="song-info">
+                            <span class="song-title" th:text="${song.title}">제목</span>
+                            <span class="song-artist" th:text="${song.artist}">아티스트</span>
+                        </div>
+                        <div class="song-stats">
+                            <div class="rate-badge easy">
+                                <span th:text="${song.correctCount} + '회 정답'">0회 정답</span>
+                            </div>
+                            <span class="play-count" th:text="${song.totalCount} + '회 중'">0회 중</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-message" th:if="${#lists.isEmpty(myMostCorrect)}">
+                    <span class="empty-icon">🎯</span>
+                    <p>아직 맞춘 곡이 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- 내가 어려워하는 곡 -->
+            <div class="stats-section">
+                <h2 class="section-title">💀 내가 어려워하는 곡</h2>
+                <p class="section-desc">정답률이 낮은 곡들 (2회 이상 플레이)</p>
+
+                <div class="hard-songs-list" th:if="${!#lists.isEmpty(myHardest)}">
+                    <div class="hard-song-item" th:each="song, idx : ${myHardest}">
+                        <div class="rank-badge" th:classappend="${idx.index < 3} ? 'top-' + (idx.index + 1) : ''">
+                            <span th:text="${idx.index + 1}">1</span>
+                        </div>
+                        <div class="song-info">
+                            <span class="song-title" th:text="${song.title}">제목</span>
+                            <span class="song-artist" th:text="${song.artist}">아티스트</span>
+                        </div>
+                        <div class="song-stats">
+                            <div class="rate-badge" th:classappend="${song.correctRate < 30} ? 'hard' : (${song.correctRate < 50} ? 'medium' : 'easy')">
+                                <span th:text="${song.correctRate} + '%'">0%</span>
+                            </div>
+                            <span class="play-count" th:text="${song.totalCount} + '회 중 ' + ${song.correctCount} + '회'">0회</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-message" th:if="${#lists.isEmpty(myHardest)}">
+                    <span class="empty-icon">📈</span>
+                    <p>아직 충분한 플레이 데이터가 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- 내 모든 곡 통계 -->
+            <div class="stats-section">
+                <h2 class="section-title">📋 내 플레이 기록</h2>
+                <p class="section-desc">플레이한 모든 곡의 통계</p>
+
+                <div class="hard-songs-list" th:if="${!#lists.isEmpty(myAllSongs)}">
+                    <div class="hard-song-item" th:each="song, idx : ${myAllSongs}">
+                        <div class="rank-num-small" th:text="${idx.index + 1}">1</div>
+                        <div class="song-info">
+                            <span class="song-title" th:text="${song.title}">제목</span>
+                            <span class="song-artist" th:text="${song.artist}">아티스트</span>
+                        </div>
+                        <div class="song-stats">
+                            <div class="rate-badge" th:classappend="${song.correctRate < 30} ? 'hard' : (${song.correctRate < 50} ? 'medium' : 'easy')">
+                                <span th:text="${song.correctRate} + '%'">0%</span>
+                            </div>
+                            <span class="play-count" th:text="${song.correctCount} + '/' + ${song.totalCount}">0/0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-message" th:if="${#lists.isEmpty(myAllSongs)}">
+                    <span class="empty-icon">🎮</span>
+                    <p>아직 플레이 기록이 없습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 비로그인 시 안내 -->
+        <div class="login-prompt" th:if="${member == null}">
+            <p>🔐 로그인하면 내 기록을 확인할 수 있습니다.</p>
+            <a href="/auth/login" class="btn-login">로그인</a>
+        </div>
     </main>
 
 </div>
 <script th:src="@{/js/common/common.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+
+                // 탭 버튼 활성화
+                tabBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // 탭 콘텐츠 활성화
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === 'tab-' + tabId) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+    });
+</script>
 <style>
+    /* stats 페이지 레이아웃 */
+    .stats-page .client-main {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+    /* 탭 스타일 */
+    .stats-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+        width: 100%;
+        max-width: 800px;
+    }
+    .tab-btn {
+        flex: 1;
+        padding: 14px 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+    }
+    .tab-btn.active {
+        background: rgba(102, 126, 234, 0.3);
+        border-color: #667eea;
+        color: white;
+    }
+    .tab-content {
+        display: none !important;
+    }
+    .tab-content.active {
+        display: flex !important;
+        flex-direction: column;
+    }
+    /* 비로그인 안내 */
+    .login-prompt {
+        text-align: center;
+        padding: 32px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        margin-top: 16px;
+        width: 100%;
+        max-width: 800px;
+    }
+    .login-prompt p {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 16px;
+    }
+    .btn-login {
+        display: inline-block;
+        padding: 12px 32px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    /* 작은 순위 숫자 */
+    .rank-num-small {
+        width: 28px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        flex-shrink: 0;
+    }
     .stats-content {
         width: 100%;
         max-width: 800px;
-        display: flex;
-        flex-direction: column;
         gap: 32px;
     }
     .stats-section {
@@ -193,6 +395,14 @@
         margin-bottom: 12px;
     }
     @media (max-width: 768px) {
+        .stats-tabs {
+            flex-direction: column;
+            gap: 8px;
+        }
+        .tab-btn {
+            padding: 12px 16px;
+            font-size: 0.95rem;
+        }
         .stats-section {
             padding: 16px;
         }
@@ -201,6 +411,9 @@
         }
         .section-title {
             font-size: 1.1rem;
+        }
+        .login-prompt {
+            padding: 24px 16px;
         }
     }
 </style>
