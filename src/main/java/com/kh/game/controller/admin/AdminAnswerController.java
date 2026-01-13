@@ -133,7 +133,7 @@ public class AdminAnswerController {
             if (isPrimary) {
                 List<SongAnswer> existingAnswers = songAnswerRepository.findBySongId(songId);
                 for (SongAnswer existing : existingAnswers) {
-                    if (existing.getIsPrimary()) {
+                    if (Boolean.TRUE.equals(existing.getIsPrimary())) {
                         existing.setIsPrimary(false);
                         songAnswerRepository.save(existing);
                     }
@@ -177,10 +177,10 @@ public class AdminAnswerController {
                 answer.setAnswer(answerText.trim());
             }
 
-            if (isPrimary && !answer.getIsPrimary()) {
+            if (isPrimary && !Boolean.TRUE.equals(answer.getIsPrimary())) {
                 List<SongAnswer> existingAnswers = songAnswerRepository.findBySongId(answer.getSong().getId());
                 for (SongAnswer existing : existingAnswers) {
-                    if (existing.getIsPrimary()) {
+                    if (Boolean.TRUE.equals(existing.getIsPrimary())) {
                         existing.setIsPrimary(false);
                         songAnswerRepository.save(existing);
                     }
