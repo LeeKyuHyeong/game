@@ -44,4 +44,7 @@ public interface SongReportRepository extends JpaRepository<SongReport, Long> {
     // 곡 ID로 신고 목록 조회
     @Query("SELECT r FROM SongReport r WHERE r.song.id = :songId ORDER BY r.createdAt DESC")
     List<SongReport> findBySongId(@Param("songId") Long songId);
+
+    // 곡 ID로 신고 삭제
+    void deleteBySongId(Long songId);
 }

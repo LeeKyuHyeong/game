@@ -1,6 +1,7 @@
 package com.kh.game.service;
 
 import com.kh.game.repository.GameRoundAttemptRepository;
+import com.kh.game.repository.GameRoundRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,10 +20,8 @@ import java.util.Map;
 public class WrongAnswerStatsService {
 
     private final GameRoundAttemptRepository attemptRepository;
+    private final GameRoundRepository gameRoundRepository;
 
-    /**
-     * 가장 흔한 오답 목록 (전체)
-     */
     public List<Map<String, Object>> getMostCommonWrongAnswers(int limit) {
         List<Object[]> results = attemptRepository.findMostCommonWrongAnswers();
         List<Map<String, Object>> wrongAnswers = new ArrayList<>();
@@ -41,9 +40,6 @@ public class WrongAnswerStatsService {
         return wrongAnswers;
     }
 
-    /**
-     * 특정 곡에 대한 흔한 오답 목록
-     */
     public List<Map<String, Object>> getWrongAnswersForSong(Long songId, int limit) {
         List<Object[]> results = attemptRepository.findMostCommonWrongAnswersBySong(songId);
         List<Map<String, Object>> wrongAnswers = new ArrayList<>();
@@ -62,9 +58,6 @@ public class WrongAnswerStatsService {
         return wrongAnswers;
     }
 
-    /**
-     * 가장 어려운 곡 목록 (오답률 높은 순)
-     */
     public List<Map<String, Object>> getHardestSongs(int minPlays, int limit) {
         List<Object[]> results = attemptRepository.findHardestSongs(minPlays);
         List<Map<String, Object>> hardestSongs = new ArrayList<>();
@@ -95,9 +88,6 @@ public class WrongAnswerStatsService {
         return hardestSongs;
     }
 
-    /**
-     * 최근 오답 목록
-     */
     public List<Map<String, Object>> getRecentWrongAnswers(int limit) {
         List<Object[]> results = attemptRepository.findRecentWrongAnswers();
         List<Map<String, Object>> recentWrong = new ArrayList<>();
@@ -119,10 +109,6 @@ public class WrongAnswerStatsService {
         return recentWrong;
     }
 
-    /**
-     * 오답+정답 쌍으로 그룹핑된 흔한 오답 목록
-     * (같은 오답이라도 다른 곡에서 나왔으면 별도로 집계)
-     */
     public List<Map<String, Object>> getMostCommonWrongAnswersWithSong(int limit) {
         List<Object[]> results = attemptRepository.findMostCommonWrongAnswersWithSong();
         List<Map<String, Object>> wrongAnswers = new ArrayList<>();
@@ -144,24 +130,103 @@ public class WrongAnswerStatsService {
         return wrongAnswers;
     }
 
-    /**
-     * 오답 통계 요약
-     */
     public Map<String, Object> getStatsSummary() {
         Map<String, Object> summary = new HashMap<>();
 
-        // 총 오답 수
         List<Object[]> allWrong = attemptRepository.findMostCommonWrongAnswers();
         long totalWrongCount = allWrong.stream()
                 .mapToLong(row -> ((Number) row[1]).longValue())
                 .sum();
 
-        // 고유 오답 종류 수
         int uniqueWrongAnswers = allWrong.size();
 
         summary.put("totalWrongCount", totalWrongCount);
         summary.put("uniqueWrongAnswers", uniqueWrongAnswers);
 
         return summary;
+    }
+
+    public List<Map<String, Object>> getMemberSongStats(Long memberId, int limit) {
+        List<Object[]> results = gameRoundRepository.findMemberSongStatistics(memberId);
+        List<Map<String, Object>> stats = new ArrayList<>();
+
+        int count = 0;
+        for (Object[] row : results) {
+            if (count >= limit) break;
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("songId", row[0]);
+            item.put("title", row[1]);
+            item.put("artist", row[2]);
+
+            long correctCount = ((Number) row[3]).longValue();
+            long totalCount = ((Number) row[4]).longValue();
+            double correctRate = totalCount > 0 ? (correctCount * 100.0 / totalCount) : 0;
+
+            item.put("correctCount", correctCount);
+            item.put("totalCount", totalCount);
+            item.put("correctRate", Math.round(correctRate * 10) / 10.0);
+
+            stats.add(item);
+            count++;
+        }
+
+        return stats;
+    }
+
+    public List<Map<String, Object>> getMemberMostCorrectSongs(Long memberId, int limit) {
+        List<Object[]> results = gameRoundRepository.findMemberMostCorrectSongs(memberId);
+        List<Map<String, Object>> stats = new ArrayList<>();
+
+        int count = 0;
+        for (Object[] row : results) {
+            if (count >= limit) break;
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("songId", row[0]);
+            item.put("title", row[1]);
+            item.put("artist", row[2]);
+
+            long correctCount = ((Number) row[3]).longValue();
+            long totalCount = ((Number) row[4]).longValue();
+            double correctRate = totalCount > 0 ? (correctCount * 100.0 / totalCount) : 0;
+
+            item.put("correctCount", correctCount);
+            item.put("totalCount", totalCount);
+            item.put("correctRate", Math.round(correctRate * 10) / 10.0);
+
+            stats.add(item);
+            count++;
+        }
+
+        return stats;
+    }
+
+    public List<Map<String, Object>> getMemberHardestSongs(Long memberId, int limit) {
+        List<Object[]> results = gameRoundRepository.findMemberHardestSongs(memberId);
+        List<Map<String, Object>> stats = new ArrayList<>();
+
+        int count = 0;
+        for (Object[] row : results) {
+            if (count >= limit) break;
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("songId", row[0]);
+            item.put("title", row[1]);
+            item.put("artist", row[2]);
+
+            long correctCount = ((Number) row[3]).longValue();
+            long totalCount = ((Number) row[4]).longValue();
+            double correctRate = totalCount > 0 ? (correctCount * 100.0 / totalCount) : 0;
+
+            item.put("correctCount", correctCount);
+            item.put("totalCount", totalCount);
+            item.put("correctRate", Math.round(correctRate * 10) / 10.0);
+
+            stats.add(item);
+            count++;
+        }
+
+        return stats;
     }
 }

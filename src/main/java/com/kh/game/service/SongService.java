@@ -3,7 +3,10 @@ package com.kh.game.service;
 import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.Song;
 import com.kh.game.entity.SongAnswer;
+import com.kh.game.repository.GameRoomRepository;
+import com.kh.game.repository.GameRoundRepository;
 import com.kh.game.repository.SongAnswerRepository;
+import com.kh.game.repository.SongReportRepository;
 import com.kh.game.repository.SongRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +29,9 @@ public class SongService {
 
     private final SongRepository songRepository;
     private final SongAnswerRepository songAnswerRepository;
+    private final SongReportRepository songReportRepository;
+    private final GameRoundRepository gameRoundRepository;
+    private final GameRoomRepository gameRoomRepository;
     private final YouTubeValidationService youTubeValidationService;
 
     @Value("${file.upload-dir:uploads/songs}")
@@ -73,6 +79,14 @@ public class SongService {
 
     @Transactional
     public void deleteById(Long id) {
+        // 외래 키 제약조건 해결을 위해 관련 데이터 먼저 정리
+        // 1. SongReport 삭제 (nullable=false이므로 삭제 필요)
+        songReportRepository.deleteBySongId(id);
+        // 2. GameRound의 song 참조를 null로 설정
+        gameRoundRepository.clearSongReference(id);
+        // 3. GameRoom의 currentSong 참조를 null로 설정
+        gameRoomRepository.clearCurrentSongReference(id);
+        // 4. Song 삭제 (SongAnswer는 cascade로 자동 삭제)
         songRepository.deleteById(id);
     }
 
