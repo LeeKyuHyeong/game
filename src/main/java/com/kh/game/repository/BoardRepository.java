@@ -5,10 +5,12 @@ import com.kh.game.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -47,4 +49,10 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     // 회원별 게시글 수
     long countByMemberAndStatus(Member member, Board.BoardStatus status);
+
+    // 오래된 삭제 게시글 영구 삭제 (배치용)
+    @Modifying
+    @Query("DELETE FROM Board b WHERE b.status = :status AND b.updatedAt < :threshold")
+    int deleteOldDeletedBoards(@Param("status") Board.BoardStatus status,
+                               @Param("threshold") LocalDateTime threshold);
 }

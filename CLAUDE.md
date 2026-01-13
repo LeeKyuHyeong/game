@@ -4,21 +4,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build & Run Commands
 
+**IMPORTANT:**
+- Use `./mvnw` (Maven Wrapper) instead of `mvn` for all commands
+- Set JAVA_HOME to Java 17 before running commands
+
 ```bash
+# Set Java 17 (required for all commands)
+export JAVA_HOME="/c/Users/TRUEBON/.jdks/corretto-17.0.12"
+
 # Run application (dev profile, port 8082)
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 
 # Build WAR package
-mvn clean package -DskipTests
+./mvnw clean package -DskipTests
 
 # Run all tests
-mvn test
+./mvnw test
 
 # Run a single test class
-mvn test -Dtest=GameApplicationTests
+./mvnw test -Dtest=GameApplicationTests
 
 # Run a single test method
-mvn test -Dtest=GameApplicationTests#testMethodName
+./mvnw test -Dtest=GameApplicationTests#testMethodName
 
 # Docker deployment (production)
 docker-compose up -d

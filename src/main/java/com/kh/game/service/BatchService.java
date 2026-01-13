@@ -169,7 +169,19 @@ public class BatchService {
                 true  // 구현됨
         ));
 
-        log.info("배치 설정 초기 데이터 생성 완료: 11개");
+        // 12. 게시판 정리
+        batchConfigRepository.save(new BatchConfig(
+                "BATCH_BOARD_CLEANUP",
+                "게시판 정리",
+                "삭제 표시된 지 30일이 지난 게시글과 댓글을 영구 삭제합니다.",
+                "0 0 3 * * *",
+                "매일 03:00",
+                "Board",
+                BatchConfig.Priority.MEDIUM,
+                true  // 구현됨
+        ));
+
+        log.info("배치 설정 초기 데이터 생성 완료: 12개");
     }
 
     /**
@@ -190,7 +202,8 @@ public class BatchService {
                 "BATCH_SONG_FILE_CHECK",
                 "BATCH_SONG_ANALYTICS",
                 "BATCH_SYSTEM_REPORT",
-                "BATCH_WEEKLY_RANKING_RESET"
+                "BATCH_WEEKLY_RANKING_RESET",
+                "BATCH_BOARD_CLEANUP"
         );
 
         int updatedCount = 0;
@@ -255,6 +268,21 @@ public class BatchService {
                 log.info("BATCH_SONG_FILE_CHECK 설정 업데이트 완료 (매시간 실행)");
             }
         });
+
+        // BATCH_BOARD_CLEANUP: 새 배치 추가 (기존 DB에 없으면 생성)
+        if (!batchConfigRepository.existsById("BATCH_BOARD_CLEANUP")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_BOARD_CLEANUP",
+                    "게시판 정리",
+                    "삭제 표시된 지 30일이 지난 게시글과 댓글을 영구 삭제합니다.",
+                    "0 0 3 * * *",
+                    "매일 03:00",
+                    "Board",
+                    BatchConfig.Priority.MEDIUM,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_BOARD_CLEANUP 배치 설정 추가 완료");
+        }
     }
 
     /**
