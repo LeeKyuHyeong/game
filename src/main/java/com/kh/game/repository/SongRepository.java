@@ -81,4 +81,14 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     // 전체 아티스트 목록 (관리자용 - 전체 곡 대상)
     @Query("SELECT DISTINCT s.artist FROM Song s WHERE s.artist IS NOT NULL ORDER BY s.artist")
     List<String> findAllDistinctArtists();
+
+    // 중복된 YouTube video ID 목록 조회 (활성 곡 중 2개 이상 있는 것)
+    @Query("SELECT s.youtubeVideoId FROM Song s " +
+            "WHERE s.youtubeVideoId IS NOT NULL AND s.useYn = 'Y' " +
+            "GROUP BY s.youtubeVideoId " +
+            "HAVING COUNT(s) > 1")
+    List<String> findDuplicateYoutubeVideoIds();
+
+    // 특정 YouTube video ID를 가진 곡 조회 (ID 오름차순)
+    List<Song> findByYoutubeVideoIdAndUseYnOrderByIdAsc(String youtubeVideoId, String useYn);
 }
