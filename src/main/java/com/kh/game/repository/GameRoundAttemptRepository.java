@@ -2,10 +2,12 @@ package com.kh.game.repository;
 
 import com.kh.game.entity.GameRoundAttempt;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -69,4 +71,9 @@ public interface GameRoundAttemptRepository extends JpaRepository<GameRoundAttem
             "GROUP BY gra.userAnswer, gr.song.id, gr.song.title, gr.song.artist " +
             "ORDER BY cnt DESC")
     List<Object[]> findMostCommonWrongAnswersWithSong();
+
+    // 지정된 날짜 이전에 생성된 시도 기록 삭제
+    @Modifying
+    @Query("DELETE FROM GameRoundAttempt gra WHERE gra.createdAt < :threshold")
+    int deleteByCreatedAtBefore(@Param("threshold") LocalDateTime threshold);
 }
