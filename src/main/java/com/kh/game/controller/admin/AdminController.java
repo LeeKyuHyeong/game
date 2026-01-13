@@ -25,6 +25,15 @@ public class AdminController {
         if (session.getAttribute("adminMember") != null) {
             return "redirect:/admin/song";
         }
+
+        // 클라이언트에서 ADMIN 권한으로 로그인한 경우도 체크
+        String memberRole = (String) session.getAttribute("memberRole");
+        Long memberId = (Long) session.getAttribute("memberId");
+        if ("ADMIN".equals(memberRole) && memberId != null) {
+            // AdminInterceptor가 adminMember 설정을 처리하므로 바로 이동
+            return "redirect:/admin/song";
+        }
+
         return "admin/login";
     }
 
