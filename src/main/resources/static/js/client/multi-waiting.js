@@ -286,17 +286,52 @@ async function startGame() {
 
 // 참가 코드 복사
 function copyRoomCode() {
-    navigator.clipboard.writeText(roomCode).then(() => {
-        alert('참가 코드가 복사되었습니다: ' + roomCode);
-    }).catch(() => {
-        const tempInput = document.createElement('input');
-        tempInput.value = roomCode;
-        document.body.appendChild(tempInput);
-        tempInput.select();
+    // Clipboard API가 지원되는지 확인 (HTTPS 또는 localhost에서만 사용 가능)
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(roomCode).then(() => {
+            showCopySuccess();
+        }).catch(() => {
+            fallbackCopy();
+        });
+    } else {
+        fallbackCopy();
+    }
+}
+
+// 폴백 복사 (구형 브라우저 또는 HTTP 환경)
+function fallbackCopy() {
+    const tempInput = document.createElement('textarea');
+    tempInput.value = roomCode;
+    tempInput.style.position = 'fixed';
+    tempInput.style.left = '-9999px';
+    tempInput.style.top = '0';
+    document.body.appendChild(tempInput);
+    tempInput.focus();
+    tempInput.select();
+
+    try {
         document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        alert('참가 코드가 복사되었습니다: ' + roomCode);
-    });
+        showCopySuccess();
+    } catch (err) {
+        // 복사 실패 시 직접 코드 표시
+        prompt('참가 코드를 복사하세요:', roomCode);
+    }
+
+    document.body.removeChild(tempInput);
+}
+
+// 복사 성공 메시지
+function showCopySuccess() {
+    const copyBtn = document.querySelector('.btn-copy');
+    if (copyBtn) {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '✅';
+        copyBtn.disabled = true;
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.disabled = false;
+        }, 1500);
+    }
 }
 
 // HTML 이스케이프
