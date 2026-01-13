@@ -12,6 +12,16 @@ let isRoundEnded = false; // 라운드 종료 플래그
 let isRoundReady = false; // 준비 완료 플래그
 let totalPlayTime = 0; // 실제 재생된 총 시간 (초)
 let playStartTime = null; // 현재 재생 시작 시점
+let lastPossibleScore = 100; // 마지막 표시된 점수 (애니메이션용)
+
+// 점수 구간 정의: [시간(초), 점수, 다음 구간까지 시간]
+const SCORE_THRESHOLDS = [
+    { maxTime: 5, score: 100, nextAt: 5 },
+    { maxTime: 8, score: 90, nextAt: 8 },
+    { maxTime: 12, score: 80, nextAt: 12 },
+    { maxTime: 15, score: 70, nextAt: 15 },
+    { maxTime: Infinity, score: 60, nextAt: null }
+];
 let youtubePlayerReady = false; // YouTube Player 준비 상태
 
 // 게임 시작
@@ -481,6 +491,9 @@ function updateProgress() {
     document.getElementById('progressBar').style.width = progress + '%';
     updateTimeDisplay();
 
+    // 실시간 점수 업데이트
+    updateLiveScoreIndicator(currentTime);
+
     if (currentTime >= duration) {
         pauseAudio();
     }
@@ -516,6 +529,7 @@ function resetUI() {
     isRoundReady = false; // 준비 완료 플래그 리셋
     totalPlayTime = 0; // 재생 시간 리셋
     playStartTime = null; // 재생 시작 시점 리셋
+    lastPossibleScore = 100; // 점수 리셋
     document.getElementById('answerInput').value = '';
     // 피드백 메시지 초기화
     const feedbackEl = document.getElementById('attemptFeedback');
@@ -523,6 +537,8 @@ function resetUI() {
         feedbackEl.style.display = 'none';
         feedbackEl.textContent = '';
     }
+    // 실시간 점수 인디케이터 초기화
+    resetLiveScoreIndicator();
 }
 
 // 준비 완료 프롬프트 표시
@@ -912,4 +928,107 @@ async function skipUnplayableRound() {
         isRoundEnded = false;
         console.error('스킵 오류:', error);
     }
+}
+
+// ========== 실시간 점수 인디케이터 ==========
+
+/**
+ * 현재 재생 시간에 따른 획득 가능 점수 계산
+ */
+function calculatePossibleScore(playTime) {
+    for (const threshold of SCORE_THRESHOLDS) {
+        if (playTime < threshold.maxTime) {
+            return threshold;
+        }
+    }
+    return SCORE_THRESHOLDS[SCORE_THRESHOLDS.length - 1];
+}
+
+/**
+ * 실시간 점수 인디케이터 업데이트
+ */
+function updateLiveScoreIndicator(currentTime) {
+    const indicator = document.querySelector('.live-score-indicator');
+    const scoreValue = document.getElementById('possibleScore');
+    const countdownTime = document.getElementById('nextDropTime');
+    const segments = document.querySelectorAll('.score-segment');
+
+    if (!indicator || !scoreValue) return;
+
+    // waiting 클래스 제거 (재생 중)
+    indicator.classList.remove('waiting');
+
+    const currentThreshold = calculatePossibleScore(currentTime);
+    const currentScore = currentThreshold.score;
+
+    // 점수가 떨어졌으면 애니메이션
+    if (currentScore < lastPossibleScore) {
+        scoreValue.classList.add('dropping');
+        setTimeout(() => scoreValue.classList.remove('dropping'), 400);
+        lastPossibleScore = currentScore;
+    }
+
+    // 점수 표시
+    scoreValue.textContent = currentScore;
+
+    // 다음 감소까지 남은 시간
+    if (currentThreshold.nextAt !== null) {
+        const remaining = Math.max(0, currentThreshold.nextAt - currentTime);
+        countdownTime.textContent = remaining.toFixed(1);
+
+        // 2초 미만이면 urgent 클래스
+        if (remaining < 2) {
+            countdownTime.classList.add('urgent');
+        } else {
+            countdownTime.classList.remove('urgent');
+        }
+    } else {
+        countdownTime.textContent = '-';
+        countdownTime.classList.remove('urgent');
+    }
+
+    // 세그먼트 업데이트
+    segments.forEach(seg => {
+        const segScore = parseInt(seg.dataset.score);
+        seg.classList.remove('active', 'passed');
+
+        if (segScore === currentScore) {
+            seg.classList.add('active');
+        } else if (segScore > currentScore) {
+            seg.classList.add('passed');
+        }
+    });
+}
+
+/**
+ * 실시간 점수 인디케이터 초기화
+ */
+function resetLiveScoreIndicator() {
+    const indicator = document.querySelector('.live-score-indicator');
+    const scoreValue = document.getElementById('possibleScore');
+    const countdownTime = document.getElementById('nextDropTime');
+    const segments = document.querySelectorAll('.score-segment');
+
+    if (!indicator) return;
+
+    // waiting 상태로 설정
+    indicator.classList.add('waiting');
+
+    if (scoreValue) {
+        scoreValue.textContent = '100';
+        scoreValue.classList.remove('dropping');
+    }
+
+    if (countdownTime) {
+        countdownTime.textContent = '5.0';
+        countdownTime.classList.remove('urgent');
+    }
+
+    // 첫 번째 세그먼트만 active
+    segments.forEach((seg, index) => {
+        seg.classList.remove('active', 'passed');
+        if (index === 0) {
+            seg.classList.add('active');
+        }
+    });
 }
