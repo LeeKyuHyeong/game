@@ -523,6 +523,29 @@ function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+/**
+ * 실제 노래 재생 시간을 반환 (YouTube/MP3 플레이어 기준)
+ * @returns {number|null} 재생 시간(초) 또는 null
+ */
+function getActualPlayTime() {
+    if (!currentSong) return null;
+
+    let currentTime = 0;
+
+    if (currentSong.youtubeVideoId && youtubePlayerReady) {
+        // YouTube: startTime부터 상대적 시간 계산
+        const startTime = currentSong.startTime || 0;
+        currentTime = YouTubePlayerManager.getCurrentTime() - startTime;
+    } else if (currentSong.filePath) {
+        // MP3: 직접 currentTime 사용
+        currentTime = audioPlayer.currentTime;
+    } else {
+        return null;
+    }
+
+    return Math.max(0, currentTime);
+}
+
 function resetUI() {
     stopAudio();
     isRoundEnded = false; // 라운드 종료 플래그 리셋
@@ -587,14 +610,10 @@ async function submitAnswer() {
 
     if (!currentSong) return;
 
-    // 실제 재생된 시간 계산 (초 단위)
-    let answerTime = totalPlayTime;
-    // 현재 재생 중이면 현재 재생 시간도 추가
-    if (playStartTime !== null) {
-        answerTime += (Date.now() - playStartTime) / 1000;
-    }
+    // 실제 노래 재생 시간 계산 (초 단위)
+    let answerTime = getActualPlayTime();
     // 한 번도 재생하지 않았으면 null
-    if (answerTime === 0 && playStartTime === null) {
+    if (answerTime === null || answerTime === 0) {
         answerTime = null;
     }
 

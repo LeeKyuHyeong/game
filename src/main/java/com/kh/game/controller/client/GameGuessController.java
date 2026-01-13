@@ -773,14 +773,12 @@ public class GameGuessController {
 
     /**
      * 시간 기반 점수 계산
+     * 0초 이하(노래 시작 전): 100점 (고수 인정)
      * 5초까지: 100점, 8초까지: 90점, 12초까지: 80점, 15초까지: 70점, 이후: 60점
      */
     private int calculateScoreByTime(Double answerTimeSec) {
-        if (answerTimeSec == null) {
-            return 60; // 시간 정보가 없으면 기본 점수
-        }
-        if (answerTimeSec <= 5.0) {
-            return 100;
+        if (answerTimeSec == null || answerTimeSec <= 5.0) {
+            return 100; // 시간 정보 없거나 5초 이내 (시작 전 포함)
         } else if (answerTimeSec <= 8.0) {
             return 90;
         } else if (answerTimeSec <= 12.0) {
