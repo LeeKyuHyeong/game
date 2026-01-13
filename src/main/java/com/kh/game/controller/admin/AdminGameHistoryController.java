@@ -4,6 +4,7 @@ import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.GameRound;
 import com.kh.game.entity.GameSession;
 import com.kh.game.entity.Member;
+import com.kh.game.entity.MultiTier;
 import com.kh.game.service.GameSessionService;
 import com.kh.game.service.MemberService;
 import com.kh.game.repository.MemberRepository;
@@ -118,7 +119,7 @@ public class AdminGameHistoryController {
             @RequestParam(defaultValue = "total") String rankType,
             Model model) {
 
-        // 티어 분포 조회
+        // 통합 티어 분포 조회
         Map<String, Long> tierDistribution = new LinkedHashMap<>();
         tierDistribution.put("MASTER", 0L);
         tierDistribution.put("DIAMOND", 0L);
@@ -138,6 +139,27 @@ public class AdminGameHistoryController {
             }
         }
 
+        // 멀티게임 LP 티어 분포 조회
+        Map<String, Long> multiTierDistribution = new LinkedHashMap<>();
+        multiTierDistribution.put("CHALLENGER", 0L);
+        multiTierDistribution.put("MASTER", 0L);
+        multiTierDistribution.put("DIAMOND", 0L);
+        multiTierDistribution.put("PLATINUM", 0L);
+        multiTierDistribution.put("GOLD", 0L);
+        multiTierDistribution.put("SILVER", 0L);
+        multiTierDistribution.put("BRONZE", 0L);
+
+        List<Object[]> multiTierCounts = memberRepository.countByMultiTier();
+        long totalMultiPlayers = 0;
+        for (Object[] row : multiTierCounts) {
+            if (row[0] != null) {
+                String tierName = ((MultiTier) row[0]).name();
+                Long count = (Long) row[1];
+                multiTierDistribution.put(tierName, count);
+                totalMultiPlayers += count;
+            }
+        }
+
         // 랭킹 타입에 따른 회원 조회
         List<Member> memberRankings;
         switch (rankType) {
@@ -145,7 +167,8 @@ public class AdminGameHistoryController {
                 memberRankings = memberService.getGuessRankingByScore(50);
                 break;
             case "multi":
-                memberRankings = memberService.getMultiRankingByScore(50);
+                // LP 티어 기준으로 변경
+                memberRankings = memberService.getMultiTierRanking(50);
                 break;
             case "weekly":
                 memberRankings = memberService.getWeeklyGuessRankingByScore(50);
@@ -159,6 +182,8 @@ public class AdminGameHistoryController {
 
         model.addAttribute("tierDistribution", tierDistribution);
         model.addAttribute("totalMembers", totalMembers);
+        model.addAttribute("multiTierDistribution", multiTierDistribution);
+        model.addAttribute("totalMultiPlayers", totalMultiPlayers);
         model.addAttribute("memberRankings", memberRankings);
         model.addAttribute("rankType", rankType);
         model.addAttribute("menu", "ranking");

@@ -79,6 +79,32 @@ function viewDetail(id) {
                 </div>
 
                 <div class="detail-section">
+                    <h3>멀티게임 LP 티어</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">LP 티어</div>
+                            <div class="detail-value">
+                                <span style="background-color: ${data.multiTierColor}; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold;">
+                                    ${data.multiTierDisplayName}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">LP</div>
+                            <div class="detail-value">${data.multiLp || 0} LP</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">멀티게임 1위</div>
+                            <div class="detail-value">${data.multiWins?.toLocaleString() || 0}회</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">멀티게임 TOP3</div>
+                            <div class="detail-value">${data.multiTop3?.toLocaleString() || 0}회</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
                     <h3>계정 정보</h3>
                     <div class="detail-grid">
                         <div class="detail-item">

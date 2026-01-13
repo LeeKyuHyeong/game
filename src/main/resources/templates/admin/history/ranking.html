@@ -12,8 +12,8 @@
         </header>
 
         <!-- Tier Distribution Dashboard -->
-        <div class="tier-dashboard">
-            <h2>🎖️ 티어 분포 현황 <span style="font-size: 0.9rem; color: rgba(255,255,255,0.5);">총 [[${totalMembers}]]명</span></h2>
+        <div class="tier-dashboard" th:if="${rankType != 'multi'}">
+            <h2>통합 티어 분포 현황 <span style="font-size: 0.9rem; color: rgba(255,255,255,0.5);">총 [[${totalMembers}]]명</span></h2>
             <div class="tier-cards">
                 <div class="tier-card MASTER">
                     <div class="tier-icon">👑</div>
@@ -53,7 +53,7 @@
                 </div>
             </div>
             <div class="tier-chart">
-                <h3>📊 티어별 회원 분포</h3>
+                <h3>티어별 회원 분포</h3>
                 <div class="chart-bars">
                     <div class="chart-bar-row">
                         <span class="chart-bar-label">MASTER</span>
@@ -95,6 +95,102 @@
             </div>
         </div>
 
+        <!-- Multi LP Tier Distribution Dashboard -->
+        <div class="tier-dashboard" th:if="${rankType == 'multi'}">
+            <h2>멀티게임 LP 티어 분포 <span style="font-size: 0.9rem; color: rgba(255,255,255,0.5);">총 [[${totalMultiPlayers}]]명</span></h2>
+            <div class="tier-cards" style="grid-template-columns: repeat(7, 1fr);">
+                <div class="tier-card" style="background: linear-gradient(135deg, #00BFFF 0%, #1E90FF 100%);">
+                    <div class="tier-icon">🏆</div>
+                    <div class="tier-name">CHALLENGER</div>
+                    <div class="tier-count" th:text="${multiTierDistribution['CHALLENGER']}">0</div>
+                    <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['CHALLENGER'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
+                </div>
+                <div class="tier-card" style="background: linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%);">
+                    <div class="tier-icon">👑</div>
+                    <div class="tier-name">MASTER</div>
+                    <div class="tier-count" th:text="${multiTierDistribution['MASTER']}">0</div>
+                    <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['MASTER'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
+                </div>
+                <div class="tier-card" style="background: linear-gradient(135deg, #B9F2FF 0%, #87CEEB 100%);">
+                    <div class="tier-icon">💎</div>
+                    <div class="tier-name">DIAMOND</div>
+                    <div class="tier-count" th:text="${multiTierDistribution['DIAMOND']}">0</div>
+                    <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['DIAMOND'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
+                </div>
+                <div class="tier-card" style="background: linear-gradient(135deg, #E5E4E2 0%, #C0C0C0 100%);">
+                    <div class="tier-icon">🔮</div>
+                    <div class="tier-name">PLATINUM</div>
+                    <div class="tier-count" th:text="${multiTierDistribution['PLATINUM']}">0</div>
+                    <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['PLATINUM'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
+                </div>
+                <div class="tier-card" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);">
+                    <div class="tier-icon">🏅</div>
+                    <div class="tier-name">GOLD</div>
+                    <div class="tier-count" th:text="${multiTierDistribution['GOLD']}">0</div>
+                    <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['GOLD'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
+                </div>
+                <div class="tier-card" style="background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);">
+                    <div class="tier-icon">🥈</div>
+                    <div class="tier-name">SILVER</div>
+                    <div class="tier-count" th:text="${multiTierDistribution['SILVER']}">0</div>
+                    <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['SILVER'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
+                </div>
+                <div class="tier-card" style="background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%);">
+                    <div class="tier-icon">🥉</div>
+                    <div class="tier-name">BRONZE</div>
+                    <div class="tier-count" th:text="${multiTierDistribution['BRONZE']}">0</div>
+                    <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['BRONZE'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
+                </div>
+            </div>
+            <div class="tier-chart">
+                <h3>멀티게임 LP 티어별 분포</h3>
+                <div class="chart-bars">
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">CHALLENGER</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="background: linear-gradient(90deg, #00BFFF, #1E90FF);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['CHALLENGER'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['CHALLENGER']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">MASTER</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="background: linear-gradient(90deg, #FF6B6B, #EE5A5A);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['MASTER'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['MASTER']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">DIAMOND</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="background: linear-gradient(90deg, #B9F2FF, #87CEEB);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['DIAMOND'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['DIAMOND']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">PLATINUM</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="background: linear-gradient(90deg, #E5E4E2, #C0C0C0);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['PLATINUM'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['PLATINUM']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">GOLD</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="background: linear-gradient(90deg, #FFD700, #FFA500);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['GOLD'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['GOLD']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">SILVER</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="background: linear-gradient(90deg, #C0C0C0, #A8A8A8);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['SILVER'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['SILVER']}"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar-row">
+                        <span class="chart-bar-label">BRONZE</span>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar" style="background: linear-gradient(90deg, #CD7F32, #B87333);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['BRONZE'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['BRONZE']}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Rank Type Tabs -->
         <div class="rank-type-tabs">
             <a th:href="@{/admin/history/ranking(rankType='total')}" th:classappend="${rankType == 'total' or rankType == null} ? 'active'" class="rank-type-tab">🏆 전체 랭킹</a>
@@ -104,8 +200,8 @@
             <a th:href="@{/admin/history/ranking(rankType='best')}" th:classappend="${rankType == 'best'} ? 'active'" class="rank-type-tab">⭐ 최고기록</a>
         </div>
 
-        <!-- TOP 10 Rankers -->
-        <div class="top-rankers" th:if="${!#lists.isEmpty(memberRankings)}">
+        <!-- TOP 10 Rankers (Non-Multi) -->
+        <div class="top-rankers" th:if="${!#lists.isEmpty(memberRankings) and rankType != 'multi'}">
             <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 10}">
                 <div class="ranker-card" th:classappend="${idx.index == 0} ? 'top-1' : (${idx.index == 1} ? 'top-2' : (${idx.index == 2} ? 'top-3' : ''))">
                     <div class="ranker-rank">
@@ -125,8 +221,29 @@
             </th:block>
         </div>
 
-        <!-- Ranking Table -->
-        <div class="ranking-table-container">
+        <!-- TOP 10 Rankers (Multi - LP Tier) -->
+        <div class="top-rankers" th:if="${!#lists.isEmpty(memberRankings) and rankType == 'multi'}">
+            <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 10}">
+                <div class="ranker-card" th:classappend="${idx.index == 0} ? 'top-1' : (${idx.index == 1} ? 'top-2' : (${idx.index == 2} ? 'top-3' : ''))">
+                    <div class="ranker-rank">
+                        <span th:if="${idx.index == 0}">🥇 1위</span>
+                        <span th:if="${idx.index == 1}">🥈 2위</span>
+                        <span th:if="${idx.index == 2}">🥉 3위</span>
+                        <span th:if="${idx.index > 2}" th:text="${idx.index + 1} + '위'"></span>
+                    </div>
+                    <div class="ranker-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</div>
+                    <div class="ranker-nickname" th:text="${member.nickname}">닉네임</div>
+                    <div class="ranker-score" th:text="${member.multiLp} + ' LP'">0 LP</div>
+                    <div class="ranker-stats">
+                        1위 <span th:text="${member.multiWins}">0</span>회 |
+                        TOP3 <span th:text="${member.multiTop3}">0</span>회
+                    </div>
+                </div>
+            </th:block>
+        </div>
+
+        <!-- Ranking Table (Non-Multi) -->
+        <div class="ranking-table-container" th:if="${rankType != 'multi'}">
             <table class="member-ranking-table">
                 <thead>
                 <tr>
@@ -155,6 +272,46 @@
                     <td th:text="${member.totalGames}">0</td>
                     <td th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)} + '%'">0%</td>
                     <td th:text="${member.createdAt != null} ? ${#temporals.format(member.createdAt, 'yyyy-MM-dd')} : '-'">-</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(memberRankings)}">
+                    <td colspan="7" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+                        랭킹 데이터가 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Ranking Table (Multi - LP Tier) -->
+        <div class="ranking-table-container" th:if="${rankType == 'multi'}">
+            <table class="member-ranking-table">
+                <thead>
+                <tr>
+                    <th style="width: 60px;">순위</th>
+                    <th style="width: 100px;">LP 티어</th>
+                    <th>닉네임</th>
+                    <th>LP</th>
+                    <th>1위</th>
+                    <th>TOP3</th>
+                    <th>게임수</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="member, idx : ${memberRankings}">
+                    <td>
+                        <span th:if="${idx.index == 0}" class="rank-medal">🥇</span>
+                        <span th:if="${idx.index == 1}" class="rank-medal">🥈</span>
+                        <span th:if="${idx.index == 2}" class="rank-medal">🥉</span>
+                        <span th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
+                    </td>
+                    <td>
+                        <span class="table-tier-badge" th:style="'background-color:' + ${member.multiTierColor} + '; color: #000;'" th:text="${member.multiTierDisplayName}">브론즈</span>
+                    </td>
+                    <td th:text="${member.nickname}">닉네임</td>
+                    <td th:text="${member.multiLp} + ' LP'">0 LP</td>
+                    <td th:text="${member.multiWins}">0</td>
+                    <td th:text="${member.multiTop3}">0</td>
+                    <td th:text="${member.multiGames}">0</td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(memberRankings)}">
                     <td colspan="7" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">

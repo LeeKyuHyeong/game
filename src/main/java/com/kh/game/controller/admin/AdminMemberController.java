@@ -91,6 +91,13 @@ public class AdminMemberController {
                     result.put("guessScore", member.getGuessScore());
                     result.put("multiGames", member.getMultiGames());
                     result.put("multiScore", member.getMultiScore());
+                    // 멀티게임 LP 티어 정보
+                    result.put("multiTier", member.getMultiTier() != null ? member.getMultiTier().name() : "BRONZE");
+                    result.put("multiTierDisplayName", member.getMultiTierDisplayName());
+                    result.put("multiTierColor", member.getMultiTierColor());
+                    result.put("multiLp", member.getMultiLp());
+                    result.put("multiWins", member.getMultiWins());
+                    result.put("multiTop3", member.getMultiTop3());
                     result.put("lastLoginAt", member.getLastLoginAt());
                     result.put("createdAt", member.getCreatedAt());
                     return ResponseEntity.ok(result);
