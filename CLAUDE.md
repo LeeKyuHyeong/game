@@ -9,8 +9,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Set JAVA_HOME to Java 17 before running commands
 
 ```bash
-# Set Java 17 (required for all commands)
-export JAVA_HOME="/c/Users/TRUEBON/.jdks/corretto-17.0.12"
+# Set Java 17 (required for all commands) - adjust path to your JDK location
+export JAVA_HOME="/c/Users/TRUEBON/.jdks/corretto-17.0.12"  # Windows/Git Bash
+# export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.12-amzn"  # Linux/macOS with SDKMAN
 
 # Run application (dev profile, port 8082)
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
@@ -48,12 +49,12 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 
 ### Package Structure (`com.kh.game`)
 
-- **controller/client/** - User-facing: `AuthController`, `GameGuessController`, `GameHostController`, `MultiGameController`, `RankingController`, `SongReportController`, `BoardController`, `StatsController`
-- **controller/admin/** - Admin panel: `AdminSongController`, `AdminGenreController`, `AdminBatchController`, `AdminBadWordController`, `AdminRoomController`, `AdminChatController`, `AdminSongReportController`, `AdminMemberController`, `AdminGameHistoryController`, `AdminStatsController`, `AdminAnswerController`, `AdminLoginHistoryController`
-- **service/** - Business logic: `GameSessionService`, `MultiGameService`, `SongService`, `MemberService`, `GameRoomService`, `AnswerValidationService`, `YouTubeValidationService`, `BoardService`, `WrongAnswerStatsService`
+- **controller/client/** - User-facing: `HomeController`, `AuthController`, `GameGuessController`, `GameHostController`, `MultiGameController`, `RankingController`, `SongReportController`, `BoardController`, `StatsController`
+- **controller/admin/** - Admin panel: `AdminController` (dashboard), `AdminSongController`, `AdminGenreController`, `AdminBatchController`, `AdminBadWordController`, `AdminRoomController`, `AdminChatController`, `AdminSongReportController`, `AdminMemberController`, `AdminGameHistoryController`, `AdminStatsController`, `AdminAnswerController`, `AdminLoginHistoryController`
+- **service/** - Business logic: `GameSessionService`, `MultiGameService`, `SongService`, `MemberService`, `GameRoomService`, `AnswerValidationService`, `YouTubeValidationService`, `BoardService`, `WrongAnswerStatsService`, `BatchService`, `GenreMigrationService`
 - **entity/** - JPA entities: `Member`, `MemberLoginHistory`, `Song`, `SongAnswer`, `Genre`, `GameSession`, `GameRound`, `GameRoundAttempt`, `GameRoom`, `GameRoomParticipant`, `GameRoomChat`, `BadWord`, `SongReport`, `BatchConfig`, `BatchExecutionHistory`, `DailyStats`, `Board`, `BoardComment`, `BoardLike`
 - **repository/** - Spring Data JPA repositories
-- **batch/** - 12 scheduled batch jobs managed by `BatchScheduler`
+- **batch/** - 13 scheduled batch jobs managed by `BatchScheduler`
 - **config/** - `SecurityConfig` (BCrypt), `WebConfig` (interceptors, file upload), `SchedulerConfig`, `DataInitializer`
 - **util/** - `AnswerGeneratorUtil` (English→Korean phonetic conversion for song titles)
 - **dto/** - `GameSettings` (multiplayer room configuration)
@@ -93,7 +94,7 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 ### Batch Jobs (managed by BatchScheduler)
 
 All batches are DB-configurable via `BatchConfig` table with cron expressions:
-- `SessionCleanupBatch`, `RoomCleanupBatch`, `ChatCleanupBatch` - Cleanup expired data
+- `SessionCleanupBatch`, `RoomCleanupBatch`, `ChatCleanupBatch`, `BoardCleanupBatch` - Cleanup expired data
 - `DailyStatsBatch`, `RankingUpdateBatch`, `WeeklyRankingResetBatch` - Stats & rankings
 - `LoginHistoryCleanupBatch`, `InactiveMemberBatch` - Member management
 - `SongFileCheckBatch`, `SongAnalyticsBatch`, `YouTubeVideoCheckBatch` - Song integrity
