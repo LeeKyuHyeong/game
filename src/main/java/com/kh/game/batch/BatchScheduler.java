@@ -40,6 +40,8 @@ public class BatchScheduler {
     private final BatchExecutionHistoryCleanupBatch batchExecutionHistoryCleanupBatch;
     private final GameRoundAttemptCleanupBatch gameRoundAttemptCleanupBatch;
     private final DuplicateSongCheckBatch duplicateSongCheckBatch;
+    private final GameSessionCleanupBatch gameSessionCleanupBatch;
+    private final SongReportCleanupBatch songReportCleanupBatch;
 
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
@@ -231,6 +233,22 @@ public class BatchScheduler {
                         log.error("배치 실행 중 오류: {}", batchId, e);
                     }
                 };
+            case GameSessionCleanupBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        gameSessionCleanupBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case SongReportCleanupBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        songReportCleanupBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
             default:
                 return null;
         }
@@ -287,6 +305,12 @@ public class BatchScheduler {
                 break;
             case DuplicateSongCheckBatch.BATCH_ID:
                 duplicateSongCheckBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case GameSessionCleanupBatch.BATCH_ID:
+                gameSessionCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case SongReportCleanupBatch.BATCH_ID:
+                songReportCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
                 break;
             default:
                 throw new IllegalArgumentException("실행할 수 없는 배치입니다: " + batchId);

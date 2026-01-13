@@ -4,6 +4,7 @@ import com.kh.game.entity.GameSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -50,4 +51,17 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
 
     @Query("SELECT DATE(gs.createdAt), COUNT(gs) FROM GameSession gs WHERE gs.createdAt >= :startDate GROUP BY DATE(gs.createdAt) ORDER BY DATE(gs.createdAt)")
     List<Object[]> countByDateSince(@Param("startDate") LocalDateTime startDate);
+
+    // 좀비 세션 처리: 특정 시간 이상 PLAYING 상태인 세션을 ABANDONED로 변경
+    @Modifying
+    @Query("UPDATE GameSession gs SET gs.status = :newStatus, gs.endedAt = CURRENT_TIMESTAMP WHERE gs.status = :currentStatus AND gs.startedAt < :threshold")
+    int markZombieSessionsAsAbandoned(@Param("currentStatus") GameSession.GameStatus currentStatus,
+                                      @Param("newStatus") GameSession.GameStatus newStatus,
+                                      @Param("threshold") LocalDateTime threshold);
+
+    // 오래된 세션 삭제 (상태별)
+    @Modifying
+    @Query("DELETE FROM GameSession gs WHERE gs.status = :status AND gs.endedAt < :threshold")
+    int deleteOldSessionsByStatus(@Param("status") GameSession.GameStatus status,
+                                  @Param("threshold") LocalDateTime threshold);
 }

@@ -229,7 +229,31 @@ public class BatchService {
                 true  // 구현됨
         ));
 
-        log.info("배치 설정 초기 데이터 생성 완료: 16개");
+        // 17. Solo 게임 세션 정리
+        batchConfigRepository.save(new BatchConfig(
+                "BATCH_GAME_SESSION_CLEANUP",
+                "Solo 게임 세션 정리",
+                "24시간 이상 PLAYING 상태인 좀비 세션을 ABANDONED로 변경하고, 7일 이상 된 완료/포기 세션을 삭제합니다.",
+                "0 0 2 * * *",
+                "매일 02:00",
+                "GameSession",
+                BatchConfig.Priority.HIGH,
+                true  // 구현됨
+        ));
+
+        // 18. 노래 신고 정리
+        batchConfigRepository.save(new BatchConfig(
+                "BATCH_SONG_REPORT_CLEANUP",
+                "노래 신고 정리",
+                "90일 이상 된 해결(RESOLVED)/반려(REJECTED) 신고를 삭제합니다. 처리 중인 신고(PENDING, CONFIRMED)는 유지됩니다.",
+                "0 0 4 * * SUN",
+                "매주 일요일 04:00",
+                "SongReport",
+                BatchConfig.Priority.LOW,
+                true  // 구현됨
+        ));
+
+        log.info("배치 설정 초기 데이터 생성 완료: 18개");
     }
 
     /**
@@ -255,7 +279,9 @@ public class BatchService {
                 "BATCH_EXECUTION_HISTORY_CLEANUP",
                 "BATCH_GAME_ROUND_ATTEMPT_CLEANUP",
                 "BATCH_DUPLICATE_SONG_CHECK",
-                "BATCH_YOUTUBE_VIDEO_CHECK"
+                "BATCH_YOUTUBE_VIDEO_CHECK",
+                "BATCH_GAME_SESSION_CLEANUP",
+                "BATCH_SONG_REPORT_CLEANUP"
         );
 
         int updatedCount = 0;
@@ -394,6 +420,36 @@ public class BatchService {
                     true  // 구현됨
             ));
             log.info("BATCH_YOUTUBE_VIDEO_CHECK 배치 설정 추가 완료");
+        }
+
+        // BATCH_GAME_SESSION_CLEANUP: 새 배치 추가 (기존 DB에 없으면 생성)
+        if (!batchConfigRepository.existsById("BATCH_GAME_SESSION_CLEANUP")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_GAME_SESSION_CLEANUP",
+                    "Solo 게임 세션 정리",
+                    "24시간 이상 PLAYING 상태인 좀비 세션을 ABANDONED로 변경하고, 7일 이상 된 완료/포기 세션을 삭제합니다.",
+                    "0 0 2 * * *",
+                    "매일 02:00",
+                    "GameSession",
+                    BatchConfig.Priority.HIGH,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_GAME_SESSION_CLEANUP 배치 설정 추가 완료");
+        }
+
+        // BATCH_SONG_REPORT_CLEANUP: 새 배치 추가 (기존 DB에 없으면 생성)
+        if (!batchConfigRepository.existsById("BATCH_SONG_REPORT_CLEANUP")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_SONG_REPORT_CLEANUP",
+                    "노래 신고 정리",
+                    "90일 이상 된 해결(RESOLVED)/반려(REJECTED) 신고를 삭제합니다. 처리 중인 신고(PENDING, CONFIRMED)는 유지됩니다.",
+                    "0 0 4 * * SUN",
+                    "매주 일요일 04:00",
+                    "SongReport",
+                    BatchConfig.Priority.LOW,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_SONG_REPORT_CLEANUP 배치 설정 추가 완료");
         }
     }
 
