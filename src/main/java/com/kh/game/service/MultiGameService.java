@@ -734,7 +734,7 @@ public class MultiGameService {
     }
 
     /**
-     * 게임 종료 처리 - Member 통계 업데이트 및 LP 적용
+     * 게임 종료 처리 - Member 통계 업데이트 및 LP 적용 (ELO 기반)
      */
     @Transactional
     public List<MultiTierService.LpChangeResult> finishGame(GameRoom room) {
@@ -745,6 +745,17 @@ public class MultiGameService {
         List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
         int totalRounds = room.getCurrentRound();  // 실제 진행된 라운드 수
         int totalPlayers = participants.size();
+
+        // 참가자들의 현재 레이팅 수집 (LP 적용 전 스냅샷)
+        Map<Long, Integer> participantRatings = new HashMap<>();
+        for (GameRoomParticipant participant : participants) {
+            Member member = participant.getMember();
+            if (member != null) {
+                MultiTier tier = member.getMultiTier() != null ? member.getMultiTier() : MultiTier.BRONZE;
+                int lp = member.getMultiLp() != null ? member.getMultiLp() : 0;
+                participantRatings.put(member.getId(), tier.toRating(lp));
+            }
+        }
 
         // 점수순 정렬 (순위 계산용)
         List<GameRoomParticipant> rankedParticipants = participants.stream()
@@ -767,12 +778,13 @@ public class MultiGameService {
                         totalRounds
                 );
 
-                // LP 적용 및 티어 변동 처리
+                // LP 적용 및 티어 변동 처리 (ELO 기반, 상대 티어 반영)
                 MultiTierService.LpChangeResult lpResult = multiTierService.applyGameResult(
                         member.getId(),
                         totalPlayers,
                         rank,
-                        participant.getScore()
+                        participant.getScore(),
+                        participantRatings
                 );
                 lpResults.add(lpResult);
             }

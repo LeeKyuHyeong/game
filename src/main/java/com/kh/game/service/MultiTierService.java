@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 멀티게임 LP 티어 시스템 서비스
  * 롤(LoL) 스타일의 LP 기반 승급/강등 처리
@@ -36,16 +39,18 @@ public class MultiTierService {
     ) {}
 
     /**
-     * 게임 결과에 따른 LP 적용
+     * 게임 결과에 따른 LP 적용 (ELO 기반, 상대 티어 반영)
      *
      * @param memberId 회원 ID
      * @param totalPlayers 총 참가자 수
      * @param rank 순위 (1등, 2등, ...)
      * @param score 게임에서 획득한 점수
+     * @param participantRatings 참가자들의 레이팅 목록 (memberId -> rating)
      * @return LP 변화 결과
      */
     @Transactional
-    public LpChangeResult applyGameResult(Long memberId, int totalPlayers, int rank, int score) {
+    public LpChangeResult applyGameResult(Long memberId, int totalPlayers, int rank, int score,
+                                          Map<Long, Integer> participantRatings) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId));
 
@@ -53,8 +58,23 @@ public class MultiTierService {
         MultiTier oldTier = member.getMultiTier() != null ? member.getMultiTier() : MultiTier.BRONZE;
         int oldLp = member.getMultiLp() != null ? member.getMultiLp() : 0;
 
-        // LP 변화량 계산
-        int lpChange = MultiTier.calculateLpChange(totalPlayers, rank);
+        int lpChange;
+        double avgOpponentRating = 0;
+
+        if (participantRatings != null && participantRatings.size() > 1) {
+            // 상대방들의 평균 레이팅 계산 (자신 제외)
+            avgOpponentRating = participantRatings.entrySet().stream()
+                    .filter(e -> !e.getKey().equals(memberId))
+                    .mapToInt(Map.Entry::getValue)
+                    .average()
+                    .orElse(oldTier.toRating(oldLp));
+
+            // ELO 기반 LP 변화량 계산
+            lpChange = MultiTier.calculateLpChange(oldTier, oldLp, avgOpponentRating, totalPlayers, rank);
+        } else {
+            // 상대 티어 정보 없으면 기본 계산
+            lpChange = MultiTier.calculateLpChange(totalPlayers, rank);
+        }
 
         // LP 적용 및 티어 변동 처리
         String tierChange = member.applyLpChange(lpChange);
@@ -64,10 +84,14 @@ public class MultiTierService {
 
         memberRepository.save(member);
 
-        log.info("LP 적용 - 회원: {}, 순위: {}/{}명, LP: {} -> {} ({}), 티어: {} -> {}{}",
-                member.getNickname(), rank, totalPlayers,
+        int baseLp = MultiTier.getBaseLpChange(totalPlayers, rank);
+        String bonusInfo = lpChange != baseLp ?
+                String.format(" (기본 %+d, 보정 %+d)", baseLp, lpChange - baseLp) : "";
+
+        log.info("LP 적용 - 회원: {}, 순위: {}/{}명, 평균상대: {}, LP: {} -> {} ({}{}), 티어: {} -> {}{}",
+                member.getNickname(), rank, totalPlayers, (int) avgOpponentRating,
                 oldLp, member.getMultiLp(), lpChange >= 0 ? "+" + lpChange : lpChange,
-                oldTier.getDisplayName(), member.getMultiTier().getDisplayName(),
+                bonusInfo, oldTier.getDisplayName(), member.getMultiTier().getDisplayName(),
                 tierChange != null ? " [" + tierChange + "]" : "");
 
         return new LpChangeResult(
@@ -82,6 +106,14 @@ public class MultiTierService {
                 lpChange,
                 tierChange
         );
+    }
+
+    /**
+     * 게임 결과에 따른 LP 적용 (기본 - 하위 호환)
+     */
+    @Transactional
+    public LpChangeResult applyGameResult(Long memberId, int totalPlayers, int rank, int score) {
+        return applyGameResult(memberId, totalPlayers, rank, score, null);
     }
 
     /**

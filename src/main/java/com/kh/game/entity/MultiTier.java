@@ -74,18 +74,28 @@ public enum MultiTier {
     }
 
     /**
-     * 인원수와 순위에 따른 LP 변화량 계산
-     *
-     * | 인원   | 1등  | 2등  | 3등  | 나머지 |
-     * |--------|------|------|------|--------|
-     * | 2명    | +100 | 0    | -    | -      |
-     * | 3~4명  | +120 | +40  | 0    | -20    |
-     * | 5~6명  | +150 | +60  | +20  | -10    |
-     * | 7~10명 | +180 | +80  | +30  | 0      |
+     * 티어와 LP를 통합 레이팅으로 변환 (ELO 계산용)
+     * BRONZE 0LP = 0, CHALLENGER 100LP = 700
      */
-    public static int calculateLpChange(int totalPlayers, int rank) {
+    public int toRating(int lp) {
+        return this.order * 100 + lp;
+    }
+
+    /**
+     * 레이팅을 티어로 변환
+     */
+    public static MultiTier fromRating(int rating) {
+        int tierOrder = Math.min(rating / 100, CHALLENGER.order);
+        tierOrder = Math.max(tierOrder, 0);
+        return values()[tierOrder];
+    }
+
+    /**
+     * 기본 LP 변화량 (인원수와 순위 기준)
+     */
+    public static int getBaseLpChange(int totalPlayers, int rank) {
         if (totalPlayers < 2) {
-            return 0; // 최소 2명 필요
+            return 0;
         }
 
         if (totalPlayers == 2) {
@@ -108,7 +118,7 @@ public enum MultiTier {
                 case 3 -> 20;
                 default -> -10;
             };
-        } else { // 7~10명
+        } else {
             return switch (rank) {
                 case 1 -> 180;
                 case 2 -> 80;
@@ -116,5 +126,53 @@ public enum MultiTier {
                 default -> 0;
             };
         }
+    }
+
+    /**
+     * ELO 기반 LP 변화량 계산
+     * 상대 티어를 고려하여 LP 변화량 조정
+     *
+     * @param myTier 내 티어
+     * @param myLp 내 LP
+     * @param avgOpponentRating 상대들의 평균 레이팅
+     * @param totalPlayers 총 참가자 수
+     * @param rank 내 순위
+     * @return 조정된 LP 변화량
+     */
+    public static int calculateLpChange(MultiTier myTier, int myLp, double avgOpponentRating, int totalPlayers, int rank) {
+        int baseLp = getBaseLpChange(totalPlayers, rank);
+        if (baseLp == 0) {
+            return 0;
+        }
+
+        int myRating = myTier.toRating(myLp);
+        double ratingDiff = avgOpponentRating - myRating;
+
+        // ELO 기대 승률: E = 1 / (1 + 10^((Rb - Ra) / 400))
+        double expectedScore = 1.0 / (1.0 + Math.pow(10, -ratingDiff / 400));
+
+        // 실제 성과 점수 (1등: 1.0, 2등: 0.75, 3등: 0.5, 그 외: 0.25)
+        double actualScore = switch (rank) {
+            case 1 -> 1.0;
+            case 2 -> 0.75;
+            case 3 -> 0.5;
+            default -> 0.25;
+        };
+
+        // 성과 차이에 따른 배수 계산 (0.5 ~ 1.5 범위)
+        // 기대보다 잘하면 보너스, 못하면 페널티
+        double performanceMultiplier = 1.0 + (actualScore - expectedScore) * 0.5;
+        performanceMultiplier = Math.max(0.5, Math.min(1.5, performanceMultiplier));
+
+        int adjustedLp = (int) Math.round(baseLp * performanceMultiplier);
+
+        return adjustedLp;
+    }
+
+    /**
+     * 기존 메서드 (하위 호환용) - 상대 티어 정보 없을 때
+     */
+    public static int calculateLpChange(int totalPlayers, int rank) {
+        return getBaseLpChange(totalPlayers, rank);
     }
 }
