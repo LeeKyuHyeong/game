@@ -612,6 +612,51 @@ public class SongService {
     }
 
     /**
+     * 아티스트의 모든 곡을 YouTube 검증 후 반환 (팬 챌린지용)
+     * 무효한 곡은 제외됨
+     */
+    public List<Song> getAllValidatedSongsByArtist(String artist) {
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            if (song.getArtist() == null || !song.getArtist().equals(artist)) continue;
+            filtered.add(song);
+        }
+
+        // YouTube 검증
+        List<Song> validSongs = new ArrayList<>();
+        for (Song song : filtered) {
+            if (song.getYoutubeVideoId() != null && !song.getYoutubeVideoId().isEmpty()) {
+                YouTubeValidationService.ValidationResult result =
+                        youTubeValidationService.validateVideo(song.getYoutubeVideoId());
+                if (!result.isValid()) {
+                    continue;
+                }
+            }
+            validSongs.add(song);
+        }
+
+        // 셔플 후 반환
+        Collections.shuffle(validSongs);
+        return validSongs;
+    }
+
+    /**
+     * 아티스트의 전체 곡 수 조회 (팬 챌린지 설정용)
+     */
+    public int getSongCountByArtist(String artist) {
+        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        int count = 0;
+        for (Song song : allSongs) {
+            if (song.getArtist() != null && song.getArtist().equals(artist)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
      * 단일 곡 YouTube 검증 후 유효한 곡 반환 (아티스트 기준)
      */
     public ValidatedSongResult getValidatedSongByArtist(String artist, List<Long> excludeSongIds) {

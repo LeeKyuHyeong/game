@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결과 - 최고 팬 챌린지</title>
+    <link rel="stylesheet" th:href="@{/css/common/common.css}">
+    <link rel="stylesheet" th:href="@{/css/client/client.css}">
+    <link rel="stylesheet" th:href="@{/css/client/result.css}">
+    <link rel="stylesheet" th:href="@{/css/client/game-fan-challenge.css}">
+</head>
+<body>
+    <div class="result-container fan-challenge-result">
+        <header class="result-header">
+            <h1 th:text="${artist + ' 최고 팬 챌린지'}">아티스트 최고 팬 챌린지</h1>
+        </header>
+
+        <main class="result-main">
+            <!-- 결과 요약 -->
+            <div class="result-summary">
+                <div th:if="${isPerfectClear}" class="perfect-clear-badge">
+                    <span class="badge-icon">&#127942;</span>
+                    <span class="badge-text">PERFECT CLEAR!</span>
+                </div>
+
+                <div class="score-display">
+                    <span class="score-value" th:text="${correctCount}">0</span>
+                    <span class="score-separator">/</span>
+                    <span class="score-total" th:text="${totalRounds}">0</span>
+                    <span class="score-label">곡 정답</span>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-label">정답률</span>
+                        <span class="stat-value"
+                              th:text="${#numbers.formatDecimal(correctCount * 100.0 / totalRounds, 0, 1) + '%'}">0%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">소요 시간</span>
+                        <span class="stat-value" th:text="${playTimeSeconds + '초'}">0초</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 아티스트 랭킹 -->
+            <div class="ranking-section">
+                <h2><span th:text="${artist}">아티스트</span> 랭킹</h2>
+
+                <div th:if="${myRecord != null}" class="my-record">
+                    <div class="my-record-label">내 최고 기록</div>
+                    <div class="my-record-value">
+                        <span th:text="${myRecord.correctCount + '/' + myRecord.totalSongs + '곡'}">0/0곡</span>
+                        <span th:if="${myRecord.isPerfectClear}" class="perfect-badge">PERFECT</span>
+                    </div>
+                </div>
+
+                <div class="ranking-list">
+                    <div th:if="${#lists.isEmpty(ranking)}" class="no-ranking">
+                        아직 기록이 없습니다. 첫 번째 도전자가 되어보세요!
+                    </div>
+
+                    <div th:each="record, iter : ${ranking}" class="ranking-item"
+                         th:classappend="${myRecord != null && record.member.id == myRecord.member.id} ? 'my-rank' : ''">
+                        <span class="rank" th:text="${iter.index + 1}">1</span>
+                        <span class="nickname" th:text="${record.member.nickname}">닉네임</span>
+                        <span class="record-value">
+                            <span th:text="${record.correctCount + '/' + record.totalSongs}">0/0</span>
+                            <span th:if="${record.isPerfectClear}" class="perfect-badge">PERFECT</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 라운드별 기록 -->
+            <div class="rounds-section">
+                <h2>라운드별 기록</h2>
+                <div class="rounds-grid">
+                    <div th:each="round : ${session.rounds}" class="round-card"
+                         th:classappend="${round.isCorrect()} ? 'correct' : 'wrong'">
+                        <div class="round-number" th:text="'#' + ${round.roundNumber}">1</div>
+                        <div class="round-song" th:text="${round.song.title}">노래 제목</div>
+                        <div class="round-result">
+                            <span th:if="${round.isCorrect()}" class="result-correct">O</span>
+                            <span th:if="${!round.isCorrect() && round.status.name() == 'TIMEOUT'}" class="result-timeout">시간초과</span>
+                            <span th:if="${!round.isCorrect() && round.status.name() != 'TIMEOUT'}" class="result-wrong">X</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="result-actions">
+                <a th:href="@{/game/fan-challenge}" class="btn-retry">다시 도전</a>
+                <a th:href="@{/}" class="btn-home">홈으로</a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

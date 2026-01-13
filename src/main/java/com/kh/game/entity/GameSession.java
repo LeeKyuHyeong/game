@@ -53,6 +53,13 @@ public class GameSession {
     @Column(name = "skip_count")
     private Integer skipCount = 0;
 
+    // Fan Challenge 전용 필드
+    @Column(name = "remaining_lives")
+    private Integer remainingLives;
+
+    @Column(name = "challenge_artist", length = 100)
+    private String challengeArtist;
+
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private GameStatus status = GameStatus.PLAYING;
@@ -81,7 +88,8 @@ public class GameSession {
 
     public enum GameType {
         SOLO_HOST,
-        SOLO_GUESS
+        SOLO_GUESS,
+        FAN_CHALLENGE
     }
 
     public enum GameMode {

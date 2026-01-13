@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>최고 팬 챌린지 - Song Quiz</title>
+    <link rel="stylesheet" th:href="@{/css/common/common.css}">
+    <link rel="stylesheet" th:href="@{/css/client/client.css}">
+    <link rel="stylesheet" th:href="@{/css/client/game-common.css}">
+    <link rel="stylesheet" th:href="@{/css/client/game-fan-challenge.css}">
+</head>
+<body>
+    <div class="game-container fan-challenge">
+        <header class="game-header">
+            <div class="header-left">
+                <span class="artist-name" th:text="${artist}">아티스트</span>
+                <span class="round-info">
+                    <span id="currentRound">1</span> / <span id="totalRounds">?</span>
+                </span>
+            </div>
+            <div class="header-center">
+                <div class="lives-container">
+                    <span id="life1" class="life active">&#10084;</span>
+                    <span id="life2" class="life active">&#10084;</span>
+                    <span id="life3" class="life active">&#10084;</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <span class="correct-count">
+                    <span id="correctCount">0</span>곡 정답
+                </span>
+                <button type="button" class="btn-quit" onclick="quitGame()">포기</button>
+            </div>
+        </header>
+
+        <main class="game-main">
+            <!-- 준비 화면 -->
+            <div id="readyScreen" class="ready-screen">
+                <div class="ready-content">
+                    <div class="ready-icon">&#127925;</div>
+                    <h2 th:text="${artist + ' 최고 팬 챌린지'}">아티스트 최고 팬 챌린지</h2>
+                    <p>5초 안에 노래 제목을 맞춰주세요!</p>
+                    <button type="button" class="btn-ready" onclick="startRound()">준비 완료!</button>
+                </div>
+            </div>
+
+            <!-- 게임 화면 -->
+            <div id="gameScreen" class="game-screen" style="display: none;">
+                <!-- 타이머 -->
+                <div class="timer-section">
+                    <div class="timer-bar-container">
+                        <div id="timerBar" class="timer-bar"></div>
+                    </div>
+                    <div class="timer-text">
+                        <span id="timerValue">5.0</span>초
+                    </div>
+                </div>
+
+                <!-- 음악 플레이어 (숨김) -->
+                <div class="player-section">
+                    <div class="music-icon">&#127911;</div>
+                    <p class="now-playing">노래 재생 중...</p>
+                </div>
+
+                <!-- 정답 입력 -->
+                <div class="answer-section">
+                    <input type="text" id="answerInput" class="answer-input"
+                           placeholder="노래 제목을 입력하세요" autocomplete="off">
+                    <button type="button" id="submitBtn" class="btn-submit" onclick="submitAnswer()">
+                        정답!
+                    </button>
+                </div>
+            </div>
+
+            <!-- 정답 공개 모달 -->
+            <div id="answerModal" class="modal" style="display: none;">
+                <div class="modal-content answer-modal">
+                    <div id="answerResult" class="answer-result"></div>
+                    <div class="answer-info">
+                        <p class="correct-answer-label">정답</p>
+                        <p id="correctAnswer" class="correct-answer"></p>
+                    </div>
+                    <div class="modal-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">남은 라이프</span>
+                            <span id="modalLives" class="stat-value lives"></span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">정답</span>
+                            <span id="modalCorrect" class="stat-value">0</span>
+                        </div>
+                    </div>
+                    <button type="button" id="nextBtn" class="btn-next" onclick="nextRound()">
+                        다음 곡
+                    </button>
+                </div>
+            </div>
+
+            <!-- 게임 오버 모달 -->
+            <div id="gameOverModal" class="modal" style="display: none;">
+                <div class="modal-content gameover-modal">
+                    <div id="gameOverTitle" class="gameover-title"></div>
+                    <div id="gameOverMessage" class="gameover-message"></div>
+                    <button type="button" class="btn-result" onclick="goToResult()">
+                        결과 보기
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- YouTube Player (숨김) -->
+    <div id="youtubePlayerContainer" style="position: absolute; left: -9999px;">
+        <div id="youtubePlayer"></div>
+    </div>
+
+    <!-- Audio Player (MP3용) -->
+    <audio id="audioPlayer" style="display: none;"></audio>
+
+    <script th:inline="javascript">
+        const sessionId = [[${sessionId}]];
+        const artist = [[${artist}]];
+    </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script th:src="@{/js/client/game-fan-challenge-play.js}"></script>
+</body>
+</html>
