@@ -285,6 +285,16 @@
     color: #9ca3af;
 }
 
+.condition.disabled {
+    background: rgba(156, 163, 175, 0.15);
+    color: #9ca3af;
+    opacity: 0.6;
+}
+
+.condition.disabled .condition-icon {
+    color: #9ca3af;
+}
+
 .notice-result {
     text-align: center;
     font-weight: 600;
@@ -585,11 +595,11 @@
     display: flex;
     gap: 1rem;
     margin-top: 2rem;
+    justify-content: center;
 }
 
 .btn-back {
-    flex: 1;
-    padding: 1rem;
+    padding: 1rem 2rem;
     background: #f1f5f9;
     color: var(--text-secondary);
     border-radius: 0.75rem;
@@ -597,8 +607,7 @@
 }
 
 .btn-next, .btn-start {
-    flex: 2;
-    padding: 1rem;
+    padding: 1rem 3rem;
     background: var(--primary-color);
     color: white;
     border-radius: 0.75rem;
@@ -785,10 +794,16 @@
 
     .step-buttons {
         margin-top: 1rem;
+        justify-content: center;
     }
 
-    .btn-back, .btn-next, .btn-start {
-        padding: 0.625rem;
+    .btn-back {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-next, .btn-start {
+        padding: 0.625rem 2rem;
         font-size: 0.9rem;
     }
 
