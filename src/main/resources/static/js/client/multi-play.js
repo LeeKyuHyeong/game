@@ -18,6 +18,7 @@ let lastChatId = 0;
 // 오디오 동기화
 let lastAudioPlaying = false;
 let lastAudioPlayedAt = null;
+let serverTimeOffset = 0;  // 서버 시간 - 클라이언트 시간
 
 // 페이지 로드 시 시작
 document.addEventListener('DOMContentLoaded', async function() {
@@ -117,6 +118,11 @@ async function fetchRoundInfo() {
         if (result.song && (!currentSong || currentSong.id !== result.song.id)) {
             currentSong = result.song;
             loadSong(currentSong);
+        }
+
+        // 서버 시간 오프셋 업데이트 (서버 시간 - 클라이언트 시간)
+        if (result.serverTime) {
+            serverTimeOffset = result.serverTime - Date.now();
         }
 
         // 오디오 동기화
@@ -277,24 +283,28 @@ function syncAudio(serverPlaying, serverPlayedAt) {
     lastAudioPlayedAt = serverPlayedAt;
 
     if (serverPlaying && serverPlayedAt && currentSong) {
-        var elapsedMs = Date.now() - serverPlayedAt;
+        // 서버 시간 기준으로 경과 시간 계산 (오프셋 보정)
+        var adjustedClientTime = Date.now() + serverTimeOffset;
+        var elapsedMs = adjustedClientTime - serverPlayedAt;
         var elapsedSec = elapsedMs / 1000;
         var startTime = currentSong.startTime || 0;
 
         var playDuration = currentSong.playDuration || 30;
 
         // 디버깅: 비정상적인 시간 차이 확인
-        if (elapsedSec > 5) {
-            console.warn('Audio sync warning:', {
+        if (Math.abs(elapsedSec) > 5 || Math.abs(serverTimeOffset) > 5000) {
+            console.warn('Audio sync info:', {
                 serverPlayedAt: serverPlayedAt,
                 clientNow: Date.now(),
+                serverTimeOffset: serverTimeOffset,
+                adjustedClientTime: adjustedClientTime,
                 elapsedSec: elapsedSec.toFixed(1),
                 startTime: startTime,
                 playDuration: playDuration
             });
         }
 
-        // 음수이거나 재생 시간을 초과하면 처음부터 (시간 동기화 문제 방지)
+        // 음수이거나 재생 시간을 초과하면 처음부터
         if (elapsedSec < 0 || elapsedSec > playDuration) {
             elapsedSec = 0;
         }

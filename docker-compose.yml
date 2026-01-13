@@ -39,6 +39,7 @@ services:
       TZ: Asia/Seoul
     volumes:
       - khgame-uploads:/app/uploads
+      - /etc/localtime:/etc/localtime:ro
     depends_on:
       db:
         condition: service_healthy

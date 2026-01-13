@@ -489,6 +489,7 @@ public class MultiGameService {
         // 오디오 상태
         info.put("audioPlaying", room.getAudioPlaying());
         info.put("audioPlayedAt", room.getAudioPlayedAt());
+        info.put("serverTime", System.currentTimeMillis());  // 클라이언트 시간 동기화용
 
         // 정답자 정보
         if (room.getWinner() != null) {
