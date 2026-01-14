@@ -1217,7 +1217,10 @@
     margin-top: 2rem;
 }
 
-.btn-retry, .btn-home {
+.result-footer .btn-retry,
+.result-footer .btn-home,
+.result-actions .btn-retry,
+.result-actions .btn-home {
     padding: 1rem 2rem;
     border-radius: 30px;
     font-weight: bold;
@@ -1225,26 +1228,33 @@
     transition: transform 0.2s;
 }
 
-.btn-retry {
+.result-footer .btn-retry,
+.result-actions .btn-retry {
     background: var(--primary-color);
     color: white;
 }
 
-.btn-retry:hover {
+.result-footer .btn-retry:hover,
+.result-actions .btn-retry:hover {
     background: var(--primary-hover);
 }
 
-.btn-home {
+.result-footer .btn-home,
+.result-actions .btn-home {
     background: #f1f5f9;
     color: var(--text-primary);
     border: 1px solid var(--border-color);
 }
 
-.btn-home:hover {
+.result-footer .btn-home:hover,
+.result-actions .btn-home:hover {
     background: #e2e8f0;
 }
 
-.btn-retry:hover, .btn-home:hover {
+.result-footer .btn-retry:hover,
+.result-footer .btn-home:hover,
+.result-actions .btn-retry:hover,
+.result-actions .btn-home:hover {
     transform: scale(1.05);
 }
 

@@ -77,19 +77,23 @@
 }
 
 .btn-home {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
+    background: #4a5568;
+    border-radius: 6px;
     color: white;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     font-weight: 500;
+    text-decoration: none;
     transition: all 0.2s;
-    backdrop-filter: blur(10px);
+    border: none;
+    cursor: pointer;
 }
 
 .btn-home:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: #3d4852;
     transform: translateY(-1px);
 }
 
@@ -161,7 +165,7 @@
 
     .btn-home {
         padding: 6px 12px;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
     }
 }
 

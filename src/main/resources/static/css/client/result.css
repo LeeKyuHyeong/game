@@ -674,24 +674,26 @@
     padding: 2rem 0;
 }
 
-.btn-replay, .btn-home {
+.result-footer .btn-replay,
+.result-footer .btn-home {
     padding: 1rem 2rem;
     border-radius: 0.75rem;
     font-weight: 600;
     font-size: 1rem;
 }
 
-.btn-replay {
+.result-footer .btn-replay {
     background: white;
     color: var(--primary-color);
 }
 
-.btn-home {
+.result-footer .btn-home {
     background: rgba(255, 255, 255, 0.2);
     color: white;
 }
 
-.btn-replay:hover, .btn-home:hover {
+.result-footer .btn-replay:hover,
+.result-footer .btn-home:hover {
     transform: translateY(-2px);
 }
 
@@ -912,13 +914,15 @@
         padding: 1.5rem 0;
     }
 
-    .btn-replay, .btn-home {
+    .result-footer .btn-replay,
+    .result-footer .btn-home {
         width: 100%;
         text-align: center;
         padding: 0.875rem 1.5rem;
     }
 
-    .btn-lobby {
+    .result-footer .btn-lobby,
+    .result-actions .btn-lobby {
         width: 100%;
         padding: 0.875rem 1.5rem;
     }
@@ -1096,7 +1100,10 @@
         padding: 1rem 0;
     }
 
-    .btn-replay, .btn-home, .btn-lobby {
+    .result-footer .btn-replay,
+    .result-footer .btn-home,
+    .result-footer .btn-lobby,
+    .result-actions .btn-lobby {
         font-size: 0.9rem;
         padding: 0.75rem 1rem;
     }
@@ -1283,7 +1290,8 @@
         gap: 0.5rem;
     }
 
-    .btn-replay, .btn-home {
+    .result-footer .btn-replay,
+    .result-footer .btn-home {
         padding: 0.625rem 1rem;
         font-size: 0.85rem;
     }
