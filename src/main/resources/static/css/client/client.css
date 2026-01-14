@@ -37,3 +37,6 @@
 
 /* Community board */
 @import url('board.css');
+
+/* My page - profile, badges */
+@import url('mypage.css');

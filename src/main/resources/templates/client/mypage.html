@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('마이페이지 - Song Quiz')}"></head>
+<body class="client-page mypage-page" th:data-logged-in="${member != null}">
+<div class="client-container">
+    <header class="client-header compact">
+        <nav class="header-nav">
+            <a href="/" class="back-home">← 홈으로</a>
+        </nav>
+        <h1>마이페이지</h1>
+        <p>프로필 관리 및 뱃지 컬렉션</p>
+    </header>
+
+    <main class="client-main">
+        <div class="mypage-content">
+            <!-- 프로필 섹션 -->
+            <div class="profile-section">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-badge-display" th:if="${member.selectedBadge != null}">
+                            <span class="selected-badge-emoji" th:text="${member.selectedBadge.emoji}"></span>
+                        </div>
+                        <div class="profile-badge-display empty" th:if="${member.selectedBadge == null}">
+                            <span class="no-badge-icon">?</span>
+                        </div>
+                        <div class="profile-info">
+                            <h2 class="nickname" th:text="${member.nickname}">닉네임</h2>
+                            <span class="tier-badge" th:style="'background: ' + ${member.tierColor}"
+                                  th:text="${member.tierDisplayName}">브론즈</span>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">총 게임</span>
+                            <span class="stat-value" th:text="${member.totalGames} + '회'">0회</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">총 점수</span>
+                            <span class="stat-value" th:text="${#numbers.formatInteger(member.totalScore, 0, 'COMMA')} + '점'">0점</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">정답률</span>
+                            <span class="stat-value" th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)} + '%'">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">뱃지</span>
+                            <span class="stat-value" th:text="${badgeCount} + '/' + ${allBadges.size()} + '개'">0/0개</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 뱃지 컬렉션 섹션 -->
+            <div class="badge-section">
+                <div class="section-header">
+                    <h3>뱃지 컬렉션</h3>
+                    <p class="section-desc">뱃지를 클릭하여 닉네임 옆에 표시할 뱃지를 선택하세요</p>
+                </div>
+
+                <!-- 선택 해제 버튼 -->
+                <div class="badge-clear-wrap">
+                    <button type="button" class="btn-clear-badge" onclick="clearBadge()"
+                            th:disabled="${member.selectedBadge == null}">뱃지 선택 해제</button>
+                </div>
+
+                <!-- 뱃지 그리드 -->
+                <div class="badge-grid">
+                    <th:block th:each="badge : ${allBadges}">
+                        <div class="badge-item"
+                             th:classappend="${#lists.contains(ownedBadgeIds, badge.id)} ? 'owned' : 'locked'"
+                             th:data-badge-id="${badge.id}"
+                             th:data-owned="${#lists.contains(ownedBadgeIds, badge.id)}"
+                             th:onclick="${#lists.contains(ownedBadgeIds, badge.id)} ? 'selectBadge(' + badge.id + ')' : ''"
+                             th:class="${member.selectedBadge != null and member.selectedBadge.id == badge.id} ? 'badge-item owned selected' : (#lists.contains(ownedBadgeIds, badge.id) ? 'badge-item owned' : 'badge-item locked')">
+                            <div class="badge-emoji" th:text="${badge.emoji}">?</div>
+                            <div class="badge-name" th:text="${badge.name}">뱃지명</div>
+                            <div class="badge-desc" th:text="${badge.description}">설명</div>
+                            <div class="badge-rarity" th:classappend="${badge.rarity.name().toLowerCase()}"
+                                 th:text="${badge.rarity.displayName}">일반</div>
+                            <div class="locked-overlay" th:if="${!#lists.contains(ownedBadgeIds, badge.id)}">
+                                <span class="lock-icon">🔒</span>
+                            </div>
+                            <div class="selected-check" th:if="${member.selectedBadge != null and member.selectedBadge.id == badge.id}">✓</div>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+
+            <!-- 게임 통계 섹션 -->
+            <div class="stats-detail-section">
+                <h3>상세 통계</h3>
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <h4>솔로 게임</h4>
+                        <div class="stats-row">
+                            <span>게임 수</span>
+                            <span th:text="${member.guessGames} + '회'">0회</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>총 점수</span>
+                            <span th:text="${#numbers.formatInteger(member.guessScore, 0, 'COMMA')} + '점'">0점</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>정답률</span>
+                            <span th:text="${#numbers.formatDecimal(member.guessAccuracyRate, 0, 1)} + '%'">0%</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>최고 기록</span>
+                            <span th:text="${member.bestGuessScore} + '점'">0점</span>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <h4>멀티 게임</h4>
+                        <div class="stats-row">
+                            <span>게임 수</span>
+                            <span th:text="${member.multiGames} + '회'">0회</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>1등 횟수</span>
+                            <span th:text="${member.multiWins} + '회'">0회</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>Top3 횟수</span>
+                            <span th:text="${member.multiTop3} + '회'">0회</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>멀티 티어</span>
+                            <span th:style="'color: ' + ${member.multiTierColor}"
+                                  th:text="${member.multiTierDisplayName} + ' ' + ${member.multiLp} + 'LP'">브론즈 0LP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/common/badge-toast.js}"></script>
+<script th:src="@{/js/client/mypage.js}"></script>
+<script th:if="${newlyAwardedBadges != null and !newlyAwardedBadges.isEmpty()}" th:inline="javascript">
+    // 마이페이지 접속 시 새로 획득한 뱃지 토스트 표시
+    document.addEventListener('DOMContentLoaded', function() {
+        const newBadges = /*[[${newlyAwardedBadges}]]*/ [];
+        if (newBadges.length > 0) {
+            const badgesForToast = newBadges.map(b => ({
+                emoji: b.emoji,
+                name: b.name,
+                rarity: b.rarity
+            }));
+            BadgeToast.showMultiple(badgesForToast);
+        }
+    });
+</script>
+</body>
+</html>

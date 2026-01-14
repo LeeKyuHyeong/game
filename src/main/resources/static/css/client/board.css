@@ -141,6 +141,13 @@
     gap: 12px;
 }
 
+/* Member Badge */
+.member-badge {
+    font-size: 0.9rem;
+    margin-right: 0.125rem;
+    cursor: default;
+}
+
 .board-stats {
     display: flex;
     align-items: center;

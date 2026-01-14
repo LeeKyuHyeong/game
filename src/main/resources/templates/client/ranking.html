@@ -255,7 +255,9 @@
 
             if (member) {
                 el.style.display = 'flex';
-                el.querySelector('.podium-name').textContent = member.nickname;
+                // 뱃지 + 닉네임 표시
+                const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
+                el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
                 el.querySelector('.podium-value').textContent = formatValue(member);
 
                 // 티어 배지 추가 (멀티게임만 표시)
@@ -285,6 +287,8 @@
             const tierName = member.multiTier || 'BRONZE';
             const tierColor = member.multiTierColor || '#cd7f32';
             const tierDisplayName = member.multiTierDisplayName || '';
+            // 뱃지 이모지
+            const badgeEmoji = member.badgeEmoji ? `<span class="member-badge" title="${member.badgeName || ''}">${member.badgeEmoji}</span>` : '';
 
             return `
                 <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
@@ -293,6 +297,7 @@
                     </div>
                     <div class="name-cell">
                         ${showTier ? `<span class="tier-badge tier-${tierName.toLowerCase()}" style="color: ${tierColor}">${tierDisplayName}</span>` : ''}
+                        ${badgeEmoji}
                         <span class="member-name">${member.nickname}</span>
                     </div>
                     <div class="stats-cell">

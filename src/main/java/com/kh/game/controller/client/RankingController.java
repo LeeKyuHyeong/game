@@ -152,6 +152,9 @@ public class RankingController {
             // 티어 정보 추가
             addTierInfo(memberInfo, member);
 
+            // 뱃지 정보 추가
+            addBadgeInfo(memberInfo, member);
+
             result.add(memberInfo);
         }
         return result;
@@ -207,9 +210,23 @@ public class RankingController {
             addTierInfo(memberInfo, member);
             addMultiTierInfo(memberInfo, member);
 
+            // 뱃지 정보 추가
+            addBadgeInfo(memberInfo, member);
+
             result.add(memberInfo);
         }
         return result;
+    }
+
+    // 뱃지 정보 추가
+    private void addBadgeInfo(Map<String, Object> memberInfo, Member member) {
+        if (member.getSelectedBadge() != null) {
+            memberInfo.put("badgeEmoji", member.getSelectedBadgeEmoji());
+            memberInfo.put("badgeName", member.getSelectedBadgeName());
+        } else {
+            memberInfo.put("badgeEmoji", null);
+            memberInfo.put("badgeName", null);
+        }
     }
 
     // 통합 티어 정보 추가

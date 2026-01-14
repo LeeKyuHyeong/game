@@ -154,6 +154,18 @@ public class Member {
     @Column(name = "multi_top3")
     private Integer multiTop3 = 0;  // Top3 횟수
 
+    // ========== 뱃지 시스템 ==========
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "selected_badge_id")
+    private Badge selectedBadge;  // 현재 표시 중인 뱃지
+
+    @Column(name = "current_correct_streak")
+    private Integer currentCorrectStreak = 0;  // 현재 연속 정답 수
+
+    @Column(name = "max_correct_streak")
+    private Integer maxCorrectStreak = 0;  // 최대 연속 정답 기록
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private MemberRole role = MemberRole.USER;
@@ -465,6 +477,35 @@ public class Member {
         }
         if (rank <= 3) {
             this.multiTop3 = (this.multiTop3 == null ? 0 : this.multiTop3) + 1;
+        }
+    }
+
+    // ========== 뱃지 관련 메서드 ==========
+
+    public String getSelectedBadgeEmoji() {
+        return selectedBadge != null ? selectedBadge.getEmoji() : null;
+    }
+
+    public String getSelectedBadgeName() {
+        return selectedBadge != null ? selectedBadge.getName() : null;
+    }
+
+    public String getSelectedBadgeColor() {
+        return selectedBadge != null ? selectedBadge.getColor() : null;
+    }
+
+    /**
+     * 연속 정답 업데이트
+     * @param wasCorrect 정답 여부
+     */
+    public void updateCorrectStreak(boolean wasCorrect) {
+        if (wasCorrect) {
+            this.currentCorrectStreak = (this.currentCorrectStreak == null ? 0 : this.currentCorrectStreak) + 1;
+            if (this.currentCorrectStreak > (this.maxCorrectStreak == null ? 0 : this.maxCorrectStreak)) {
+                this.maxCorrectStreak = this.currentCorrectStreak;
+            }
+        } else {
+            this.currentCorrectStreak = 0;
         }
     }
 }

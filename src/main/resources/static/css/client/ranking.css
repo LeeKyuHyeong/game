@@ -209,6 +209,13 @@
     color: var(--text-primary);
 }
 
+/* Member Badge */
+.member-badge {
+    font-size: 1rem;
+    margin-right: 0.25rem;
+    cursor: default;
+}
+
 /* Top 3 Podium */
 .top-three-podium {
     display: flex;

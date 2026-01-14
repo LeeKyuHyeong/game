@@ -20,7 +20,10 @@
                           th:text="${board.category.description}"></span>
                     <h2 class="board-detail-title" th:text="${board.title}"></h2>
                     <div class="board-detail-meta">
-                        <span class="board-author" th:text="${board.member.nickname}"></span>
+                        <span class="board-author">
+                            <span th:if="${board.member.selectedBadgeEmoji}" class="member-badge" th:text="${board.member.selectedBadgeEmoji}" th:title="${board.member.selectedBadgeName}"></span>
+                            <span th:text="${board.member.nickname}"></span>
+                        </span>
                         <span th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
                         <span>조회 <span th:text="${board.viewCount}">0</span></span>
                     </div>
@@ -62,7 +65,10 @@
                     <th:block th:each="comment : ${comments}">
                         <div class="comment-item" th:data-comment-id="${comment.id}">
                             <div class="comment-header">
-                                <span class="comment-author" th:text="${comment.member.nickname}"></span>
+                                <span class="comment-author">
+                                    <span th:if="${comment.member.selectedBadgeEmoji}" class="member-badge" th:text="${comment.member.selectedBadgeEmoji}" th:title="${comment.member.selectedBadgeName}"></span>
+                                    <span th:text="${comment.member.nickname}"></span>
+                                </span>
                                 <span>
                                     <span class="comment-time" th:text="${#temporals.format(comment.createdAt, 'MM.dd HH:mm')}"></span>
                                     <button class="comment-delete" th:if="${member != null and (member.id == comment.member.id or member.role.name() == 'ADMIN')}"

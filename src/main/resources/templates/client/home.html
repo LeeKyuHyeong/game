@@ -20,18 +20,19 @@
                     <div class="mode-icon">🎤</div>
                     <h2>솔로 게임</h2>
                     <p>혼자서 노래 맞추기에 도전!</p>
-                    <div class="mode-options">
-                        <a href="/game/solo/host" class="btn btn-mode">게임 진행용</a>
-                        <button type="button" class="btn btn-mode primary" onclick="handleGuessClick()">내가 맞추기</button>
-                    </div>
-                </div>
-
-                <div class="mode-card fan-challenge">
-                    <div class="mode-icon">🏆</div>
-                    <h2>최고 팬 챌린지</h2>
-                    <p>진정한 팬이라면 5초 안에!</p>
-                    <div class="mode-options">
-                        <a href="/game/fan-challenge" class="btn btn-mode primary">도전하기</a>
+                    <div class="mode-grid">
+                        <a href="/game/solo/host" class="grid-item">
+                            <span class="grid-icon">📺</span>
+                            <span class="grid-label">게임 진행용</span>
+                        </a>
+                        <button type="button" class="grid-item primary" onclick="handleGuessClick()">
+                            <span class="grid-icon">🎯</span>
+                            <span class="grid-label">내가 맞추기</span>
+                        </button>
+                        <a href="/game/fan-challenge" class="grid-item">
+                            <span class="grid-icon">🏆</span>
+                            <span class="grid-label">아티스트 챌린지</span>
+                        </a>
                     </div>
                 </div>
 
@@ -39,8 +40,11 @@
                     <div class="mode-icon">👥</div>
                     <h2>멀티 게임</h2>
                     <p>친구들과 함께 대결!</p>
-                    <div class="mode-options">
-                        <a href="/game/multi" class="btn btn-mode primary">멀티게임 로비</a>
+                    <div class="mode-grid">
+                        <a href="/game/multi" class="grid-item primary">
+                            <span class="grid-icon">🚪</span>
+                            <span class="grid-label">로비 입장</span>
+                        </a>
                     </div>
                 </div>
             </div>

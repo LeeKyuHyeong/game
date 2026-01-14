@@ -281,7 +281,8 @@ public class BatchService {
                 "BATCH_DUPLICATE_SONG_CHECK",
                 "BATCH_YOUTUBE_VIDEO_CHECK",
                 "BATCH_GAME_SESSION_CLEANUP",
-                "BATCH_SONG_REPORT_CLEANUP"
+                "BATCH_SONG_REPORT_CLEANUP",
+                "BATCH_BADGE_AWARD"
         );
 
         int updatedCount = 0;
@@ -450,6 +451,23 @@ public class BatchService {
                     true  // 구현됨
             ));
             log.info("BATCH_SONG_REPORT_CLEANUP 배치 설정 추가 완료");
+        }
+
+        // BATCH_BADGE_AWARD: 뱃지 일괄 지급 배치 (기존 DB에 없으면 생성)
+        if (!batchConfigRepository.existsById("BATCH_BADGE_AWARD")) {
+            BatchConfig badgeAwardConfig = new BatchConfig(
+                    "BATCH_BADGE_AWARD",
+                    "뱃지 일괄 지급",
+                    "기존 회원들의 기록을 기반으로 뱃지를 일괄 지급합니다. 수동 실행 전용입니다.",
+                    "0 0 0 1 1 *",
+                    "수동 실행 전용",
+                    "MemberBadge",
+                    BatchConfig.Priority.LOW,
+                    true  // 구현됨
+            );
+            badgeAwardConfig.setEnabled(false);  // 기본 비활성화 (수동 실행 전용)
+            batchConfigRepository.save(badgeAwardConfig);
+            log.info("BATCH_BADGE_AWARD 배치 설정 추가 완료");
         }
     }
 

@@ -46,7 +46,10 @@
                         <div class="board-info">
                             <div class="board-title" th:text="${board.title}"></div>
                             <div class="board-meta">
-                                <span th:text="${board.member.nickname}"></span>
+                                <span>
+                                    <span th:if="${board.member.selectedBadgeEmoji}" class="member-badge" th:text="${board.member.selectedBadgeEmoji}" th:title="${board.member.selectedBadgeName}"></span>
+                                    <span th:text="${board.member.nickname}"></span>
+                                </span>
                                 <span th:text="${#temporals.format(board.createdAt, 'MM.dd HH:mm')}"></span>
                             </div>
                         </div>

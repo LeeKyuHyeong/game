@@ -215,11 +215,66 @@
     background: #f3f4f6;
 }
 
-/* Mode Options - Button Group */
-.mode-options {
-    display: flex;
+/* Mode Grid - Icon Grid Layout */
+.mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
+}
+
+.mode-grid .grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    gap: 0.5rem;
+    padding: 1.25rem 1rem;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mode-grid .grid-item:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+}
+
+.mode-grid .grid-item.primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.mode-grid .grid-item.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.mode-grid .grid-item .grid-icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.mode-grid .grid-item .grid-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.mode-grid .grid-item.primary .grid-label {
+    color: white;
+}
+
+/* Single item in grid - center it */
+.mode-grid:has(.grid-item:only-child) {
+    grid-template-columns: 1fr;
+    max-width: 200px;
+    margin: 0 auto;
 }
 
 /* Login Prompt Modal */
@@ -415,14 +470,27 @@
         font-size: 0.8125rem;
     }
 
-    /* Mode Options Mobile */
-    .mode-options {
-        flex-direction: column;
+    /* Mode Grid Mobile */
+    .mode-grid {
+        grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
     }
 
-    .mode-options .btn-mode {
-        width: 100%;
+    .mode-grid .grid-item {
+        padding: 1rem 0.75rem;
+        border-radius: 0.75rem;
+    }
+
+    .mode-grid .grid-item .grid-icon {
+        font-size: 1.5rem;
+    }
+
+    .mode-grid .grid-item .grid-label {
+        font-size: 0.75rem;
+    }
+
+    .mode-grid:has(.grid-item:only-child) {
+        max-width: 160px;
     }
 
     /* Login Prompt Modal Mobile */

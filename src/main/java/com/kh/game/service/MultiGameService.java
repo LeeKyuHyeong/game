@@ -25,6 +25,7 @@ public class MultiGameService {
     private final AnswerValidationService answerValidationService;
     private final MemberService memberService;
     private final MultiTierService multiTierService;
+    private final BadgeService badgeService;
     private final ObjectMapper objectMapper;
 
     // 이미 출제된 노래 ID를 방별로 관리
@@ -787,6 +788,19 @@ public class MultiGameService {
                         participantRatings
                 );
                 lpResults.add(lpResult);
+
+                // 뱃지 체크 및 획득 (통계 업데이트 후)
+                Member updatedMember = memberService.findById(member.getId()).orElse(null);
+                if (updatedMember != null) {
+                    List<Badge> newBadges = badgeService.checkBadgesAfterMultiGame(
+                            updatedMember,
+                            rank,
+                            totalPlayers
+                    );
+                    if (!newBadges.isEmpty()) {
+                        lpResult.setNewBadges(newBadges);
+                    }
+                }
             }
         }
 

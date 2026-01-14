@@ -2,6 +2,7 @@ package com.kh.game.controller.client;
 
 import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.*;
+import com.kh.game.service.BadgeService;
 import com.kh.game.service.GameSessionService;
 import com.kh.game.service.GenreService;
 import com.kh.game.service.MemberService;
@@ -25,6 +26,7 @@ public class GameGuessController {
     private final GenreService genreService;
     private final GameSessionService gameSessionService;
     private final MemberService memberService;
+    private final BadgeService badgeService;
 
     @GetMapping
     public String setup(Model model, HttpSession httpSession) {
@@ -694,6 +696,27 @@ public class GameGuessController {
                             session.getSkipCount(),
                             isEligibleForBestScore
                     );
+
+                    // 뱃지 체크 및 획득
+                    Member member = memberService.findById(session.getMember().getId()).orElse(null);
+                    if (member != null) {
+                        List<Badge> newBadges = badgeService.checkBadgesAfterGuessGame(
+                                member,
+                                session.getTotalScore(),
+                                session.getCorrectCount(),
+                                session.getCompletedRounds()
+                        );
+                        if (!newBadges.isEmpty()) {
+                            result.put("newBadges", newBadges.stream()
+                                    .map(b -> Map.of(
+                                            "name", b.getName(),
+                                            "emoji", b.getEmoji(),
+                                            "rarity", b.getRarity().name(),
+                                            "rarityColor", b.getRarity().getColor()
+                                    ))
+                                    .toList());
+                        }
+                    }
                 }
             }
 

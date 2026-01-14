@@ -135,3 +135,70 @@ button {
 .btn-view:hover {
     background: #c7d2fe;
 }
+
+/* ========== 뱃지 토스트 알림 ========== */
+.badge-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    z-index: 10000;
+    max-width: 320px;
+}
+
+.badge-toast.show {
+    transform: translateX(0);
+}
+
+.badge-toast-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.badge-toast-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.badge-toast-title {
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.badge-toast-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #1a1a1a;
+}
+
+/* 희귀도별 색상 */
+.badge-rarity-common {
+    border-left: 4px solid #9CA3AF;
+}
+
+.badge-rarity-rare {
+    border-left: 4px solid #3B82F6;
+}
+
+.badge-rarity-epic {
+    border-left: 4px solid #A855F7;
+}
+
+.badge-rarity-legendary {
+    border-left: 4px solid #F59E0B;
+    animation: legendary-glow 2s infinite;
+}
+
+@keyframes legendary-glow {
+    0%, 100% { box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3); }
+    50% { box-shadow: 0 10px 40px rgba(245, 158, 11, 0.5); }
+}

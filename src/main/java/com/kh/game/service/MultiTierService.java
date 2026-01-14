@@ -1,9 +1,12 @@
 package com.kh.game.service;
 
+import com.kh.game.entity.Badge;
 import com.kh.game.entity.Member;
 import com.kh.game.entity.MultiTier;
 import com.kh.game.repository.MemberRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,18 +28,23 @@ public class MultiTierService {
     /**
      * LP 변화량 계산 결과
      */
-    public record LpChangeResult(
-            Long memberId,
-            String nickname,
-            int rank,
-            int score,
-            MultiTier oldTier,
-            int oldLp,
-            MultiTier newTier,
-            int newLp,
-            int lpChange,
-            String tierChange  // null, "PROMOTED", "DEMOTED"
-    ) {}
+    @Getter
+    @RequiredArgsConstructor
+    public static class LpChangeResult {
+        private final Long memberId;
+        private final String nickname;
+        private final int rank;
+        private final int score;
+        private final MultiTier oldTier;
+        private final int oldLp;
+        private final MultiTier newTier;
+        private final int newLp;
+        private final int lpChange;
+        private final String tierChange;  // null, "PROMOTED", "DEMOTED"
+
+        @Setter
+        private List<Badge> newBadges;  // 이번 게임에서 획득한 뱃지들
+    }
 
     /**
      * 게임 결과에 따른 LP 적용 (ELO 기반, 상대 티어 반영)
