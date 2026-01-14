@@ -385,6 +385,17 @@ function showAnswerResult(result) {
     if (result.isGameOver) {
         document.getElementById('nextBtn').style.display = 'none';
 
+        // 결과 데이터를 sessionStorage에 백업 저장
+        if (result.resultData) {
+            const backupData = {
+                ...result.resultData,
+                correctCount: result.correctCount,
+                totalRounds: result.totalRounds,
+                gameOverReason: result.gameOverReason
+            };
+            sessionStorage.setItem('fanChallengeResult', JSON.stringify(backupData));
+        }
+
         setTimeout(() => {
             document.getElementById('answerModal').style.display = 'none';
             showGameOver(result);

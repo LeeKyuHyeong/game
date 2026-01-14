@@ -4,7 +4,102 @@
 <link rel="stylesheet" th:href="@{/css/client/result.css}">
 <link rel="stylesheet" th:href="@{/css/client/game-fan-challenge.css}">
 <body class="client-page result-page">
-<div class="result-container fan-challenge-result">
+
+<!-- 백업 모드: sessionStorage 데이터 사용 -->
+<div th:if="${useBackup}" id="backupResultContainer" class="result-container fan-challenge-result">
+    <header class="result-header">
+        <div class="header-top">
+            <span id="backupDifficultyBadge" class="difficulty-badge">
+                <span id="backupDifficultyEmoji"></span>
+                <span id="backupDifficultyName"></span>
+            </span>
+            <span id="backupModeLabel" class="mode-label"></span>
+        </div>
+        <h1 id="backupTitle">아티스트 챌린지</h1>
+    </header>
+
+    <main class="result-main">
+        <div class="result-summary">
+            <div id="backupPerfectBadge" class="perfect-clear-badge" style="display: none;">
+                <span id="backupPerfectEmoji" class="badge-icon"></span>
+                <span class="badge-text">PERFECT CLEAR!</span>
+            </div>
+
+            <div class="score-display">
+                <span id="backupCorrectCount" class="score-value">0</span>
+                <span class="score-separator">/</span>
+                <span id="backupTotalRounds" class="score-total">0</span>
+                <span class="score-label">곡 정답</span>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-label">정답률</span>
+                    <span id="backupAccuracy" class="stat-value">0%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">소요 시간</span>
+                    <span id="backupPlayTime" class="stat-value">0초</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="backupPracticeNotice" class="practice-notice" style="display: none;">
+            <div class="notice-content">
+                <span class="notice-icon">💡</span>
+                <p>연습 모드에서는 랭킹에 반영되지 않습니다.</p>
+                <p><strong>하드코어 모드</strong>로 도전하여 공식 랭킹에 이름을 올려보세요!</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="result-footer">
+        <a th:href="@{/game/fan-challenge}" class="btn btn-replay">다시 도전</a>
+        <a th:href="@{/}" class="btn btn-home">홈으로</a>
+    </footer>
+</div>
+
+<script th:if="${useBackup}">
+(function() {
+    const data = sessionStorage.getItem('fanChallengeResult');
+    if (!data) {
+        window.location.href = '/game/fan-challenge';
+        return;
+    }
+
+    const result = JSON.parse(data);
+    sessionStorage.removeItem('fanChallengeResult');
+
+    document.getElementById('backupDifficultyBadge').dataset.difficulty = result.difficulty;
+    document.getElementById('backupDifficultyEmoji').textContent = result.difficultyEmoji;
+    document.getElementById('backupDifficultyName').textContent = result.difficultyName;
+    document.getElementById('backupTitle').textContent = result.artist + ' 아티스트 챌린지';
+    document.getElementById('backupCorrectCount').textContent = result.correctCount;
+    document.getElementById('backupTotalRounds').textContent = result.totalRounds;
+
+    const accuracy = ((result.correctCount / result.totalRounds) * 100).toFixed(1) + '%';
+    document.getElementById('backupAccuracy').textContent = accuracy;
+    document.getElementById('backupPlayTime').textContent = result.playTimeSeconds + '초';
+
+    if (result.isRanked) {
+        document.getElementById('backupModeLabel').textContent = '공식 랭킹';
+        document.getElementById('backupModeLabel').classList.add('ranked');
+    } else {
+        document.getElementById('backupModeLabel').textContent = '연습 모드';
+        document.getElementById('backupModeLabel').classList.add('practice');
+        document.getElementById('backupPracticeNotice').style.display = 'block';
+    }
+
+    if (result.isPerfectClear) {
+        document.getElementById('backupPerfectBadge').style.display = 'block';
+        document.getElementById('backupPerfectBadge').dataset.difficulty = result.difficulty;
+        document.getElementById('backupPerfectEmoji').textContent = result.difficultyEmoji;
+    }
+})();
+</script>
+
+<!-- 정상 모드: 서버 세션 데이터 사용 -->
+<div th:if="${!useBackup}" class="result-container fan-challenge-result">
     <header class="result-header">
         <div class="header-top">
             <span class="difficulty-badge" th:data-difficulty="${difficulty}">
@@ -49,9 +144,9 @@
         <div th:if="${perfectBadges != null && !#lists.isEmpty(perfectBadges)}" class="badges-section">
             <h2><span th:text="${artist}">아티스트</span> 퍼펙트 뱃지</h2>
             <div class="badges-collection">
-                <div th:each="badge : ${perfectBadges}" class="badge-item" th:data-difficulty="${badge.difficulty.name()}">
-                    <span class="badge-emoji" th:text="${badge.difficulty.badgeEmoji}">⭐</span>
-                    <span class="badge-name" th:text="${badge.difficulty.displayName}">일반</span>
+                <div th:each="badge : ${perfectBadges}" class="badge-item" th:data-difficulty="${badge.difficulty}">
+                    <span class="badge-emoji" th:text="${badge.emoji}">⭐</span>
+                    <span class="badge-name" th:text="${badge.difficultyName}">일반</span>
                 </div>
                 <!-- 미획득 뱃지 표시 (회색) -->
                 <div th:if="${!hasBadgeBeginner}" class="badge-item locked" data-difficulty="BEGINNER">
