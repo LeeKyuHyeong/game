@@ -1,6 +1,9 @@
 // 최고 팬 챌린지 게임 진행 JavaScript
 
-const TIME_LIMIT_MS = 5000; // 5초
+const PLAY_TIME_MS = 5000;    // 노래 재생 시간 5초
+const ANSWER_TIME_MS = 3000;  // 추가 입력 시간 3초
+const TOTAL_TIME_MS = PLAY_TIME_MS + ANSWER_TIME_MS; // 총 8초
+
 let currentRound = 1;
 let totalRounds = 0;
 let remainingLives = 3;
@@ -9,6 +12,7 @@ let currentSong = null;
 let timerInterval = null;
 let startTime = null;
 let isPlaying = false;
+let currentPhase = 'playing'; // 'playing' | 'answering'
 let youtubePlayer = null;
 let youtubePlayerReady = false;
 
@@ -101,9 +105,12 @@ function startRound() {
     document.getElementById('answerInput').value = '';
     document.getElementById('answerInput').focus();
 
-    // 타이머 바 초기화
+    // 타이머 바 초기화 (총 8초)
     document.getElementById('timerBar').style.width = '100%';
-    document.getElementById('timerValue').textContent = '5.0';
+    document.getElementById('timerBar').classList.remove('warning', 'critical', 'answering');
+    document.getElementById('timerValue').textContent = '8.0';
+    currentPhase = 'playing';
+    updatePhaseDisplay();
 
     // 음악 재생
     playSong();
@@ -154,27 +161,72 @@ function startTimer() {
 
     timerInterval = setInterval(() => {
         const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, TIME_LIMIT_MS - elapsed);
+        const remaining = Math.max(0, TOTAL_TIME_MS - elapsed);
         const seconds = (remaining / 1000).toFixed(1);
 
         document.getElementById('timerValue').textContent = seconds;
-        document.getElementById('timerBar').style.width = (remaining / TIME_LIMIT_MS * 100) + '%';
+        document.getElementById('timerBar').style.width = (remaining / TOTAL_TIME_MS * 100) + '%';
+
+        const timerBar = document.getElementById('timerBar');
+
+        // Phase 전환: 5초 경과 시 음악 정지 및 answering 단계로 전환
+        if (elapsed >= PLAY_TIME_MS && currentPhase === 'playing') {
+            currentPhase = 'answering';
+            stopMusicOnly();
+            updatePhaseDisplay();
+        }
 
         // 타이머 색상 변경
-        const timerBar = document.getElementById('timerBar');
-        if (remaining <= 1000) {
-            timerBar.classList.add('critical');
-        } else if (remaining <= 2000) {
-            timerBar.classList.add('warning');
-            timerBar.classList.remove('critical');
+        if (currentPhase === 'answering') {
+            timerBar.classList.remove('warning');
+            timerBar.classList.add('answering');
+            if (remaining <= 1000) {
+                timerBar.classList.add('critical');
+            } else {
+                timerBar.classList.remove('critical');
+            }
         } else {
-            timerBar.classList.remove('warning', 'critical');
+            // playing 단계
+            timerBar.classList.remove('answering');
+            if (remaining <= ANSWER_TIME_MS + 1000) {
+                timerBar.classList.add('warning');
+            } else {
+                timerBar.classList.remove('warning');
+            }
         }
 
         if (remaining <= 0) {
             handleTimeout();
         }
     }, 100);
+}
+
+function stopMusicOnly() {
+    // YouTube 중지
+    if (youtubePlayer && youtubePlayerReady) {
+        try {
+            youtubePlayer.pauseVideo();
+        } catch (e) {}
+    }
+
+    // MP3 중지
+    const audio = document.getElementById('audioPlayer');
+    if (audio) {
+        audio.pause();
+    }
+}
+
+function updatePhaseDisplay() {
+    const phaseEl = document.getElementById('phaseText');
+    if (phaseEl) {
+        if (currentPhase === 'playing') {
+            phaseEl.textContent = '🎵 듣는 중...';
+            phaseEl.className = 'phase-text playing';
+        } else {
+            phaseEl.textContent = '✏️ 입력 시간!';
+            phaseEl.className = 'phase-text answering';
+        }
+    }
 }
 
 function stopTimer() {

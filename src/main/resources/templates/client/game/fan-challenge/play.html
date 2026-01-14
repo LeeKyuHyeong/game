@@ -33,7 +33,7 @@
             <div class="ready-content">
                 <div class="ready-icon">&#127925;</div>
                 <h2 th:text="${artist + ' 최고 팬 챌린지'}">아티스트 최고 팬 챌린지</h2>
-                <p>5초 안에 노래 제목을 맞춰주세요!</p>
+                <p>5초 듣고 + 3초 입력 시간!</p>
                 <button type="button" class="btn btn-ready" onclick="startRound()">준비 완료!</button>
             </div>
         </div>
@@ -46,8 +46,9 @@
                     <div id="timerBar" class="timer-bar"></div>
                 </div>
                 <div class="timer-text">
-                    <span id="timerValue">5.0</span>초
+                    <span id="timerValue">8.0</span>초
                 </div>
+                <div id="phaseText" class="phase-text playing">🎵 듣는 중...</div>
             </div>
 
             <!-- 음악 플레이어 (숨김) -->

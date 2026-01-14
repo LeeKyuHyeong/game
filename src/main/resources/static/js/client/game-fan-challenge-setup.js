@@ -109,27 +109,28 @@ async function searchArtists(keyword) {
 function selectArtist(name, count) {
     selectedArtist = { name, count };
 
+    // 선택된 아티스트 정보 표시
     document.getElementById('selectedArtistName').textContent = name;
-    document.getElementById('selectedArtistCount').textContent = count + '곡';
-    document.getElementById('selectedArtistContainer').style.display = 'flex';
+    document.getElementById('selectedArtistCount').textContent = count + '곡 도전';
 
-    // 아티스트 목록에서 선택된 항목 하이라이트
-    document.querySelectorAll('.artist-item').forEach(item => {
-        item.classList.remove('selected');
-        if (item.querySelector('.artist-name').textContent === name) {
-            item.classList.add('selected');
-        }
-    });
+    // 선택 영역 숨기고 선택 완료 영역 표시
+    document.getElementById('artistSelectArea').style.display = 'none';
+    document.getElementById('selectedArtistArea').style.display = 'block';
+
+    // 검색 결과 숨기기
+    document.getElementById('artistSearchResults').style.display = 'none';
+    document.getElementById('artistSearch').value = '';
 
     updateStartButton();
 }
 
 function clearSelectedArtist() {
     selectedArtist = null;
-    document.getElementById('selectedArtistContainer').style.display = 'none';
-    document.querySelectorAll('.artist-item').forEach(item => {
-        item.classList.remove('selected');
-    });
+
+    // 선택 완료 영역 숨기고 선택 영역 다시 표시
+    document.getElementById('selectedArtistArea').style.display = 'none';
+    document.getElementById('artistSelectArea').style.display = 'block';
+
     updateStartButton();
 }
 

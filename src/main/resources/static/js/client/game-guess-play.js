@@ -628,9 +628,9 @@ async function submitAnswer() {
 
     // 실제 노래 재생 시간 계산 (초 단위)
     let answerTime = getActualPlayTime();
-    // 한 번도 재생하지 않았으면 null
+    // 한 번도 재생하지 않았으면 0초
     if (answerTime === null || answerTime === 0) {
-        answerTime = null;
+        answerTime = 0;
     }
 
     try {

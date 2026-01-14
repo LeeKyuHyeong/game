@@ -8,16 +8,16 @@
     <header class="client-header compact">
         <a href="/" class="back-home">← 홈으로</a>
         <h1>최고 팬 챌린지</h1>
-        <p>진정한 팬이라면 5초 안에!</p>
+        <p>5초 듣고 + 3초 입력!</p>
     </header>
 
     <main class="setup-main">
         <div class="setup-card fan-challenge-card">
             <div class="challenge-intro">
                 <div class="challenge-icon">&#127942;</div>
-                <h2>진정한 팬이라면 5초 안에!</h2>
+                <h2>진정한 팬이라면 8초 안에!</h2>
                 <p class="challenge-desc">
-                    선택한 아티스트의 <strong>모든 곡</strong>을 5초 안에 맞춰보세요.<br>
+                    선택한 아티스트의 <strong>모든 곡</strong>을 5초 듣고 + 3초 입력!<br>
                     3번 틀리면 게임 오버!
                 </p>
             </div>
@@ -30,30 +30,41 @@
 
             <div class="setup-step">
                 <h3>아티스트 선택</h3>
-                <div class="artist-search-container">
-                    <input type="text" id="artistSearch" class="input-text"
-                           placeholder="아티스트 검색...">
-                    <div id="artistSearchResults" class="search-results"></div>
-                </div>
 
-                <div class="selected-artist-container" id="selectedArtistContainer" style="display: none;">
-                    <div class="selected-artist">
-                        <span id="selectedArtistName"></span>
-                        <span id="selectedArtistCount" class="song-count"></span>
-                        <button type="button" class="btn-remove" onclick="clearSelectedArtist()">X</button>
+                <!-- 선택 전 상태: 검색창 + 인기 아티스트 목록 -->
+                <div id="artistSelectArea" class="artist-select-area">
+                    <div class="artist-search-container">
+                        <input type="text" id="artistSearch" class="input-text"
+                               placeholder="아티스트 검색...">
+                        <div id="artistSearchResults" class="search-results"></div>
+                    </div>
+
+                    <div class="artist-list-container">
+                        <h4>인기 아티스트</h4>
+                        <div id="artistList" class="artist-list"></div>
                     </div>
                 </div>
 
-                <div class="artist-list-container">
-                    <h4>인기 아티스트</h4>
-                    <div id="artistList" class="artist-list"></div>
+                <!-- 선택 완료 상태: 선택된 아티스트 강조 표시 -->
+                <div id="selectedArtistArea" class="selected-artist-area" style="display: none;">
+                    <div class="selected-artist-card">
+                        <div class="selected-badge">&#10003; 선택 완료</div>
+                        <div class="selected-artist-info">
+                            <span class="selected-artist-icon">&#127908;</span>
+                            <span id="selectedArtistName" class="selected-artist-name"></span>
+                            <span id="selectedArtistCount" class="selected-artist-count"></span>
+                        </div>
+                        <button type="button" class="btn-change-artist" onclick="clearSelectedArtist()">
+                            다른 아티스트 선택
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div class="setup-step rules-section">
                 <h3>게임 규칙</h3>
                 <ul class="rules-list">
-                    <li><span class="rule-icon">&#9200;</span> 곡당 <strong>5초</strong> 제한시간</li>
+                    <li><span class="rule-icon">&#9200;</span> <strong>5초</strong> 듣기 + <strong>3초</strong> 입력</li>
                     <li><span class="rule-icon">&#10084;</span> 라이프 <strong>3개</strong> (오답/시간초과 시 -1)</li>
                     <li><span class="rule-icon">&#127925;</span> 해당 아티스트의 <strong>모든 곡</strong> 출제</li>
                     <li><span class="rule-icon">&#128683;</span> 스킵 <strong>불가능</strong></li>
