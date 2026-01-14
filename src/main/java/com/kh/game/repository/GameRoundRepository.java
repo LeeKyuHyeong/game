@@ -72,4 +72,12 @@ public interface GameRoundRepository extends JpaRepository<GameRound, Long> {
             "HAVING COUNT(gr) >= 2 " +
             "ORDER BY (SUM(CASE WHEN gr.isCorrect = true THEN 1 ELSE 0 END) * 1.0 / COUNT(gr)) ASC")
     List<Object[]> findMemberHardestSongs(@Param("memberId") Long memberId);
+
+    // 라운드와 시도(attempts)를 함께 로드
+    @Query("SELECT DISTINCT gr FROM GameRound gr " +
+            "LEFT JOIN FETCH gr.attempts " +
+            "LEFT JOIN FETCH gr.song " +
+            "WHERE gr.gameSession.id = :sessionId " +
+            "ORDER BY gr.roundNumber ASC")
+    List<GameRound> findRoundsWithAttemptsBySessionId(@Param("sessionId") Long sessionId);
 }

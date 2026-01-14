@@ -64,6 +64,19 @@
                         <div th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="fail-info">
                             <span class="fail-text">3회 실패</span>
                         </div>
+                        <!-- 시도 내역 표시 (오답/정답 모두) -->
+                        <div th:if="${round.attempts != null && !round.attempts.isEmpty()}" class="attempts-section">
+                            <div class="attempts-label">내 답변:</div>
+                            <div class="attempts-list">
+                                <div th:each="attempt : ${round.attempts}" class="attempt-item"
+                                     th:classappend="${attempt.isCorrect} ? 'correct' : 'wrong'">
+                                    <span class="attempt-num" th:text="${attempt.attemptNumber} + '차'"></span>
+                                    <span class="attempt-answer" th:text="${attempt.userAnswer}"></span>
+                                    <span th:if="${attempt.isCorrect}" class="attempt-result correct">O</span>
+                                    <span th:if="${!attempt.isCorrect}" class="attempt-result wrong">X</span>
+                                </div>
+                            </div>
+                        </div>
                         <button class="btn-report-small" th:data-song-id="${round.song.id}" onclick="openReportModal(this.dataset.songId)">신고</button>
                     </div>
                 </div>
@@ -99,6 +112,60 @@
     background: #fff;
     color: #dc3545;
     border-color: #dc3545;
+}
+
+/* 시도 내역 스타일 */
+.attempts-section {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #e0e0e0;
+}
+.attempts-label {
+    font-size: 0.75em;
+    color: #666;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+.attempts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.attempt-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    background: #f8f9fa;
+}
+.attempt-item.correct {
+    background: #e8f5e9;
+}
+.attempt-item.wrong {
+    background: #ffebee;
+}
+.attempt-num {
+    font-weight: 600;
+    color: #666;
+    min-width: 28px;
+}
+.attempt-answer {
+    flex: 1;
+    color: #333;
+    word-break: break-all;
+}
+.attempt-result {
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+}
+.attempt-result.correct {
+    color: #4caf50;
+}
+.attempt-result.wrong {
+    color: #f44336;
 }
 </style>
 </body>

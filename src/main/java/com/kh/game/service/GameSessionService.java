@@ -54,6 +54,10 @@ public class GameSessionService {
         return gameRoundRepository.findByGameSessionIdOrderByRoundNumberAsc(sessionId);
     }
 
+    public List<GameRound> findRoundsWithAttemptsBySessionId(Long sessionId) {
+        return gameRoundRepository.findRoundsWithAttemptsBySessionId(sessionId);
+    }
+
     public List<GameSession> getTopScores(int limit) {
         return gameSessionRepository.findTopScores(Pageable.ofSize(limit));
     }
