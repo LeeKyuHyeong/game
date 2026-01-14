@@ -45,11 +45,11 @@
                     </div>
                     <div class="info-item">
                         <label>시작시간</label>
-                        <span th:text="${#temporals.format(session.startedAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                        <span th:text="${#temporals.format(gameSession.startedAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
                     </div>
                     <div class="info-item">
                         <label>종료시간</label>
-                        <span th:text="${gameSession.endedAt != null} ? ${#temporals.format(session.endedAt, 'yyyy-MM-dd HH:mm:ss')} : '-'"></span>
+                        <span th:text="${gameSession.endedAt != null} ? ${#temporals.format(gameSession.endedAt, 'yyyy-MM-dd HH:mm:ss')} : '-'"></span>
                     </div>
                     <div class="info-item">
                         <label>플레이 시간</label>
@@ -82,7 +82,7 @@
                         <div class="result-label">정답</div>
                     </div>
                     <div class="result-card">
-                        <div class="result-value" th:text="${#numbers.formatDecimal(session.accuracyRate, 0, 1)} + '%'">0%</div>
+                        <div class="result-value" th:text="${#numbers.formatDecimal(gameSession.accuracyRate, 0, 1)} + '%'">0%</div>
                         <div class="result-label">정답률</div>
                     </div>
                     <div class="result-card">
