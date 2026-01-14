@@ -87,7 +87,8 @@ const YouTubePlayerManager = {
                         code: errorCode,
                         message: errorMessage,
                         timestamp: Date.now(),
-                        isPlaybackError: [100, 101, 150].includes(errorCode)
+                        // Error 2: 잘못된 파라미터 (영상 삭제/비공개 또는 startTime 초과 시 발생)
+                        isPlaybackError: [2, 100, 101, 150].includes(errorCode)
                     };
 
                     if (this.onErrorCallback) this.onErrorCallback(e, this.lastError);

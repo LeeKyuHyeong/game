@@ -643,6 +643,14 @@ audioPlayer.addEventListener('ended', function() {
 audioPlayer.addEventListener('error', function() {
     console.error('오디오 재생 오류');
     isPlaying = false;
+    // MP3 재생 실패 시에도 에러 처리
+    if (currentSong) {
+        handlePlaybackError({
+            code: 'MP3_ERROR',
+            message: 'MP3 파일 재생 실패',
+            isPlaybackError: true
+        });
+    }
 });
 
 // ========== 재생 실패 처리 ==========
