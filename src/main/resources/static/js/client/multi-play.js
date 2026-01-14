@@ -20,6 +20,11 @@ let lastAudioPlaying = false;
 let lastAudioPlayedAt = null;
 let serverTimeOffset = 0;  // 서버 시간 - 클라이언트 시간
 
+// YouTube video ID 유효성 검사 (11자 alphanumeric + -_)
+function isValidYoutubeVideoId(videoId) {
+    return videoId && /^[a-zA-Z0-9_-]{11}$/.test(videoId.trim());
+}
+
 // 페이지 로드 시 시작
 document.addEventListener('DOMContentLoaded', async function() {
     // YouTube Player 초기화
@@ -271,8 +276,9 @@ function syncAudio(serverPlaying, serverPlayedAt) {
         }
 
         var targetTime = startTime + elapsedSec;
+        var useYoutube = isValidYoutubeVideoId(currentSong.youtubeVideoId) && youtubePlayerReady;
 
-        if (currentSong.youtubeVideoId && youtubePlayerReady) {
+        if (useYoutube) {
             // YouTube 동기화
             YouTubePlayerManager.seekTo(targetTime);
             if (!isPlaying) {
@@ -291,7 +297,7 @@ function syncAudio(serverPlaying, serverPlayedAt) {
         }
     } else {
         if (isPlaying) {
-            if (currentSong && currentSong.youtubeVideoId && youtubePlayerReady) {
+            if (currentSong && isValidYoutubeVideoId(currentSong.youtubeVideoId) && youtubePlayerReady) {
                 YouTubePlayerManager.pause();
             } else {
                 audioPlayer.pause();
@@ -304,8 +310,8 @@ function syncAudio(serverPlaying, serverPlayedAt) {
 function loadSong(song) {
     if (!song) return;
 
-    if (song.youtubeVideoId && youtubePlayerReady) {
-        YouTubePlayerManager.loadVideo(song.youtubeVideoId, song.startTime || 0);
+    if (isValidYoutubeVideoId(song.youtubeVideoId) && youtubePlayerReady) {
+        YouTubePlayerManager.loadVideo(song.youtubeVideoId.trim(), song.startTime || 0);
     } else if (song.filePath) {
         audioPlayer.src = '/uploads/songs/' + song.filePath;
         audioPlayer.currentTime = song.startTime || 0;
@@ -333,7 +339,7 @@ function updateProgress() {
     var duration = currentSong.playDuration || 10;
     var currentTime;
 
-    if (currentSong.youtubeVideoId && youtubePlayerReady) {
+    if (isValidYoutubeVideoId(currentSong.youtubeVideoId) && youtubePlayerReady) {
         currentTime = YouTubePlayerManager.getCurrentTime() - startTime;
     } else {
         currentTime = audioPlayer.currentTime - startTime;

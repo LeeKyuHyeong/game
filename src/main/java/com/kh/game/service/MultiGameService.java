@@ -593,7 +593,9 @@ public class MultiGameService {
         if (currentSong != null && room.getRoundPhase() == GameRoom.RoundPhase.PLAYING) {
             Map<String, Object> songInfo = new HashMap<>();
             songInfo.put("id", currentSong.getId());
-            songInfo.put("youtubeVideoId", currentSong.getYoutubeVideoId());
+            // 빈 문자열이면 null로 변환 (YouTube Error 2 방지)
+            String videoId = currentSong.getYoutubeVideoId();
+            songInfo.put("youtubeVideoId", (videoId != null && !videoId.isBlank()) ? videoId : null);
             songInfo.put("filePath", currentSong.getFilePath());
             songInfo.put("startTime", currentSong.getStartTime());
             songInfo.put("playDuration", currentSong.getPlayDuration());
