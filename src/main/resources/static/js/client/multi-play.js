@@ -6,14 +6,13 @@ let isPlaying = false;
 let youtubePlayerReady = false;
 let mySkipVoted = false;  // 내가 스킵 투표했는지
 
-// DOM 요소
-const audioPlayer = document.getElementById('audioPlayer');
-
 // 폴링 관련
 let roundPollingInterval = null;
 let chatPollingInterval = null;
 let progressInterval = null;
 let lastChatId = 0;
+let networkErrorCount = 0;  // 연속 네트워크 오류 횟수
+const MAX_NETWORK_ERRORS = 5;  // 최대 연속 오류 허용 횟수
 
 // 오디오 동기화
 let lastAudioPlaying = false;
@@ -37,18 +36,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             },
             onError: function(e, errorInfo) {
                 console.error('YouTube 재생 오류:', e.data);
-                if (currentSong && currentSong.filePath) {
-                    currentSong.youtubeVideoId = null;
-                    loadSong(currentSong);
-                } else {
-                    // MP3 없으면 재생 불가 처리
-                    handlePlaybackError(errorInfo);
-                }
+                // 재생 불가 처리 (자동 신고 + 방장에게 스킵 버튼 표시)
+                handlePlaybackError(errorInfo);
             }
         });
         youtubePlayerReady = true;
     } catch (error) {
-        console.warn('YouTube Player 초기화 실패:', error);
+        console.error('YouTube Player 초기화 실패:', error);
+        showYouTubeInitError();
     }
 
     startPolling();
@@ -101,6 +96,9 @@ async function fetchRoundInfo() {
     try {
         const response = await fetch('/game/multi/room/' + roomCode + '/round');
         const result = await response.json();
+
+        // 성공 시 오류 카운터 초기화
+        networkErrorCount = 0;
 
         if (!result.success) {
             console.error('라운드 정보 조회 실패:', result.message);
@@ -177,7 +175,57 @@ async function fetchRoundInfo() {
 
     } catch (error) {
         console.error('라운드 정보 조회 오류:', error);
+        networkErrorCount++;
+
+        if (networkErrorCount >= MAX_NETWORK_ERRORS) {
+            console.error('네트워크 오류가 계속 발생하여 폴링을 중단합니다.');
+            stopPolling();
+            showNetworkErrorNotice();
+        }
     }
+}
+
+/**
+ * YouTube 초기화 실패 알림 표시
+ */
+function showYouTubeInitError() {
+    var container = document.getElementById('chatMessages');
+    var div = document.createElement('div');
+    div.className = 'chat-message system-message playback-error-notice';
+    div.innerHTML = '<span class="system-text">⚠️ YouTube 플레이어 초기화에 실패했습니다.<br>' +
+        '<small style="color:#888;">페이지를 새로고침해주세요.</small><br>' +
+        '<button class="btn-skip-song" onclick="location.reload()">새로고침</button></span>';
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+/**
+ * 네트워크 오류 알림 표시
+ */
+function showNetworkErrorNotice() {
+    var container = document.getElementById('chatMessages');
+    var div = document.createElement('div');
+    div.className = 'chat-message system-message playback-error-notice';
+    div.innerHTML = '<span class="system-text">⚠️ 서버 연결이 끊어졌습니다.<br>' +
+        '<button class="btn-skip-song" onclick="reconnect()">다시 연결</button></span>';
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+/**
+ * 재연결 시도
+ */
+function reconnect() {
+    networkErrorCount = 0;
+    startPolling();
+
+    // 알림 메시지 제거
+    var notices = document.querySelectorAll('.playback-error-notice');
+    notices.forEach(function(notice) {
+        if (notice.textContent.includes('서버 연결이 끊어졌습니다')) {
+            notice.remove();
+        }
+    });
 }
 
 // ========== 페이즈 UI ==========
@@ -276,32 +324,21 @@ function syncAudio(serverPlaying, serverPlayedAt) {
         }
 
         var targetTime = startTime + elapsedSec;
-        var useYoutube = isValidYoutubeVideoId(currentSong.youtubeVideoId) && youtubePlayerReady;
 
-        if (useYoutube) {
-            // YouTube 동기화
-            YouTubePlayerManager.seekTo(targetTime);
-            if (!isPlaying) {
-                YouTubePlayerManager.play();
-                isPlaying = true;
-            }
-        } else {
-            // MP3 동기화
-            audioPlayer.currentTime = targetTime;
-            if (!isPlaying) {
-                audioPlayer.play().catch(function(e) {
-                    console.log('자동 재생 실패:', e);
-                });
-                isPlaying = true;
-            }
+        if (!youtubePlayerReady) {
+            console.warn('YouTube Player not ready for sync');
+            return;
+        }
+
+        // YouTube 동기화
+        YouTubePlayerManager.seekTo(targetTime);
+        if (!isPlaying) {
+            YouTubePlayerManager.play();
+            isPlaying = true;
         }
     } else {
-        if (isPlaying) {
-            if (currentSong && isValidYoutubeVideoId(currentSong.youtubeVideoId) && youtubePlayerReady) {
-                YouTubePlayerManager.pause();
-            } else {
-                audioPlayer.pause();
-            }
+        if (isPlaying && youtubePlayerReady) {
+            YouTubePlayerManager.pause();
             isPlaying = false;
         }
     }
@@ -310,11 +347,28 @@ function syncAudio(serverPlaying, serverPlayedAt) {
 function loadSong(song) {
     if (!song) return;
 
-    if (isValidYoutubeVideoId(song.youtubeVideoId) && youtubePlayerReady) {
-        YouTubePlayerManager.loadVideo(song.youtubeVideoId.trim(), song.startTime || 0);
-    } else if (song.filePath) {
-        audioPlayer.src = '/uploads/songs/' + song.filePath;
-        audioPlayer.currentTime = song.startTime || 0;
+    if (!youtubePlayerReady) {
+        console.warn('YouTube Player not ready for loadSong');
+        return;
+    }
+
+    if (isValidYoutubeVideoId(song.youtubeVideoId)) {
+        var loaded = YouTubePlayerManager.loadVideo(song.youtubeVideoId.trim(), song.startTime || 0);
+        if (!loaded) {
+            console.error('YouTube loadVideo 실패');
+            handlePlaybackError({
+                code: 'LOAD_FAILED',
+                message: 'YouTube 영상 로드 실패',
+                isPlaybackError: true
+            });
+        }
+    } else {
+        console.error('유효하지 않은 YouTube Video ID:', song.youtubeVideoId);
+        handlePlaybackError({
+            code: 'INVALID_VIDEO_ID',
+            message: '유효하지 않은 YouTube Video ID',
+            isPlaybackError: true
+        });
     }
 }
 
@@ -333,17 +387,11 @@ function stopProgressUpdate() {
 }
 
 function updateProgress() {
-    if (!currentSong) return;
+    if (!currentSong || !youtubePlayerReady) return;
 
     var startTime = currentSong.startTime || 0;
     var duration = currentSong.playDuration || 10;
-    var currentTime;
-
-    if (isValidYoutubeVideoId(currentSong.youtubeVideoId) && youtubePlayerReady) {
-        currentTime = YouTubePlayerManager.getCurrentTime() - startTime;
-    } else {
-        currentTime = audioPlayer.currentTime - startTime;
-    }
+    var currentTime = YouTubePlayerManager.getCurrentTime() - startTime;
 
     currentTime = Math.max(0, currentTime);
     var progress = Math.min((currentTime / duration) * 100, 100);
@@ -634,24 +682,6 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
-
-// 오디오 이벤트
-audioPlayer.addEventListener('ended', function() {
-    isPlaying = false;
-});
-
-audioPlayer.addEventListener('error', function() {
-    console.error('오디오 재생 오류');
-    isPlaying = false;
-    // MP3 재생 실패 시에도 에러 처리
-    if (currentSong) {
-        handlePlaybackError({
-            code: 'MP3_ERROR',
-            message: 'MP3 파일 재생 실패',
-            isPlaybackError: true
-        });
-    }
-});
 
 // ========== 재생 실패 처리 ==========
 

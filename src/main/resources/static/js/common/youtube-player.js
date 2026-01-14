@@ -99,16 +99,20 @@ const YouTubePlayerManager = {
 
     /**
      * 영상 로드 (재생 대기 상태)
+     * @returns {boolean} 로드 시도 성공 여부
      */
     loadVideo(videoId, startTime = 0) {
         if (!this.isReady || !this.player) {
             console.warn('YouTube Player not ready');
-            return;
+            return false;
         }
+        // 이전 에러 상태 초기화
+        this.lastError = null;
         this.player.cueVideoById({
             videoId: videoId,
             startSeconds: startTime
         });
+        return true;
     },
 
     /**

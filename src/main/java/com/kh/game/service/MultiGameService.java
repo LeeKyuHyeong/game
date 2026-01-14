@@ -208,7 +208,7 @@ public class MultiGameService {
      * PREPARING 또는 PLAYING 상태에서 호출 가능
      */
     @Transactional
-    public Map<String, Object> skipCurrentSong(GameRoom room, Member host, Long songId) {
+    public synchronized Map<String, Object> skipCurrentSong(GameRoom room, Member host, Long songId) {
         Map<String, Object> result = new HashMap<>();
 
         if (!room.isHost(host)) {
@@ -220,6 +220,13 @@ public class MultiGameService {
         if (room.getRoundPhase() != GameRoom.RoundPhase.PLAYING) {
             result.put("success", false);
             result.put("message", "현재 스킵할 수 없는 상태입니다.");
+            return result;
+        }
+
+        // 이미 정답자가 있으면 스킵 불가 (race condition 방지)
+        if (room.getWinner() != null) {
+            result.put("success", false);
+            result.put("message", "이미 정답자가 있습니다.");
             return result;
         }
 
@@ -520,10 +527,12 @@ public class MultiGameService {
         GameRoomChat correctChat = GameRoomChat.correctAnswer(room, member, answer, room.getCurrentRound());
         chatRepository.save(correctChat);
 
-        // 정답 정보 시스템 메시지
+        // 정답 정보 시스템 메시지 (song null 체크)
         Song song = room.getCurrentSong();
-        String answerMessage = String.format("🎉 정답: %s - %s", song.getArtist(), song.getTitle());
-        addSystemMessage(room, member, answerMessage);
+        if (song != null) {
+            String answerMessage = String.format("🎉 정답: %s - %s", song.getArtist(), song.getTitle());
+            addSystemMessage(room, member, answerMessage);
+        }
 
         return true;
     }
