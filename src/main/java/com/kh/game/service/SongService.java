@@ -37,6 +37,13 @@ public class SongService {
     @Value("${file.upload-dir:uploads/songs}")
     private String uploadDir;
 
+    /**
+     * 게임용 노래 목록 조회 (레트로 장르 제외)
+     */
+    private List<Song> findSongsForGame() {
+        return songRepository.findByUseYnAndHasAudioSourceExcludingGenre("Y", GenreService.EXCLUDED_GENRE_CODE);
+    }
+
     public Page<Song> findAll(Pageable pageable) {
         return songRepository.findAll(pageable);
     }
@@ -49,15 +56,20 @@ public class SongService {
         return songRepository.findByArtist(artist, pageable);
     }
 
-    public Page<Song> searchWithFilters(String keyword, String artist, Long genreId, String useYn, Boolean isSolo, Pageable pageable) {
-        return songRepository.searchWithFilters(keyword, artist, genreId, useYn, isSolo, pageable);
+    public Page<Song> searchWithFilters(String keyword, String artist, Long genreId, String useYn, Boolean isSolo, Integer releaseYear, Pageable pageable) {
+        return songRepository.searchWithFilters(keyword, artist, genreId, useYn, isSolo, releaseYear, pageable);
     }
 
-    public Page<Song> searchWithFilters(String keyword, List<String> artists, Long genreId, String useYn, Boolean isSolo, Pageable pageable) {
+    public Page<Song> searchWithFilters(String keyword, List<String> artists, Long genreId, String useYn, Boolean isSolo, Integer releaseYear, Pageable pageable) {
         if (artists != null && !artists.isEmpty()) {
-            return songRepository.searchWithFiltersMultipleArtists(keyword, artists, genreId, useYn, isSolo, pageable);
+            return songRepository.searchWithFiltersMultipleArtists(keyword, artists, genreId, useYn, isSolo, releaseYear, pageable);
         }
-        return songRepository.searchWithFilters(keyword, null, genreId, useYn, isSolo, pageable);
+        return songRepository.searchWithFilters(keyword, null, genreId, useYn, isSolo, releaseYear, pageable);
+    }
+
+    // 전체 연도 목록 (관리자용)
+    public List<Integer> getAllYears() {
+        return songRepository.findAllDistinctYears();
     }
 
     public List<String> getAllArtists() {
@@ -127,7 +139,7 @@ public class SongService {
     }
 
     public List<Song> getRandomSongs(int count, GameSettings settings) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         // 필터링
         List<Song> filtered = new ArrayList<>();
@@ -187,7 +199,7 @@ public class SongService {
     }
 
     public int getAvailableSongCount(GameSettings settings) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         int count = 0;
         for (Song song : allSongs) {
@@ -198,9 +210,9 @@ public class SongService {
         return count;
     }
 
-    // 아티스트 목록 조회 (곡 수 포함)
+    // 아티스트 목록 조회 (곡 수 포함) - 게임용 (레트로 제외)
     public List<Map<String, Object>> getArtistsWithCount() {
-        List<Object[]> results = songRepository.findDistinctArtistsWithCount();
+        List<Object[]> results = songRepository.findDistinctArtistsWithCountExcludingGenre(GenreService.EXCLUDED_GENRE_CODE);
         List<Map<String, Object>> artists = new ArrayList<>();
         for (Object[] row : results) {
             Map<String, Object> artist = new HashMap<>();
@@ -211,9 +223,9 @@ public class SongService {
         return artists;
     }
 
-    // 연도 목록 조회 (곡 수 포함)
+    // 연도 목록 조회 (곡 수 포함) - 게임용 (레트로 제외)
     public List<Map<String, Object>> getYearsWithCount() {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
         Map<Integer, Integer> yearCountMap = new TreeMap<>(Collections.reverseOrder()); // 최신 연도부터
 
         for (Song song : allSongs) {
@@ -232,13 +244,13 @@ public class SongService {
         return years;
     }
 
-    // 아티스트 검색 (자동완성용)
+    // 아티스트 검색 (자동완성용) - 게임용 (레트로 제외)
     public List<String> searchArtists(String keyword) {
-        return songRepository.findArtistsByKeyword(keyword);
+        return songRepository.findArtistsByKeywordExcludingGenre(keyword, GenreService.EXCLUDED_GENRE_CODE);
     }
 
     public int getAvailableSongCountByGenreExcluding(Long genreId, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         int count = 0;
         for (Song song : allSongs) {
@@ -251,7 +263,7 @@ public class SongService {
     }
 
     public Song getRandomSongByGenreExcluding(Long genreId, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -270,9 +282,9 @@ public class SongService {
 
     // ========== 매 라운드 선택 모드용 메서드 ==========
 
-    // 아티스트별 사용 가능한 곡 수 (제외 목록 적용)
+    // 아티스트별 사용 가능한 곡 수 (제외 목록 적용) - 게임용 (레트로 제외)
     public int getAvailableSongCountByArtistExcluding(String artist, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         int count = 0;
         for (Song song : allSongs) {
@@ -284,9 +296,9 @@ public class SongService {
         return count;
     }
 
-    // 아티스트로 랜덤 노래 가져오기 (제외 목록 적용)
+    // 아티스트로 랜덤 노래 가져오기 (제외 목록 적용) - 게임용 (레트로 제외)
     public Song getRandomSongByArtistExcluding(String artist, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -303,9 +315,9 @@ public class SongService {
         return filtered.get(0);
     }
 
-    // 연도별 사용 가능한 곡 수 (제외 목록 적용)
+    // 연도별 사용 가능한 곡 수 (제외 목록 적용) - 게임용 (레트로 제외)
     public int getAvailableSongCountByYearExcluding(Integer year, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         int count = 0;
         for (Song song : allSongs) {
@@ -317,9 +329,9 @@ public class SongService {
         return count;
     }
 
-    // 연도로 랜덤 노래 가져오기 (제외 목록 적용)
+    // 연도로 랜덤 노래 가져오기 (제외 목록 적용) - 게임용 (레트로 제외)
     public Song getRandomSongByYearExcluding(Integer year, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -336,9 +348,9 @@ public class SongService {
         return filtered.get(0);
     }
 
-    // 아티스트 목록 조회 (곡 수 포함, 제외 목록 적용)
+    // 아티스트 목록 조회 (곡 수 포함, 제외 목록 적용) - 게임용 (레트로 제외)
     public List<Map<String, Object>> getArtistsWithCountExcluding(List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
         Map<String, Integer> artistCountMap = new HashMap<>();
 
         for (Song song : allSongs) {
@@ -360,9 +372,9 @@ public class SongService {
         return artists;
     }
 
-    // 연도 목록 조회 (곡 수 포함, 제외 목록 적용)
+    // 연도 목록 조회 (곡 수 포함, 제외 목록 적용) - 게임용 (레트로 제외)
     public List<Map<String, Object>> getYearsWithCountExcluding(List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
         Map<Integer, Integer> yearCountMap = new TreeMap<>(Collections.reverseOrder());
 
         for (Song song : allSongs) {
@@ -452,10 +464,10 @@ public class SongService {
     // ========== 멀티게임용 메서드 ==========
 
     /**
-     * 랜덤 노래 가져오기 (excludeSongIds 제외)
+     * 랜덤 노래 가져오기 (excludeSongIds 제외) - 게임용 (레트로 제외)
      */
     public Song getRandomSongExcluding(Long genreId, Set<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -477,10 +489,10 @@ public class SongService {
     }
 
     /**
-     * 장르별 사용 가능한 노래 수 (excludeSongIds 제외)
+     * 장르별 사용 가능한 노래 수 (excludeSongIds 제외) - 게임용 (레트로 제외)
      */
     public int getAvailableCountByGenreExcluding(Long genreId, Set<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         int count = 0;
         for (Song song : allSongs) {
@@ -494,10 +506,10 @@ public class SongService {
 
     /**
      * 랜덤 노래 가져오기 (YouTube 검증 포함, excludeSongIds 제외)
-     * 멀티플레이어용
+     * 멀티플레이어용 - 게임용 (레트로 제외)
      */
     public Song getValidatedRandomSongExcluding(Long genreId, Set<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -532,13 +544,13 @@ public class SongService {
 
     /**
      * YouTube 검증 결과를 포함한 랜덤 노래 목록 가져오기
-     * 무효한 곡은 자동으로 대체됨
+     * 무효한 곡은 자동으로 대체됨 - 게임용 (레트로 제외)
      *
      * @return ValidatedSongsResult (노래 목록 + 대체된 곡 수)
      */
     public ValidatedSongsResult getRandomSongsWithValidation(int count, GameSettings settings) {
         // 여유분 포함해서 후보 가져오기 (대체용으로 2배 요청)
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         // 필터링
         List<Song> filtered = new ArrayList<>();
@@ -582,10 +594,10 @@ public class SongService {
 
     /**
      * 단일 곡 YouTube 검증 후 유효한 곡 반환 (장르 기준)
-     * 무효시 같은 장르의 다른 곡으로 대체
+     * 무효시 같은 장르의 다른 곡으로 대체 - 게임용 (레트로 제외)
      */
     public ValidatedSongResult getValidatedSongByGenre(Long genreId, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -613,10 +625,10 @@ public class SongService {
 
     /**
      * 아티스트의 모든 곡을 YouTube 검증 후 반환 (팬 챌린지용)
-     * 무효한 곡은 제외됨
+     * 무효한 곡은 제외됨 - 게임용 (레트로 제외)
      */
     public List<Song> getAllValidatedSongsByArtist(String artist) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -643,10 +655,10 @@ public class SongService {
     }
 
     /**
-     * 아티스트의 전체 곡 수 조회 (팬 챌린지 설정용)
+     * 아티스트의 전체 곡 수 조회 (팬 챌린지 설정용) - 게임용 (레트로 제외)
      */
     public int getSongCountByArtist(String artist) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
         int count = 0;
         for (Song song : allSongs) {
             if (song.getArtist() != null && song.getArtist().equals(artist)) {
@@ -657,10 +669,10 @@ public class SongService {
     }
 
     /**
-     * 단일 곡 YouTube 검증 후 유효한 곡 반환 (아티스트 기준)
+     * 단일 곡 YouTube 검증 후 유효한 곡 반환 (아티스트 기준) - 게임용 (레트로 제외)
      */
     public ValidatedSongResult getValidatedSongByArtist(String artist, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {
@@ -687,10 +699,10 @@ public class SongService {
     }
 
     /**
-     * 단일 곡 YouTube 검증 후 유효한 곡 반환 (연도 기준)
+     * 단일 곡 YouTube 검증 후 유효한 곡 반환 (연도 기준) - 게임용 (레트로 제외)
      */
     public ValidatedSongResult getValidatedSongByYear(Integer year, List<Long> excludeSongIds) {
-        List<Song> allSongs = songRepository.findByUseYnAndHasAudioSource("Y");
+        List<Song> allSongs = findSongsForGame();
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {

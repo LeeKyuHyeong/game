@@ -25,6 +25,10 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     @Query("SELECT s FROM Song s WHERE s.useYn = :useYn AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL)")
     List<Song> findByUseYnAndHasAudioSource(@Param("useYn") String useYn);
 
+    // YouTube 또는 MP3 파일이 있는 곡 조회 (특정 장르 제외 - 게임용)
+    @Query("SELECT s FROM Song s WHERE s.useYn = :useYn AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) AND (s.genre IS NULL OR s.genre.code <> :excludeGenreCode)")
+    List<Song> findByUseYnAndHasAudioSourceExcludingGenre(@Param("useYn") String useYn, @Param("excludeGenreCode") String excludeGenreCode);
+
     Page<Song> findByTitleContainingOrArtistContaining(String title, String artist, Pageable pageable);
 
     Page<Song> findByTitleContainingOrArtistContainingAndUseYn(String title, String artist, String useYn, Pageable pageable);
@@ -44,9 +48,17 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     @Query("SELECT s.artist, COUNT(s) FROM Song s WHERE s.useYn = 'Y' AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) GROUP BY s.artist ORDER BY s.artist")
     List<Object[]> findDistinctArtistsWithCount();
 
+    // 아티스트 목록 조회 (곡 수 포함, 특정 장르 제외) - 게임용
+    @Query("SELECT s.artist, COUNT(s) FROM Song s WHERE s.useYn = 'Y' AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) AND (s.genre IS NULL OR s.genre.code <> :excludeGenreCode) GROUP BY s.artist ORDER BY s.artist")
+    List<Object[]> findDistinctArtistsWithCountExcludingGenre(@Param("excludeGenreCode") String excludeGenreCode);
+
     // 아티스트 검색 (자동완성용) - YouTube 또는 MP3
     @Query("SELECT DISTINCT s.artist FROM Song s WHERE s.useYn = 'Y' AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) AND LOWER(s.artist) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY s.artist")
     List<String> findArtistsByKeyword(@Param("keyword") String keyword);
+
+    // 아티스트 검색 (자동완성용, 특정 장르 제외) - 게임용
+    @Query("SELECT DISTINCT s.artist FROM Song s WHERE s.useYn = 'Y' AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) AND (s.genre IS NULL OR s.genre.code <> :excludeGenreCode) AND LOWER(s.artist) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY s.artist")
+    List<String> findArtistsByKeywordExcludingGenre(@Param("keyword") String keyword, @Param("excludeGenreCode") String excludeGenreCode);
 
     // 복합 필터 검색 (관리자용) - 단일 아티스트
     @Query("SELECT s FROM Song s WHERE " +
@@ -54,13 +66,15 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             "(:artist IS NULL OR s.artist = :artist) AND " +
             "(:genreId IS NULL OR s.genre.id = :genreId) AND " +
             "(:useYn IS NULL OR s.useYn = :useYn) AND " +
-            "(:isSolo IS NULL OR s.isSolo = :isSolo)")
+            "(:isSolo IS NULL OR s.isSolo = :isSolo) AND " +
+            "(:releaseYear IS NULL OR s.releaseYear = :releaseYear)")
     Page<Song> searchWithFilters(
             @Param("keyword") String keyword,
             @Param("artist") String artist,
             @Param("genreId") Long genreId,
             @Param("useYn") String useYn,
             @Param("isSolo") Boolean isSolo,
+            @Param("releaseYear") Integer releaseYear,
             Pageable pageable);
 
     // 복합 필터 검색 (관리자용) - 다중 아티스트
@@ -69,14 +83,20 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             "(s.artist IN :artists) AND " +
             "(:genreId IS NULL OR s.genre.id = :genreId) AND " +
             "(:useYn IS NULL OR s.useYn = :useYn) AND " +
-            "(:isSolo IS NULL OR s.isSolo = :isSolo)")
+            "(:isSolo IS NULL OR s.isSolo = :isSolo) AND " +
+            "(:releaseYear IS NULL OR s.releaseYear = :releaseYear)")
     Page<Song> searchWithFiltersMultipleArtists(
             @Param("keyword") String keyword,
             @Param("artists") List<String> artists,
             @Param("genreId") Long genreId,
             @Param("useYn") String useYn,
             @Param("isSolo") Boolean isSolo,
+            @Param("releaseYear") Integer releaseYear,
             Pageable pageable);
+
+    // 전체 연도 목록 (관리자용 - 전체 곡 대상)
+    @Query("SELECT DISTINCT s.releaseYear FROM Song s WHERE s.releaseYear IS NOT NULL ORDER BY s.releaseYear DESC")
+    List<Integer> findAllDistinctYears();
 
     // 전체 아티스트 목록 (관리자용 - 전체 곡 대상)
     @Query("SELECT DISTINCT s.artist FROM Song s WHERE s.artist IS NOT NULL ORDER BY s.artist")

@@ -74,7 +74,7 @@ class SongServiceTest {
     @Test
     @DisplayName("searchWithFilters(List) - artists가 null이면 전체 조회")
     void searchWithFilters_artistsNull_returnsAll() {
-        Page<Song> result = songService.searchWithFilters(null, (List<String>) null, null, null, null, pageable);
+        Page<Song> result = songService.searchWithFilters(null, (List<String>) null, null, null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(3);
     }
@@ -82,7 +82,7 @@ class SongServiceTest {
     @Test
     @DisplayName("searchWithFilters(List) - artists가 빈 리스트면 전체 조회")
     void searchWithFilters_artistsEmpty_returnsAll() {
-        Page<Song> result = songService.searchWithFilters(null, Collections.emptyList(), null, null, null, pageable);
+        Page<Song> result = songService.searchWithFilters(null, Collections.emptyList(), null, null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(3);
     }
@@ -92,7 +92,7 @@ class SongServiceTest {
     void searchWithFilters_withArtists_returnsMatching() {
         List<String> artists = Arrays.asList("BTS");
 
-        Page<Song> result = songService.searchWithFilters(null, artists, null, null, null, pageable);
+        Page<Song> result = songService.searchWithFilters(null, artists, null, null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(2);
         assertThat(result.getContent()).allMatch(s -> s.getArtist().equals("BTS"));
@@ -103,7 +103,7 @@ class SongServiceTest {
     void searchWithFilters_allArtistsSelected_returnsAll() {
         List<String> allArtists = Arrays.asList("BTS", "aespa");
 
-        Page<Song> result = songService.searchWithFilters(null, allArtists, null, null, null, pageable);
+        Page<Song> result = songService.searchWithFilters(null, allArtists, null, null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(3);
     }
@@ -113,9 +113,18 @@ class SongServiceTest {
     void searchWithFilters_emptyKeyword_shouldReturnAll() {
         // 이 테스트는 실제로 빈 문자열이 전달되면 문제가 발생할 수 있음을 보여줌
         // 컨트롤러에서 빈 문자열을 null로 변환해야 함
-        Page<Song> result = songService.searchWithFilters(null, (String) null, null, null, null, pageable);
+        Page<Song> result = songService.searchWithFilters(null, (String) null, null, null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("getAllYears - 전체 연도 목록 조회")
+    void getAllYears() {
+        List<Integer> result = songService.getAllYears();
+
+        // 테스트 데이터에 releaseYear가 설정되어 있지 않으므로 빈 리스트일 수 있음
+        assertThat(result).isNotNull();
     }
 
     @Test

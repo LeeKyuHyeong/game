@@ -35,6 +35,7 @@ public class AdminSongController {
                        @RequestParam(required = false) Long genreId,
                        @RequestParam(required = false) String useYn,
                        @RequestParam(required = false) Boolean isSolo,
+                       @RequestParam(required = false) Integer releaseYear,
                        @RequestParam(defaultValue = "id") String sort,
                        @RequestParam(defaultValue = "desc") String direction,
                        @RequestParam(defaultValue = "table") String viewMode,
@@ -46,11 +47,12 @@ public class AdminSongController {
         String keywordParam = (keyword != null && keyword.trim().isEmpty()) ? null : keyword;
         String useYnParam = (useYn != null && useYn.trim().isEmpty()) ? null : useYn;
 
-        Page<Song> songPage = songService.searchWithFilters(keywordParam, artists, genreId, useYnParam, isSolo, pageable);
+        Page<Song> songPage = songService.searchWithFilters(keywordParam, artists, genreId, useYnParam, isSolo, releaseYear, pageable);
 
         model.addAttribute("songs", songPage.getContent());
         model.addAttribute("genres", genreService.findActiveGenres());
         model.addAttribute("artists", songService.getArtistsWithCount());
+        model.addAttribute("years", songService.getAllYears());
         model.addAttribute("currentPage", page);
         model.addAttribute("size", size);
         model.addAttribute("totalPages", songPage.getTotalPages());
@@ -63,6 +65,7 @@ public class AdminSongController {
         model.addAttribute("selectedGenreId", genreId);
         model.addAttribute("selectedUseYn", useYn);
         model.addAttribute("selectedIsSolo", isSolo);
+        model.addAttribute("selectedReleaseYear", releaseYear);
         model.addAttribute("sort", sort);
         model.addAttribute("direction", direction);
         model.addAttribute("viewMode", viewMode);

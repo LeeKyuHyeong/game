@@ -73,7 +73,7 @@ class SongRepositoryTest {
     @Test
     @DisplayName("searchWithFilters - 모든 파라미터가 null이면 전체 조회")
     void searchWithFilters_allNull_returnsAll() {
-        Page<Song> result = songRepository.searchWithFilters(null, null, null, null, null, pageable);
+        Page<Song> result = songRepository.searchWithFilters(null, null, null, null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(5);
     }
@@ -81,7 +81,7 @@ class SongRepositoryTest {
     @Test
     @DisplayName("searchWithFilters - keyword로 제목 검색")
     void searchWithFilters_byKeyword_title() {
-        Page<Song> result = songRepository.searchWithFilters("Dynamite", null, null, null, null, pageable);
+        Page<Song> result = songRepository.searchWithFilters("Dynamite", null, null, null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent().get(0).getTitle()).isEqualTo("Dynamite");
@@ -90,7 +90,7 @@ class SongRepositoryTest {
     @Test
     @DisplayName("searchWithFilters - keyword로 아티스트 검색")
     void searchWithFilters_byKeyword_artist() {
-        Page<Song> result = songRepository.searchWithFilters("BTS", null, null, null, null, pageable);
+        Page<Song> result = songRepository.searchWithFilters("BTS", null, null, null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(2);
     }
@@ -98,7 +98,7 @@ class SongRepositoryTest {
     @Test
     @DisplayName("searchWithFilters - 아티스트로 필터링")
     void searchWithFilters_byArtist() {
-        Page<Song> result = songRepository.searchWithFilters(null, "BTS", null, null, null, pageable);
+        Page<Song> result = songRepository.searchWithFilters(null, "BTS", null, null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(2);
         assertThat(result.getContent()).allMatch(s -> s.getArtist().equals("BTS"));
@@ -107,7 +107,7 @@ class SongRepositoryTest {
     @Test
     @DisplayName("searchWithFilters - 장르로 필터링")
     void searchWithFilters_byGenre() {
-        Page<Song> result = songRepository.searchWithFilters(null, null, kpopGenre.getId(), null, null, pageable);
+        Page<Song> result = songRepository.searchWithFilters(null, null, kpopGenre.getId(), null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(3);
         assertThat(result.getContent()).allMatch(s -> s.getGenre().getId().equals(kpopGenre.getId()));
@@ -116,7 +116,7 @@ class SongRepositoryTest {
     @Test
     @DisplayName("searchWithFilters - 사용여부로 필터링")
     void searchWithFilters_byUseYn() {
-        Page<Song> result = songRepository.searchWithFilters(null, null, null, "Y", null, pageable);
+        Page<Song> result = songRepository.searchWithFilters(null, null, null, "Y", null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(4);
         assertThat(result.getContent()).allMatch(s -> s.getUseYn().equals("Y"));
@@ -125,16 +125,25 @@ class SongRepositoryTest {
     @Test
     @DisplayName("searchWithFilters - 솔로여부로 필터링")
     void searchWithFilters_byIsSolo() {
-        Page<Song> result = songRepository.searchWithFilters(null, null, null, null, true, pageable);
+        Page<Song> result = songRepository.searchWithFilters(null, null, null, null, true, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(3);
         assertThat(result.getContent()).allMatch(s -> s.getIsSolo().equals(true));
     }
 
     @Test
+    @DisplayName("searchWithFilters - 연도로 필터링")
+    void searchWithFilters_byReleaseYear() {
+        Page<Song> result = songRepository.searchWithFilters(null, null, null, null, null, 2021, pageable);
+
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getContent()).allMatch(s -> s.getReleaseYear().equals(2021));
+    }
+
+    @Test
     @DisplayName("searchWithFilters - 복합 조건 필터링")
     void searchWithFilters_multipleConditions() {
-        Page<Song> result = songRepository.searchWithFilters(null, null, kpopGenre.getId(), "Y", false, pageable);
+        Page<Song> result = songRepository.searchWithFilters(null, null, kpopGenre.getId(), "Y", false, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(2);
         assertThat(result.getContent()).allMatch(s ->
@@ -149,7 +158,7 @@ class SongRepositoryTest {
     void searchWithFiltersMultipleArtists_returnsMatchingArtists() {
         List<String> artists = Arrays.asList("BTS", "aespa");
 
-        Page<Song> result = songRepository.searchWithFiltersMultipleArtists(null, artists, null, null, null, pageable);
+        Page<Song> result = songRepository.searchWithFiltersMultipleArtists(null, artists, null, null, null, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(3);
         assertThat(result.getContent()).allMatch(s -> artists.contains(s.getArtist()));
@@ -160,7 +169,7 @@ class SongRepositoryTest {
     void searchWithFiltersMultipleArtists_withOtherConditions() {
         List<String> artists = Arrays.asList("BTS", "aespa");
 
-        Page<Song> result = songRepository.searchWithFiltersMultipleArtists(null, artists, null, "Y", false, pageable);
+        Page<Song> result = songRepository.searchWithFiltersMultipleArtists(null, artists, null, "Y", false, null, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(2);
         assertThat(result.getContent()).allMatch(s ->
@@ -168,6 +177,17 @@ class SongRepositoryTest {
             s.getUseYn().equals("Y") &&
             s.getIsSolo().equals(false)
         );
+    }
+
+    @Test
+    @DisplayName("findAllDistinctYears - 전체 연도 목록 조회")
+    void findAllDistinctYears() {
+        List<Integer> result = songRepository.findAllDistinctYears();
+
+        assertThat(result).isNotEmpty();
+        assertThat(result).contains(2020, 2021, 2010);
+        // 최신 연도가 먼저 오는지 확인
+        assertThat(result.get(0)).isGreaterThanOrEqualTo(result.get(result.size() - 1));
     }
 
     @Test

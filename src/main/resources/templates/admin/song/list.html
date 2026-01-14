@@ -68,6 +68,18 @@
                         </select>
                     </div>
 
+                    <!-- Release Year Select -->
+                    <div class="filter-group">
+                        <label class="filter-label">연도</label>
+                        <select name="releaseYear" class="filter-select">
+                            <option value="">전체</option>
+                            <option th:each="year : ${years}"
+                                    th:value="${year}"
+                                    th:text="${year}"
+                                    th:selected="${selectedReleaseYear == year}"></option>
+                        </select>
+                    </div>
+
                     <div class="filter-actions">
                         <button type="submit" class="btn btn-search" onclick="document.getElementById('pageInput').value='0'">검색</button>
                         <a href="/admin/song" class="btn btn-reset">초기화</a>
