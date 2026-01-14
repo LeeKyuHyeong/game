@@ -119,26 +119,6 @@ public class AdminGameHistoryController {
             @RequestParam(defaultValue = "total") String rankType,
             Model model) {
 
-        // 통합 티어 분포 조회
-        Map<String, Long> tierDistribution = new LinkedHashMap<>();
-        tierDistribution.put("MASTER", 0L);
-        tierDistribution.put("DIAMOND", 0L);
-        tierDistribution.put("PLATINUM", 0L);
-        tierDistribution.put("GOLD", 0L);
-        tierDistribution.put("SILVER", 0L);
-        tierDistribution.put("BRONZE", 0L);
-
-        List<Object[]> tierCounts = memberRepository.countByTier();
-        long totalMembers = 0;
-        for (Object[] row : tierCounts) {
-            if (row[0] != null) {
-                String tierName = ((Member.MemberTier) row[0]).name();
-                Long count = (Long) row[1];
-                tierDistribution.put(tierName, count);
-                totalMembers += count;
-            }
-        }
-
         // 멀티게임 LP 티어 분포 조회
         Map<String, Long> multiTierDistribution = new LinkedHashMap<>();
         multiTierDistribution.put("CHALLENGER", 0L);
@@ -180,8 +160,6 @@ public class AdminGameHistoryController {
                 memberRankings = memberService.getTopRankingByScore(50);
         }
 
-        model.addAttribute("tierDistribution", tierDistribution);
-        model.addAttribute("totalMembers", totalMembers);
         model.addAttribute("multiTierDistribution", multiTierDistribution);
         model.addAttribute("totalMultiPlayers", totalMultiPlayers);
         model.addAttribute("memberRankings", memberRankings);

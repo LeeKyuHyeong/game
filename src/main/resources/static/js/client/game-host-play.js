@@ -40,11 +40,23 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.warn('YouTube Player 초기화 실패:', error);
     }
 
-    // GENRE_PER_ROUND 모드면 장르 선택 모달 표시
+    // 매 라운드 선택 모드 처리
     if (gameMode === 'GENRE_PER_ROUND') {
         showGenreSelectModal(1);
+    } else if (gameMode === 'ARTIST_PER_ROUND') {
+        showArtistSelectModal(1);
+    } else if (gameMode === 'YEAR_PER_ROUND') {
+        showYearSelectModal(1);
     } else {
         loadRound(1);
+    }
+
+    // 아티스트 검색 입력 이벤트
+    const artistSearchInput = document.getElementById('artistSearchInput');
+    if (artistSearchInput) {
+        artistSearchInput.addEventListener('input', function() {
+            renderArtistList(this.value);
+        });
     }
 
     // 대체된 곡 알림 표시
@@ -160,6 +172,9 @@ async function selectGenre(genreId, roundNumber) {
             // 오디오 소스 로드
             loadAudioSource();
 
+            // 노래 정보 표시
+            displaySongInfo();
+
             // UI 리셋
             resetPlayerUI();
 
@@ -169,6 +184,211 @@ async function selectGenre(genreId, roundNumber) {
     } catch (error) {
         console.error('장르 선택 오류:', error);
         alert('장르 선택 중 오류가 발생했습니다.');
+    }
+}
+
+// ========== 아티스트 선택 모달 ==========
+
+let allArtistsForModal = [];
+let currentArtistRound = 1;
+
+async function showArtistSelectModal(roundNumber) {
+    const modal = document.getElementById('artistSelectModal');
+    currentArtistRound = roundNumber;
+
+    try {
+        const response = await fetch('/game/solo/host/artists-with-count');
+        allArtistsForModal = await response.json();
+
+        // 남은 곡 개수 순으로 정렬 (내림차순)
+        allArtistsForModal.sort((a, b) => b.count - a.count);
+
+        renderArtistList();
+
+    } catch (error) {
+        console.error('아티스트 목록 로딩 오류:', error);
+    }
+
+    // 검색 입력 초기화
+    document.getElementById('artistSearchInput').value = '';
+    modal.classList.add('show');
+}
+
+function renderArtistList(filterKeyword = '') {
+    const artistList = document.getElementById('artistList');
+    let artistsToShow = allArtistsForModal;
+
+    if (filterKeyword) {
+        artistsToShow = allArtistsForModal.filter(a =>
+            a.name.toLowerCase().includes(filterKeyword.toLowerCase())
+        );
+    }
+
+    artistList.innerHTML = '';
+
+    artistsToShow.forEach(artist => {
+        const item = document.createElement('div');
+        item.className = 'genre-item';
+
+        if (artist.count === 0) {
+            item.classList.add('disabled');
+            if (hideEmptyGenres) {
+                item.classList.add('hidden');
+            }
+        }
+
+        item.innerHTML = `
+            <span class="genre-name">${artist.name}</span>
+            <span class="genre-count">${artist.count}곡</span>
+        `;
+
+        if (artist.count > 0) {
+            item.addEventListener('click', () => selectArtist(artist.name, currentArtistRound));
+        }
+
+        artistList.appendChild(item);
+    });
+}
+
+async function selectArtist(artistName, roundNumber) {
+    try {
+        const response = await fetch('/game/solo/host/select-artist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                artist: artistName,
+                roundNumber: roundNumber
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            document.getElementById('artistSelectModal').classList.remove('show');
+
+            // select-artist에서 반환된 데이터로 바로 라운드 설정
+            currentRound = roundNumber;
+            currentSong = result.song;
+
+            // 서버의 totalRounds로 업데이트
+            if (result.totalRounds) {
+                actualTotalRounds = result.totalRounds;
+                const totalRoundDisplay = document.querySelector('.round-info span:last-child');
+                if (totalRoundDisplay) {
+                    totalRoundDisplay.textContent = actualTotalRounds;
+                }
+            }
+
+            document.getElementById('currentRound').textContent = roundNumber;
+
+            // 오디오 소스 로드
+            loadAudioSource();
+
+            // 노래 정보 표시
+            displaySongInfo();
+
+            // UI 리셋
+            resetPlayerUI();
+
+        } else {
+            alert(result.message || '아티스트 선택에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('아티스트 선택 오류:', error);
+        alert('아티스트 선택 중 오류가 발생했습니다.');
+    }
+}
+
+// ========== 연도 선택 모달 ==========
+
+async function showYearSelectModal(roundNumber) {
+    const modal = document.getElementById('yearSelectModal');
+    const yearList = document.getElementById('yearList');
+
+    try {
+        const response = await fetch('/game/solo/host/years-with-count');
+        let years = await response.json();
+
+        // 이미 최신순 정렬되어있음
+
+        yearList.innerHTML = '';
+
+        years.forEach(year => {
+            const item = document.createElement('div');
+            item.className = 'genre-item';
+
+            if (year.count === 0) {
+                item.classList.add('disabled');
+                if (hideEmptyGenres) {
+                    item.classList.add('hidden');
+                }
+            }
+
+            item.innerHTML = `
+                <span class="genre-name">${year.year}년</span>
+                <span class="genre-count">${year.count}곡</span>
+            `;
+
+            if (year.count > 0) {
+                item.addEventListener('click', () => selectYear(year.year, roundNumber));
+            }
+
+            yearList.appendChild(item);
+        });
+
+    } catch (error) {
+        console.error('연도 목록 로딩 오류:', error);
+    }
+
+    modal.classList.add('show');
+}
+
+async function selectYear(year, roundNumber) {
+    try {
+        const response = await fetch('/game/solo/host/select-year', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                year: year,
+                roundNumber: roundNumber
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            document.getElementById('yearSelectModal').classList.remove('show');
+
+            // select-year에서 반환된 데이터로 바로 라운드 설정
+            currentRound = roundNumber;
+            currentSong = result.song;
+
+            // 서버의 totalRounds로 업데이트
+            if (result.totalRounds) {
+                actualTotalRounds = result.totalRounds;
+                const totalRoundDisplay = document.querySelector('.round-info span:last-child');
+                if (totalRoundDisplay) {
+                    totalRoundDisplay.textContent = actualTotalRounds;
+                }
+            }
+
+            document.getElementById('currentRound').textContent = roundNumber;
+
+            // 오디오 소스 로드
+            loadAudioSource();
+
+            // 노래 정보 표시
+            displaySongInfo();
+
+            // UI 리셋
+            resetPlayerUI();
+
+        } else {
+            alert(result.message || '연도 선택에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('연도 선택 오류:', error);
+        alert('연도 선택 중 오류가 발생했습니다.');
     }
 }
 
@@ -200,12 +420,66 @@ async function loadRound(roundNumber) {
         // 오디오 소스 로드
         loadAudioSource();
 
+        // 노래 정보 표시
+        displaySongInfo();
+
         // UI 리셋
         resetPlayerUI();
 
     } catch (error) {
         console.error('라운드 로딩 오류:', error);
         alert('라운드를 불러오는 중 오류가 발생했습니다.');
+    }
+}
+
+/**
+ * Display song information on screen
+ * Shows artist, title, and release year during the round
+ */
+function displaySongInfo() {
+    if (!currentSong) {
+        hideSongInfo();
+        return;
+    }
+
+    const songInfoDisplay = document.getElementById('songInfoDisplay');
+    const titleElement = document.getElementById('songInfoTitle');
+    const artistElement = document.getElementById('songInfoArtist');
+    const metaElement = document.getElementById('songInfoMeta');
+
+    // 제목 & 아티스트 업데이트
+    if (titleElement) {
+        titleElement.textContent = currentSong.title || '제목 없음';
+    }
+    if (artistElement) {
+        artistElement.textContent = currentSong.artist || '아티스트 정보 없음';
+    }
+
+    // 메타 정보 업데이트 (발매년도 + 장르)
+    if (metaElement) {
+        let metaParts = [];
+        if (currentSong.releaseYear) {
+            metaParts.push(currentSong.releaseYear + '년');
+        }
+        if (currentSong.genre) {
+            metaParts.push(currentSong.genre);
+        }
+        metaElement.textContent = metaParts.length > 0 ? metaParts.join(' · ') : '정보 없음';
+    }
+
+    // 표시
+    if (songInfoDisplay) {
+        songInfoDisplay.style.display = 'block';
+    }
+}
+
+/**
+ * Hide song information display
+ */
+function hideSongInfo() {
+    const songInfoDisplay = document.getElementById('songInfoDisplay');
+    if (songInfoDisplay) {
+        songInfoDisplay.style.display = 'none';
     }
 }
 
@@ -538,9 +812,13 @@ function nextRound() {
     if (currentRound < actualTotalRounds) {
         const nextRoundNumber = currentRound + 1;
 
-        // GENRE_PER_ROUND 모드면 장르 선택 모달 표시
+        // 게임 모드에 따라 적절한 모달 표시
         if (gameMode === 'GENRE_PER_ROUND') {
             showGenreSelectModal(nextRoundNumber);
+        } else if (gameMode === 'ARTIST_PER_ROUND') {
+            showArtistSelectModal(nextRoundNumber);
+        } else if (gameMode === 'YEAR_PER_ROUND') {
+            showYearSelectModal(nextRoundNumber);
         } else {
             loadRound(nextRoundNumber);
         }
@@ -700,6 +978,10 @@ async function skipUnplayableRound() {
                 const nextRoundNumber = currentRound + 1;
                 if (gameMode === 'GENRE_PER_ROUND') {
                     showGenreSelectModal(nextRoundNumber);
+                } else if (gameMode === 'ARTIST_PER_ROUND') {
+                    showArtistSelectModal(nextRoundNumber);
+                } else if (gameMode === 'YEAR_PER_ROUND') {
+                    showYearSelectModal(nextRoundNumber);
                 } else {
                     loadRound(nextRoundNumber);
                 }

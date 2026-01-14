@@ -156,15 +156,6 @@ public class Member {
     @Column(name = "all_time_best_30_at")
     private LocalDateTime allTimeBest30At;
 
-    // ========== 티어 시스템 (통합) ==========
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "tier", length = 20)
-    private MemberTier tier = MemberTier.BRONZE;
-
-    @Column(name = "tier_updated_at")
-    private LocalDateTime tierUpdatedAt;
-
     // ========== 멀티게임 전용 LP 티어 시스템 ==========
 
     @Enumerated(EnumType.STRING)
@@ -235,41 +226,6 @@ public class Member {
 
     public enum MemberStatus {
         ACTIVE, INACTIVE, BANNED
-    }
-
-    // 티어 시스템
-    public enum MemberTier {
-        BRONZE(0, "브론즈", "#CD7F32"),
-        SILVER(1000, "실버", "#C0C0C0"),
-        GOLD(3000, "골드", "#FFD700"),
-        PLATINUM(6000, "플래티넘", "#E5E4E2"),
-        DIAMOND(10000, "다이아", "#B9F2FF"),
-        MASTER(20000, "마스터", "#FF6B6B");
-
-        private final int requiredScore;
-        private final String displayName;
-        private final String color;
-
-        MemberTier(int requiredScore, String displayName, String color) {
-            this.requiredScore = requiredScore;
-            this.displayName = displayName;
-            this.color = color;
-        }
-
-        public int getRequiredScore() { return requiredScore; }
-        public String getDisplayName() { return displayName; }
-        public String getColor() { return color; }
-
-        // 점수에 따른 티어 계산 (강등 없음)
-        public static MemberTier calculateTier(int totalScore) {
-            MemberTier result = BRONZE;
-            for (MemberTier tier : values()) {
-                if (totalScore >= tier.requiredScore) {
-                    result = tier;
-                }
-            }
-            return result;
-        }
     }
 
     // ========== 전체 통계 메서드 ==========
@@ -349,9 +305,6 @@ public class Member {
 
         // 전체 통계도 업데이트
         addGameResult(score, correct, rounds, skip);
-
-        // 티어 업데이트 (강등 없음)
-        updateTier();
     }
 
     // Multiplayer (멀티게임) 게임 결과 반영
@@ -382,22 +335,6 @@ public class Member {
 
         // 전체 통계도 업데이트 (멀티게임은 skip 없음)
         addGameResult(score, correct, rounds, 0);
-
-        // 티어 업데이트 (강등 없음)
-        updateTier();
-    }
-
-    // 티어 업데이트 (강등 없음 - 현재 티어보다 높을 때만 승급)
-    public void updateTier() {
-        int combinedScore = (this.guessScore == null ? 0 : this.guessScore)
-                          + (this.multiScore == null ? 0 : this.multiScore);
-        MemberTier newTier = MemberTier.calculateTier(combinedScore);
-
-        // 강등 없음: 새 티어가 현재 티어보다 높을 때만 업데이트
-        if (this.tier == null || newTier.ordinal() > this.tier.ordinal()) {
-            this.tier = newTier;
-            this.tierUpdatedAt = LocalDateTime.now();
-        }
     }
 
     // 주간 통계 리셋
@@ -466,15 +403,6 @@ public class Member {
     public double getWeeklyMultiAccuracyRate() {
         if (weeklyMultiRounds == null || weeklyMultiRounds == 0) return 0;
         return (double) weeklyMultiCorrect / weeklyMultiRounds * 100;
-    }
-
-    // 티어 표시용 정보
-    public String getTierDisplayName() {
-        return tier != null ? tier.getDisplayName() : MemberTier.BRONZE.getDisplayName();
-    }
-
-    public String getTierColor() {
-        return tier != null ? tier.getColor() : MemberTier.BRONZE.getColor();
     }
 
     // ========== 멀티게임 LP 티어 메서드 ==========

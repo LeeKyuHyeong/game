@@ -25,8 +25,8 @@
                         </div>
                         <div class="profile-info">
                             <h2 class="nickname" th:text="${member.nickname}">닉네임</h2>
-                            <span class="tier-badge" th:style="'background: ' + ${member.tierColor}"
-                                  th:text="${member.tierDisplayName}">브론즈</span>
+                            <span class="tier-badge" th:style="'background: ' + ${member.multiTierColor}"
+                                  th:text="${member.multiTierDisplayName}">브론즈</span>
                         </div>
                     </div>
                     <div class="profile-stats">

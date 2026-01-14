@@ -9,7 +9,10 @@
                     라운드 <span id="currentRound">1</span> / <span th:text="${gameSession.totalRounds}"></span>
                 </span>
         </div>
-        <button class="btn btn-quit" onclick="quitGame()">게임 종료</button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="/" class="btn btn-home" style="text-decoration: none; background: #4a5568; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.9em;">🏠 홈</a>
+            <button class="btn btn-quit" onclick="quitGame()">게임 종료</button>
+        </div>
     </header>
 
     <main class="game-main">
@@ -19,6 +22,16 @@
                 <p class="ready-message">광고가 있다면 먼저 시청해주세요</p>
                 <p class="ready-hint">준비가 되면 아래 버튼을 눌러주세요</p>
                 <button class="btn btn-ready" onclick="confirmReady()">준비 완료</button>
+            </div>
+        </div>
+
+        <!-- 곡 정보 표시 -->
+        <div id="songInfoDisplay" class="song-info-display" style="display: none;">
+            <div class="song-info-header">🎵 현재 곡 정보</div>
+            <div class="song-info-content">
+                <div class="song-info-title" id="songInfoTitle">제목</div>
+                <div class="song-info-artist" id="songInfoArtist">아티스트</div>
+                <div class="song-info-meta" id="songInfoMeta">발매년도 · 장르</div>
             </div>
         </div>
 
@@ -96,6 +109,25 @@
                 <span class="genre-count" th:data-genre-id="${genre.id}"></span>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- 아티스트 선택 모달 -->
+<div class="modal" id="artistSelectModal">
+    <div class="modal-content genre-select-modal">
+        <div class="genre-modal-header">🎤 아티스트 선택</div>
+        <div class="genre-modal-subtitle">다음 라운드의 아티스트를 선택하세요</div>
+        <input type="text" id="artistSearchInput" class="modal-search-input" placeholder="아티스트 검색..." autocomplete="off">
+        <div class="genre-list scrollable" id="artistList"></div>
+    </div>
+</div>
+
+<!-- 연도 선택 모달 -->
+<div class="modal" id="yearSelectModal">
+    <div class="modal-content genre-select-modal">
+        <div class="genre-modal-header">📅 연도 선택</div>
+        <div class="genre-modal-subtitle">다음 라운드의 연도를 선택하세요</div>
+        <div class="genre-list" id="yearList"></div>
     </div>
 </div>
 

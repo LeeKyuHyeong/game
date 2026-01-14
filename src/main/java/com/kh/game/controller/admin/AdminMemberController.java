@@ -82,8 +82,6 @@ public class AdminMemberController {
                     result.put("username", member.getUsername());
                     result.put("role", member.getRole().name());
                     result.put("status", member.getStatus().name());
-                    result.put("tier", member.getTier().name());
-                    result.put("tierDisplayName", member.getTierDisplayName());
                     result.put("totalGames", member.getTotalGames());
                     result.put("totalScore", member.getTotalScore());
                     result.put("accuracyRate", String.format("%.1f", member.getAccuracyRate()));

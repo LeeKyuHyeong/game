@@ -81,10 +81,7 @@ public class BadgeService {
             }
         }
 
-        // 5. 티어 뱃지
-        checkTierBadges(member, newBadges);
-
-        // 6. 멀티 티어 뱃지
+        // 5. 멀티 티어 뱃지
         checkMultiTierBadges(member, newBadges);
 
         return newBadges;
@@ -117,9 +114,6 @@ public class BadgeService {
 
         // 연속 정답 뱃지
         checkStreakBadges(member, newBadges);
-
-        // 티어 뱃지
-        checkTierBadges(member, newBadges);
 
         return newBadges;
     }
@@ -157,9 +151,6 @@ public class BadgeService {
 
         // 점수 마일스톤
         checkScoreBadges(member, newBadges);
-
-        // 티어 뱃지
-        checkTierBadges(member, newBadges);
 
         // 멀티 티어 뱃지
         checkMultiTierBadges(member, newBadges);
@@ -203,21 +194,6 @@ public class BadgeService {
         }
         if (streak >= 20) {
             awardBadge(member, "STREAK_20").ifPresent(newBadges::add);
-        }
-    }
-
-    /**
-     * 통합 티어 뱃지 체크
-     */
-    private void checkTierBadges(Member member, List<Badge> newBadges) {
-        if (member.getTier() == null) return;
-
-        switch (member.getTier()) {
-            case SILVER -> awardBadge(member, "TIER_SILVER").ifPresent(newBadges::add);
-            case GOLD -> awardBadge(member, "TIER_GOLD").ifPresent(newBadges::add);
-            case PLATINUM -> awardBadge(member, "TIER_PLATINUM").ifPresent(newBadges::add);
-            case DIAMOND -> awardBadge(member, "TIER_DIAMOND").ifPresent(newBadges::add);
-            case MASTER -> awardBadge(member, "TIER_MASTER").ifPresent(newBadges::add);
         }
     }
 

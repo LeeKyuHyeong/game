@@ -181,12 +181,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.allTimeBest30Score IS NOT NULL")
     long countAllTimeBest30Participants();
 
-    // ========== 티어별 조회 (통합) ==========
-
-    // 통합 티어별 회원 수
-    @Query("SELECT m.tier, COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' GROUP BY m.tier ORDER BY m.tier")
-    List<Object[]> countByTier();
-
     // ========== 관리자용 조회 ==========
 
     // 권한별 조회

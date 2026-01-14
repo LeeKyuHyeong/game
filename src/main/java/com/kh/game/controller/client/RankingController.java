@@ -154,9 +154,6 @@ public class RankingController {
                 memberInfo.put("averageScore", member.getGuessAverageScore());
             }
 
-            // 티어 정보 추가
-            addTierInfo(memberInfo, member);
-
             // 뱃지 정보 추가
             addBadgeInfo(memberInfo, member);
 
@@ -211,8 +208,7 @@ public class RankingController {
                 memberInfo.put("averageScore", member.getMultiAverageScore());
             }
 
-            // 티어 정보 추가 (통합 + 멀티)
-            addTierInfo(memberInfo, member);
+            // 멀티 LP 티어 정보 추가
             addMultiTierInfo(memberInfo, member);
 
             // 뱃지 정보 추가
@@ -232,14 +228,6 @@ public class RankingController {
             memberInfo.put("badgeEmoji", null);
             memberInfo.put("badgeName", null);
         }
-    }
-
-    // 통합 티어 정보 추가
-    private void addTierInfo(Map<String, Object> memberInfo, Member member) {
-        Member.MemberTier tier = member.getTier() != null ? member.getTier() : Member.MemberTier.BRONZE;
-        memberInfo.put("tier", tier.name());
-        memberInfo.put("tierDisplayName", tier.getDisplayName());
-        memberInfo.put("tierColor", tier.getColor());
     }
 
     // 멀티게임 LP 티어 정보 추가
@@ -318,9 +306,6 @@ public class RankingController {
             memberInfo.put("nickname", member.getNickname());
             memberInfo.put("score", currentScore);
             memberInfo.put("achievedAt", achievedAt);
-
-            // 티어 정보 추가
-            addTierInfo(memberInfo, member);
 
             // 뱃지 정보 추가
             addBadgeInfo(memberInfo, member);
@@ -419,12 +404,6 @@ public class RankingController {
 
         result.put("loggedIn", true);
         result.put("nickname", member.getNickname());
-
-        // 티어 정보
-        Member.MemberTier tier = member.getTier() != null ? member.getTier() : Member.MemberTier.BRONZE;
-        result.put("tier", tier.name());
-        result.put("tierDisplayName", tier.getDisplayName());
-        result.put("tierColor", tier.getColor());
 
         // 내가맞추기 순위
         int guessScore = member.getGuessScore() != null ? member.getGuessScore() : 0;

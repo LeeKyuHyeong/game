@@ -80,8 +80,8 @@
                     <td data-label="이메일" th:text="${member.email}"></td>
                     <td data-label="닉네임" th:text="${member.nickname}"></td>
                     <td data-label="티어">
-                        <span class="tier-badge" th:style="'background-color:' + ${member.tierColor}"
-                              th:text="${member.tierDisplayName}"></span>
+                        <span class="tier-badge" th:style="'background-color:' + ${member.multiTierColor}"
+                              th:text="${member.multiTierDisplayName}"></span>
                     </td>
                     <td data-label="총 점수" th:text="${#numbers.formatInteger(member.totalScore, 0, 'COMMA')}"></td>
                     <td data-label="게임 수" th:text="${member.totalGames}"></td>

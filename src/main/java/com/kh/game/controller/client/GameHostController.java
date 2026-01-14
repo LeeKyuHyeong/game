@@ -79,6 +79,32 @@ public class GameHostController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/artists-with-count")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getArtistsWithCount(HttpSession httpSession) {
+        @SuppressWarnings("unchecked")
+        List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("playedSongIds");
+        if (playedSongIds == null) {
+            playedSongIds = new ArrayList<>();
+        }
+
+        List<Map<String, Object>> artists = songService.getArtistsWithCountExcluding(playedSongIds);
+        return ResponseEntity.ok(artists);
+    }
+
+    @GetMapping("/years-with-count")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getYearsWithCount(HttpSession httpSession) {
+        @SuppressWarnings("unchecked")
+        List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("playedSongIds");
+        if (playedSongIds == null) {
+            playedSongIds = new ArrayList<>();
+        }
+
+        List<Map<String, Object>> years = songService.getYearsWithCountExcluding(playedSongIds);
+        return ResponseEntity.ok(years);
+    }
+
     @PostMapping("/start")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startGame(
@@ -289,6 +315,180 @@ public class GameHostController {
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "장르 선택 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/select-artist")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> selectArtistForRound(
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long sessionId = (Long) httpSession.getAttribute("gameSessionId");
+
+        if (sessionId == null) {
+            result.put("success", false);
+            result.put("message", "세션이 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            String artist = (String) request.get("artist");
+            int roundNumber = (int) request.get("roundNumber");
+
+            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            if (session == null) {
+                result.put("success", false);
+                result.put("message", "게임을 찾을 수 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            @SuppressWarnings("unchecked")
+            List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("playedSongIds");
+            if (playedSongIds == null) {
+                playedSongIds = new ArrayList<>();
+            }
+
+            // YouTube 사전 검증 포함
+            SongService.ValidatedSongResult validatedResult =
+                    songService.getValidatedSongByArtist(artist, playedSongIds);
+            Song song = validatedResult.getSong();
+
+            if (song == null) {
+                result.put("success", false);
+                result.put("message", "해당 아티스트의 사용 가능한 노래가 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            // 라운드 생성
+            GameRound round = new GameRound();
+            round.setGameSession(session);
+            round.setRoundNumber(roundNumber);
+            round.setSong(song);
+            round.setGenre(song.getGenre());
+            round.setPlayStartTime(song.getStartTime());
+            round.setPlayDuration(song.getPlayDuration());
+            round.setStatus(GameRound.RoundStatus.WAITING);
+            session.getRounds().add(round);
+
+            gameSessionService.save(session);
+
+            // 플레이한 노래 ID 추가
+            playedSongIds.add(song.getId());
+            httpSession.setAttribute("playedSongIds", playedSongIds);
+
+            result.put("success", true);
+            result.put("roundNumber", roundNumber);
+            result.put("totalRounds", session.getTotalRounds());
+
+            // 노래 정보를 직접 반환 (loadRound 호출 불필요)
+            Map<String, Object> songInfo = new HashMap<>();
+            songInfo.put("id", song.getId());
+            songInfo.put("title", song.getTitle());
+            songInfo.put("artist", song.getArtist());
+            songInfo.put("filePath", song.getFilePath());
+            songInfo.put("youtubeVideoId", song.getYoutubeVideoId());
+            songInfo.put("startTime", song.getStartTime() != null ? song.getStartTime() : 0);
+            songInfo.put("playDuration", round.getPlayDuration());
+            songInfo.put("releaseYear", song.getReleaseYear());
+            if (song.getGenre() != null) {
+                songInfo.put("genre", song.getGenre().getName());
+            }
+            result.put("song", songInfo);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "아티스트 선택 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/select-year")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> selectYearForRound(
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long sessionId = (Long) httpSession.getAttribute("gameSessionId");
+
+        if (sessionId == null) {
+            result.put("success", false);
+            result.put("message", "세션이 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            Integer year = (Integer) request.get("year");
+            int roundNumber = (int) request.get("roundNumber");
+
+            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            if (session == null) {
+                result.put("success", false);
+                result.put("message", "게임을 찾을 수 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            @SuppressWarnings("unchecked")
+            List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("playedSongIds");
+            if (playedSongIds == null) {
+                playedSongIds = new ArrayList<>();
+            }
+
+            // YouTube 사전 검증 포함
+            SongService.ValidatedSongResult validatedResult =
+                    songService.getValidatedSongByYear(year, playedSongIds);
+            Song song = validatedResult.getSong();
+
+            if (song == null) {
+                result.put("success", false);
+                result.put("message", "해당 연도의 사용 가능한 노래가 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            // 라운드 생성
+            GameRound round = new GameRound();
+            round.setGameSession(session);
+            round.setRoundNumber(roundNumber);
+            round.setSong(song);
+            round.setGenre(song.getGenre());
+            round.setPlayStartTime(song.getStartTime());
+            round.setPlayDuration(song.getPlayDuration());
+            round.setStatus(GameRound.RoundStatus.WAITING);
+            session.getRounds().add(round);
+
+            gameSessionService.save(session);
+
+            // 플레이한 노래 ID 추가
+            playedSongIds.add(song.getId());
+            httpSession.setAttribute("playedSongIds", playedSongIds);
+
+            result.put("success", true);
+            result.put("roundNumber", roundNumber);
+            result.put("totalRounds", session.getTotalRounds());
+
+            // 노래 정보를 직접 반환 (loadRound 호출 불필요)
+            Map<String, Object> songInfo = new HashMap<>();
+            songInfo.put("id", song.getId());
+            songInfo.put("title", song.getTitle());
+            songInfo.put("artist", song.getArtist());
+            songInfo.put("filePath", song.getFilePath());
+            songInfo.put("youtubeVideoId", song.getYoutubeVideoId());
+            songInfo.put("startTime", song.getStartTime() != null ? song.getStartTime() : 0);
+            songInfo.put("playDuration", round.getPlayDuration());
+            songInfo.put("releaseYear", song.getReleaseYear());
+            if (song.getGenre() != null) {
+                songInfo.put("genre", song.getGenre().getName());
+            }
+            result.put("song", songInfo);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "연도 선택 중 오류가 발생했습니다: " + e.getMessage());
         }
 
         return ResponseEntity.ok(result);

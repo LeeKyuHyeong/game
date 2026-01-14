@@ -11,92 +11,8 @@
             <h1>🏆 랭킹</h1>
         </header>
 
-        <!-- Tier Distribution Dashboard -->
-        <div class="tier-dashboard" th:if="${rankType != 'multi'}">
-            <h2>통합 티어 분포 현황 <span style="font-size: 0.9rem; color: rgba(255,255,255,0.5);">총 [[${totalMembers}]]명</span></h2>
-            <div class="tier-cards">
-                <div class="tier-card MASTER">
-                    <div class="tier-icon">👑</div>
-                    <div class="tier-name">MASTER</div>
-                    <div class="tier-count" th:text="${tierDistribution['MASTER']}">0</div>
-                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['MASTER'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
-                </div>
-                <div class="tier-card DIAMOND">
-                    <div class="tier-icon">💎</div>
-                    <div class="tier-name">DIAMOND</div>
-                    <div class="tier-count" th:text="${tierDistribution['DIAMOND']}">0</div>
-                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['DIAMOND'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
-                </div>
-                <div class="tier-card PLATINUM">
-                    <div class="tier-icon">🔮</div>
-                    <div class="tier-name">PLATINUM</div>
-                    <div class="tier-count" th:text="${tierDistribution['PLATINUM']}">0</div>
-                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['PLATINUM'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
-                </div>
-                <div class="tier-card GOLD">
-                    <div class="tier-icon">🏅</div>
-                    <div class="tier-name">GOLD</div>
-                    <div class="tier-count" th:text="${tierDistribution['GOLD']}">0</div>
-                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['GOLD'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
-                </div>
-                <div class="tier-card SILVER">
-                    <div class="tier-icon">🥈</div>
-                    <div class="tier-name">SILVER</div>
-                    <div class="tier-count" th:text="${tierDistribution['SILVER']}">0</div>
-                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['SILVER'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
-                </div>
-                <div class="tier-card BRONZE">
-                    <div class="tier-icon">🥉</div>
-                    <div class="tier-name">BRONZE</div>
-                    <div class="tier-count" th:text="${tierDistribution['BRONZE']}">0</div>
-                    <div class="tier-percent" th:text="${totalMembers > 0} ? ${#numbers.formatDecimal(tierDistribution['BRONZE'] * 100.0 / totalMembers, 0, 1)} + '%' : '0%'"></div>
-                </div>
-            </div>
-            <div class="tier-chart">
-                <h3>티어별 회원 분포</h3>
-                <div class="chart-bars">
-                    <div class="chart-bar-row">
-                        <span class="chart-bar-label">MASTER</span>
-                        <div class="chart-bar-container">
-                            <div class="chart-bar MASTER" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['MASTER'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['MASTER']}"></div>
-                        </div>
-                    </div>
-                    <div class="chart-bar-row">
-                        <span class="chart-bar-label">DIAMOND</span>
-                        <div class="chart-bar-container">
-                            <div class="chart-bar DIAMOND" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['DIAMOND'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['DIAMOND']}"></div>
-                        </div>
-                    </div>
-                    <div class="chart-bar-row">
-                        <span class="chart-bar-label">PLATINUM</span>
-                        <div class="chart-bar-container">
-                            <div class="chart-bar PLATINUM" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['PLATINUM'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['PLATINUM']}"></div>
-                        </div>
-                    </div>
-                    <div class="chart-bar-row">
-                        <span class="chart-bar-label">GOLD</span>
-                        <div class="chart-bar-container">
-                            <div class="chart-bar GOLD" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['GOLD'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['GOLD']}"></div>
-                        </div>
-                    </div>
-                    <div class="chart-bar-row">
-                        <span class="chart-bar-label">SILVER</span>
-                        <div class="chart-bar-container">
-                            <div class="chart-bar SILVER" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['SILVER'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['SILVER']}"></div>
-                        </div>
-                    </div>
-                    <div class="chart-bar-row">
-                        <span class="chart-bar-label">BRONZE</span>
-                        <div class="chart-bar-container">
-                            <div class="chart-bar BRONZE" th:style="${totalMembers > 0} ? 'width:' + ${tierDistribution['BRONZE'] * 100.0 / totalMembers} + '%' : 'width:0%'" th:text="${tierDistribution['BRONZE']}"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Multi LP Tier Distribution Dashboard -->
-        <div class="tier-dashboard" th:if="${rankType == 'multi'}">
+        <div class="tier-dashboard">
             <h2>멀티게임 LP 티어 분포 <span style="font-size: 0.9rem; color: rgba(255,255,255,0.5);">총 [[${totalMultiPlayers}]]명</span></h2>
             <div class="tier-cards" style="grid-template-columns: repeat(7, 1fr);">
                 <div class="tier-card" style="background: linear-gradient(135deg, #00BFFF 0%, #1E90FF 100%);">
@@ -210,7 +126,7 @@
                         <span th:if="${idx.index == 2}">🥉 3위</span>
                         <span th:if="${idx.index > 2}" th:text="${idx.index + 1} + '위'"></span>
                     </div>
-                    <div class="ranker-tier-badge" th:classappend="${member.tier?.name()}" th:text="${member.tier?.name()}">BRONZE</div>
+                    <div class="ranker-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</div>
                     <div class="ranker-nickname" th:text="${member.nickname}">닉네임</div>
                     <div class="ranker-score" th:text="${member.totalScore} + '점'">0점</div>
                     <div class="ranker-stats">
@@ -265,7 +181,7 @@
                         <span th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
                     </td>
                     <td>
-                        <span class="table-tier-badge" th:classappend="${member.tier?.name()}" th:text="${member.tier?.name()}">BRONZE</span>
+                        <span class="table-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</span>
                     </td>
                     <td th:text="${member.nickname}">닉네임</td>
                     <td th:text="${#numbers.formatInteger(member.totalScore, 0, 'COMMA')}">0</td>
