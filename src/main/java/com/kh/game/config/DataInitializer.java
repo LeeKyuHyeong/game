@@ -2,11 +2,15 @@ package com.kh.game.config;
 
 import com.kh.game.entity.Badge;
 import com.kh.game.entity.BadWord;
+import com.kh.game.entity.FanChallengeDifficulty;
+import com.kh.game.entity.FanChallengeRecord;
 import com.kh.game.entity.Member;
 import com.kh.game.repository.BadgeRepository;
 import com.kh.game.repository.BadWordRepository;
+import com.kh.game.repository.FanChallengeRecordRepository;
 import com.kh.game.repository.MemberRepository;
 import com.kh.game.service.BadWordService;
+import com.kh.game.service.SongService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -26,12 +31,15 @@ public class DataInitializer implements CommandLineRunner {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final BadgeRepository badgeRepository;
+    private final FanChallengeRecordRepository fanChallengeRecordRepository;
+    private final SongService songService;
 
     @Override
     public void run(String... args) {
         initAdminAccount();
         initBadWords();
         initBadges();
+        initFanChallengeTestData();
     }
 
     /**
@@ -49,7 +57,7 @@ public class DataInitializer implements CommandLineRunner {
         // 기본 관리자 계정 생성
         Member admin = new Member();
         admin.setEmail(adminEmail);
-        admin.setPassword(passwordEncoder.encode("123!@#"));
+        admin.setPassword(passwordEncoder.encode("1234"));
         admin.setNickname("관리자");
         admin.setUsername("admin");
         admin.setRole(Member.MemberRole.ADMIN);
@@ -182,5 +190,97 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         log.info("뱃지 초기 데이터 등록 완료: {}개", count);
+    }
+
+    /**
+     * 팬 챌린지 테스트 데이터 등록 (실제 DB의 아티스트 사용)
+     */
+    private void initFanChallengeTestData() {
+        if (fanChallengeRecordRepository.count() > 0) {
+            log.info("팬 챌린지 데이터가 이미 존재합니다. 초기화 건너뜀.");
+            return;
+        }
+
+        // 실제 DB의 아티스트 목록 조회
+        List<Map<String, Object>> artistsWithCount = songService.getArtistsWithCount();
+        if (artistsWithCount.isEmpty()) {
+            log.info("등록된 곡이 없어 팬 챌린지 테스트 데이터 생성 건너뜀.");
+            return;
+        }
+
+        log.info("팬 챌린지 테스트 데이터 등록 시작... (아티스트 {}개 발견)", artistsWithCount.size());
+
+        // 테스트 유저 생성
+        List<Member> testMembers = new java.util.ArrayList<>();
+        String[] nicknames = {"음악천재", "노래왕", "멜로디", "리듬마스터", "뮤직러버", "사운드킹"};
+
+        for (int i = 0; i < nicknames.length; i++) {
+            final String email = "test" + (i + 1) + "@test.com";
+            final String nickname = nicknames[i];
+            final String username = "testuser" + (i + 1);
+
+            Member member = memberRepository.findByEmail(email).orElseGet(() -> {
+                Member m = new Member();
+                m.setEmail(email);
+                m.setPassword(passwordEncoder.encode("1234"));
+                m.setNickname(nickname);
+                m.setUsername(username);
+                m.setRole(Member.MemberRole.USER);
+                m.setStatus(Member.MemberStatus.ACTIVE);
+                return memberRepository.save(m);
+            });
+            testMembers.add(member);
+        }
+
+        int count = 0;
+        int maxArtists = Math.min(artistsWithCount.size(), 10); // 최대 10개 아티스트
+
+        for (int i = 0; i < maxArtists; i++) {
+            Map<String, Object> artistInfo = artistsWithCount.get(i);
+            String artist = (String) artistInfo.get("name");
+            int songCount = ((Number) artistInfo.get("count")).intValue();
+
+            if (songCount < 1) continue;
+
+            try {
+                // 1위: 퍼펙트 클리어 (가장 빠른 시간)
+                int member1Idx = i % testMembers.size();
+                FanChallengeRecord record1 = new FanChallengeRecord(
+                    testMembers.get(member1Idx), artist, songCount, FanChallengeDifficulty.HARDCORE);
+                record1.setCorrectCount(songCount);
+                record1.setIsPerfectClear(true);
+                record1.setBestTimeMs(30000L + (i * 3000L)); // 30초 ~ 57초
+                record1.setAchievedAt(java.time.LocalDateTime.now().minusDays(i + 1));
+                fanChallengeRecordRepository.save(record1);
+                count++;
+
+                // 2위: 퍼펙트 클리어 (더 느린 시간) - 동점자 테스트용
+                int member2Idx = (i + 1) % testMembers.size();
+                FanChallengeRecord record2 = new FanChallengeRecord(
+                    testMembers.get(member2Idx), artist, songCount, FanChallengeDifficulty.HARDCORE);
+                record2.setCorrectCount(songCount);
+                record2.setIsPerfectClear(true);
+                record2.setBestTimeMs(35000L + (i * 3000L)); // 35초 ~ 62초 (1위보다 5초 느림)
+                record2.setAchievedAt(java.time.LocalDateTime.now().minusDays(i + 2));
+                fanChallengeRecordRepository.save(record2);
+                count++;
+
+                // 3위: 일부만 맞춤
+                if (songCount > 2) {
+                    int member3Idx = (i + 2) % testMembers.size();
+                    FanChallengeRecord record3 = new FanChallengeRecord(
+                        testMembers.get(member3Idx), artist, songCount, FanChallengeDifficulty.HARDCORE);
+                    record3.setCorrectCount(songCount - 2);
+                    record3.setIsPerfectClear(false);
+                    record3.setAchievedAt(java.time.LocalDateTime.now().minusDays(i + 3));
+                    fanChallengeRecordRepository.save(record3);
+                    count++;
+                }
+            } catch (Exception e) {
+                log.warn("팬 챌린지 데이터 등록 실패 ({}): {}", artist, e.getMessage());
+            }
+        }
+
+        log.info("팬 챌린지 테스트 데이터 등록 완료: {}개", count);
     }
 }

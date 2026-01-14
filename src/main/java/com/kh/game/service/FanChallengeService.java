@@ -363,6 +363,37 @@ public class FanChallengeService {
     }
 
     /**
+     * 홈 페이지용 인기 아티스트 TOP1 기록 조회 (곡 수가 많은 아티스트 순)
+     */
+    public List<Map<String, Object>> getTopArtistsWithTopRecord(int limit) {
+        // 곡 수가 많은 아티스트 순으로 정렬된 목록
+        List<Map<String, Object>> artistsWithCount = songService.getArtistsWithCount();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map<String, Object> artistInfo : artistsWithCount) {
+            if (result.size() >= limit) break;
+
+            String artist = (String) artistInfo.get("name");
+
+            // 해당 아티스트의 1위 기록 조회
+            List<FanChallengeRecord> topRecords = fanChallengeRecordRepository.findTopByArtist(artist, PageRequest.of(0, 1));
+            if (!topRecords.isEmpty()) {
+                FanChallengeRecord top = topRecords.get(0);
+                Map<String, Object> item = new HashMap<>();
+                item.put("artist", artist);
+                item.put("nickname", top.getMember().getNickname());
+                item.put("correctCount", top.getCorrectCount());
+                item.put("totalSongs", top.getTotalSongs());
+                item.put("isPerfectClear", top.getIsPerfectClear());
+                item.put("bestTimeMs", top.getBestTimeMs());
+                item.put("songCount", artistInfo.get("count")); // 곡 수도 추가
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
+    /**
      * 정답 결과 DTO
      */
     public record AnswerResult(

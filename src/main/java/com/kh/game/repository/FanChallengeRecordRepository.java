@@ -51,4 +51,8 @@ public interface FanChallengeRecordRepository extends JpaRepository<FanChallenge
     // 아티스트별 도전자 수 (하드코어만)
     @Query("SELECT COUNT(r) FROM FanChallengeRecord r WHERE r.artist = :artist AND r.difficulty = 'HARDCORE'")
     long countByArtist(@Param("artist") String artist);
+
+    // 기록이 있는 아티스트 목록 (기록 수 기준 인기순, 하드코어만)
+    @Query("SELECT r.artist, COUNT(r) as cnt FROM FanChallengeRecord r WHERE r.difficulty = 'HARDCORE' GROUP BY r.artist ORDER BY cnt DESC")
+    List<Object[]> findPopularArtists(Pageable pageable);
 }

@@ -314,6 +314,106 @@
     margin: 0 auto;
 }
 
+/* Artist Challenge Ranking Section */
+.artist-ranking-section {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+.artist-ranking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding: 0 0.25rem;
+}
+
+.artist-ranking-header h3 {
+    color: white;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.artist-ranking-scroll {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
+}
+
+.artist-ranking-scroll::-webkit-scrollbar {
+    height: 4px;
+}
+
+.artist-ranking-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.artist-ranking-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+.artist-card {
+    flex: 0 0 auto;
+    width: 120px;
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1rem 0.75rem;
+    text-align: center;
+    text-decoration: none;
+    scroll-snap-align: start;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.artist-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.artist-card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.375rem;
+}
+
+.artist-card-name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.artist-card-user {
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.125rem;
+}
+
+.artist-card-score {
+    font-size: 0.6875rem;
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.artist-card-badge {
+    display: inline-block;
+    font-size: 0.5625rem;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: white;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    margin-top: 0.25rem;
+}
+
 /* Login Prompt Modal */
 .login-prompt-modal {
     display: none;
@@ -551,5 +651,47 @@
     .login-prompt-modal .btn {
         padding: 0.75rem 1.25rem;
         font-size: 0.9375rem;
+    }
+
+    /* Artist Ranking Mobile */
+    .artist-ranking-section {
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+    }
+
+    .artist-ranking-header h3 {
+        font-size: 0.8125rem;
+    }
+
+    .artist-ranking-scroll {
+        gap: 0.5rem;
+    }
+
+    .artist-card {
+        width: 100px;
+        padding: 0.75rem 0.5rem;
+        border-radius: 0.625rem;
+    }
+
+    .artist-card-icon {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .artist-card-name {
+        font-size: 0.75rem;
+    }
+
+    .artist-card-user {
+        font-size: 0.625rem;
+    }
+
+    .artist-card-score {
+        font-size: 0.625rem;
+    }
+
+    .artist-card-badge {
+        font-size: 0.5rem;
+        padding: 0.1rem 0.25rem;
     }
 }

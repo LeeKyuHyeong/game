@@ -294,6 +294,24 @@ public class GameFanChallengeController {
             result.put("isGameOver", answerResult.isGameOver());
             result.put("gameOverReason", answerResult.gameOverReason());
 
+            // 게임 종료 시 결과 페이지용 데이터 추가
+            if (answerResult.isGameOver()) {
+                String artist = (String) httpSession.getAttribute("fanChallengeArtist");
+                String difficultyStr = (String) httpSession.getAttribute("fanChallengeDifficulty");
+                FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
+                GameSession session = fanChallengeService.getSession(sessionId);
+
+                result.put("resultData", Map.of(
+                    "artist", artist != null ? artist : "",
+                    "difficulty", difficulty.name(),
+                    "difficultyName", difficulty.getDisplayName(),
+                    "difficultyEmoji", difficulty.getBadgeEmoji(),
+                    "isRanked", difficulty.isRanked(),
+                    "playTimeSeconds", session != null ? session.getPlayTimeSeconds() : 0,
+                    "isPerfectClear", answerResult.correctCount() == answerResult.totalRounds()
+                ));
+            }
+
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
@@ -339,6 +357,24 @@ public class GameFanChallengeController {
             result.put("isGameOver", answerResult.isGameOver());
             result.put("gameOverReason", answerResult.gameOverReason());
 
+            // 게임 종료 시 결과 페이지용 데이터 추가
+            if (answerResult.isGameOver()) {
+                String artist = (String) httpSession.getAttribute("fanChallengeArtist");
+                String difficultyStr = (String) httpSession.getAttribute("fanChallengeDifficulty");
+                FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
+                GameSession session = fanChallengeService.getSession(sessionId);
+
+                result.put("resultData", Map.of(
+                    "artist", artist != null ? artist : "",
+                    "difficulty", difficulty.name(),
+                    "difficultyName", difficulty.getDisplayName(),
+                    "difficultyEmoji", difficulty.getBadgeEmoji(),
+                    "isRanked", difficulty.isRanked(),
+                    "playTimeSeconds", session != null ? session.getPlayTimeSeconds() : 0,
+                    "isPerfectClear", answerResult.correctCount() == answerResult.totalRounds()
+                ));
+            }
+
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
@@ -355,14 +391,20 @@ public class GameFanChallengeController {
     @GetMapping("/result")
     public String result(HttpSession httpSession, Model model) {
         Long sessionId = (Long) httpSession.getAttribute("fanChallengeSessionId");
+
+        // 세션이 없으면 백업 데이터 사용 모드로 렌더링
         if (sessionId == null) {
-            return "redirect:/game/fan-challenge";
+            model.addAttribute("useBackup", true);
+            return "client/game/fan-challenge/result";
         }
 
         GameSession session = fanChallengeService.getSession(sessionId);
         if (session == null) {
-            return "redirect:/game/fan-challenge";
+            model.addAttribute("useBackup", true);
+            return "client/game/fan-challenge/result";
         }
+
+        model.addAttribute("useBackup", false);
 
         String artist = (String) httpSession.getAttribute("fanChallengeArtist");
         String difficultyStr = (String) httpSession.getAttribute("fanChallengeDifficulty");
@@ -442,6 +484,16 @@ public class GameFanChallengeController {
             result.add(item);
         }
 
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 홈 페이지용 인기 아티스트 TOP1 기록 조회
+     */
+    @GetMapping("/top-artists")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getTopArtistsRanking() {
+        List<Map<String, Object>> result = fanChallengeService.getTopArtistsWithTopRecord(10);
         return ResponseEntity.ok(result);
     }
 

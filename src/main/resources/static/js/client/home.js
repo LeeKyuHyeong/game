@@ -3,6 +3,7 @@ let isUserLoggedIn = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
+    loadArtistChallengeRanking();
 });
 
 async function checkLoginStatus() {
@@ -111,5 +112,43 @@ async function loadMyRanking() {
         }
     } catch (error) {
         console.error('내 순위 로딩 오류:', error);
+    }
+}
+
+async function loadArtistChallengeRanking() {
+    try {
+        const response = await fetch('/game/fan-challenge/top-artists');
+        const data = await response.json();
+
+        const section = document.getElementById('artistRankingSection');
+        const scroll = document.getElementById('artistRankingScroll');
+
+        if (!data || data.length === 0) {
+            return;
+        }
+
+        section.style.display = '';
+
+        let html = '';
+        data.forEach(item => {
+            const scoreText = `${item.correctCount}/${item.totalSongs}`;
+            const badgeHtml = item.isPerfectClear
+                ? '<span class="artist-card-badge">PERFECT</span>'
+                : '';
+
+            html += `
+                <div class="artist-card">
+                    <div class="artist-card-icon">🎵</div>
+                    <div class="artist-card-name" title="${item.artist}">${item.artist}</div>
+                    <div class="artist-card-user">${item.nickname}</div>
+                    <div class="artist-card-score">${scoreText}</div>
+                    ${badgeHtml}
+                </div>
+            `;
+        });
+
+        scroll.innerHTML = html;
+    } catch (error) {
+        console.error('아티스트 챌린지 랭킹 로딩 오류:', error);
     }
 }
