@@ -36,6 +36,7 @@ public class BatchScheduler {
     private final YouTubeVideoCheckBatch youTubeVideoCheckBatch;
     private final SystemReportBatch systemReportBatch;
     private final WeeklyRankingResetBatch weeklyRankingResetBatch;
+    private final MonthlyRankingResetBatch monthlyRankingResetBatch;
     private final BoardCleanupBatch boardCleanupBatch;
     private final BatchExecutionHistoryCleanupBatch batchExecutionHistoryCleanupBatch;
     private final GameRoundAttemptCleanupBatch gameRoundAttemptCleanupBatch;
@@ -202,6 +203,14 @@ public class BatchScheduler {
                         log.error("배치 실행 중 오류: {}", batchId, e);
                     }
                 };
+            case MonthlyRankingResetBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        monthlyRankingResetBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
             case BoardCleanupBatch.BATCH_ID:
                 return () -> {
                     try {
@@ -302,6 +311,9 @@ public class BatchScheduler {
                 break;
             case WeeklyRankingResetBatch.BATCH_ID:
                 weeklyRankingResetBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case MonthlyRankingResetBatch.BATCH_ID:
+                monthlyRankingResetBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
                 break;
             case BoardCleanupBatch.BATCH_ID:
                 boardCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);

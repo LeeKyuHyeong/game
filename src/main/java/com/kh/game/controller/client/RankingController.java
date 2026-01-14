@@ -40,6 +40,11 @@ public class RankingController {
         model.addAttribute("guessBestRanking", memberService.getGuessBestScoreRanking(20));
         model.addAttribute("multiBestRanking", memberService.getMultiBestScoreRanking(20));
 
+        // 30곡 최고점 랭킹
+        model.addAttribute("weeklyBest30Ranking", memberService.getWeeklyBest30Ranking(50));
+        model.addAttribute("monthlyBest30Ranking", memberService.getMonthlyBest30Ranking(50));
+        model.addAttribute("allTimeBest30Ranking", memberService.getAllTimeBest30Ranking(50));
+
         return "client/ranking";
     }
 
@@ -243,6 +248,154 @@ public class RankingController {
         memberInfo.put("multiTierDisplayName", member.getMultiTierDisplayName());
         memberInfo.put("multiTierColor", member.getMultiTierColor());
         memberInfo.put("multiLp", member.getMultiLp() != null ? member.getMultiLp() : 0);
+    }
+
+    // 30곡 최고점 랭킹 API
+    @GetMapping("/api/ranking/best30")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getBest30Ranking(
+            @RequestParam(defaultValue = "weekly") String period,
+            @RequestParam(defaultValue = "50") int limit) {
+
+        List<Member> members;
+        switch (period) {
+            case "monthly":
+                members = memberService.getMonthlyBest30Ranking(limit);
+                break;
+            case "alltime":
+                members = memberService.getAllTimeBest30Ranking(limit);
+                break;
+            case "weekly":
+            default:
+                members = memberService.getWeeklyBest30Ranking(limit);
+                break;
+        }
+
+        return ResponseEntity.ok(toBest30RankingResponse(members, period));
+    }
+
+    // 30곡 랭킹 응답 변환 (동점자 처리 포함)
+    private List<Map<String, Object>> toBest30RankingResponse(List<Member> members, String period) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        int currentRank = 0;
+        int previousScore = -1;
+        int sameRankCount = 0;
+
+        for (int i = 0; i < members.size(); i++) {
+            Member member = members.get(i);
+            Map<String, Object> memberInfo = new HashMap<>();
+
+            // 점수 가져오기
+            Integer score;
+            java.time.LocalDateTime achievedAt;
+            switch (period) {
+                case "monthly":
+                    score = member.getMonthlyBest30Score();
+                    achievedAt = member.getMonthlyBest30At();
+                    break;
+                case "alltime":
+                    score = member.getAllTimeBest30Score();
+                    achievedAt = member.getAllTimeBest30At();
+                    break;
+                case "weekly":
+                default:
+                    score = member.getWeeklyBest30Score();
+                    achievedAt = member.getWeeklyBest30At();
+                    break;
+            }
+
+            int currentScore = score != null ? score : 0;
+
+            // 동점자 처리 (dense rank: 같은 점수면 같은 순위, 다음은 바로 다음 순위)
+            if (currentScore != previousScore) {
+                currentRank++;
+                previousScore = currentScore;
+            }
+
+            memberInfo.put("rank", currentRank);
+            memberInfo.put("id", member.getId());
+            memberInfo.put("nickname", member.getNickname());
+            memberInfo.put("score", currentScore);
+            memberInfo.put("achievedAt", achievedAt);
+
+            // 티어 정보 추가
+            addTierInfo(memberInfo, member);
+
+            // 뱃지 정보 추가
+            addBadgeInfo(memberInfo, member);
+
+            result.add(memberInfo);
+        }
+
+        return result;
+    }
+
+    // 내 30곡 순위 API
+    @GetMapping("/api/ranking/best30/my")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getMyBest30Ranking(
+            @SessionAttribute(value = "memberId", required = false) Long memberId) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (memberId == null) {
+            result.put("loggedIn", false);
+            return ResponseEntity.ok(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        if (member == null) {
+            result.put("loggedIn", false);
+            return ResponseEntity.ok(result);
+        }
+
+        result.put("loggedIn", true);
+        result.put("nickname", member.getNickname());
+
+        // 주간 30곡 순위
+        Integer weeklyScore = member.getWeeklyBest30Score();
+        if (weeklyScore != null && weeklyScore > 0) {
+            long weeklyRank = memberService.getMyWeeklyBest30Rank(weeklyScore);
+            long weeklyTotal = memberService.getWeeklyBest30ParticipantCount();
+            result.put("weeklyRank", weeklyRank);
+            result.put("weeklyTotal", weeklyTotal);
+            result.put("weeklyScore", weeklyScore);
+            result.put("weeklyAt", member.getWeeklyBest30At());
+        } else {
+            result.put("weeklyRank", 0);
+            result.put("weeklyScore", 0);
+        }
+
+        // 월간 30곡 순위
+        Integer monthlyScore = member.getMonthlyBest30Score();
+        if (monthlyScore != null && monthlyScore > 0) {
+            long monthlyRank = memberService.getMyMonthlyBest30Rank(monthlyScore);
+            long monthlyTotal = memberService.getMonthlyBest30ParticipantCount();
+            result.put("monthlyRank", monthlyRank);
+            result.put("monthlyTotal", monthlyTotal);
+            result.put("monthlyScore", monthlyScore);
+            result.put("monthlyAt", member.getMonthlyBest30At());
+        } else {
+            result.put("monthlyRank", 0);
+            result.put("monthlyScore", 0);
+        }
+
+        // 역대 30곡 순위
+        Integer allTimeScore = member.getAllTimeBest30Score();
+        if (allTimeScore != null && allTimeScore > 0) {
+            long allTimeRank = memberService.getMyAllTimeBest30Rank(allTimeScore);
+            long allTimeTotal = memberService.getAllTimeBest30ParticipantCount();
+            result.put("allTimeRank", allTimeRank);
+            result.put("allTimeTotal", allTimeTotal);
+            result.put("allTimeScore", allTimeScore);
+            result.put("allTimeAt", member.getAllTimeBest30At());
+        } else {
+            result.put("allTimeRank", 0);
+            result.put("allTimeScore", 0);
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     // 내 순위 API

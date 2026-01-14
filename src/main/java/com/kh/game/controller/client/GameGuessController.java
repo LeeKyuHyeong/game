@@ -697,6 +697,17 @@ public class GameGuessController {
                             isEligibleForBestScore
                     );
 
+                    // 30곡 최고점 랭킹 갱신 (30곡 게임만 대상)
+                    if (session.getTotalRounds() == Member.RANKING_ROUNDS) {
+                        boolean updated = memberService.update30SongBestScore(
+                                session.getMember().getId(),
+                                session.getTotalScore()
+                        );
+                        if (updated) {
+                            result.put("best30Updated", true);
+                        }
+                    }
+
                     // 뱃지 체크 및 획득
                     Member member = memberService.findById(session.getMember().getId()).orElse(null);
                     if (member != null) {
@@ -762,8 +773,11 @@ public class GameGuessController {
 
         String nickname = (String) httpSession.getAttribute("guessNickname");
 
+        // attempts까지 함께 로드된 rounds 조회
+        List<GameRound> roundsWithAttempts = gameSessionService.findRoundsWithAttemptsBySessionId(sessionId);
+
         model.addAttribute("gameSession", session);
-        model.addAttribute("rounds", session.getRounds());
+        model.addAttribute("rounds", roundsWithAttempts);
         model.addAttribute("nickname", nickname);
 
         return "client/game/guess/result";

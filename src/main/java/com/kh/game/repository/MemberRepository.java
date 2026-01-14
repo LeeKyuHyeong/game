@@ -140,6 +140,47 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m.multiTier, COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.multiGames > 0 GROUP BY m.multiTier ORDER BY m.multiTier")
     List<Object[]> countByMultiTier();
 
+    // ========== 30곡 최고점 랭킹 조회 ==========
+
+    // 주간 30곡 최고점 (점수 내림차순, 같은 점수면 먼저 달성한 사람 우선)
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.weeklyBest30Score IS NOT NULL " +
+           "ORDER BY m.weeklyBest30Score DESC, m.weeklyBest30At ASC")
+    List<Member> findWeeklyBest30Ranking(Pageable pageable);
+
+    // 월간 30곡 최고점
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.monthlyBest30Score IS NOT NULL " +
+           "ORDER BY m.monthlyBest30Score DESC, m.monthlyBest30At ASC")
+    List<Member> findMonthlyBest30Ranking(Pageable pageable);
+
+    // 역대 30곡 최고점 (명예의 전당)
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.allTimeBest30Score IS NOT NULL " +
+           "ORDER BY m.allTimeBest30Score DESC, m.allTimeBest30At ASC")
+    List<Member> findAllTimeBest30Ranking(Pageable pageable);
+
+    // 내 주간 30곡 순위 (나보다 높은 점수 가진 사람 수)
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.weeklyBest30Score > :score")
+    long countMembersWithHigherWeeklyBest30Score(int score);
+
+    // 내 월간 30곡 순위
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.monthlyBest30Score > :score")
+    long countMembersWithHigherMonthlyBest30Score(int score);
+
+    // 내 역대 30곡 순위
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.allTimeBest30Score > :score")
+    long countMembersWithHigherAllTimeBest30Score(int score);
+
+    // 주간 30곡 참여자 수
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.weeklyBest30Score IS NOT NULL")
+    long countWeeklyBest30Participants();
+
+    // 월간 30곡 참여자 수
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.monthlyBest30Score IS NOT NULL")
+    long countMonthlyBest30Participants();
+
+    // 역대 30곡 참여자 수
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.allTimeBest30Score IS NOT NULL")
+    long countAllTimeBest30Participants();
+
     // ========== 티어별 조회 (통합) ==========
 
     // 통합 티어별 회원 수

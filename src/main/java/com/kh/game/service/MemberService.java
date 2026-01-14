@@ -331,6 +331,69 @@ public class MemberService {
         return memberRepository.findTopMultiBestScore(PageRequest.of(0, limit));
     }
 
+    // ========== 30곡 최고점 랭킹 ==========
+
+    // 주간 30곡 랭킹
+    public List<Member> getWeeklyBest30Ranking(int limit) {
+        return memberRepository.findWeeklyBest30Ranking(PageRequest.of(0, limit));
+    }
+
+    // 월간 30곡 랭킹
+    public List<Member> getMonthlyBest30Ranking(int limit) {
+        return memberRepository.findMonthlyBest30Ranking(PageRequest.of(0, limit));
+    }
+
+    // 역대 30곡 랭킹 (명예의 전당)
+    public List<Member> getAllTimeBest30Ranking(int limit) {
+        return memberRepository.findAllTimeBest30Ranking(PageRequest.of(0, limit));
+    }
+
+    // 내 주간 30곡 순위
+    public long getMyWeeklyBest30Rank(int score) {
+        return memberRepository.countMembersWithHigherWeeklyBest30Score(score) + 1;
+    }
+
+    // 내 월간 30곡 순위
+    public long getMyMonthlyBest30Rank(int score) {
+        return memberRepository.countMembersWithHigherMonthlyBest30Score(score) + 1;
+    }
+
+    // 내 역대 30곡 순위
+    public long getMyAllTimeBest30Rank(int score) {
+        return memberRepository.countMembersWithHigherAllTimeBest30Score(score) + 1;
+    }
+
+    // 30곡 참여자 수
+    public long getWeeklyBest30ParticipantCount() {
+        return memberRepository.countWeeklyBest30Participants();
+    }
+
+    public long getMonthlyBest30ParticipantCount() {
+        return memberRepository.countMonthlyBest30Participants();
+    }
+
+    public long getAllTimeBest30ParticipantCount() {
+        return memberRepository.countAllTimeBest30Participants();
+    }
+
+    // 30곡 게임 완료 시 최고점 갱신
+    @Transactional
+    public boolean update30SongBestScore(Long memberId, int score) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        boolean updated = member.update30SongBestScore(score);
+        if (updated) {
+            memberRepository.save(member);
+        }
+        return updated;
+    }
+
+    // 월간 통계 리셋
+    @Transactional
+    public void resetMonthlyStats(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.resetMonthlyStats();
+    }
+
     // ========== 멀티게임 LP 티어 랭킹 ==========
 
     public List<Member> getMultiTierRanking(int limit) {

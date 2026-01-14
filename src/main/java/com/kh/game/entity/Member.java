@@ -127,6 +127,35 @@ public class Member {
     @Column(name = "best_multi_at")
     private LocalDateTime bestMultiAt;
 
+    // ========== 30곡 최고점 랭킹 시스템 ==========
+
+    // 30곡 랭킹 기준 라운드 수
+    public static final int RANKING_ROUNDS = 30;
+
+    // 주간 30곡 최고점
+    @Column(name = "weekly_best_30_score")
+    private Integer weeklyBest30Score;
+
+    @Column(name = "weekly_best_30_at")
+    private LocalDateTime weeklyBest30At;
+
+    // 월간 30곡 최고점
+    @Column(name = "monthly_best_30_score")
+    private Integer monthlyBest30Score;
+
+    @Column(name = "monthly_best_30_at")
+    private LocalDateTime monthlyBest30At;
+
+    @Column(name = "monthly_reset_at")
+    private LocalDateTime monthlyResetAt;
+
+    // 역대 30곡 최고점 (명예의 전당)
+    @Column(name = "all_time_best_30_score")
+    private Integer allTimeBest30Score;
+
+    @Column(name = "all_time_best_30_at")
+    private LocalDateTime allTimeBest30At;
+
     // ========== 티어 시스템 (통합) ==========
 
     @Enumerated(EnumType.STRING)
@@ -381,7 +410,50 @@ public class Member {
         this.weeklyMultiScore = 0;
         this.weeklyMultiCorrect = 0;
         this.weeklyMultiRounds = 0;
+        // 주간 30곡 최고점도 리셋
+        this.weeklyBest30Score = null;
+        this.weeklyBest30At = null;
         this.weeklyResetAt = LocalDateTime.now();
+    }
+
+    // 월간 통계 리셋
+    public void resetMonthlyStats() {
+        this.monthlyBest30Score = null;
+        this.monthlyBest30At = null;
+        this.monthlyResetAt = LocalDateTime.now();
+    }
+
+    /**
+     * 30곡 게임 완료 시 최고점 갱신 체크
+     * @param score 30곡 게임에서 획득한 점수
+     * @return true면 어느 하나라도 최고점 갱신됨
+     */
+    public boolean update30SongBestScore(int score) {
+        boolean updated = false;
+        LocalDateTime now = LocalDateTime.now();
+
+        // 주간 최고점 갱신
+        if (this.weeklyBest30Score == null || score > this.weeklyBest30Score) {
+            this.weeklyBest30Score = score;
+            this.weeklyBest30At = now;
+            updated = true;
+        }
+
+        // 월간 최고점 갱신
+        if (this.monthlyBest30Score == null || score > this.monthlyBest30Score) {
+            this.monthlyBest30Score = score;
+            this.monthlyBest30At = now;
+            updated = true;
+        }
+
+        // 역대 최고점 갱신 (명예의 전당)
+        if (this.allTimeBest30Score == null || score > this.allTimeBest30Score) {
+            this.allTimeBest30Score = score;
+            this.allTimeBest30At = now;
+            updated = true;
+        }
+
+        return updated;
     }
 
     // ========== 주간 통계 메서드 ==========
