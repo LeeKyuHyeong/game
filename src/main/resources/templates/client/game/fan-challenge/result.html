@@ -1,19 +1,27 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{common/fragments/head :: clientHead('결과 - 최고 팬 챌린지')}"></head>
+<head th:replace="~{common/fragments/head :: clientHead('결과 - 아티스트 챌린지')}"></head>
 <link rel="stylesheet" th:href="@{/css/client/result.css}">
 <link rel="stylesheet" th:href="@{/css/client/game-fan-challenge.css}">
 <body class="client-page result-page">
 <div class="result-container fan-challenge-result">
     <header class="result-header">
-        <h1 th:text="${artist + ' 최고 팬 챌린지'}">아티스트 최고 팬 챌린지</h1>
+        <div class="header-top">
+            <span class="difficulty-badge" th:data-difficulty="${difficulty}">
+                <span th:text="${difficultyEmoji}">⭐</span>
+                <span th:text="${difficultyName}">일반</span>
+            </span>
+            <span th:if="${!isRanked}" class="mode-label practice">연습 모드</span>
+            <span th:if="${isRanked}" class="mode-label ranked">공식 랭킹</span>
+        </div>
+        <h1 th:text="${artist + ' 아티스트 챌린지'}">아티스트 챌린지</h1>
     </header>
 
     <main class="result-main">
         <!-- 결과 요약 -->
         <div class="result-summary">
-            <div th:if="${isPerfectClear}" class="perfect-clear-badge">
-                <span class="badge-icon">&#127942;</span>
+            <div th:if="${isPerfectClear}" class="perfect-clear-badge" th:data-difficulty="${difficulty}">
+                <span class="badge-icon" th:text="${difficultyEmoji}">🌟</span>
                 <span class="badge-text">PERFECT CLEAR!</span>
             </div>
 
@@ -37,9 +45,36 @@
             </div>
         </div>
 
-        <!-- 아티스트 랭킹 -->
-        <div class="ranking-section">
-            <h2><span th:text="${artist}">아티스트</span> 랭킹</h2>
+        <!-- 퍼펙트 클리어 뱃지 컬렉션 -->
+        <div th:if="${perfectBadges != null && !#lists.isEmpty(perfectBadges)}" class="badges-section">
+            <h2><span th:text="${artist}">아티스트</span> 퍼펙트 뱃지</h2>
+            <div class="badges-collection">
+                <div th:each="badge : ${perfectBadges}" class="badge-item" th:data-difficulty="${badge.difficulty.name()}">
+                    <span class="badge-emoji" th:text="${badge.difficulty.badgeEmoji}">⭐</span>
+                    <span class="badge-name" th:text="${badge.difficulty.displayName}">일반</span>
+                </div>
+                <!-- 미획득 뱃지 표시 (회색) -->
+                <div th:if="${!hasBadgeBeginner}" class="badge-item locked" data-difficulty="BEGINNER">
+                    <span class="badge-emoji">🌱</span>
+                    <span class="badge-name">입문</span>
+                </div>
+                <div th:if="${!hasBadgeNormal}" class="badge-item locked" data-difficulty="NORMAL">
+                    <span class="badge-emoji">⭐</span>
+                    <span class="badge-name">일반</span>
+                </div>
+                <div th:if="${!hasBadgeHardcore}" class="badge-item locked" data-difficulty="HARDCORE">
+                    <span class="badge-emoji">🔥</span>
+                    <span class="badge-name">하드코어</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 아티스트 랭킹 (하드코어만 표시) -->
+        <div th:if="${isRanked}" class="ranking-section">
+            <h2>
+                <span class="ranking-icon">🏆</span>
+                <span th:text="${artist}">아티스트</span> 공식 랭킹
+            </h2>
 
             <div th:if="${myRecord != null}" class="my-record">
                 <div class="my-record-label">내 최고 기록</div>
@@ -64,6 +99,18 @@
                     </span>
                 </div>
             </div>
+        </div>
+
+        <!-- 연습 모드일 때 하드코어 도전 유도 -->
+        <div th:if="${!isRanked}" class="practice-notice">
+            <div class="notice-content">
+                <span class="notice-icon">💡</span>
+                <p>연습 모드에서는 랭킹에 반영되지 않습니다.</p>
+                <p><strong>하드코어 모드</strong>로 도전하여 공식 랭킹에 이름을 올려보세요!</p>
+            </div>
+            <a th:href="@{/game/fan-challenge(artist=${artist}, difficulty='HARDCORE')}" class="btn btn-hardcore">
+                🔥 하드코어 도전하기
+            </a>
         </div>
 
         <!-- 라운드별 기록 -->

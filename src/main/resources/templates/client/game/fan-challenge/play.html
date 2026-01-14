@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{common/fragments/head :: clientHead('최고 팬 챌린지 - Song Quiz')}"></head>
+<head th:replace="~{common/fragments/head :: clientHead('아티스트 챌린지 - Song Quiz')}"></head>
 <link rel="stylesheet" th:href="@{/css/client/game-common.css}">
 <link rel="stylesheet" th:href="@{/css/client/game-fan-challenge.css}">
 <body class="client-page game-page">
 <div class="game-container fan-challenge">
     <header class="game-header">
         <div class="header-left">
+            <span class="difficulty-badge" th:data-difficulty="${difficulty}">
+                <span th:text="${difficultyEmoji != null ? difficultyEmoji : '⭐'}"></span>
+                <span th:text="${difficultyName}">일반</span>
+            </span>
             <span class="artist-name" th:text="${artist}">아티스트</span>
             <span class="round-info">
                 <span id="currentRound">1</span> / <span id="totalRounds">?</span>
             </span>
         </div>
         <div class="header-center">
-            <div class="lives-container">
-                <span id="life1" class="life active">&#10084;</span>
-                <span id="life2" class="life active">&#10084;</span>
-                <span id="life3" class="life active">&#10084;</span>
+            <div id="livesContainer" class="lives-container">
+                <!-- 동적으로 생성됨 -->
             </div>
         </div>
         <div class="header-right">
@@ -32,8 +34,19 @@
         <div id="readyScreen" class="ready-screen">
             <div class="ready-content">
                 <div class="ready-icon">&#127925;</div>
-                <h2 th:text="${artist + ' 최고 팬 챌린지'}">아티스트 최고 팬 챌린지</h2>
-                <p>5초 듣고 + 3초 입력 시간!</p>
+                <h2 th:text="${artist + ' 아티스트 챌린지'}">아티스트 챌린지</h2>
+                <p>
+                    <span th:text="${playTimeMs / 1000}">5</span>초 듣고 +
+                    <span th:text="${answerTimeMs / 1000}">3</span>초 입력 시간!
+                </p>
+                <div class="ready-difficulty">
+                    <span class="difficulty-badge" th:data-difficulty="${difficulty}">
+                        <span th:text="${difficultyEmoji != null ? difficultyEmoji : '⭐'}"></span>
+                        <span th:text="${difficultyName}">일반</span>
+                    </span>
+                    <span th:if="${!isRanked}" class="practice-label">연습 모드</span>
+                    <span th:if="${isRanked}" class="ranked-label">공식 랭킹</span>
+                </div>
                 <button type="button" class="btn btn-ready" onclick="startRound()">준비 완료!</button>
             </div>
         </div>
@@ -55,6 +68,12 @@
             <div class="player-section">
                 <div class="music-icon">&#127911;</div>
                 <p class="now-playing">노래 재생 중...</p>
+            </div>
+
+            <!-- 초성 힌트 (입문 모드에서만 표시) -->
+            <div id="chosungHint" class="chosung-hint" th:if="${showChosungHint}" style="display: none;">
+                <span class="hint-label">힌트:</span>
+                <span id="chosungText" class="chosung-text"></span>
             </div>
 
             <!-- 정답 입력 -->
@@ -115,6 +134,11 @@
 <script th:inline="javascript">
     const sessionId = [[${sessionId}]];
     const artist = [[${artist}]];
+    const difficulty = [[${difficulty}]];
+    const initialPlayTimeMs = [[${playTimeMs}]];
+    const initialAnswerTimeMs = [[${answerTimeMs}]];
+    const initialLives = [[${initialLives}]];
+    const showChosungHint = [[${showChosungHint}]];
 </script>
 <script src="https://www.youtube.com/iframe_api"></script>
 <script th:src="@{/js/client/game-fan-challenge-play.js}"></script>

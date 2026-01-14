@@ -1,8 +1,16 @@
-// 최고 팬 챌린지 설정 페이지 JavaScript
+// 아티스트 챌린지 설정 페이지 JavaScript
 
 let selectedArtist = null;
 let artistList = [];
 let searchTimeout = null;
+let selectedDifficulty = 'NORMAL';
+
+// 난이도별 설정
+const DIFFICULTY_CONFIG = {
+    BEGINNER: { playTime: 7, answerTime: 5, lives: 5, hint: true, ranked: false, icon: '🌱' },
+    NORMAL: { playTime: 5, answerTime: 3, lives: 3, hint: false, ranked: false, icon: '⭐' },
+    HARDCORE: { playTime: 3, answerTime: 2, lives: 1, hint: false, ranked: true, icon: '🔥' }
+};
 
 document.addEventListener('DOMContentLoaded', function() {
     // 닉네임 초기값 설정
@@ -35,6 +43,9 @@ document.addEventListener('DOMContentLoaded', function() {
             searchArtists(this.value);
         }
     });
+
+    // 초기 난이도 규칙 표시
+    updateRulesDisplay();
 });
 
 async function loadArtists() {
@@ -140,11 +151,55 @@ function updateStartButton() {
 
     if (nickname && selectedArtist) {
         startBtn.disabled = false;
-        startBtn.textContent = `${selectedArtist.name} 도전 시작! (${selectedArtist.count}곡)`;
+        const config = DIFFICULTY_CONFIG[selectedDifficulty];
+        const modeText = config.ranked ? '🏆 공식' : '📝 연습';
+        startBtn.textContent = `${selectedArtist.name} 도전 시작! (${selectedArtist.count}곡) ${modeText}`;
     } else {
         startBtn.disabled = true;
         startBtn.textContent = '도전 시작!';
     }
+}
+
+// 난이도 선택
+function selectDifficulty(difficulty) {
+    selectedDifficulty = difficulty;
+
+    // 버튼 상태 업데이트
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.difficulty === difficulty) {
+            btn.classList.add('selected');
+        }
+    });
+
+    // 규칙 표시 업데이트
+    updateRulesDisplay();
+    updateStartButton();
+}
+
+// 규칙 표시 업데이트
+function updateRulesDisplay() {
+    const config = DIFFICULTY_CONFIG[selectedDifficulty];
+    const rulesList = document.getElementById('rulesList');
+
+    let rulesHtml = `
+        <li><span class="rule-icon">⏱</span> <strong>${config.playTime}초</strong> 듣기 + <strong>${config.answerTime}초</strong> 입력</li>
+        <li><span class="rule-icon">❤</span> 라이프 <strong>${config.lives}개</strong> (오답/시간초과 시 -1)</li>
+        <li><span class="rule-icon">🎵</span> 해당 아티스트의 <strong>모든 곡</strong> 출제</li>
+        <li><span class="rule-icon">🚫</span> 스킵 <strong>불가능</strong></li>
+    `;
+
+    if (config.hint) {
+        rulesHtml += `<li><span class="rule-icon">💡</span> <strong>초성 힌트</strong> 제공</li>`;
+    }
+
+    if (config.ranked) {
+        rulesHtml += `<li><span class="rule-icon">🏆</span> <strong>공식 랭킹</strong> 반영</li>`;
+    } else {
+        rulesHtml += `<li><span class="rule-icon">📝</span> 연습 모드 (랭킹 미반영)</li>`;
+    }
+
+    rulesList.innerHTML = rulesHtml;
 }
 
 // 닉네임 입력 시 버튼 상태 업데이트
@@ -175,7 +230,8 @@ async function startGame() {
             },
             body: JSON.stringify({
                 nickname: nickname,
-                artist: selectedArtist.name
+                artist: selectedArtist.name,
+                difficulty: selectedDifficulty
             })
         });
 

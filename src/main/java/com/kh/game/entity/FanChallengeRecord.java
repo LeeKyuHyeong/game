@@ -9,7 +9,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "fan_challenge_record",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"member_id", "artist"}))
+        uniqueConstraints = @UniqueConstraint(
+                name = "UK_member_artist_difficulty",
+                columnNames = {"member_id", "artist", "difficulty"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,6 +27,10 @@ public class FanChallengeRecord {
 
     @Column(nullable = false, length = 100)
     private String artist;
+
+    @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private FanChallengeDifficulty difficulty = FanChallengeDifficulty.HARDCORE;
 
     @Column(name = "total_songs")
     private Integer totalSongs;
@@ -62,6 +68,14 @@ public class FanChallengeRecord {
         this.member = member;
         this.artist = artist;
         this.totalSongs = totalSongs;
+        this.difficulty = FanChallengeDifficulty.HARDCORE;
+    }
+
+    public FanChallengeRecord(Member member, String artist, Integer totalSongs, FanChallengeDifficulty difficulty) {
+        this.member = member;
+        this.artist = artist;
+        this.totalSongs = totalSongs;
+        this.difficulty = difficulty;
     }
 
     public double getClearRate() {

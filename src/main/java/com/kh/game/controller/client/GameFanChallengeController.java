@@ -1,5 +1,6 @@
 package com.kh.game.controller.client;
 
+import com.kh.game.entity.FanChallengeDifficulty;
 import com.kh.game.entity.FanChallengeRecord;
 import com.kh.game.entity.GameRound;
 import com.kh.game.entity.GameSession;
@@ -80,6 +81,10 @@ public class GameFanChallengeController {
         try {
             String nickname = (String) request.get("nickname");
             String artist = (String) request.get("artist");
+            String difficultyStr = (String) request.get("difficulty");
+
+            // 난이도 파싱 (기본값: NORMAL)
+            FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
 
             if (nickname == null || nickname.trim().isEmpty()) {
                 result.put("success", false);
@@ -108,19 +113,28 @@ public class GameFanChallengeController {
                 member = memberService.findById(memberId).orElse(null);
             }
 
-            // 게임 세션 생성
-            GameSession session = fanChallengeService.startChallenge(member, nickname.trim(), artist);
+            // 게임 세션 생성 (난이도 포함)
+            GameSession session = fanChallengeService.startChallenge(member, nickname.trim(), artist, difficulty);
 
             // HTTP 세션에 저장
             httpSession.setAttribute("fanChallengeSessionId", session.getId());
             httpSession.setAttribute("fanChallengeNickname", nickname.trim());
             httpSession.setAttribute("fanChallengeArtist", artist);
+            httpSession.setAttribute("fanChallengeDifficulty", difficulty.name());
 
             result.put("success", true);
             result.put("sessionId", session.getId());
             result.put("artist", artist);
             result.put("totalRounds", session.getTotalRounds());
             result.put("remainingLives", session.getRemainingLives());
+
+            // 난이도 설정 정보 추가
+            result.put("difficulty", difficulty.name());
+            result.put("playTimeMs", difficulty.getPlayTimeMs());
+            result.put("answerTimeMs", difficulty.getAnswerTimeMs());
+            result.put("initialLives", difficulty.getInitialLives());
+            result.put("showChosungHint", difficulty.isShowChosungHint());
+            result.put("isRanked", difficulty.isRanked());
 
             return ResponseEntity.ok(result);
 
@@ -144,10 +158,21 @@ public class GameFanChallengeController {
 
         String nickname = (String) httpSession.getAttribute("fanChallengeNickname");
         String artist = (String) httpSession.getAttribute("fanChallengeArtist");
+        String difficultyStr = (String) httpSession.getAttribute("fanChallengeDifficulty");
+        FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
 
         model.addAttribute("sessionId", sessionId);
         model.addAttribute("nickname", nickname);
         model.addAttribute("artist", artist);
+
+        // 난이도 정보 추가
+        model.addAttribute("difficulty", difficulty.name());
+        model.addAttribute("difficultyName", difficulty.getDisplayName());
+        model.addAttribute("playTimeMs", difficulty.getPlayTimeMs());
+        model.addAttribute("answerTimeMs", difficulty.getAnswerTimeMs());
+        model.addAttribute("initialLives", difficulty.getInitialLives());
+        model.addAttribute("showChosungHint", difficulty.isShowChosungHint());
+        model.addAttribute("isRanked", difficulty.isRanked());
 
         return "client/game/fan-challenge/play";
     }
@@ -189,11 +214,20 @@ public class GameFanChallengeController {
                 return ResponseEntity.badRequest().body(result);
             }
 
+            // 난이도 정보 가져오기
+            FanChallengeDifficulty difficulty = fanChallengeService.getDifficultyFromSession(session);
+
             result.put("success", true);
             result.put("roundNumber", roundNumber);
             result.put("totalRounds", session.getTotalRounds());
             result.put("remainingLives", session.getRemainingLives());
             result.put("correctCount", session.getCorrectCount());
+            result.put("initialLives", difficulty.getInitialLives());
+
+            // 난이도 설정
+            result.put("playTimeMs", difficulty.getPlayTimeMs());
+            result.put("answerTimeMs", difficulty.getAnswerTimeMs());
+            result.put("showChosungHint", difficulty.isShowChosungHint());
 
             // 노래 정보
             Map<String, Object> songInfo = new HashMap<>();
@@ -205,6 +239,12 @@ public class GameFanChallengeController {
             }
             songInfo.put("startTime", round.getPlayStartTime() != null ? round.getPlayStartTime() : 0);
             songInfo.put("playDuration", round.getPlayDuration() != null ? round.getPlayDuration() : 30);
+
+            // 초성 힌트 (입문 모드일 때만)
+            if (difficulty.isShowChosungHint()) {
+                songInfo.put("chosungHint", fanChallengeService.extractChosung(round.getSong().getTitle()));
+            }
+
             result.put("song", songInfo);
 
             return ResponseEntity.ok(result);
@@ -325,6 +365,8 @@ public class GameFanChallengeController {
         }
 
         String artist = (String) httpSession.getAttribute("fanChallengeArtist");
+        String difficultyStr = (String) httpSession.getAttribute("fanChallengeDifficulty");
+        FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
 
         model.addAttribute("session", session);
         model.addAttribute("artist", artist);
@@ -333,17 +375,37 @@ public class GameFanChallengeController {
         model.addAttribute("isPerfectClear", session.getCorrectCount().equals(session.getTotalRounds()));
         model.addAttribute("playTimeSeconds", session.getPlayTimeSeconds());
 
-        // 아티스트 랭킹
+        // 난이도 정보
+        model.addAttribute("difficulty", difficulty.name());
+        model.addAttribute("difficultyName", difficulty.getDisplayName());
+        model.addAttribute("difficultyEmoji", difficulty.getBadgeEmoji());
+        model.addAttribute("isRanked", difficulty.isRanked());
+
+        // 아티스트 공식 랭킹 (하드코어만)
         List<FanChallengeRecord> ranking = fanChallengeService.getArtistRanking(artist, 10);
         model.addAttribute("ranking", ranking);
 
-        // 내 기록
+        // 내 기록 및 퍼펙트 뱃지
         Long memberId = (Long) httpSession.getAttribute("memberId");
         if (memberId != null) {
             memberService.findById(memberId).ifPresent(member -> {
-                fanChallengeService.getMemberRecord(member, artist).ifPresent(record -> {
+                // 현재 난이도 기록
+                fanChallengeService.getMemberRecord(member, artist, difficulty).ifPresent(record -> {
                     model.addAttribute("myRecord", record);
                 });
+
+                // 퍼펙트 클리어 뱃지 목록 (전체 난이도)
+                List<FanChallengeRecord> perfectBadges = fanChallengeService.getPerfectBadges(member, artist);
+                List<Map<String, Object>> badges = new ArrayList<>();
+                for (FanChallengeRecord badge : perfectBadges) {
+                    Map<String, Object> badgeInfo = new HashMap<>();
+                    badgeInfo.put("difficulty", badge.getDifficulty().name());
+                    badgeInfo.put("difficultyName", badge.getDifficulty().getDisplayName());
+                    badgeInfo.put("emoji", badge.getDifficulty().getBadgeEmoji());
+                    badgeInfo.put("achievedAt", badge.getAchievedAt());
+                    badges.add(badgeInfo);
+                }
+                model.addAttribute("perfectBadges", badges);
             });
         }
 
@@ -351,6 +413,7 @@ public class GameFanChallengeController {
         httpSession.removeAttribute("fanChallengeSessionId");
         httpSession.removeAttribute("fanChallengeNickname");
         httpSession.removeAttribute("fanChallengeArtist");
+        httpSession.removeAttribute("fanChallengeDifficulty");
 
         return "client/game/fan-challenge/result";
     }
@@ -394,6 +457,7 @@ public class GameFanChallengeController {
         httpSession.removeAttribute("fanChallengeSessionId");
         httpSession.removeAttribute("fanChallengeNickname");
         httpSession.removeAttribute("fanChallengeArtist");
+        httpSession.removeAttribute("fanChallengeDifficulty");
 
         result.put("success", true);
         return ResponseEntity.ok(result);

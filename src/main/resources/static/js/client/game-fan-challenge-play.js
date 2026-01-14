@@ -1,12 +1,15 @@
-// 최고 팬 챌린지 게임 진행 JavaScript
+// 아티스트 챌린지 게임 진행 JavaScript
 
-const PLAY_TIME_MS = 5000;    // 노래 재생 시간 5초
-const ANSWER_TIME_MS = 3000;  // 추가 입력 시간 3초
-const TOTAL_TIME_MS = PLAY_TIME_MS + ANSWER_TIME_MS; // 총 8초
+// 난이도별 설정 (서버에서 전달받은 값으로 초기화)
+let PLAY_TIME_MS = typeof initialPlayTimeMs !== 'undefined' ? initialPlayTimeMs : 5000;
+let ANSWER_TIME_MS = typeof initialAnswerTimeMs !== 'undefined' ? initialAnswerTimeMs : 3000;
+let TOTAL_TIME_MS = PLAY_TIME_MS + ANSWER_TIME_MS;
+let INITIAL_LIVES = typeof initialLives !== 'undefined' ? initialLives : 3;
+let SHOW_CHOSUNG_HINT = typeof showChosungHint !== 'undefined' ? showChosungHint : false;
 
 let currentRound = 1;
 let totalRounds = 0;
-let remainingLives = 3;
+let remainingLives = INITIAL_LIVES;
 let correctCount = 0;
 let currentSong = null;
 let timerInterval = null;
@@ -69,6 +72,23 @@ async function loadRoundInfo() {
             correctCount = data.correctCount;
             currentSong = data.song;
 
+            // 서버에서 받은 난이도 설정 적용
+            if (data.playTimeMs) PLAY_TIME_MS = data.playTimeMs;
+            if (data.answerTimeMs) ANSWER_TIME_MS = data.answerTimeMs;
+            TOTAL_TIME_MS = PLAY_TIME_MS + ANSWER_TIME_MS;
+            if (data.initialLives) INITIAL_LIVES = data.initialLives;
+            if (typeof data.showChosungHint !== 'undefined') SHOW_CHOSUNG_HINT = data.showChosungHint;
+
+            // 초성 힌트 표시 (입문 모드)
+            if (SHOW_CHOSUNG_HINT && data.song && data.song.chosungHint) {
+                const hintEl = document.getElementById('chosungHint');
+                const hintTextEl = document.getElementById('chosungText');
+                if (hintEl && hintTextEl) {
+                    hintTextEl.textContent = data.song.chosungHint;
+                    hintEl.style.display = 'flex';
+                }
+            }
+
             document.getElementById('totalRounds').textContent = totalRounds;
             updateUI();
         } else {
@@ -86,16 +106,15 @@ function updateUI() {
     document.getElementById('currentRound').textContent = currentRound;
     document.getElementById('correctCount').textContent = correctCount;
 
-    // 라이프 표시 업데이트
-    for (let i = 1; i <= 3; i++) {
-        const lifeEl = document.getElementById(`life${i}`);
-        if (i <= remainingLives) {
-            lifeEl.classList.add('active');
-            lifeEl.classList.remove('lost');
-        } else {
-            lifeEl.classList.remove('active');
-            lifeEl.classList.add('lost');
+    // 라이프 표시 동적 생성 (난이도별 라이프 수)
+    const livesContainer = document.getElementById('livesContainer');
+    if (livesContainer) {
+        let livesHtml = '';
+        for (let i = 1; i <= INITIAL_LIVES; i++) {
+            const activeClass = i <= remainingLives ? 'active' : 'lost';
+            livesHtml += `<span class="life ${activeClass}" id="life${i}">&#10084;</span>`;
         }
+        livesContainer.innerHTML = livesHtml;
     }
 }
 
@@ -105,11 +124,14 @@ function startRound() {
     document.getElementById('answerInput').value = '';
     document.getElementById('answerInput').focus();
 
-    // 타이머 바 초기화 (총 8초)
+    // 상태 초기화
+    isPlaying = false;
+    currentPhase = 'playing';
+
+    // 타이머 바 초기화 (동적 시간)
     document.getElementById('timerBar').style.width = '100%';
     document.getElementById('timerBar').classList.remove('warning', 'critical', 'answering');
-    document.getElementById('timerValue').textContent = '8.0';
-    currentPhase = 'playing';
+    document.getElementById('timerValue').textContent = (TOTAL_TIME_MS / 1000).toFixed(1);
     updatePhaseDisplay();
 
     // 음악 재생
@@ -196,7 +218,10 @@ function startTimer() {
         }
 
         if (remaining <= 0) {
-            handleTimeout();
+            if (isPlaying) {
+                handleTimeout();
+            }
+            return;
         }
     }, 100);
 }
@@ -263,6 +288,7 @@ async function submitAnswer() {
         return;
     }
 
+    isPlaying = false; // 먼저 상태 변경 (중복 제출/타임아웃 방지)
     const answerTimeMs = Date.now() - startTime;
 
     stopTimer();
@@ -295,6 +321,9 @@ async function submitAnswer() {
 }
 
 async function handleTimeout() {
+    if (!isPlaying) return; // 중복 호출 방지
+
+    isPlaying = false; // 먼저 상태 변경
     stopTimer();
     stopMusic();
 
@@ -340,9 +369,9 @@ function showAnswerResult(result) {
 
     correctAnswerEl.textContent = result.correctAnswer;
 
-    // 라이프 표시
+    // 라이프 표시 (난이도별 동적)
     let livesHtml = '';
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < INITIAL_LIVES; i++) {
         if (i < result.remainingLives) {
             livesHtml += '<span class="life active">&#10084;</span>';
         } else {

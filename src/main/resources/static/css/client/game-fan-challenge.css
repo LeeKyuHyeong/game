@@ -1,4 +1,4 @@
-/* 최고 팬 챌린지 스타일 */
+/* 아티스트 챌린지 스타일 */
 
 /* ========== Setup 페이지 ========== */
 
@@ -224,6 +224,142 @@
 
 .artist-item.selected .song-count {
     color: rgba(255, 255, 255, 0.8);
+}
+
+/* ========== 난이도 선택 ========== */
+.difficulty-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.difficulty-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem 1.25rem;
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.difficulty-btn:hover {
+    border-color: var(--primary-color);
+    background: #f8fafc;
+}
+
+.difficulty-btn.selected {
+    border-color: var(--primary-color);
+    background: #eff6ff;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.difficulty-btn .diff-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.difficulty-btn .diff-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.difficulty-btn .diff-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.difficulty-btn .diff-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.diff-badge.practice {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.diff-badge.ranked {
+    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+    color: #92400e;
+}
+
+/* 난이도 뱃지 (헤더/결과) */
+.difficulty-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.difficulty-badge[data-difficulty="BEGINNER"] {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.difficulty-badge[data-difficulty="NORMAL"] {
+    background: #eff6ff;
+    color: #1e40af;
+}
+
+.difficulty-badge[data-difficulty="HARDCORE"] {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+/* 모드 라벨 (연습/공식) */
+.mode-label {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.mode-label.practice {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.mode-label.ranked {
+    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+    color: #92400e;
+}
+
+/* 준비 화면 난이도 표시 */
+.ready-difficulty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.practice-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+}
+
+.ranked-label {
+    font-size: 0.85rem;
+    color: #92400e;
+    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 600;
 }
 
 /* 규칙 섹션 */
@@ -512,6 +648,31 @@
 .now-playing {
     color: rgba(255, 255, 255, 0.8);
     margin-top: 0.5rem;
+}
+
+/* 초성 힌트 (입문 모드) */
+.chosung-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.chosung-hint .hint-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.chosung-hint .chosung-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fef08a;
+    letter-spacing: 0.3em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* 정답 입력 */
@@ -846,6 +1007,137 @@
     text-align: center;
     padding: 2rem;
     color: var(--text-secondary);
+}
+
+/* 결과 헤더 */
+.result-header .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+/* 퍼펙트 클리어 뱃지 난이도별 */
+.perfect-clear-badge[data-difficulty="BEGINNER"] .badge-text {
+    color: #065f46;
+}
+
+.perfect-clear-badge[data-difficulty="NORMAL"] .badge-text {
+    color: #f59e0b;
+}
+
+.perfect-clear-badge[data-difficulty="HARDCORE"] .badge-text {
+    color: #dc2626;
+}
+
+/* 뱃지 컬렉션 섹션 */
+.badges-section {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.badges-section h2 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.badges-collection {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 1rem 1.5rem;
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    min-width: 80px;
+}
+
+.badge-item[data-difficulty="BEGINNER"] {
+    border-color: #10b981;
+    background: #ecfdf5;
+}
+
+.badge-item[data-difficulty="NORMAL"] {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.badge-item[data-difficulty="HARDCORE"] {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.badge-item.locked {
+    opacity: 0.4;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.badge-item .badge-emoji {
+    font-size: 2rem;
+}
+
+.badge-item .badge-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.badge-item.locked .badge-name {
+    color: var(--text-secondary);
+}
+
+/* 랭킹 아이콘 */
+.ranking-icon {
+    margin-right: 0.25rem;
+}
+
+/* 연습 모드 알림 */
+.practice-notice {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.practice-notice .notice-content {
+    margin-bottom: 1rem;
+}
+
+.practice-notice .notice-icon {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.practice-notice p {
+    margin: 0.25rem 0;
+    color: #78350f;
+}
+
+.btn-hardcore {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border-radius: 30px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+
+.btn-hardcore:hover {
+    transform: scale(1.05);
 }
 
 /* 라운드별 기록 */
@@ -1227,5 +1519,67 @@
     .round-song {
         font-size: 0.85rem;
         margin: 0.25rem 0;
+    }
+
+    /* 난이도 선택 모바일 */
+    .difficulty-selector {
+        gap: 0.5rem;
+    }
+
+    .difficulty-btn {
+        padding: 0.75rem 1rem;
+    }
+
+    .difficulty-btn .diff-icon {
+        font-size: 1.25rem;
+    }
+
+    .difficulty-btn .diff-name {
+        font-size: 1rem;
+    }
+
+    .difficulty-btn .diff-desc {
+        font-size: 0.8rem;
+    }
+
+    /* 초성 힌트 모바일 */
+    .chosung-hint {
+        padding: 0.75rem 1rem;
+    }
+
+    .chosung-hint .chosung-text {
+        font-size: 1.25rem;
+    }
+
+    /* 뱃지 섹션 모바일 */
+    .badges-collection {
+        gap: 0.5rem;
+    }
+
+    .badge-item {
+        padding: 0.75rem 1rem;
+        min-width: 70px;
+    }
+
+    .badge-item .badge-emoji {
+        font-size: 1.5rem;
+    }
+
+    .badge-item .badge-name {
+        font-size: 0.75rem;
+    }
+
+    /* 연습 알림 모바일 */
+    .practice-notice {
+        padding: 1rem;
+    }
+
+    .practice-notice p {
+        font-size: 0.85rem;
+    }
+
+    .btn-hardcore {
+        padding: 0.6rem 1.25rem;
+        font-size: 0.9rem;
     }
 }

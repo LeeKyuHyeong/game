@@ -1,5 +1,7 @@
 package com.kh.game.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kh.game.entity.*;
 import com.kh.game.repository.FanChallengeRecordRepository;
 import com.kh.game.repository.GameSessionRepository;
@@ -21,15 +23,27 @@ public class FanChallengeService {
     private final SongService songService;
     private final GameSessionRepository gameSessionRepository;
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
+    private final ObjectMapper objectMapper;
 
-    private static final int INITIAL_LIVES = 3;
-    private static final long TIME_LIMIT_MS = 5000; // 5초
+    // 한글 초성 배열
+    private static final char[] CHOSUNG = {
+            'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
+            'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+    };
 
     /**
-     * 팬 챌린지 게임 시작
+     * 팬 챌린지 게임 시작 (기본 난이도: NORMAL)
      */
     @Transactional
     public GameSession startChallenge(Member member, String nickname, String artist) {
+        return startChallenge(member, nickname, artist, FanChallengeDifficulty.NORMAL);
+    }
+
+    /**
+     * 팬 챌린지 게임 시작 (난이도 지정)
+     */
+    @Transactional
+    public GameSession startChallenge(Member member, String nickname, String artist, FanChallengeDifficulty difficulty) {
         // 아티스트의 모든 곡 가져오기 (YouTube 검증 포함)
         List<Song> songs = songService.getAllValidatedSongsByArtist(artist);
 
@@ -49,9 +63,22 @@ public class FanChallengeService {
         session.setTotalScore(0);
         session.setCorrectCount(0);
         session.setSkipCount(0);
-        session.setRemainingLives(INITIAL_LIVES);
+        session.setRemainingLives(difficulty.getInitialLives());
         session.setChallengeArtist(artist);
         session.setStatus(GameSession.GameStatus.PLAYING);
+
+        // 난이도 설정을 JSON으로 저장
+        try {
+            Map<String, Object> settings = new HashMap<>();
+            settings.put("difficulty", difficulty.name());
+            settings.put("playTimeMs", difficulty.getPlayTimeMs());
+            settings.put("answerTimeMs", difficulty.getAnswerTimeMs());
+            settings.put("initialLives", difficulty.getInitialLives());
+            settings.put("showChosungHint", difficulty.isShowChosungHint());
+            session.setSettings(objectMapper.writeValueAsString(settings));
+        } catch (JsonProcessingException e) {
+            log.warn("게임 설정 JSON 변환 실패", e);
+        }
 
         GameSession savedSession = gameSessionRepository.save(session);
 
@@ -90,8 +117,12 @@ public class FanChallengeService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("라운드를 찾을 수 없습니다"));
 
+        // 난이도 설정에서 시간 제한 가져오기
+        FanChallengeDifficulty difficulty = getDifficultyFromSession(session);
+        long timeLimit = difficulty.getTotalTimeMs();
+
         // 시간 초과 체크 (서버 측 검증)
-        boolean isTimeout = answerTimeMs > TIME_LIMIT_MS;
+        boolean isTimeout = answerTimeMs > timeLimit;
         boolean isCorrect = false;
 
         if (!isTimeout && answer != null && !answer.trim().isEmpty()) {
@@ -143,7 +174,7 @@ public class FanChallengeService {
 
         // 게임 종료 시 기록 업데이트
         if (isGameOver && session.getMember() != null) {
-            updateRecord(session);
+            updateRecord(session, difficulty);
         }
 
         return new AnswerResult(
@@ -165,14 +196,24 @@ public class FanChallengeService {
      */
     @Transactional
     public AnswerResult processTimeout(Long sessionId, int roundNumber) {
-        return processAnswer(sessionId, roundNumber, null, TIME_LIMIT_MS + 1);
+        GameSession session = gameSessionRepository.findById(sessionId).orElse(null);
+        FanChallengeDifficulty difficulty = session != null ? getDifficultyFromSession(session) : FanChallengeDifficulty.NORMAL;
+        return processAnswer(sessionId, roundNumber, null, difficulty.getTotalTimeMs() + 1);
     }
 
     /**
-     * 기록 업데이트
+     * 기록 업데이트 (기본 - 하드코어 기준)
      */
     @Transactional
     public FanChallengeRecord updateRecord(GameSession session) {
+        return updateRecord(session, FanChallengeDifficulty.HARDCORE);
+    }
+
+    /**
+     * 기록 업데이트 (난이도별)
+     */
+    @Transactional
+    public FanChallengeRecord updateRecord(GameSession session, FanChallengeDifficulty difficulty) {
         if (session.getMember() == null) {
             return null;
         }
@@ -180,8 +221,9 @@ public class FanChallengeService {
         String artist = session.getChallengeArtist();
         Member member = session.getMember();
 
+        // 난이도별 기록 조회
         Optional<FanChallengeRecord> existingRecord =
-                fanChallengeRecordRepository.findByMemberAndArtist(member, artist);
+                fanChallengeRecordRepository.findByMemberAndArtistAndDifficulty(member, artist, difficulty);
 
         FanChallengeRecord record;
         if (existingRecord.isPresent()) {
@@ -205,7 +247,7 @@ public class FanChallengeService {
                 record.setAchievedAt(LocalDateTime.now());
             }
         } else {
-            record = new FanChallengeRecord(member, artist, session.getTotalRounds());
+            record = new FanChallengeRecord(member, artist, session.getTotalRounds(), difficulty);
             record.setCorrectCount(session.getCorrectCount());
             record.setAchievedAt(LocalDateTime.now());
 
@@ -219,6 +261,23 @@ public class FanChallengeService {
     }
 
     /**
+     * 세션에서 난이도 설정 가져오기
+     */
+    public FanChallengeDifficulty getDifficultyFromSession(GameSession session) {
+        if (session.getSettings() == null || session.getSettings().isEmpty()) {
+            return FanChallengeDifficulty.NORMAL;
+        }
+        try {
+            Map<String, Object> settings = objectMapper.readValue(session.getSettings(), Map.class);
+            String difficultyStr = (String) settings.get("difficulty");
+            return FanChallengeDifficulty.fromString(difficultyStr);
+        } catch (Exception e) {
+            log.warn("게임 설정 파싱 실패", e);
+            return FanChallengeDifficulty.NORMAL;
+        }
+    }
+
+    /**
      * 세션 조회
      */
     public GameSession getSession(Long sessionId) {
@@ -226,17 +285,76 @@ public class FanChallengeService {
     }
 
     /**
-     * 아티스트별 랭킹 조회
+     * 아티스트별 랭킹 조회 (하드코어만 - 공식 랭킹)
      */
     public List<FanChallengeRecord> getArtistRanking(String artist, int limit) {
         return fanChallengeRecordRepository.findTopByArtist(artist, PageRequest.of(0, limit));
     }
 
     /**
-     * 회원의 특정 아티스트 기록 조회
+     * 난이도별 아티스트 랭킹 조회
+     */
+    public List<FanChallengeRecord> getArtistRankingByDifficulty(String artist, FanChallengeDifficulty difficulty, int limit) {
+        return fanChallengeRecordRepository.findTopByArtistAndDifficulty(artist, difficulty, PageRequest.of(0, limit));
+    }
+
+    /**
+     * 회원의 특정 아티스트 기록 조회 (기존 호환 - 하드코어)
      */
     public Optional<FanChallengeRecord> getMemberRecord(Member member, String artist) {
-        return fanChallengeRecordRepository.findByMemberAndArtist(member, artist);
+        return fanChallengeRecordRepository.findByMemberAndArtistAndDifficulty(member, artist, FanChallengeDifficulty.HARDCORE);
+    }
+
+    /**
+     * 회원의 특정 아티스트 난이도별 기록 조회
+     */
+    public Optional<FanChallengeRecord> getMemberRecord(Member member, String artist, FanChallengeDifficulty difficulty) {
+        return fanChallengeRecordRepository.findByMemberAndArtistAndDifficulty(member, artist, difficulty);
+    }
+
+    /**
+     * 회원의 특정 아티스트 퍼펙트 클리어 뱃지 목록 조회
+     */
+    public List<FanChallengeRecord> getPerfectBadges(Member member, String artist) {
+        return fanChallengeRecordRepository.findPerfectBadgesByMemberAndArtist(member, artist);
+    }
+
+    /**
+     * 초성 힌트 생성
+     * 한글: 초성 추출 (봄날 → ㅂㄴ)
+     * 영어: 첫 글자만 + * (Dynamite → D*******)
+     * 숫자/특수문자: 그대로 표시
+     */
+    public String extractChosung(String title) {
+        if (title == null || title.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (char c : title.toCharArray()) {
+            if (c >= '가' && c <= '힣') {
+                // 한글: 초성 추출
+                int index = (c - '가') / 588;
+                result.append(CHOSUNG[index]);
+            } else if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+                // 영어: 첫 글자만 대문자, 나머지는 *
+                if (result.length() == 0 || result.charAt(result.length() - 1) == ' ') {
+                    result.append(Character.toUpperCase(c));
+                } else {
+                    result.append('*');
+                }
+            } else if (c == ' ') {
+                // 공백 유지
+                result.append(' ');
+            } else if (Character.isDigit(c)) {
+                // 숫자 유지
+                result.append(c);
+            } else {
+                // 특수문자는 숨김
+                result.append('*');
+            }
+        }
+        return result.toString();
     }
 
     /**

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{common/fragments/head :: clientHead('최고 팬 챌린지 - Song Quiz')}"></head>
+<head th:replace="~{common/fragments/head :: clientHead('아티스트 챌린지 - Song Quiz')}"></head>
 <link rel="stylesheet" th:href="@{/css/client/setup.css}">
 <link rel="stylesheet" th:href="@{/css/client/game-fan-challenge.css}">
 <body class="client-page">
 <div class="client-container">
     <header class="client-header compact">
         <a href="/" class="back-home">← 홈으로</a>
-        <h1>최고 팬 챌린지</h1>
+        <h1>아티스트 챌린지</h1>
         <p>5초 듣고 + 3초 입력!</p>
     </header>
 
@@ -61,13 +61,38 @@
                 </div>
             </div>
 
+            <div class="setup-step">
+                <h3>난이도 선택</h3>
+                <div class="difficulty-selector">
+                    <button type="button" class="difficulty-btn" data-difficulty="BEGINNER" onclick="selectDifficulty('BEGINNER')">
+                        <span class="diff-icon">&#127793;</span>
+                        <span class="diff-name">입문</span>
+                        <span class="diff-desc">듣기 7초 + 입력 5초 | 라이프 5개</span>
+                        <span class="diff-badge practice">연습 모드</span>
+                    </button>
+                    <button type="button" class="difficulty-btn selected" data-difficulty="NORMAL" onclick="selectDifficulty('NORMAL')">
+                        <span class="diff-icon">&#11088;</span>
+                        <span class="diff-name">일반</span>
+                        <span class="diff-desc">듣기 5초 + 입력 3초 | 라이프 3개</span>
+                        <span class="diff-badge practice">연습 모드</span>
+                    </button>
+                    <button type="button" class="difficulty-btn" data-difficulty="HARDCORE" onclick="selectDifficulty('HARDCORE')">
+                        <span class="diff-icon">&#128293;</span>
+                        <span class="diff-name">하드코어</span>
+                        <span class="diff-desc">듣기 3초 + 입력 2초 | 라이프 1개</span>
+                        <span class="diff-badge ranked">공식 랭킹</span>
+                    </button>
+                </div>
+            </div>
+
             <div class="setup-step rules-section">
                 <h3>게임 규칙</h3>
-                <ul class="rules-list">
+                <ul class="rules-list" id="rulesList">
                     <li><span class="rule-icon">&#9200;</span> <strong>5초</strong> 듣기 + <strong>3초</strong> 입력</li>
                     <li><span class="rule-icon">&#10084;</span> 라이프 <strong>3개</strong> (오답/시간초과 시 -1)</li>
                     <li><span class="rule-icon">&#127925;</span> 해당 아티스트의 <strong>모든 곡</strong> 출제</li>
                     <li><span class="rule-icon">&#128683;</span> 스킵 <strong>불가능</strong></li>
+                    <li><span class="rule-icon">&#128221;</span> 연습 모드 (랭킹 미반영)</li>
                 </ul>
             </div>
 
