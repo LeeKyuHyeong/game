@@ -49,12 +49,12 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 
 ### Package Structure (`com.kh.game`)
 
-- **controller/client/** - User-facing: `HomeController`, `AuthController`, `GameGuessController`, `GameHostController`, `MultiGameController`, `RankingController`, `SongReportController`, `BoardController`, `StatsController`
+- **controller/client/** - User-facing: `HomeController`, `AuthController`, `GameGuessController`, `GameHostController`, `GameFanChallengeController`, `MultiGameController`, `RankingController`, `SongReportController`, `BoardController`, `StatsController`, `MyPageController`
 - **controller/admin/** - Admin panel: `AdminController` (dashboard), `AdminSongController`, `AdminGenreController`, `AdminBatchController`, `AdminBadWordController`, `AdminRoomController`, `AdminChatController`, `AdminSongReportController`, `AdminMemberController`, `AdminGameHistoryController`, `AdminStatsController`, `AdminAnswerController`, `AdminLoginHistoryController`
-- **service/** - Business logic: `GameSessionService`, `MultiGameService`, `SongService`, `MemberService`, `GameRoomService`, `AnswerValidationService`, `YouTubeValidationService`, `BoardService`, `WrongAnswerStatsService`, `BatchService`, `GenreMigrationService`
-- **entity/** - JPA entities: `Member`, `MemberLoginHistory`, `Song`, `SongAnswer`, `Genre`, `GameSession`, `GameRound`, `GameRoundAttempt`, `GameRoom`, `GameRoomParticipant`, `GameRoomChat`, `BadWord`, `SongReport`, `BatchConfig`, `BatchExecutionHistory`, `DailyStats`, `Board`, `BoardComment`, `BoardLike`
+- **service/** - Business logic: `GameSessionService`, `MultiGameService`, `SongService`, `MemberService`, `GameRoomService`, `AnswerValidationService`, `YouTubeValidationService`, `BoardService`, `WrongAnswerStatsService`, `BatchService`, `GenreMigrationService`, `GenreService`, `MultiTierService`, `FanChallengeService`, `BadgeService`
+- **entity/** - JPA entities: `Member`, `MemberLoginHistory`, `Song`, `SongAnswer`, `Genre`, `GameSession`, `GameRound`, `GameRoundAttempt`, `GameRoom`, `GameRoomParticipant`, `GameRoomChat`, `BadWord`, `SongReport`, `BatchConfig`, `BatchExecutionHistory`, `DailyStats`, `Board`, `BoardComment`, `BoardLike`, `Badge`, `MemberBadge`, `MultiTier`, `FanChallengeDifficulty`, `FanChallengeRecord`
 - **repository/** - Spring Data JPA repositories
-- **batch/** - 13 scheduled batch jobs managed by `BatchScheduler`
+- **batch/** - 20 scheduled batch jobs managed by `BatchScheduler`
 - **config/** - `SecurityConfig` (BCrypt), `WebConfig` (interceptors, file upload), `SchedulerConfig`, `DataInitializer`
 - **util/** - `AnswerGeneratorUtil` (English→Korean phonetic conversion for song titles)
 - **dto/** - `GameSettings` (multiplayer room configuration)
@@ -62,9 +62,10 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 
 ### Game Modes
 
-1. **Solo Guess** - User guesses songs with 3 attempts (10/7/5 points)
+1. **Solo Guess** - User guesses songs with 3 attempts. Supports various modes (RANDOM, FIXED_GENRE, FIXED_ARTIST, FIXED_YEAR, per-round selection). Includes "30-song Challenge" for ranked play.
 2. **Solo Host** - User reads clues for others to guess (100/70/50 points)
-3. **Multiplayer** - Room-based game with real-time chat polling, first correct answer scores 100 points
+3. **Fan Challenge** - Artist-focused survival mode with difficulty levels (BEGINNER/NORMAL/HARDCORE). Lives system, timed gameplay, artist-specific rankings.
+4. **Multiplayer** - Room-based game with real-time chat polling, first correct answer scores 100 points. LP-based tier system (Bronze→Challenger).
 
 ### Key Data Flow
 
@@ -72,6 +73,8 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 - `GameRoom` → has `GameRoomParticipant` → stores `GameRoomChat` (multiplayer mode)
 - `Song` → has multiple `SongAnswer` for fuzzy matching validation
 - `Board` → has `BoardComment` and `BoardLike` (community board)
+- `Member` → has `MemberBadge` → links to `Badge` (achievement system)
+- `FanChallengeRecord` → tracks artist challenge attempts with difficulty and score
 
 ### Multiplayer Flow
 
@@ -90,20 +93,40 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 - **SongReportService** - Handles user reports for problematic songs
 - **DataInitializer** - Seeds initial bad words (~50 profanities) on startup via CommandLineRunner
 - **BoardService** - Community board CRUD with category filtering, comments, and likes
+- **MultiTierService** - LP and tier management for multiplayer with ELO-based rating calculations
+- **FanChallengeService** - Artist challenge game logic with difficulty-based scoring
+- **BadgeService** - Achievement badge management with automatic and manual award conditions
+
+### Tier System (Multiplayer)
+
+LP-based ranking system similar to League of Legends:
+- **Tiers:** Bronze → Silver → Gold → Platinum → Diamond → Master → Challenger
+- **LP Range:** 0-100 per tier, promotion/demotion at boundaries
+- **ELO Rating:** Combined tier+LP rating for matchmaking calculations
+- **LP Changes:** Based on game placement, player count, and opponent tier differential
+
+### Badge System
+
+Achievement badges with categories and rarities:
+- **Categories:** BEGINNER, SCORE, VICTORY, STREAK, TIER, SPECIAL
+- **Rarities:** COMMON (gray), RARE (blue), EPIC (purple), LEGENDARY (gold)
+- Awarded via `BadgeAwardBatch` or directly through `BadgeService`
 
 ### Batch Jobs (managed by BatchScheduler)
 
 All batches are DB-configurable via `BatchConfig` table with cron expressions:
-- `SessionCleanupBatch`, `RoomCleanupBatch`, `ChatCleanupBatch`, `BoardCleanupBatch` - Cleanup expired data
-- `DailyStatsBatch`, `RankingUpdateBatch`, `WeeklyRankingResetBatch` - Stats & rankings
-- `LoginHistoryCleanupBatch`, `InactiveMemberBatch` - Member management
-- `SongFileCheckBatch`, `SongAnalyticsBatch`, `YouTubeVideoCheckBatch` - Song integrity
-- `SystemReportBatch` - System health reports
+- **Cleanup:** `SessionCleanupBatch`, `GameSessionCleanupBatch`, `RoomCleanupBatch`, `ChatCleanupBatch`, `BoardCleanupBatch`, `LoginHistoryCleanupBatch`, `BatchExecutionHistoryCleanupBatch`, `GameRoundAttemptCleanupBatch`, `SongReportCleanupBatch`
+- **Stats & Rankings:** `DailyStatsBatch`, `RankingUpdateBatch`, `WeeklyRankingResetBatch`, `MonthlyRankingResetBatch`
+- **Member Management:** `InactiveMemberBatch`, `BadgeAwardBatch`
+- **Song Integrity:** `SongFileCheckBatch`, `SongAnalyticsBatch`, `YouTubeVideoCheckBatch`, `DuplicateSongCheckBatch`
+- **System:** `SystemReportBatch`
 
 ### Scoring System
 
-- **Solo Guess:** 10 → 7 → 5 points (3 attempts)
+- **Solo Guess:** Time-based scoring in challenge mode (100/90/80/70/60 based on answer speed)
+- **Solo Guess (casual):** 10 → 7 → 5 points (3 attempts)
 - **Solo Host:** 100 → 70 → 50 points (3 attempts, host reads clues)
+- **Fan Challenge:** BEGINNER (7s play), NORMAL (5s play), HARDCORE (3s play, ranked)
 - **Multiplayer:** 100 points for first correct answer
 
 ### Community Board

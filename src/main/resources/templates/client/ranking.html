@@ -58,11 +58,11 @@
             <div class="stats-tabs-container" id="statsTabsContainer" style="display: none;">
                 <!-- 통계 유형 탭 -->
                 <div class="period-tabs stats-type-tabs">
-                    <button class="period-tab active" data-stats-type="games">
-                        <span class="tab-label">최다 참여</span>
-                    </button>
-                    <button class="period-tab" data-stats-type="score">
+                    <button class="period-tab active" data-stats-type="score">
                         <span class="tab-label">최고 누적 점수</span>
+                    </button>
+                    <button class="period-tab" data-stats-type="games">
+                        <span class="tab-label">최다 참여</span>
                     </button>
                     <button class="period-tab" data-stats-type="avgScorePerRound">
                         <span class="tab-label">평균 점수</span>
@@ -123,7 +123,7 @@
 <script>
     let currentTab = 'tier';      // tier, best30, stats
     let best30Period = 'weekly';  // weekly, monthly, alltime
-    let statsType = 'games';      // games, score, avgScorePerRound, accuracyMin10
+    let statsType = 'score';      // score, games, avgScorePerRound, accuracyMin10
     let showAllBest30 = false;
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -149,9 +149,9 @@
 
                 // 통계 탭 초기화
                 if (currentTab === 'stats') {
-                    statsType = 'games';
+                    statsType = 'score';
                     document.querySelectorAll('.stats-type-tabs .period-tab').forEach(t => t.classList.remove('active'));
-                    document.querySelector('.stats-type-tabs .period-tab[data-stats-type="games"]').classList.add('active');
+                    document.querySelector('.stats-type-tabs .period-tab[data-stats-type="score"]').classList.add('active');
                 }
 
                 updateTabsVisibility();

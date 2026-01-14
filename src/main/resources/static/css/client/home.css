@@ -281,6 +281,32 @@
     color: white;
 }
 
+.mode-grid .grid-item.disabled {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+    opacity: 0.7;
+    position: relative;
+}
+
+.mode-grid .grid-item.disabled:hover {
+    transform: none;
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+.coming-soon-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #94a3b8;
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 600;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+}
+
 /* Single item in grid - center it */
 .mode-grid:has(.grid-item:only-child) {
     grid-template-columns: 1fr;

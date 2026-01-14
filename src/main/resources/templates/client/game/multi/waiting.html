@@ -4,6 +4,9 @@
 <body class="client-page">
 <div class="client-container">
     <header class="waiting-header">
+        <nav class="header-nav">
+            <a href="/" class="btn-home">🏠 홈</a>
+        </nav>
         <div class="room-title-section">
             <h1 th:text="${room.roomName}">방 이름</h1>
             <div class="room-code-display">
@@ -15,7 +18,6 @@
         <div class="room-settings-info">
             <span class="setting-item">🎯 <span th:text="${room.totalRounds}">10</span> 라운드</span>
             <span class="setting-item">👥 최대 <span th:text="${room.maxPlayers}">8</span>명</span>
-            <a href="/" class="btn-home" style="text-decoration: none; background: #4a5568; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.9em; margin-left: 12px;">🏠 홈</a>
         </div>
     </header>
 
