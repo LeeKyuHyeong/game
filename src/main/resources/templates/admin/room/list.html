@@ -3,18 +3,23 @@
 <head th:replace="~{common/fragments/head :: adminHead('방 관리')}"></head>
 <body class="admin-page">
 <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+<link rel="stylesheet" th:href="@{/css/admin/mobile-stats.css}">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
 
     <main class="admin-main">
         <header class="admin-header">
-            <h1>방 관리</h1>
-            <p>게임 방 목록을 조회하고 관리합니다.</p>
+            <div class="header-content">
+                <div>
+                    <h1>🚪 방 관리</h1>
+                    <p>게임 방 목록을 조회하고 관리합니다.</p>
+                </div>
+            </div>
         </header>
 
         <div class="admin-content">
             <!-- 통계 카드 -->
-            <div class="stats-cards">
+            <div class="stats-cards room-stats">
                 <div class="stat-card">
                     <div class="stat-icon">🚪</div>
                     <div class="stat-info">

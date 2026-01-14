@@ -132,20 +132,47 @@
 }
 
 /* Filter Selects Row */
-.filter-selects {
+.filter-row.filter-selects {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
     gap: 1rem;
 }
 
-.filter-selects .search-box {
+.filter-row.filter-selects .search-box {
     flex: 1;
     min-width: 200px;
 }
 
-.filter-selects .filter-group {
+.filter-row.filter-selects .filter-group {
     min-width: 120px;
+}
+
+.filter-row.filter-selects .search-group {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.filter-row.filter-selects .search-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.filter-row.filter-selects .search-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.filter-row.filter-selects .filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
 }
 
 /* Artist Filter Section - 2 Section Layout */
@@ -643,19 +670,124 @@
         padding: 1rem;
     }
 
-    .filter-selects {
-        flex-direction: column;
-        align-items: stretch;
+    /* ===== 노래관리 필터 영역 모바일 스타일 ===== */
+    .filter-row.filter-selects {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
     }
 
-    .filter-selects .search-box {
-        min-width: 100%;
+    .filter-row.filter-selects .filter-group {
+        width: 100% !important;
+        min-width: unset !important;
+        max-width: none !important;
     }
 
-    .filter-selects .filter-group {
-        min-width: 100%;
+    .filter-row.filter-selects .filter-group.search-group {
+        max-width: none !important;
     }
 
+    .filter-row.filter-selects .filter-group input,
+    .filter-row.filter-selects .filter-group select,
+    .filter-row.filter-selects .filter-group .filter-select {
+        width: 100% !important;
+        min-width: unset !important;
+        max-width: none !important;
+        box-sizing: border-box !important;
+    }
+
+    .filter-row.filter-selects .filter-actions {
+        width: 100% !important;
+        display: flex !important;
+        gap: 0.5rem !important;
+        margin-top: 0.25rem !important;
+    }
+
+    .filter-row.filter-selects .filter-actions .btn-search,
+    .filter-row.filter-selects .filter-actions .btn-reset {
+        flex: 1 !important;
+        text-align: center !important;
+    }
+
+    /* ===== 아티스트 필터 영역 모바일 스타일 ===== */
+    .filter-row.artist-filter {
+        padding-top: 0.75rem !important;
+    }
+
+    .artist-list-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    .artist-list-controls {
+        width: 100% !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+
+    .artist-list-controls .select-all-checkbox {
+        flex-shrink: 0;
+    }
+
+    .artist-list-controls .artist-sort-select {
+        flex: 0 0 auto;
+        min-width: 80px;
+    }
+
+    .artist-list-controls .artist-search-input {
+        flex: 1 1 100px !important;
+        min-width: 80px !important;
+        width: auto !important;
+    }
+
+    .artist-checkbox-grid {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)) !important;
+        max-height: 140px !important;
+        padding: 0.5rem !important;
+        gap: 0.375rem !important;
+    }
+
+    .artist-checkbox-grid.expanded {
+        max-height: 280px !important;
+    }
+
+    .artist-checkbox-item {
+        padding: 0.25rem 0.375rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    .artist-checkbox-item .artist-name {
+        font-size: 0.75rem !important;
+    }
+
+    .artist-checkbox-item .artist-count {
+        font-size: 0.65rem !important;
+    }
+
+    .selected-artists-tags {
+        min-height: 32px !important;
+        padding: 0.5rem !important;
+    }
+
+    .selected-artist-tag {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    .selected-artist-tag .tag-name {
+        max-width: 80px !important;
+    }
+
+    /* ===== 뷰 토글 ===== */
+    .view-toggle {
+        justify-content: center !important;
+        margin-top: 0.75rem !important;
+        padding-top: 0.75rem !important;
+    }
+
+    /* ===== 기타 ===== */
     .search-box {
         flex-direction: column;
     }
@@ -680,43 +812,9 @@
     }
 
     .filter-select {
-        max-width: none;
-        width: 100%;
-    }
-
-    .artist-list-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-
-    .artist-list-controls {
-        width: 100%;
-    }
-
-    .artist-search-input {
-        flex: 1;
-    }
-
-    .artist-checkbox-grid {
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        max-height: 150px;
-    }
-
-    .artist-checkbox-grid.expanded {
-        max-height: 300px;
-    }
-
-    .selected-artist-tag .tag-name {
-        max-width: 100px;
-    }
-
-    .filter-actions {
-        flex-wrap: wrap;
-    }
-
-    .view-toggle {
-        justify-content: center;
+        max-width: none !important;
+        width: 100% !important;
+        min-width: unset !important;
     }
 
     .song-grid {

@@ -5,8 +5,8 @@ package com.kh.game.entity;
  */
 public enum FanChallengeDifficulty {
     BEGINNER("입문", 7000, 5000, 5, true, "🌱"),
-    NORMAL("일반", 5000, 3000, 3, false, "⭐"),
-    HARDCORE("하드코어", 3000, 2000, 1, false, "🔥");
+    NORMAL("일반", 5000, 5000, 3, false, "⭐"),
+    HARDCORE("하드코어", 3000, 5000, 3, false, "🔥");
 
     private final String displayName;
     private final int playTimeMs;      // 듣기 시간 (ms)

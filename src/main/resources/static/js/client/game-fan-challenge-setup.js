@@ -8,8 +8,8 @@ let selectedDifficulty = 'NORMAL';
 // 난이도별 설정
 const DIFFICULTY_CONFIG = {
     BEGINNER: { playTime: 7, answerTime: 5, lives: 5, hint: true, ranked: false, icon: '🌱' },
-    NORMAL: { playTime: 5, answerTime: 3, lives: 3, hint: false, ranked: false, icon: '⭐' },
-    HARDCORE: { playTime: 3, answerTime: 2, lives: 1, hint: false, ranked: true, icon: '🔥' }
+    NORMAL: { playTime: 5, answerTime: 5, lives: 3, hint: false, ranked: false, icon: '⭐' },
+    HARDCORE: { playTime: 3, answerTime: 5, lives: 3, hint: false, ranked: true, icon: '🔥' }
 };
 
 document.addEventListener('DOMContentLoaded', function() {

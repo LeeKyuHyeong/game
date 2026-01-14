@@ -832,6 +832,10 @@
     color: #f59e0b;
 }
 
+.gameover-title.completed {
+    color: #22c55e;
+}
+
 .gameover-title.failed {
     color: #ef4444;
 }

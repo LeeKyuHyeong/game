@@ -7,17 +7,22 @@
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
 
-    <main class="main-content">
-        <header class="content-header">
-            <h1>노래 관리</h1>
-            <div class="header-actions">
-                <span class="total-count">총 <strong th:text="${totalItems}">0</strong>곡</span>
-                <button class="btn btn-primary" onclick="openModal()">+ 노래 추가</button>
+    <main class="admin-main">
+        <header class="admin-header">
+            <div class="header-content">
+                <div>
+                    <h1>🎵 노래 관리</h1>
+                    <p>노래 목록을 조회하고 관리합니다. 총 <strong th:text="${totalItems}">0</strong>곡</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openModal()">+ 노래 추가</button>
+                </div>
             </div>
         </header>
 
-        <!-- Filter Section -->
-        <div class="filter-panel">
+        <div class="admin-content">
+            <!-- Filter Section -->
+            <div class="filter-section">
             <form id="filterForm" action="/admin/song" method="get" onsubmit="handleFormSubmit()">
                 <input type="hidden" name="page" id="pageInput" th:value="${currentPage}">
                 <input type="hidden" name="sort" th:value="${sort}">
@@ -26,7 +31,8 @@
 
                 <!-- Search & Select Filters Row -->
                 <div class="filter-row filter-selects">
-                    <div class="search-box">
+                    <div class="filter-group search-group">
+                        <label class="filter-label">검색</label>
                         <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 아티스트 검색">
                     </div>
 
@@ -62,8 +68,10 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-search" onclick="document.getElementById('pageInput').value='0'">검색</button>
-                    <a href="/admin/song" class="btn btn-reset">초기화</a>
+                    <div class="filter-actions">
+                        <button type="submit" class="btn btn-search" onclick="document.getElementById('pageInput').value='0'">검색</button>
+                        <a href="/admin/song" class="btn btn-reset">초기화</a>
+                    </div>
                 </div>
 
                 <!-- Artist Filter Section (2-Section Layout) -->
@@ -245,6 +253,7 @@
                th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
             <a href="javascript:void(0)" th:onclick="'goToPage(' + ${totalPages - 1} + ')'"
                th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
+        </div>
         </div>
     </main>
 </div>

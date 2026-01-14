@@ -187,3 +187,66 @@
         display: none;
     }
 }
+
+
+/* ----------------------------------------
+   4. 방 관리 - 컴팩트 칩 스타일
+   ---------------------------------------- */
+@media (max-width: 768px) {
+    .room-stats.stats-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+
+    .room-stats.stats-cards .stat-card {
+        padding: 8px 12px;
+        border-radius: 20px;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        flex: 0 0 auto;
+        border: 1px solid #dee2e6;
+        box-shadow: none;
+        background: #fff;
+        border-left: none;
+    }
+
+    .room-stats.stats-cards .stat-card.waiting {
+        border-color: #f59e0b;
+        background: #fffbeb;
+    }
+
+    .room-stats.stats-cards .stat-card.playing {
+        border-color: #22c55e;
+        background: #f0fdf4;
+    }
+
+    .room-stats.stats-cards .stat-card.finished {
+        border-color: #6366f1;
+        background: #eef2ff;
+    }
+
+    .room-stats.stats-cards .stat-icon {
+        font-size: 1rem;
+    }
+
+    .room-stats.stats-cards .stat-info {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 4px;
+    }
+
+    .room-stats.stats-cards .stat-value {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .room-stats.stats-cards .stat-label {
+        font-size: 0.75rem;
+        color: #666;
+    }
+}

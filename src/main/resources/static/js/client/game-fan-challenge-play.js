@@ -406,7 +406,13 @@ function showGameOver(result) {
         titleEl.innerHTML = '&#127942; PERFECT CLEAR! &#127942;';
         titleEl.className = 'gameover-title perfect';
         messageEl.textContent = `${artist}의 모든 곡을 맞췄습니다!`;
+    } else if (result.gameOverReason === 'ALL_ROUNDS_COMPLETED') {
+        // 모든 라운드 완료했지만 퍼펙트는 아님
+        titleEl.innerHTML = '&#127881; CHALLENGE COMPLETE!';
+        titleEl.className = 'gameover-title completed';
+        messageEl.textContent = `${result.correctCount}/${result.totalRounds}곡 정답 (라이프 ${result.remainingLives}개 남음)`;
     } else {
+        // LIFE_EXHAUSTED
         titleEl.innerHTML = '&#128148; GAME OVER';
         titleEl.className = 'gameover-title failed';
         messageEl.textContent = `${result.correctCount}/${result.totalRounds}곡 정답`;

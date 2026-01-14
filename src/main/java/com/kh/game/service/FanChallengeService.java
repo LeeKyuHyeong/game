@@ -165,7 +165,12 @@ public class FanChallengeService {
             session.setEndedAt(LocalDateTime.now());
         } else if (session.getCompletedRounds() >= session.getTotalRounds()) {
             isGameOver = true;
-            gameOverReason = "PERFECT_CLEAR";
+            // 모든 문제를 맞춰야만 PERFECT_CLEAR
+            if (session.getCorrectCount().equals(session.getTotalRounds())) {
+                gameOverReason = "PERFECT_CLEAR";
+            } else {
+                gameOverReason = "ALL_ROUNDS_COMPLETED";
+            }
             session.setStatus(GameSession.GameStatus.COMPLETED);
             session.setEndedAt(LocalDateTime.now());
         }
