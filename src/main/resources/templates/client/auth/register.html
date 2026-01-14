@@ -2,13 +2,19 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: clientHead('회원가입 - Song Quiz')}"></head>
 <body class="client-page auth-page">
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <a href="/" class="back-link">← 홈으로</a>
-            <h1>🎵 회원가입</h1>
-            <p>Song Quiz 계정을 만들어보세요</p>
-        </div>
+<div class="client-container">
+    <header class="client-header compact">
+        <nav class="header-nav">
+            <a href="/" class="btn-home">🏠 홈</a>
+        </nav>
+    </header>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>🎵 회원가입</h1>
+                <p>Song Quiz 계정을 만들어보세요</p>
+            </div>
 
         <form id="registerForm" class="auth-form">
             <div class="form-group">
@@ -49,6 +55,7 @@
 
         <div class="auth-footer">
             <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
+        </div>
         </div>
     </div>
 </div>

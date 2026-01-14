@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Set Java 17 (required for all commands) - adjust path to your JDK location
-export JAVA_HOME="/c/Users/TRUEBON/.jdks/corretto-17.0.12"  # Windows/Git Bash
+export JAVA_HOME="/c/Users/rbgud/.jdks/corretto-17.0.12"  # Windows/Git Bash (집 PC)
 # export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.12-amzn"  # Linux/macOS with SDKMAN
 
 # Run application (dev profile, port 8082)

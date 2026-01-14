@@ -26,7 +26,7 @@ public class GameHostController {
 
     @GetMapping
     public String setup(Model model) {
-        model.addAttribute("genres", genreService.findActiveGenres());
+        model.addAttribute("genres", genreService.findActiveGenresForGame());
         return "client/game/host/setup";
     }
 
@@ -65,7 +65,7 @@ public class GameHostController {
             playedSongIds = new ArrayList<>();
         }
 
-        for (var genre : genreService.findActiveGenres()) {
+        for (var genre : genreService.findActiveGenresForGame()) {
             Map<String, Object> genreInfo = new HashMap<>();
             genreInfo.put("id", genre.getId());
             genreInfo.put("name", genre.getName());
@@ -228,7 +228,7 @@ public class GameHostController {
         model.addAttribute("players", players);
         model.addAttribute("settings", gameSessionService.parseSettings(session.getSettings()));
         model.addAttribute("gameMode", gameMode);
-        model.addAttribute("genres", genreService.findActiveGenres());
+        model.addAttribute("genres", genreService.findActiveGenresForGame());
 
         return "client/game/host/play";
     }

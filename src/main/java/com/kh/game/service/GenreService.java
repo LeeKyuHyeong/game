@@ -16,6 +16,9 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class GenreService {
 
+    // 게임에서 제외할 장르 코드 (레트로)
+    public static final String EXCLUDED_GENRE_CODE = "RETRO";
+
     private final GenreRepository genreRepository;
 
     public Page<Genre> findAll(Pageable pageable) {
@@ -28,6 +31,13 @@ public class GenreService {
 
     public List<Genre> findActiveGenres() {
         return genreRepository.findByUseYnOrderByDisplayOrderAsc("Y");
+    }
+
+    /**
+     * 게임용 장르 목록 조회 (레트로 장르 제외)
+     */
+    public List<Genre> findActiveGenresForGame() {
+        return genreRepository.findByUseYnAndCodeNotOrderByDisplayOrderAsc("Y", EXCLUDED_GENRE_CODE);
     }
 
     public Page<Genre> search(String keyword, Pageable pageable) {

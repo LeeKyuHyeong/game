@@ -16,6 +16,9 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
 
     List<Genre> findAllByOrderByDisplayOrderAsc();
 
+    // 특정 장르 코드 제외한 활성 장르 목록 (게임용)
+    List<Genre> findByUseYnAndCodeNotOrderByDisplayOrderAsc(String useYn, String excludeCode);
+
     Page<Genre> findByNameContainingOrCodeContaining(String name, String code, Pageable pageable);
 
     Optional<Genre> findByCode(String code);

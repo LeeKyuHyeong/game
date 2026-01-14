@@ -61,7 +61,7 @@
 /* Header Navigation */
 .header-nav {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: 1rem;
 }

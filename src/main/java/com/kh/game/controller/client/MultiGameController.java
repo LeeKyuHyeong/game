@@ -191,7 +191,7 @@ public class MultiGameController {
             return "redirect:/auth/login";
         }
 
-        model.addAttribute("genres", genreService.findActiveGenres());
+        model.addAttribute("genres", genreService.findActiveGenresForGame());
         model.addAttribute("member", member);
 
         return "client/game/multi/create";

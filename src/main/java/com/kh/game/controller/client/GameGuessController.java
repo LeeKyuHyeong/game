@@ -30,7 +30,7 @@ public class GameGuessController {
 
     @GetMapping
     public String setup(Model model, HttpSession httpSession) {
-        model.addAttribute("genres", genreService.findActiveGenres());
+        model.addAttribute("genres", genreService.findActiveGenresForGame());
         // 로그인 상태 전달
         Boolean isLoggedIn = (Boolean) httpSession.getAttribute("isLoggedIn");
         String memberNickname = (String) httpSession.getAttribute("memberNickname");
@@ -110,7 +110,7 @@ public class GameGuessController {
             playedSongIds = new ArrayList<>();
         }
 
-        for (var genre : genreService.findActiveGenres()) {
+        for (var genre : genreService.findActiveGenresForGame()) {
             Map<String, Object> genreInfo = new HashMap<>();
             genreInfo.put("id", genre.getId());
             genreInfo.put("name", genre.getName());
@@ -291,7 +291,7 @@ public class GameGuessController {
         model.addAttribute("nickname", nickname);
         model.addAttribute("settings", gameSessionService.parseSettings(session.getSettings()));
         model.addAttribute("gameMode", gameMode);
-        model.addAttribute("genres", genreService.findActiveGenres());
+        model.addAttribute("genres", genreService.findActiveGenresForGame());
 
         return "client/game/guess/play";
     }
