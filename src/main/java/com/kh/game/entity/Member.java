@@ -30,6 +30,9 @@ public class Member {
     @Column(nullable = false, length = 30)
     private String username;
 
+    @Column(name = "profile_image", length = 255)
+    private String profileImage;
+
     @Column(name = "total_games")
     private Integer totalGames = 0;
 
@@ -248,6 +251,12 @@ public class Member {
     public double getGuessAverageScore() {
         if (guessGames == null || guessGames == 0) return 0;
         return (double) guessScore / guessGames;
+    }
+
+    // 라운드별 평균점수
+    public double getGuessAverageScorePerRound() {
+        if (guessRounds == null || guessRounds == 0) return 0;
+        return (double) guessScore / guessRounds;
     }
 
     // ========== Multiplayer (멀티게임) 통계 메서드 ==========

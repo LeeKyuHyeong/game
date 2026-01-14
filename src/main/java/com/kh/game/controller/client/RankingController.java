@@ -77,12 +77,16 @@ public class RankingController {
         } else if ("best".equals(period)) {
             return memberService.getGuessBestScoreRanking(limit);
         } else {
-            // all (전체) - 6가지 랭킹 타입
+            // all (전체) - 랭킹 타입
             switch (type) {
                 case "accuracy":
                     return memberService.getGuessRankingByAccuracy(limit);
                 case "avgScore":
                     return memberService.getGuessRankingByAvgScore(limit);
+                case "avgScorePerRound":
+                    return memberService.getGuessRankingByAvgScorePerRound(limit);
+                case "accuracyMin10":
+                    return memberService.getGuessRankingByAccuracyMin10(limit);
                 case "correct":
                     return memberService.getGuessRankingByCorrect(limit);
                 case "games":
@@ -152,6 +156,7 @@ public class RankingController {
                 memberInfo.put("totalRounds", member.getGuessRounds() != null ? member.getGuessRounds() : 0);
                 memberInfo.put("accuracyRate", member.getGuessAccuracyRate());
                 memberInfo.put("averageScore", member.getGuessAverageScore());
+                memberInfo.put("averageScorePerRound", member.getGuessAverageScorePerRound());
             }
 
             // 뱃지 정보 추가

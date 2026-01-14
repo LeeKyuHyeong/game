@@ -64,6 +64,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.guessRounds > 0 ORDER BY m.guessRounds DESC")
     List<Member> findTopGuessRankingByRounds(Pageable pageable);
 
+    // 7. 라운드별 평균점수 기준 (10게임 이상)
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.guessGames >= 10 AND m.guessRounds > 0 ORDER BY (m.guessScore * 1.0 / m.guessRounds) DESC")
+    List<Member> findTopGuessRankingByAvgScorePerRound(Pageable pageable);
+
+    // 8. 정답률 기준 (10게임 이상)
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.guessGames >= 10 AND m.guessRounds > 0 ORDER BY (m.guessCorrect * 1.0 / m.guessRounds) DESC")
+    List<Member> findTopGuessRankingByAccuracyMin10(Pageable pageable);
+
     // ========== Multiplayer (멀티게임) 랭킹 조회 ==========
 
     // 총점 기준

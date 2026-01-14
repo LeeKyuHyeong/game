@@ -5,7 +5,7 @@
 <div class="client-container">
     <header class="client-header compact">
         <nav class="header-nav">
-            <a href="/" class="back-home">← 홈으로</a>
+            <a href="/" class="btn-home">🏠 홈</a>
         </nav>
         <h1>마이페이지</h1>
         <p>프로필 관리 및 뱃지 컬렉션</p>
@@ -17,14 +17,13 @@
             <div class="profile-section">
                 <div class="profile-card">
                     <div class="profile-header">
-                        <div class="profile-badge-display" th:if="${member.selectedBadge != null}">
-                            <span class="selected-badge-emoji" th:text="${member.selectedBadge.emoji}"></span>
-                        </div>
-                        <div class="profile-badge-display empty" th:if="${member.selectedBadge == null}">
-                            <span class="no-badge-icon">?</span>
-                        </div>
                         <div class="profile-info">
-                            <h2 class="nickname" th:text="${member.nickname}">닉네임</h2>
+                            <div class="profile-name-row">
+                                <h2 class="nickname" th:text="${member.nickname}">닉네임</h2>
+                                <div class="profile-badge-display small" th:if="${member.selectedBadge != null}">
+                                    <span class="selected-badge-emoji" th:text="${member.selectedBadge.emoji}"></span>
+                                </div>
+                            </div>
                             <span class="tier-badge" th:style="'background: ' + ${member.multiTierColor}"
                                   th:text="${member.multiTierDisplayName}">브론즈</span>
                         </div>
@@ -67,11 +66,9 @@
                 <div class="badge-grid">
                     <th:block th:each="badge : ${allBadges}">
                         <div class="badge-item"
-                             th:classappend="${#lists.contains(ownedBadgeIds, badge.id)} ? 'owned' : 'locked'"
+                             th:classappend="(${#lists.contains(ownedBadgeIds, badge.id)} ? 'owned' : 'locked') + (${member.selectedBadge != null and member.selectedBadge.id == badge.id} ? ' selected' : '')"
                              th:data-badge-id="${badge.id}"
-                             th:data-owned="${#lists.contains(ownedBadgeIds, badge.id)}"
-                             th:onclick="${#lists.contains(ownedBadgeIds, badge.id)} ? 'selectBadge(' + badge.id + ')' : ''"
-                             th:class="${member.selectedBadge != null and member.selectedBadge.id == badge.id} ? 'badge-item owned selected' : (#lists.contains(ownedBadgeIds, badge.id) ? 'badge-item owned' : 'badge-item locked')">
+                             th:data-owned="${#lists.contains(ownedBadgeIds, badge.id)}">
                             <div class="badge-emoji" th:text="${badge.emoji}">?</div>
                             <div class="badge-name" th:text="${badge.name}">뱃지명</div>
                             <div class="badge-desc" th:text="${badge.description}">설명</div>
@@ -113,20 +110,20 @@
                         <h4>멀티 게임</h4>
                         <div class="stats-row">
                             <span>게임 수</span>
-                            <span th:text="${member.multiGames} + '회'">0회</span>
+                            <span th:text="${member.multiGames ?: 0} + '회'">0회</span>
                         </div>
                         <div class="stats-row">
                             <span>1등 횟수</span>
-                            <span th:text="${member.multiWins} + '회'">0회</span>
+                            <span th:text="${member.multiWins ?: 0} + '회'">0회</span>
                         </div>
                         <div class="stats-row">
                             <span>Top3 횟수</span>
-                            <span th:text="${member.multiTop3} + '회'">0회</span>
+                            <span th:text="${member.multiTop3 ?: 0} + '회'">0회</span>
                         </div>
                         <div class="stats-row">
                             <span>멀티 티어</span>
                             <span th:style="'color: ' + ${member.multiTierColor}"
-                                  th:text="${member.multiTierDisplayName} + ' ' + ${member.multiLp} + 'LP'">브론즈 0LP</span>
+                                  th:text="${member.multiTierDisplayName} + ' ' + ${member.multiLp ?: 0} + 'LP'">브론즈 0LP</span>
                         </div>
                     </div>
                 </div>

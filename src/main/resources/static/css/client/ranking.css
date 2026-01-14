@@ -125,6 +125,18 @@
     justify-content: center;
 }
 
+/* Stats Tabs Container */
+.stats-tabs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.stats-type-tabs,
+.stats-mode-tabs {
+    justify-content: center;
+}
+
 .period-tab {
     padding: 0.5rem 1rem;
     background: rgba(255, 255, 255, 0.15);

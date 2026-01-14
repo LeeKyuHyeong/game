@@ -92,6 +92,10 @@ public class MemberService {
         return memberRepository.findById(id);
     }
 
+    public Member save(Member member) {
+        return memberRepository.save(member);
+    }
+
     public Optional<Member> findByEmail(String email) {
         return memberRepository.findByEmail(email);
     }
@@ -286,6 +290,16 @@ public class MemberService {
     // 6. 도전왕 (라운드 수)
     public List<Member> getGuessRankingByRounds(int limit) {
         return memberRepository.findTopGuessRankingByRounds(PageRequest.of(0, limit));
+    }
+
+    // 7. 라운드별 평균점수 (10게임 이상)
+    public List<Member> getGuessRankingByAvgScorePerRound(int limit) {
+        return memberRepository.findTopGuessRankingByAvgScorePerRound(PageRequest.of(0, limit));
+    }
+
+    // 8. 정답률 (10게임 이상)
+    public List<Member> getGuessRankingByAccuracyMin10(int limit) {
+        return memberRepository.findTopGuessRankingByAccuracyMin10(PageRequest.of(0, limit));
     }
 
     // 내 순위 조회

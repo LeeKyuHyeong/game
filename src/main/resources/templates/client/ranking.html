@@ -4,102 +4,78 @@
 <body class="client-page ranking-page">
 <div class="client-container">
     <header class="client-header compact">
-        <a href="/" class="back-home">← 홈으로</a>
+        <nav class="header-nav">
+            <a href="/" class="btn-home">🏠 홈</a>
+        </nav>
         <h1>🏆 전체 랭킹</h1>
         <p>Song Quiz 최고의 플레이어들</p>
     </header>
 
     <main class="client-main">
         <div class="ranking-content">
-            <!-- 게임 모드 탭 -->
+            <!-- 메인 탭 -->
             <div class="game-mode-tabs">
-                <button class="mode-tab active" data-mode="guess">
-                    <span class="tab-icon">🎧</span>
-                    <span class="tab-label">내가맞추기</span>
+                <button class="mode-tab active" data-mode="tier">
+                    <span class="tab-icon">🏆</span>
+                    <span class="tab-label">멀티게임 티어</span>
                 </button>
-                <button class="mode-tab" data-mode="multi">
-                    <span class="tab-icon">👥</span>
-                    <span class="tab-label">멀티게임</span>
-                </button>
-                <!-- TODO: 30곡 챌린지 탭 (추후 활성화 예정)
                 <button class="mode-tab" data-mode="best30">
-                    <span class="tab-icon">🏅</span>
-                    <span class="tab-label">30곡 챌린지</span>
-                </button>
-                -->
-            </div>
-
-            <!-- 기간 탭 (내가맞추기용) -->
-            <div class="period-tabs" id="guessPeriodTabs">
-                <button class="period-tab active" data-period="all">
-                    <span class="tab-label">전체</span>
-                </button>
-                <button class="period-tab" data-period="weekly">
-                    <span class="tab-label">이번 주</span>
-                </button>
-                <button class="period-tab" data-period="best">
-                    <span class="tab-label">최고기록</span>
-                </button>
-            </div>
-
-            <!-- 30곡 챌린지 기간 탭 -->
-            <div class="period-tabs" id="best30PeriodTabs" style="display: none;">
-                <button class="period-tab active" data-period="weekly">
-                    <span class="tab-label">🗓️ 이번 주</span>
-                </button>
-                <button class="period-tab" data-period="monthly">
-                    <span class="tab-label">📅 이번 달</span>
-                </button>
-                <button class="period-tab" data-period="alltime">
-                    <span class="tab-label">🏆 명예의 전당</span>
-                </button>
-            </div>
-
-            <!-- 최고기록 안내 (best 탭에서만 표시) -->
-            <div class="best-score-notice" id="bestScoreNotice" style="display: none;">
-                <span class="notice-icon">💡</span>
-                <span class="notice-text">전체랜덤 + 필터없음 + 10라운드 이상 게임만 집계됩니다</span>
-            </div>
-
-            <!-- 30곡 챌린지 안내 -->
-            <div class="best-score-notice" id="best30Notice" style="display: none;">
-                <span class="notice-icon">🎯</span>
-                <span class="notice-text">30곡 게임 최고점 기준 · 최대 300점(30곡 × 10점) · 동점 시 먼저 달성한 사람 우선</span>
-            </div>
-
-
-            <!-- 내가맞추기 랭킹 기준 탭 (6가지) -->
-            <div class="ranking-type-tabs guess-type-tabs" id="guessTypeTabsContainer">
-                <button class="type-tab active" data-type="score">
                     <span class="tab-icon">🎯</span>
-                    <span class="tab-label">총점</span>
+                    <span class="tab-label">30개 챌린지</span>
                 </button>
-                <button class="type-tab" data-type="accuracy">
-                    <span class="tab-icon">✅</span>
-                    <span class="tab-label">정답률</span>
-                </button>
-                <button class="type-tab" data-type="avgScore">
+                <button class="mode-tab" data-mode="stats">
                     <span class="tab-icon">📊</span>
-                    <span class="tab-label">평균점수</span>
-                </button>
-                <button class="type-tab" data-type="correct">
-                    <span class="tab-icon">🏅</span>
-                    <span class="tab-label">최다정답</span>
-                </button>
-                <button class="type-tab" data-type="games">
-                    <span class="tab-icon">🎮</span>
-                    <span class="tab-label">플레이왕</span>
-                </button>
-                <button class="type-tab" data-type="rounds">
-                    <span class="tab-icon">🔥</span>
-                    <span class="tab-label">도전왕</span>
+                    <span class="tab-label">통계</span>
                 </button>
             </div>
 
-            <!-- 멀티게임 LP 랭킹 안내 -->
-            <div class="best-score-notice" id="multiLpNotice" style="display: none;">
+            <!-- 멀티게임 티어 안내 -->
+            <div class="best-score-notice" id="tierNotice">
                 <span class="notice-icon">🏆</span>
                 <span class="notice-text">멀티게임 순위에 따라 LP를 획득하여 티어가 결정됩니다</span>
+            </div>
+
+            <!-- 30개 챌린지 기간 탭 -->
+            <div class="period-tabs" id="best30PeriodTabs" style="display: none;">
+                <button class="period-tab active" data-period="weekly">
+                    <span class="tab-label">이번 주</span>
+                </button>
+                <button class="period-tab" data-period="monthly">
+                    <span class="tab-label">이번 달</span>
+                </button>
+                <button class="period-tab" data-period="alltime">
+                    <span class="tab-label">명예의 전당</span>
+                </button>
+            </div>
+
+            <!-- 30개 챌린지 안내 -->
+            <div class="best-score-notice" id="best30Notice" style="display: none;">
+                <span class="notice-icon">🎯</span>
+                <span class="notice-text">30곡 게임 최고점 기준 · 최대 300점 · 동점 시 먼저 달성한 사람 우선</span>
+            </div>
+
+            <!-- 통계 서브 탭 -->
+            <div class="stats-tabs-container" id="statsTabsContainer" style="display: none;">
+                <!-- 통계 유형 탭 -->
+                <div class="period-tabs stats-type-tabs">
+                    <button class="period-tab active" data-stats-type="games">
+                        <span class="tab-label">최다 참여</span>
+                    </button>
+                    <button class="period-tab" data-stats-type="score">
+                        <span class="tab-label">최고 누적 점수</span>
+                    </button>
+                    <button class="period-tab" data-stats-type="avgScorePerRound">
+                        <span class="tab-label">평균 점수</span>
+                    </button>
+                    <button class="period-tab" data-stats-type="accuracyMin10">
+                        <span class="tab-label">정답률</span>
+                    </button>
+                </div>
+                <!-- 내가맞추기 통계 안내 -->
+                <div class="best-score-notice" id="guessOnlyNotice">
+                    <span class="notice-icon">🎧</span>
+                    <span class="notice-text">내가맞추기 통계 (평균 점수/정답률은 10게임 이상만 집계)</span>
+                </div>
             </div>
 
             <!-- TOP 3 포디움 -->
@@ -145,11 +121,10 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script>
-    let currentMode = 'guess';
-    let currentType = 'score';
-    let currentPeriod = 'all';
-    let best30Period = 'weekly';  // 30곡 챌린지 기간
-    let showAllBest30 = false;    // 30곡 랭킹 전체 표시 여부
+    let currentTab = 'tier';      // tier, best30, stats
+    let best30Period = 'weekly';  // weekly, monthly, alltime
+    let statsType = 'games';      // games, score, avgScorePerRound, accuracyMin10
+    let showAllBest30 = false;
 
     document.addEventListener('DOMContentLoaded', function() {
         loadRanking();
@@ -157,107 +132,76 @@
     });
 
     function setupTabs() {
-        // 게임 모드 탭
+        // 메인 탭
         document.querySelectorAll('.mode-tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
-                currentMode = this.dataset.mode;
+                currentTab = this.dataset.mode;
 
-                // 타입 리셋 (모드 변경 시)
-                currentType = 'score';
-                document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.type-tab[data-type="score"]').forEach(t => t.classList.add('active'));
-
-                // 모드별 기본 기간 설정
-                if (currentMode === 'multi') {
-                    currentPeriod = 'tier';
-                } else if (currentMode === 'best30') {
+                // 30개 챌린지 기간 탭 초기화
+                if (currentTab === 'best30') {
                     best30Period = 'weekly';
-                    // 30곡 기간 탭 초기화
                     document.querySelectorAll('#best30PeriodTabs .period-tab').forEach(t => t.classList.remove('active'));
                     document.querySelector('#best30PeriodTabs .period-tab[data-period="weekly"]').classList.add('active');
                     showAllBest30 = false;
-                } else {
-                    currentPeriod = 'all';
-                    document.querySelectorAll('#guessPeriodTabs .period-tab').forEach(t => t.classList.remove('active'));
-                    document.querySelector('#guessPeriodTabs .period-tab[data-period="all"]').classList.add('active');
                 }
 
-                updateTypeTabsVisibility();
+                // 통계 탭 초기화
+                if (currentTab === 'stats') {
+                    statsType = 'games';
+                    document.querySelectorAll('.stats-type-tabs .period-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelector('.stats-type-tabs .period-tab[data-stats-type="games"]').classList.add('active');
+                }
+
+                updateTabsVisibility();
                 loadRanking();
             });
         });
 
-        // 내가맞추기 기간 탭
-        document.querySelectorAll('#guessPeriodTabs .period-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                if (currentMode !== 'guess') return;
-
-                document.querySelectorAll('#guessPeriodTabs .period-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                currentPeriod = this.dataset.period;
-
-                updateTypeTabsVisibility();
-                loadRanking();
-            });
-        });
-
-        // 30곡 챌린지 기간 탭
+        // 30개 챌린지 기간 탭
         document.querySelectorAll('#best30PeriodTabs .period-tab').forEach(tab => {
             tab.addEventListener('click', function() {
-                if (currentMode !== 'best30') return;
-
+                if (currentTab !== 'best30') return;
                 document.querySelectorAll('#best30PeriodTabs .period-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 best30Period = this.dataset.period;
                 showAllBest30 = false;
-
                 loadRanking();
             });
         });
 
-        // 랭킹 기준 탭 (내가맞추기)
-        document.querySelectorAll('#guessTypeTabsContainer .type-tab').forEach(tab => {
+        // 통계 유형 탭
+        document.querySelectorAll('.stats-type-tabs .period-tab').forEach(tab => {
             tab.addEventListener('click', function() {
-                document.querySelectorAll('#guessTypeTabsContainer .type-tab').forEach(t => t.classList.remove('active'));
+                if (currentTab !== 'stats') return;
+                document.querySelectorAll('.stats-type-tabs .period-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
-                currentType = this.dataset.type;
+                statsType = this.dataset.statsType;
                 loadRanking();
             });
         });
     }
 
-    function updateTypeTabsVisibility() {
-        const guessTypeTabsContainer = document.getElementById('guessTypeTabsContainer');
-        const bestScoreNotice = document.getElementById('bestScoreNotice');
-        const multiLpNotice = document.getElementById('multiLpNotice');
-        const best30Notice = document.getElementById('best30Notice');
-        const guessPeriodTabs = document.getElementById('guessPeriodTabs');
+    function updateTabsVisibility() {
+        const tierNotice = document.getElementById('tierNotice');
         const best30PeriodTabs = document.getElementById('best30PeriodTabs');
+        const best30Notice = document.getElementById('best30Notice');
+        const statsTabsContainer = document.getElementById('statsTabsContainer');
 
         // 모두 숨기기
-        bestScoreNotice.style.display = 'none';
-        multiLpNotice.style.display = 'none';
-        best30Notice.style.display = 'none';
-        guessPeriodTabs.style.display = 'none';
+        tierNotice.style.display = 'none';
         best30PeriodTabs.style.display = 'none';
-        guessTypeTabsContainer.style.display = 'none';
+        best30Notice.style.display = 'none';
+        statsTabsContainer.style.display = 'none';
 
-        if (currentMode === 'multi') {
-            multiLpNotice.style.display = 'flex';
-        } else if (currentMode === 'best30') {
+        if (currentTab === 'tier') {
+            tierNotice.style.display = 'flex';
+        } else if (currentTab === 'best30') {
             best30PeriodTabs.style.display = 'flex';
             best30Notice.style.display = 'flex';
-        } else {
-            // 내가맞추기
-            guessPeriodTabs.style.display = 'flex';
-
-            if (currentPeriod === 'all') {
-                guessTypeTabsContainer.style.display = 'flex';
-            } else if (currentPeriod === 'best') {
-                bestScoreNotice.style.display = 'flex';
-            }
+        } else if (currentTab === 'stats') {
+            statsTabsContainer.style.display = 'flex';
         }
     }
 
@@ -265,23 +209,29 @@
         try {
             let rankings;
 
-            if (currentMode === 'best30') {
-                // 30곡 챌린지 랭킹
+            if (currentTab === 'tier') {
+                // 멀티게임 티어 랭킹
+                const response = await fetch('/api/ranking?mode=multi&period=tier&limit=20');
+                rankings = await response.json();
+                updateTierUI(rankings);
+            } else if (currentTab === 'best30') {
+                // 30개 챌린지 랭킹
                 const response = await fetch(`/api/ranking/best30?period=${best30Period}&limit=50`);
                 rankings = await response.json();
                 updateBest30UI(rankings);
-            } else {
-                // 기존 랭킹
-                const response = await fetch(`/api/ranking?mode=${currentMode}&type=${currentType}&period=${currentPeriod}&limit=20`);
+            } else if (currentTab === 'stats') {
+                // 통계 랭킹 (내가맞추기 전용)
+                const response = await fetch(`/api/ranking?mode=guess&type=${statsType}&period=all&limit=20`);
                 rankings = await response.json();
-                updateNormalUI(rankings);
+                updateStatsUI(rankings);
             }
         } catch (error) {
             console.error('랭킹 로딩 오류:', error);
         }
     }
 
-    function updateNormalUI(rankings) {
+    // 멀티게임 티어 UI
+    function updateTierUI(rankings) {
         if (rankings.length === 0) {
             document.getElementById('topThreePodium').style.display = 'none';
             document.getElementById('rankingTable').style.display = 'none';
@@ -293,27 +243,11 @@
         document.getElementById('rankingTable').style.display = 'block';
         document.getElementById('emptyState').style.display = 'none';
 
-        updatePodium(rankings);
-        updateTable(rankings);
+        updateTierPodium(rankings);
+        updateTierTable(rankings);
     }
 
-    function updateBest30UI(rankings) {
-        if (rankings.length === 0) {
-            document.getElementById('topThreePodium').style.display = 'none';
-            document.getElementById('rankingTable').style.display = 'none';
-            document.getElementById('emptyState').style.display = 'flex';
-            return;
-        }
-
-        document.getElementById('topThreePodium').style.display = 'flex';
-        document.getElementById('rankingTable').style.display = 'block';
-        document.getElementById('emptyState').style.display = 'none';
-
-        updateBest30Podium(rankings);
-        updateBest30Table(rankings);
-    }
-
-    function updatePodium(rankings) {
+    function updateTierPodium(rankings) {
         const places = [
             { id: 'place1', index: 0 },
             { id: 'place2', index: 1 },
@@ -328,22 +262,63 @@
                 el.style.display = 'flex';
                 const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
                 el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
-                el.querySelector('.podium-value').textContent = formatValue(member);
+                el.querySelector('.podium-value').textContent = (member.multiLp || 0) + ' LP';
+                el.querySelector('.podium-stand').textContent = place.index + 1;
 
                 const tierEl = el.querySelector('.podium-tier');
-                if (currentMode === 'multi') {
-                    tierEl.textContent = member.multiTierDisplayName || '';
-                    tierEl.style.color = member.multiTierColor || '#cd7f32';
-                    tierEl.className = 'podium-tier tier-badge tier-' + (member.multiTier || 'BRONZE').toLowerCase();
-                    tierEl.style.display = 'block';
-                } else {
-                    tierEl.textContent = '';
-                    tierEl.style.display = 'none';
-                }
+                tierEl.textContent = member.multiTierDisplayName || '';
+                tierEl.style.color = member.multiTierColor || '#cd7f32';
+                tierEl.className = 'podium-tier tier-badge tier-' + (member.multiTier || 'BRONZE').toLowerCase();
+                tierEl.style.display = 'block';
             } else {
                 el.style.display = 'none';
             }
         });
+    }
+
+    function updateTierTable(rankings) {
+        const table = document.getElementById('rankingTable');
+
+        table.innerHTML = rankings.map((member, index) => {
+            const tierName = member.multiTier || 'BRONZE';
+            const tierColor = member.multiTierColor || '#cd7f32';
+            const tierDisplayName = member.multiTierDisplayName || '';
+            const badgeEmoji = member.badgeEmoji ? `<span class="member-badge" title="${member.badgeName || ''}">${member.badgeEmoji}</span>` : '';
+
+            return `
+                <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
+                    <div class="rank-cell">
+                        ${index < 3 ? getMedal(index) : (index + 1)}
+                    </div>
+                    <div class="name-cell">
+                        <span class="tier-badge tier-${tierName.toLowerCase()}" style="color: ${tierColor}">${tierDisplayName}</span>
+                        ${badgeEmoji}
+                        <span class="member-name">${member.nickname}</span>
+                    </div>
+                    <div class="stats-cell">
+                        <span class="main-stat">${(member.multiLp || 0)} LP</span>
+                        <span class="sub-stat">1등 ${member.multiWins || 0}회 · Top3 ${member.multiTop3 || 0}회</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 30개 챌린지 UI
+    function updateBest30UI(rankings) {
+        if (rankings.length === 0) {
+            document.getElementById('topThreePodium').style.display = 'none';
+            document.getElementById('rankingTable').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'flex';
+            return;
+        }
+
+        document.getElementById('topThreePodium').style.display = 'flex';
+        document.getElementById('rankingTable').style.display = 'block';
+        document.getElementById('emptyState').style.display = 'none';
+
+        updateBest30Podium(rankings);
+        updateBest30Table(rankings);
     }
 
     function updateBest30Podium(rankings) {
@@ -362,7 +337,7 @@
                 const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
                 el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
                 el.querySelector('.podium-value').textContent = (member.score || 0) + '점';
-                el.querySelector('.podium-stand').textContent = member.rank;  // 동점자 처리된 순위
+                el.querySelector('.podium-stand').textContent = member.rank;
 
                 const tierEl = el.querySelector('.podium-tier');
                 tierEl.textContent = '';
@@ -371,35 +346,6 @@
                 el.style.display = 'none';
             }
         });
-    }
-
-    function updateTable(rankings) {
-        const table = document.getElementById('rankingTable');
-
-        table.innerHTML = rankings.map((member, index) => {
-            const showTier = currentMode === 'multi';
-            const tierName = member.multiTier || 'BRONZE';
-            const tierColor = member.multiTierColor || '#cd7f32';
-            const tierDisplayName = member.multiTierDisplayName || '';
-            const badgeEmoji = member.badgeEmoji ? `<span class="member-badge" title="${member.badgeName || ''}">${member.badgeEmoji}</span>` : '';
-
-            return `
-                <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
-                    <div class="rank-cell">
-                        ${index < 3 ? getMedal(index) : (index + 1)}
-                    </div>
-                    <div class="name-cell">
-                        ${showTier ? `<span class="tier-badge tier-${tierName.toLowerCase()}" style="color: ${tierColor}">${tierDisplayName}</span>` : ''}
-                        ${badgeEmoji}
-                        <span class="member-name">${member.nickname}</span>
-                    </div>
-                    <div class="stats-cell">
-                        <span class="main-stat">${formatValue(member)}</span>
-                        <span class="sub-stat">${formatSubStat(member)}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
     }
 
     function updateBest30Table(rankings) {
@@ -483,60 +429,101 @@
         return medals[index] || (index + 1);
     }
 
-    function formatValue(member) {
-        if (currentMode === 'multi') {
-            return (member.multiLp || 0) + ' LP';
+    // 통계 UI
+    function updateStatsUI(rankings) {
+        if (rankings.length === 0) {
+            document.getElementById('topThreePodium').style.display = 'none';
+            document.getElementById('rankingTable').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'flex';
+            return;
         }
 
-        if (currentPeriod === 'best' || currentPeriod === 'weekly') {
-            return member.totalScore.toLocaleString() + '점';
-        }
+        document.getElementById('topThreePodium').style.display = 'flex';
+        document.getElementById('rankingTable').style.display = 'block';
+        document.getElementById('emptyState').style.display = 'none';
 
-        switch(currentType) {
-            case 'score':
-                return member.totalScore.toLocaleString() + '점';
-            case 'accuracy':
-                return member.accuracyRate.toFixed(1) + '%';
-            case 'avgScore':
-                return (member.averageScore || 0).toFixed(1) + '점';
-            case 'correct':
-                return member.totalCorrect + '개';
+        updateStatsPodium(rankings);
+        updateStatsTable(rankings);
+    }
+
+    function updateStatsPodium(rankings) {
+        const places = [
+            { id: 'place1', index: 0 },
+            { id: 'place2', index: 1 },
+            { id: 'place3', index: 2 }
+        ];
+
+        places.forEach(place => {
+            const el = document.getElementById(place.id);
+            const member = rankings[place.index];
+
+            if (member) {
+                el.style.display = 'flex';
+                const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
+                el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
+                el.querySelector('.podium-value').textContent = formatStatsValue(member);
+                el.querySelector('.podium-stand').textContent = place.index + 1;
+
+                const tierEl = el.querySelector('.podium-tier');
+                tierEl.textContent = '';
+                tierEl.style.display = 'none';
+            } else {
+                el.style.display = 'none';
+            }
+        });
+    }
+
+    function updateStatsTable(rankings) {
+        const table = document.getElementById('rankingTable');
+
+        table.innerHTML = rankings.map((member, index) => {
+            const badgeEmoji = member.badgeEmoji ? `<span class="member-badge" title="${member.badgeName || ''}">${member.badgeEmoji}</span>` : '';
+
+            return `
+                <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
+                    <div class="rank-cell">
+                        ${index < 3 ? getMedal(index) : (index + 1)}
+                    </div>
+                    <div class="name-cell">
+                        ${badgeEmoji}
+                        <span class="member-name">${member.nickname}</span>
+                    </div>
+                    <div class="stats-cell">
+                        <span class="main-stat">${formatStatsValue(member)}</span>
+                        <span class="sub-stat">${formatStatsSubStat(member)}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function formatStatsValue(member) {
+        switch (statsType) {
             case 'games':
-                return member.totalGames + '게임';
-            case 'rounds':
-                return member.totalRounds + '라운드';
+                return (member.totalGames || 0) + '게임';
+            case 'score':
+                return (member.totalScore || 0).toLocaleString() + '점';
+            case 'avgScorePerRound':
+                return (member.averageScorePerRound || 0).toFixed(2) + '점';
+            case 'accuracyMin10':
+                return (member.accuracyRate || 0).toFixed(1) + '%';
             default:
-                return member.totalScore.toLocaleString() + '점';
+                return (member.totalScore || 0).toLocaleString() + '점';
         }
     }
 
-    function formatSubStat(member) {
-        if (currentMode === 'multi') {
-            return '1등 ' + (member.multiWins || 0) + '회 · Top3 ' + (member.multiTop3 || 0) + '회';
-        }
-
-        if (currentPeriod === 'best') {
-            return '최고 정답률 ' + member.accuracyRate.toFixed(1) + '%';
-        }
-        if (currentPeriod === 'weekly') {
-            return member.totalGames + '게임 · ' + member.accuracyRate.toFixed(1) + '%';
-        }
-
-        switch(currentType) {
-            case 'score':
-                return member.totalGames + '게임 · ' + member.accuracyRate.toFixed(1) + '%';
-            case 'accuracy':
-                return member.totalCorrect + '/' + member.totalRounds + '문제';
-            case 'avgScore':
-                return member.totalGames + '게임 · 총 ' + member.totalScore.toLocaleString() + '점';
-            case 'correct':
-                return member.totalRounds + '라운드 · ' + member.accuracyRate.toFixed(1) + '%';
+    function formatStatsSubStat(member) {
+        switch (statsType) {
             case 'games':
-                return member.totalScore.toLocaleString() + '점 · ' + member.accuracyRate.toFixed(1) + '%';
-            case 'rounds':
-                return member.totalGames + '게임 · ' + member.totalCorrect + '정답';
+                return (member.totalScore || 0).toLocaleString() + '점 · ' + (member.accuracyRate || 0).toFixed(1) + '%';
+            case 'score':
+                return (member.totalGames || 0) + '게임 · ' + (member.accuracyRate || 0).toFixed(1) + '%';
+            case 'avgScorePerRound':
+                return (member.totalRounds || 0) + '라운드 · ' + (member.totalScore || 0).toLocaleString() + '점';
+            case 'accuracyMin10':
+                return (member.totalCorrect || 0) + '/' + (member.totalRounds || 0) + '문제 · ' + (member.totalGames || 0) + '게임';
             default:
-                return member.totalGames + '게임';
+                return (member.totalGames || 0) + '게임';
         }
     }
 </script>
