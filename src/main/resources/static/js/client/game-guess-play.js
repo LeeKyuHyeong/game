@@ -74,7 +74,32 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // 대체된 곡 알림 표시
     showReplacedSongsNotice();
+
+    // 챌린지 모드 배너 표시
+    initChallengeBanner();
 });
+
+// 챌린지 모드 배너 초기화
+function initChallengeBanner() {
+    const isChallengeMode = sessionStorage.getItem('challengeMode') === 'true';
+    const banner = document.getElementById('challengeBanner');
+
+    if (isChallengeMode && totalRounds === 30 && gameMode === 'RANDOM') {
+        banner.style.display = 'flex';
+        updateChallengeProgress(1);
+    }
+}
+
+// 챌린지 진행 상황 업데이트
+function updateChallengeProgress(round) {
+    const isChallengeMode = sessionStorage.getItem('challengeMode') === 'true';
+    if (!isChallengeMode) return;
+
+    const progressEl = document.getElementById('challengeProgress');
+    if (progressEl) {
+        progressEl.textContent = `${round - 1}/30 완료`;
+    }
+}
 
 // 라운드 축소 알림 표시
 function showReplacedSongsNotice() {
@@ -352,6 +377,9 @@ async function loadRound(roundNumber) {
 
         currentRound = roundNumber;
         currentSong = result.song;
+
+        // 챌린지 진행 상황 업데이트
+        updateChallengeProgress(roundNumber);
 
         // 서버의 totalRounds로 업데이트
         if (result.totalRounds) {

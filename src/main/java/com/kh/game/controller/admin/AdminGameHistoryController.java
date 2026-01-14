@@ -116,7 +116,7 @@ public class AdminGameHistoryController {
 
     @GetMapping("/ranking")
     public String ranking(
-            @RequestParam(defaultValue = "total") String rankType,
+            @RequestParam(defaultValue = "guess") String rankType,
             Model model) {
 
         // 멀티게임 LP 티어 분포 조회
@@ -157,7 +157,7 @@ public class AdminGameHistoryController {
                 memberRankings = memberService.getGuessBestScoreRanking(50);
                 break;
             default:
-                memberRankings = memberService.getTopRankingByScore(50);
+                memberRankings = memberService.getGuessRankingByScore(50);
         }
 
         model.addAttribute("multiTierDistribution", multiTierDistribution);

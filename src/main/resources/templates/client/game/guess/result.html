@@ -3,6 +3,15 @@
 <head th:replace="~{common/fragments/head :: clientHead('게임 결과 - Song Quiz')}"></head>
 <body class="client-page result-page">
 <div class="result-container">
+    <!-- 챌린지 완료 배너 (JS에서 제어) -->
+    <div class="challenge-complete-banner" id="challengeCompleteBanner" style="display: none;">
+        <div class="challenge-complete-content">
+            <div class="challenge-icon-large">🏆</div>
+            <h2>30개 챌린지 완료!</h2>
+            <p>기록이 랭킹에 반영됩니다</p>
+        </div>
+    </div>
+
     <header class="result-header">
         <h1>🏆 게임 결과</h1>
         <p th:text="${nickname}"></p>
@@ -86,16 +95,99 @@
 
     <footer class="result-footer">
         <a href="/game/solo/guess" class="btn btn-replay">다시 하기 🔄</a>
+        <a href="/ranking" class="btn btn-ranking" id="rankingBtn" style="display: none;">랭킹 보기 🏆</a>
         <a href="/" class="btn btn-home">홈으로 🏠</a>
     </footer>
 </div>
 
 <script th:src="@{/js/common/common.js}"></script>
+<script>
+    // 챌린지 모드 완료 처리
+    document.addEventListener('DOMContentLoaded', function() {
+        const isChallengeMode = sessionStorage.getItem('challengeMode') === 'true';
+
+        if (isChallengeMode) {
+            // 챌린지 완료 배너 표시
+            const banner = document.getElementById('challengeCompleteBanner');
+            if (banner) {
+                banner.style.display = 'block';
+            }
+
+            // 랭킹 보기 버튼 표시
+            const rankingBtn = document.getElementById('rankingBtn');
+            if (rankingBtn) {
+                rankingBtn.style.display = 'inline-flex';
+            }
+
+            // 세션스토리지 정리
+            sessionStorage.removeItem('challengeMode');
+        }
+    });
+</script>
 
 <!-- 신고 모달 -->
 <th:block th:replace="~{common/fragments/report-modal :: reportModal}"></th:block>
 
 <style>
+/* 챌린지 완료 배너 */
+.challenge-complete-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px;
+    text-align: center;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    animation: celebrationPulse 2s ease-in-out infinite;
+}
+
+@keyframes celebrationPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4); }
+    50% { box-shadow: 0 4px 30px rgba(102, 126, 234, 0.7); }
+}
+
+.challenge-complete-content .challenge-icon-large {
+    font-size: 3.5rem;
+    margin-bottom: 8px;
+}
+
+.challenge-complete-content h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.challenge-complete-content p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* 랭킹 버튼 */
+.btn-ranking {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-ranking:hover {
+    filter: brightness(1.1);
+}
+
+@media (max-width: 480px) {
+    .challenge-complete-banner {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    .challenge-complete-content .challenge-icon-large {
+        font-size: 2.5rem;
+    }
+    .challenge-complete-content h2 {
+        font-size: 1.25rem;
+    }
+}
+
 .btn-report-small {
     display: block;
     margin-top: 8px;

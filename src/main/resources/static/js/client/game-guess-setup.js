@@ -6,6 +6,69 @@ let selectedArtists = [];
 let allYears = [];
 let allArtists = [];
 
+// ========== 30개 챌린지 ==========
+
+function openChallengeModal() {
+    document.getElementById('challengeModal').classList.add('active');
+}
+
+function closeChallengeModal() {
+    document.getElementById('challengeModal').classList.remove('active');
+}
+
+// 모달 외부 클릭 시 닫기
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('challengeModal');
+    if (e.target === modal) {
+        closeChallengeModal();
+    }
+});
+
+// ESC 키로 모달 닫기
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeChallengeModal();
+    }
+});
+
+async function startChallenge() {
+    // 로그인 사용자의 닉네임 사용
+    const nickname = memberNickname || '';
+    if (!nickname) {
+        alert('로그인이 필요합니다.');
+        window.location.href = '/auth/login';
+        return;
+    }
+
+    try {
+        const response = await fetch('/game/solo/guess/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nickname: nickname,
+                totalRounds: 30,
+                gameMode: 'RANDOM',
+                settings: {
+                    challengeMode: true  // 챌린지 모드 플래그
+                }
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // 챌린지 모드 정보 저장
+            sessionStorage.setItem('challengeMode', 'true');
+            window.location.href = '/game/solo/guess/play';
+        } else {
+            alert(result.message || '게임 시작에 실패했습니다.');
+        }
+    } catch (error) {
+        alert('게임 시작 중 오류가 발생했습니다.');
+        console.error(error);
+    }
+}
+
 // 초기화
 document.addEventListener('DOMContentLoaded', function() {
     // 로그인한 경우 닉네임 자동 입력
@@ -17,20 +80,17 @@ document.addEventListener('DOMContentLoaded', function() {
     loadYears();
     loadArtists();
 
-    // 초기 노래 개수 및 랭킹 조건 업데이트
+    // 초기 노래 개수 업데이트
     updateSongCount();
-    updateRankingNotice();
 
     // 라운드 입력 이벤트
     document.getElementById('totalRounds').addEventListener('change', function() {
         validateRounds();
         updatePresetButtons();
-        updateRankingNotice();
     });
 
     document.getElementById('totalRounds').addEventListener('input', function() {
         updatePresetButtons();
-        updateRankingNotice();
     });
 
     // 게임 모드 변경 이벤트
@@ -50,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('input[name="artistType"]').forEach(radio => {
         radio.addEventListener('change', function() {
             updateSongCount();
-            updateRankingNotice();
         });
     });
 
@@ -104,7 +163,6 @@ function handleGameModeChange() {
     }
 
     updateSongCount();
-    updateRankingNotice();
 }
 
 // ========== 라운드 설정 ==========
@@ -120,7 +178,6 @@ function adjustRounds(delta) {
 
     input.value = value;
     updatePresetButtons();
-    updateRankingNotice();
 }
 
 function setRounds(value) {
@@ -130,7 +187,6 @@ function setRounds(value) {
     }
     document.getElementById('totalRounds').value = value;
     updatePresetButtons();
-    updateRankingNotice();
 }
 
 function updatePresetButtons() {
@@ -168,70 +224,6 @@ function validateRounds() {
 
 function getTotalRounds() {
     return parseInt(document.getElementById('totalRounds').value) || 10;
-}
-
-// ========== 랭킹 조건 ==========
-
-function updateRankingNotice() {
-    const rounds = getTotalRounds();
-    const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
-    const loggedIn = typeof isLoggedIn !== 'undefined' && isLoggedIn;
-    const artistType = document.querySelector('input[name="artistType"]:checked').value;
-
-    const conditionModeMet = gameMode === 'RANDOM';
-    const conditionLoginMet = loggedIn;
-    const conditionRoundsMet = rounds >= 10;
-    // 아티스트 고정 모드에서는 아티스트 유형 조건 미충족
-    const conditionArtistMet = gameMode === 'FIXED_ARTIST' ? false : artistType === 'all';
-
-    // 전체 랜덤 모드가 아니면 다른 조건들 비활성화 표시
-    updateConditionUI('conditionMode', conditionModeMet, false);
-    updateConditionUI('conditionLogin', conditionLoginMet, !conditionModeMet);
-    updateConditionUI('conditionRounds', conditionRoundsMet, !conditionModeMet);
-    updateConditionUI('conditionArtist', conditionArtistMet, !conditionModeMet);
-
-    const resultEl = document.getElementById('noticeResult');
-    const allMet = conditionLoginMet && conditionModeMet && conditionRoundsMet && conditionArtistMet;
-
-    if (allMet) {
-        resultEl.textContent = '최고기록 랭킹에 등록됩니다!';
-        resultEl.className = 'notice-result success';
-    } else {
-        const missing = [];
-        if (!conditionModeMet) missing.push('전체 랜덤 모드');
-        else {
-            if (!conditionLoginMet) missing.push('로그인');
-            if (!conditionRoundsMet) missing.push('10라운드 이상');
-            if (!conditionArtistMet) missing.push('아티스트 유형 전체');
-        }
-        resultEl.textContent = `조건 미충족: ${missing.join(', ')}`;
-        resultEl.className = 'notice-result warning';
-    }
-}
-
-function updateConditionUI(elementId, isMet, disabled = false) {
-    const el = document.getElementById(elementId);
-    if (!el) return;
-    const iconEl = el.querySelector('.condition-icon');
-
-    // 비활성화 상태 처리
-    if (disabled) {
-        el.classList.add('disabled');
-        el.classList.remove('met', 'unmet');
-        iconEl.textContent = '−';
-        return;
-    }
-
-    el.classList.remove('disabled');
-    if (isMet) {
-        el.classList.add('met');
-        el.classList.remove('unmet');
-        iconEl.textContent = '✓';
-    } else {
-        el.classList.add('unmet');
-        el.classList.remove('met');
-        iconEl.textContent = '○';
-    }
 }
 
 // ========== 데이터 로드 ==========
@@ -394,12 +386,10 @@ async function updateSongCount() {
                 // 현재 라운드가 max보다 크면 줄임
                 document.getElementById('totalRounds').value = maxAvailableSongs;
                 updatePresetButtons();
-                updateRankingNotice();
             } else if (currentRounds < maxAvailableSongs && currentRounds < 10) {
                 // 현재 라운드가 max보다 작고 10 미만이면 자동으로 올림 (최대 10 또는 max)
                 document.getElementById('totalRounds').value = Math.min(10, maxAvailableSongs);
                 updatePresetButtons();
-                updateRankingNotice();
             }
         }
 

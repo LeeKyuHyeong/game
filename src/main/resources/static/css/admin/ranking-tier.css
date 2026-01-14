@@ -103,64 +103,175 @@
 .table-tier-badge.BRONZE { background: rgba(205, 97, 51, 0.2); color: #cd6133; }
 .rank-medal { font-size: 1.2rem; }
 
+/* Mobile Tier Mini Bar - Hidden by default */
+.tier-mini-bar { display: none; }
+
+/* Mobile Card List - Hidden by default */
+.mobile-card-list { display: none; }
+
 /* Mobile Responsive */
 @media (max-width: 1200px) {
     .tier-cards { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 768px) {
-    .tier-dashboard { padding: 16px; }
-    .tier-dashboard h2 { font-size: 1.2rem; flex-wrap: wrap; }
-    .tier-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .tier-card { padding: 12px; }
-    .tier-icon { font-size: 1.5rem; margin-bottom: 4px; }
-    .tier-name { font-size: 0.75rem; }
-    .tier-count { font-size: 1.2rem; }
-    .tier-percent { font-size: 0.7rem; }
+    /* Hide desktop elements */
+    .desktop-only { display: none !important; }
 
-    .tier-chart { padding: 14px; }
-    .tier-chart h3 { font-size: 0.85rem; }
-    .chart-bar-label { width: 60px; font-size: 0.7rem; }
-    .chart-bar-container { height: 20px; }
-    .chart-bar { font-size: 0.65rem; padding-right: 6px; }
+    /* Show mobile tier mini bar */
+    .tier-mini-bar {
+        display: block;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+    }
+    .tier-mini-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 0.85rem;
+        color: #fff;
+        font-weight: 600;
+    }
+    .tier-mini-total {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.5);
+        font-weight: 400;
+    }
+    .tier-mini-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .tier-mini-item {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.8);
+        background: rgba(255,255,255,0.08);
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+    .tier-mini-item span { font-weight: 600; }
+    .tier-mini-item.chal { border-left: 2px solid #00BFFF; }
+    .tier-mini-item.mas { border-left: 2px solid #FF6B6B; }
+    .tier-mini-item.dia { border-left: 2px solid #87CEEB; }
+    .tier-mini-item.plat { border-left: 2px solid #C0C0C0; }
+    .tier-mini-item.gold { border-left: 2px solid #FFD700; }
+    .tier-mini-item.silver { border-left: 2px solid #A8A8A8; }
+    .tier-mini-item.bronze { border-left: 2px solid #CD7F32; }
 
-    .top-rankers { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .ranker-card { padding: 14px 10px; }
-    .ranker-rank { font-size: 0.7rem; padding: 3px 10px; }
-    .ranker-tier-badge { font-size: 0.65rem; padding: 3px 8px; margin-top: 10px; }
-    .ranker-nickname { font-size: 0.9rem; }
-    .ranker-score { font-size: 1rem; }
-    .ranker-stats { font-size: 0.7rem; }
+    /* Rank Type Tabs - Compact */
+    .rank-type-tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 16px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .rank-type-tab {
+        white-space: nowrap;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        border-radius: 20px;
+    }
 
-    .rank-type-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; }
-    .rank-type-tab { white-space: nowrap; padding: 8px 14px; font-size: 0.8rem; }
-
-    .ranking-table-container { overflow-x: auto; margin-left: -16px; margin-right: -16px; border-radius: 0; }
-    .member-ranking-table { min-width: 600px; }
-    .member-ranking-table th { padding: 10px 12px; font-size: 0.75rem; }
-    .member-ranking-table td { padding: 10px 12px; font-size: 0.8rem; }
-    .member-ranking-table th:nth-child(7),
-    .member-ranking-table td:nth-child(7) { display: none; }
-    .table-tier-badge { font-size: 0.65rem; padding: 2px 6px; }
-    .rank-medal { font-size: 1rem; }
+    /* Show mobile card list */
+    .mobile-card-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .mobile-rank-card {
+        display: flex;
+        align-items: center;
+        background: #1a1a2e;
+        border-radius: 10px;
+        padding: 12px;
+        border: 1px solid #2d3748;
+        gap: 12px;
+    }
+    .mobile-rank-card.top-1 {
+        background: linear-gradient(135deg, #3d3a1a, #1a1a2e);
+        border-color: rgba(255, 215, 0, 0.4);
+    }
+    .mobile-rank-card.top-2 {
+        background: linear-gradient(135deg, #2a2a3a, #1a1a2e);
+        border-color: rgba(192, 192, 192, 0.4);
+    }
+    .mobile-rank-card.top-3 {
+        background: linear-gradient(135deg, #2d2319, #1a1a2e);
+        border-color: rgba(205, 127, 50, 0.4);
+    }
+    .mobile-rank-left {
+        width: 32px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    .mobile-rank-num {
+        font-size: 1rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.6);
+    }
+    .mobile-rank-center {
+        flex: 1;
+        min-width: 0;
+    }
+    .mobile-rank-name {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 4px;
+    }
+    .mobile-tier-badge {
+        font-size: 0.6rem;
+        padding: 2px 6px;
+        border-radius: 8px;
+        font-weight: 600;
+        color: #000;
+        flex-shrink: 0;
+    }
+    .mobile-rank-info {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.5);
+    }
+    .mobile-rank-right {
+        text-align: right;
+        flex-shrink: 0;
+    }
+    .mobile-rank-score {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+    .mobile-empty {
+        text-align: center;
+        padding: 40px 20px;
+        color: rgba(255,255,255,0.5);
+        font-size: 0.9rem;
+    }
 }
 
 @media (max-width: 480px) {
-    .tier-dashboard { padding: 12px; margin-bottom: 16px; }
-    .tier-cards { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-    .tier-card { padding: 8px 4px; }
-    .tier-icon { font-size: 1.2rem; margin-bottom: 2px; }
-    .tier-name { font-size: 0.65rem; }
-    .tier-count { font-size: 1rem; }
-    .tier-percent { font-size: 0.6rem; }
+    .tier-mini-bar { padding: 10px 12px; }
+    .tier-mini-header { font-size: 0.8rem; margin-bottom: 8px; }
+    .tier-mini-items { gap: 6px; }
+    .tier-mini-item { font-size: 0.7rem; padding: 3px 6px; }
 
-    .tier-chart { display: none; }
+    .rank-type-tab { padding: 6px 10px; font-size: 0.75rem; }
 
-    .top-rankers { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .ranker-card { padding: 12px 8px; }
-
-    .member-ranking-table th:nth-child(5),
-    .member-ranking-table td:nth-child(5),
-    .member-ranking-table th:nth-child(6),
-    .member-ranking-table td:nth-child(6) { display: none; }
+    .mobile-rank-card { padding: 10px; gap: 10px; }
+    .mobile-rank-left { width: 28px; }
+    .mobile-rank-num { font-size: 0.9rem; }
+    .mobile-rank-name { font-size: 0.85rem; }
+    .mobile-tier-badge { font-size: 0.55rem; padding: 2px 5px; }
+    .mobile-rank-info { font-size: 0.65rem; }
+    .mobile-rank-score { font-size: 0.85rem; }
 }

@@ -4,6 +4,12 @@
 <link rel="stylesheet" href="/css/client/game-guess-mobile.css">
 <body class="client-page game-page">
 <div class="game-container guess-mode guess-mobile-compact">
+    <!-- 챌린지 모드 표시 (JS에서 제어) -->
+    <div class="challenge-mode-banner" id="challengeBanner" style="display: none;">
+        <span class="challenge-badge">🎯 30개 챌린지</span>
+        <span class="challenge-progress" id="challengeProgress">0/30</span>
+    </div>
+
     <header class="game-header">
         <div class="game-info">
             <span class="round-info">
@@ -167,6 +173,45 @@
 <th:block th:replace="~{common/fragments/report-modal :: reportModal}"></th:block>
 
 <style>
+/* 챌린지 모드 배너 */
+.challenge-mode-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.challenge-badge {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.challenge-progress {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 480px) {
+    .challenge-mode-banner {
+        padding: 8px 12px;
+        margin-bottom: 8px;
+    }
+    .challenge-badge {
+        font-size: 0.85rem;
+    }
+    .challenge-progress {
+        padding: 3px 10px;
+        font-size: 0.75rem;
+    }
+}
+
 .ready-prompt {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     border-radius: 16px;

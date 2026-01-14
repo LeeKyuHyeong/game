@@ -11,8 +11,25 @@
             <h1>🏆 랭킹</h1>
         </header>
 
-        <!-- Multi LP Tier Distribution Dashboard -->
-        <div class="tier-dashboard">
+        <!-- Mobile Tier Mini Bar -->
+        <div class="tier-mini-bar">
+            <div class="tier-mini-header">
+                <span>티어분포</span>
+                <span class="tier-mini-total">총 [[${totalMultiPlayers}]]명</span>
+            </div>
+            <div class="tier-mini-items">
+                <span class="tier-mini-item chal">🏆<span th:text="${multiTierDistribution['CHALLENGER']}">0</span></span>
+                <span class="tier-mini-item mas">👑<span th:text="${multiTierDistribution['MASTER']}">0</span></span>
+                <span class="tier-mini-item dia">💎<span th:text="${multiTierDistribution['DIAMOND']}">0</span></span>
+                <span class="tier-mini-item plat">🔮<span th:text="${multiTierDistribution['PLATINUM']}">0</span></span>
+                <span class="tier-mini-item gold">🏅<span th:text="${multiTierDistribution['GOLD']}">0</span></span>
+                <span class="tier-mini-item silver">🥈<span th:text="${multiTierDistribution['SILVER']}">0</span></span>
+                <span class="tier-mini-item bronze">🥉<span th:text="${multiTierDistribution['BRONZE']}">0</span></span>
+            </div>
+        </div>
+
+        <!-- Multi LP Tier Distribution Dashboard (Desktop) -->
+        <div class="tier-dashboard desktop-only">
             <h2>멀티게임 LP 티어 분포 <span style="font-size: 0.9rem; color: rgba(255,255,255,0.5);">총 [[${totalMultiPlayers}]]명</span></h2>
             <div class="tier-cards" style="grid-template-columns: repeat(7, 1fr);">
                 <div class="tier-card" style="background: linear-gradient(135deg, #00BFFF 0%, #1E90FF 100%);">
@@ -109,15 +126,14 @@
 
         <!-- Rank Type Tabs -->
         <div class="rank-type-tabs">
-            <a th:href="@{/admin/history/ranking(rankType='total')}" th:classappend="${rankType == 'total' or rankType == null} ? 'active'" class="rank-type-tab">🏆 전체 랭킹</a>
-            <a th:href="@{/admin/history/ranking(rankType='guess')}" th:classappend="${rankType == 'guess'} ? 'active'" class="rank-type-tab">🎵 내가맞추기</a>
+            <a th:href="@{/admin/history/ranking(rankType='guess')}" th:classappend="${rankType == 'guess' or rankType == null} ? 'active'" class="rank-type-tab">🎵 내가맞추기</a>
             <a th:href="@{/admin/history/ranking(rankType='multi')}" th:classappend="${rankType == 'multi'} ? 'active'" class="rank-type-tab">👥 멀티게임</a>
             <a th:href="@{/admin/history/ranking(rankType='weekly')}" th:classappend="${rankType == 'weekly'} ? 'active'" class="rank-type-tab">📅 주간</a>
             <a th:href="@{/admin/history/ranking(rankType='best')}" th:classappend="${rankType == 'best'} ? 'active'" class="rank-type-tab">⭐ 최고기록</a>
         </div>
 
-        <!-- TOP 10 Rankers (Non-Multi) -->
-        <div class="top-rankers" th:if="${!#lists.isEmpty(memberRankings) and rankType != 'multi'}">
+        <!-- TOP 10 Rankers (Non-Multi) - Desktop -->
+        <div class="top-rankers desktop-only" th:if="${!#lists.isEmpty(memberRankings) and rankType != 'multi'}">
             <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 10}">
                 <div class="ranker-card" th:classappend="${idx.index == 0} ? 'top-1' : (${idx.index == 1} ? 'top-2' : (${idx.index == 2} ? 'top-3' : ''))">
                     <div class="ranker-rank">
@@ -137,8 +153,8 @@
             </th:block>
         </div>
 
-        <!-- TOP 10 Rankers (Multi - LP Tier) -->
-        <div class="top-rankers" th:if="${!#lists.isEmpty(memberRankings) and rankType == 'multi'}">
+        <!-- TOP 10 Rankers (Multi - LP Tier) - Desktop -->
+        <div class="top-rankers desktop-only" th:if="${!#lists.isEmpty(memberRankings) and rankType == 'multi'}">
             <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 10}">
                 <div class="ranker-card" th:classappend="${idx.index == 0} ? 'top-1' : (${idx.index == 1} ? 'top-2' : (${idx.index == 2} ? 'top-3' : ''))">
                     <div class="ranker-rank">
@@ -158,8 +174,62 @@
             </th:block>
         </div>
 
-        <!-- Ranking Table (Non-Multi) -->
-        <div class="ranking-table-container" th:if="${rankType != 'multi'}">
+        <!-- Mobile Card List (Non-Multi) -->
+        <div class="mobile-card-list" th:if="${!#lists.isEmpty(memberRankings) and rankType != 'multi'}">
+            <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 20}">
+                <div class="mobile-rank-card" th:classappend="${idx.index < 3} ? 'top-' + (${idx.index + 1}) : ''">
+                    <div class="mobile-rank-left">
+                        <span class="mobile-rank-num" th:if="${idx.index == 0}">🥇</span>
+                        <span class="mobile-rank-num" th:if="${idx.index == 1}">🥈</span>
+                        <span class="mobile-rank-num" th:if="${idx.index == 2}">🥉</span>
+                        <span class="mobile-rank-num" th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
+                    </div>
+                    <div class="mobile-rank-center">
+                        <div class="mobile-rank-name">
+                            <span th:text="${member.nickname}">닉네임</span>
+                            <span class="mobile-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</span>
+                        </div>
+                        <div class="mobile-rank-info">
+                            게임 <span th:text="${member.totalGames}">0</span>회 · 정답률 <span th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)}">0</span>%
+                        </div>
+                    </div>
+                    <div class="mobile-rank-right">
+                        <span class="mobile-rank-score" th:text="${#numbers.formatInteger(member.totalScore, 0, 'COMMA')} + '점'">0점</span>
+                    </div>
+                </div>
+            </th:block>
+            <div class="mobile-empty" th:if="${#lists.isEmpty(memberRankings)}">랭킹 데이터가 없습니다.</div>
+        </div>
+
+        <!-- Mobile Card List (Multi) -->
+        <div class="mobile-card-list" th:if="${!#lists.isEmpty(memberRankings) and rankType == 'multi'}">
+            <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 20}">
+                <div class="mobile-rank-card" th:classappend="${idx.index < 3} ? 'top-' + (${idx.index + 1}) : ''">
+                    <div class="mobile-rank-left">
+                        <span class="mobile-rank-num" th:if="${idx.index == 0}">🥇</span>
+                        <span class="mobile-rank-num" th:if="${idx.index == 1}">🥈</span>
+                        <span class="mobile-rank-num" th:if="${idx.index == 2}">🥉</span>
+                        <span class="mobile-rank-num" th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
+                    </div>
+                    <div class="mobile-rank-center">
+                        <div class="mobile-rank-name">
+                            <span th:text="${member.nickname}">닉네임</span>
+                            <span class="mobile-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</span>
+                        </div>
+                        <div class="mobile-rank-info">
+                            1위 <span th:text="${member.multiWins}">0</span>회 · TOP3 <span th:text="${member.multiTop3}">0</span>회
+                        </div>
+                    </div>
+                    <div class="mobile-rank-right">
+                        <span class="mobile-rank-score" th:text="${member.multiLp} + ' LP'">0 LP</span>
+                    </div>
+                </div>
+            </th:block>
+            <div class="mobile-empty" th:if="${#lists.isEmpty(memberRankings)}">랭킹 데이터가 없습니다.</div>
+        </div>
+
+        <!-- Ranking Table (Non-Multi) - Desktop -->
+        <div class="ranking-table-container desktop-only" th:if="${rankType != 'multi'}">
             <table class="member-ranking-table">
                 <thead>
                 <tr>
@@ -198,8 +268,8 @@
             </table>
         </div>
 
-        <!-- Ranking Table (Multi - LP Tier) -->
-        <div class="ranking-table-container" th:if="${rankType == 'multi'}">
+        <!-- Ranking Table (Multi - LP Tier) - Desktop -->
+        <div class="ranking-table-container desktop-only" th:if="${rankType == 'multi'}">
             <table class="member-ranking-table">
                 <thead>
                 <tr>

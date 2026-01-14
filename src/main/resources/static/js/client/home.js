@@ -91,7 +91,7 @@ async function loadMyRanking() {
             return;
         }
 
-        section.style.display = 'block';
+        section.style.display = '';
 
         if (data.guessGames > 0) {
             content.innerHTML = `

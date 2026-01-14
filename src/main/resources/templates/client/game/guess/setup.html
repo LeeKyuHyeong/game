@@ -13,6 +13,30 @@
 
     <main class="setup-main">
         <div class="setup-card">
+            <!-- 30개 챌린지 바로가기 -->
+            <div class="challenge-shortcut" id="challengeShortcut">
+                <div class="challenge-shortcut-content" th:if="${isLoggedIn}">
+                    <div class="challenge-icon">🎯</div>
+                    <div class="challenge-info">
+                        <strong>30개 챌린지</strong>
+                        <span>전체 랜덤 30곡, 랭킹 도전!</span>
+                    </div>
+                    <button type="button" class="btn-challenge" onclick="openChallengeModal()">바로 시작</button>
+                </div>
+                <div class="challenge-shortcut-content locked" th:if="${!isLoggedIn}">
+                    <div class="challenge-icon">🔒</div>
+                    <div class="challenge-info">
+                        <strong>30개 챌린지</strong>
+                        <span>로그인 후 랭킹에 도전하세요!</span>
+                    </div>
+                    <a th:href="@{/auth/login}" class="btn-challenge-login">로그인</a>
+                </div>
+            </div>
+
+            <div class="setup-divider">
+                <span>또는 직접 설정</span>
+            </div>
+
             <div class="setup-step" id="step1">
                 <h2>게임 설정</h2>
 
@@ -156,39 +180,48 @@
                     </div>
                 </div>
 
-                <!-- 최고기록 랭킹 안내 -->
-                <div class="ranking-notice" id="rankingNotice">
-                    <div class="notice-header">
-                        <span class="notice-icon">🏆</span>
-                        <span class="notice-title">최고기록 랭킹 조건</span>
-                    </div>
-                    <ul class="notice-conditions">
-                        <li id="conditionLogin" class="condition">
-                            <span class="condition-icon">○</span>
-                            <span class="condition-text">로그인 상태</span>
-                        </li>
-                        <li id="conditionMode" class="condition">
-                            <span class="condition-icon">○</span>
-                            <span class="condition-text">전체 랜덤 모드</span>
-                        </li>
-                        <li id="conditionRounds" class="condition">
-                            <span class="condition-icon">○</span>
-                            <span class="condition-text">10라운드 이상</span>
-                        </li>
-                        <li id="conditionArtist" class="condition">
-                            <span class="condition-icon">○</span>
-                            <span class="condition-text">아티스트 유형 전체</span>
-                        </li>
-                    </ul>
-                    <p class="notice-result" id="noticeResult"></p>
-                </div>
-
                 <div class="step-buttons">
                     <button type="button" class="btn btn-start" onclick="startGame()">게임 시작!</button>
                 </div>
             </div>
         </div>
     </main>
+</div>
+
+<!-- 30개 챌린지 모달 -->
+<div class="modal" id="challengeModal">
+    <div class="modal-content challenge-modal">
+        <div class="challenge-modal-header">
+            <span class="challenge-modal-icon">🏆</span>
+            <h2>30개 챌린지</h2>
+        </div>
+        <div class="challenge-modal-body">
+            <div class="challenge-rules">
+                <h3>📋 규칙</h3>
+                <ul>
+                    <li><span class="rule-icon">🎲</span> 전체 장르에서 <strong>랜덤 30곡</strong> 출제</li>
+                    <li><span class="rule-icon">🎯</span> 곡당 <strong>3번의 기회</strong>로 정답 맞추기</li>
+                    <li><span class="rule-icon">⏱️</span> 제한 시간 없이 차분하게 도전</li>
+                    <li><span class="rule-icon">🏆</span> <strong>최고 점수</strong>가 랭킹에 기록됩니다</li>
+                </ul>
+            </div>
+            <div class="challenge-scoring">
+                <h3>💯 점수</h3>
+                <div class="scoring-table">
+                    <div class="score-row"><span>5초 이내 정답</span><strong>100점</strong></div>
+                    <div class="score-row"><span>8초 이내 정답</span><strong>90점</strong></div>
+                    <div class="score-row"><span>12초 이내 정답</span><strong>80점</strong></div>
+                    <div class="score-row"><span>15초 이내 정답</span><strong>70점</strong></div>
+                    <div class="score-row"><span>15초 초과 정답</span><strong>60점</strong></div>
+                    <div class="score-row total"><span>만점</span><strong>3000점</strong></div>
+                </div>
+            </div>
+        </div>
+        <div class="challenge-modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeChallengeModal()">취소</button>
+            <button type="button" class="btn-start-challenge" onclick="startChallenge()">🎮 챌린지 시작!</button>
+        </div>
+    </div>
 </div>
 
 <script th:inline="javascript">

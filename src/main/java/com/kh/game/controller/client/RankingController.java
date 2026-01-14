@@ -409,6 +409,8 @@ public class RankingController {
 
         result.put("loggedIn", true);
         result.put("nickname", member.getNickname());
+        result.put("tierColor", member.getMultiTierColor());
+        result.put("tierDisplayName", member.getMultiTierDisplayName());
 
         // 내가맞추기 순위
         int guessScore = member.getGuessScore() != null ? member.getGuessScore() : 0;
