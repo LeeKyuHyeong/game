@@ -1,10 +1,12 @@
 package com.kh.game.service;
 
 import com.kh.game.entity.Badge;
+import com.kh.game.entity.FanChallengeDifficulty;
 import com.kh.game.entity.Member;
 import com.kh.game.entity.MemberBadge;
 import com.kh.game.entity.MultiTier;
 import com.kh.game.repository.BadgeRepository;
+import com.kh.game.repository.FanChallengeRecordRepository;
 import com.kh.game.repository.MemberBadgeRepository;
 import com.kh.game.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class BadgeService {
     private final BadgeRepository badgeRepository;
     private final MemberBadgeRepository memberBadgeRepository;
     private final MemberRepository memberRepository;
+    private final FanChallengeRecordRepository fanChallengeRecordRepository;
 
     // ========== 뱃지 획득 체크 메서드 ==========
 
@@ -154,6 +157,43 @@ public class BadgeService {
 
         // 멀티 티어 뱃지
         checkMultiTierBadges(member, newBadges);
+
+        return newBadges;
+    }
+
+    /**
+     * 팬챌린지 퍼펙트 클리어 후 뱃지 체크
+     */
+    @Transactional
+    public List<Badge> checkBadgesAfterFanChallengePerfect(Member member, FanChallengeDifficulty difficulty) {
+        List<Badge> newBadges = new ArrayList<>();
+
+        // 전체 퍼펙트 마일스톤 (고유 아티스트 수 기준)
+        long totalPerfect = fanChallengeRecordRepository.countDistinctPerfectArtistsByMember(member);
+        if (totalPerfect >= 1) {
+            awardBadge(member, "FAN_FIRST_PERFECT").ifPresent(newBadges::add);
+        }
+        if (totalPerfect >= 5) {
+            awardBadge(member, "FAN_PERFECT_5").ifPresent(newBadges::add);
+        }
+        if (totalPerfect >= 10) {
+            awardBadge(member, "FAN_PERFECT_10").ifPresent(newBadges::add);
+        }
+
+        // 하드코어 퍼펙트 마일스톤
+        if (difficulty == FanChallengeDifficulty.HARDCORE) {
+            long hardcorePerfect = fanChallengeRecordRepository
+                .countDistinctPerfectArtistsByMemberAndDifficulty(member, FanChallengeDifficulty.HARDCORE);
+            if (hardcorePerfect >= 1) {
+                awardBadge(member, "FAN_HARDCORE_FIRST").ifPresent(newBadges::add);
+            }
+            if (hardcorePerfect >= 5) {
+                awardBadge(member, "FAN_HARDCORE_5").ifPresent(newBadges::add);
+            }
+            if (hardcorePerfect >= 10) {
+                awardBadge(member, "FAN_HARDCORE_10").ifPresent(newBadges::add);
+            }
+        }
 
         return newBadges;
     }

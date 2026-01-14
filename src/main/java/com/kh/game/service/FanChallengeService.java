@@ -24,6 +24,7 @@ public class FanChallengeService {
     private final GameSessionRepository gameSessionRepository;
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
     private final ObjectMapper objectMapper;
+    private final BadgeService badgeService;
 
     // 한글 초성 배열
     private static final char[] CHOSUNG = {
@@ -231,8 +232,12 @@ public class FanChallengeService {
                 fanChallengeRecordRepository.findByMemberAndArtistAndDifficulty(member, artist, difficulty);
 
         FanChallengeRecord record;
+        boolean isNewPerfectClear = false;
+
         if (existingRecord.isPresent()) {
             record = existingRecord.get();
+            boolean wasPerfect = Boolean.TRUE.equals(record.getIsPerfectClear());
+
             // 더 좋은 기록인 경우에만 업데이트
             if (session.getCorrectCount() > record.getCorrectCount()) {
                 record.setCorrectCount(session.getCorrectCount());
@@ -243,6 +248,9 @@ public class FanChallengeService {
                 if (session.getCorrectCount().equals(session.getTotalRounds())) {
                     record.setIsPerfectClear(true);
                     record.setBestTimeMs(session.getPlayTimeSeconds() * 1000);
+                    if (!wasPerfect) {
+                        isNewPerfectClear = true;
+                    }
                 }
             } else if (session.getCorrectCount().equals(record.getCorrectCount())
                     && record.getIsPerfectClear()
@@ -259,10 +267,23 @@ public class FanChallengeService {
             if (session.getCorrectCount().equals(session.getTotalRounds())) {
                 record.setIsPerfectClear(true);
                 record.setBestTimeMs(session.getPlayTimeSeconds() * 1000);
+                isNewPerfectClear = true;
             }
         }
 
-        return fanChallengeRecordRepository.save(record);
+        FanChallengeRecord savedRecord = fanChallengeRecordRepository.save(record);
+
+        // 퍼펙트 클리어 시 뱃지 체크
+        if (isNewPerfectClear) {
+            List<Badge> newBadges = badgeService.checkBadgesAfterFanChallengePerfect(member, difficulty);
+            if (!newBadges.isEmpty()) {
+                log.info("팬챌린지 퍼펙트 뱃지 획득: {} -> {}",
+                    member.getNickname(),
+                    newBadges.stream().map(Badge::getName).toList());
+            }
+        }
+
+        return savedRecord;
     }
 
     /**

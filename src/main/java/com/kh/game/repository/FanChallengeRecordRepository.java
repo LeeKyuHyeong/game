@@ -55,4 +55,16 @@ public interface FanChallengeRecordRepository extends JpaRepository<FanChallenge
     // 기록이 있는 아티스트 목록 (기록 수 기준 인기순, 하드코어만)
     @Query("SELECT r.artist, COUNT(r) as cnt FROM FanChallengeRecord r WHERE r.difficulty = 'HARDCORE' GROUP BY r.artist ORDER BY cnt DESC")
     List<Object[]> findPopularArtists(Pageable pageable);
+
+    // 회원의 퍼펙트 클리어 고유 아티스트 수 (전체 난이도)
+    @Query("SELECT COUNT(DISTINCT r.artist) FROM FanChallengeRecord r WHERE r.member = :member AND r.isPerfectClear = true")
+    long countDistinctPerfectArtistsByMember(@Param("member") Member member);
+
+    // 회원의 특정 난이도 퍼펙트 클리어 고유 아티스트 수
+    @Query("SELECT COUNT(DISTINCT r.artist) FROM FanChallengeRecord r WHERE r.member = :member AND r.isPerfectClear = true AND r.difficulty = :difficulty")
+    long countDistinctPerfectArtistsByMemberAndDifficulty(@Param("member") Member member, @Param("difficulty") FanChallengeDifficulty difficulty);
+
+    // 모든 퍼펙트 기록 조회 (배치용)
+    @Query("SELECT r FROM FanChallengeRecord r WHERE r.isPerfectClear = true")
+    List<FanChallengeRecord> findAllPerfectRecords();
 }

@@ -166,7 +166,15 @@ public class DataInitializer implements CommandLineRunner {
             new Object[]{"TIER_MASTER", "마스터 달성", "통합 티어 마스터 달성", "🔱", Badge.BadgeCategory.TIER, Badge.BadgeRarity.LEGENDARY, 44},
             new Object[]{"MULTI_TIER_GOLD", "멀티 골드", "멀티 티어 골드 달성", "🏅", Badge.BadgeCategory.TIER, Badge.BadgeRarity.RARE, 50},
             new Object[]{"MULTI_TIER_DIAMOND", "멀티 다이아", "멀티 티어 다이아몬드 달성", "💎", Badge.BadgeCategory.TIER, Badge.BadgeRarity.EPIC, 51},
-            new Object[]{"MULTI_TIER_CHALLENGER", "챌린저", "멀티 티어 챌린저 달성", "⚡", Badge.BadgeCategory.TIER, Badge.BadgeRarity.LEGENDARY, 52}
+            new Object[]{"MULTI_TIER_CHALLENGER", "챌린저", "멀티 티어 챌린저 달성", "⚡", Badge.BadgeCategory.TIER, Badge.BadgeRarity.LEGENDARY, 52},
+
+            // 팬챌린지 퍼펙트 마일스톤 (SPECIAL) - 6개
+            new Object[]{"FAN_FIRST_PERFECT", "첫 퍼펙트", "첫 아티스트 퍼펙트 클리어", "⭐", Badge.BadgeCategory.SPECIAL, Badge.BadgeRarity.RARE, 60},
+            new Object[]{"FAN_PERFECT_5", "퍼펙트 수집가", "5개 아티스트 퍼펙트 클리어", "🌟", Badge.BadgeCategory.SPECIAL, Badge.BadgeRarity.EPIC, 61},
+            new Object[]{"FAN_PERFECT_10", "퍼펙트 마스터", "10개 아티스트 퍼펙트 클리어", "💫", Badge.BadgeCategory.SPECIAL, Badge.BadgeRarity.LEGENDARY, 62},
+            new Object[]{"FAN_HARDCORE_FIRST", "하드코어 정복자", "첫 하드코어 퍼펙트 클리어", "🔥", Badge.BadgeCategory.SPECIAL, Badge.BadgeRarity.EPIC, 63},
+            new Object[]{"FAN_HARDCORE_5", "하드코어 마스터", "5개 아티스트 하드코어 퍼펙트", "💥", Badge.BadgeCategory.SPECIAL, Badge.BadgeRarity.LEGENDARY, 64},
+            new Object[]{"FAN_HARDCORE_10", "하드코어 레전드", "10개 아티스트 하드코어 퍼펙트", "👑", Badge.BadgeCategory.SPECIAL, Badge.BadgeRarity.LEGENDARY, 65}
         );
 
         int count = 0;

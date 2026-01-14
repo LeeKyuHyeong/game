@@ -282,7 +282,8 @@ public class BatchService {
                 "BATCH_YOUTUBE_VIDEO_CHECK",
                 "BATCH_GAME_SESSION_CLEANUP",
                 "BATCH_SONG_REPORT_CLEANUP",
-                "BATCH_BADGE_AWARD"
+                "BATCH_BADGE_AWARD",
+                "BATCH_FAN_CHALLENGE_PERFECT_CHECK"
         );
 
         int updatedCount = 0;
@@ -468,6 +469,21 @@ public class BatchService {
             badgeAwardConfig.setEnabled(false);  // 기본 비활성화 (수동 실행 전용)
             batchConfigRepository.save(badgeAwardConfig);
             log.info("BATCH_BADGE_AWARD 배치 설정 추가 완료");
+        }
+
+        // BATCH_FAN_CHALLENGE_PERFECT_CHECK: 팬챌린지 퍼펙트 검사 배치
+        if (!batchConfigRepository.existsById("BATCH_FAN_CHALLENGE_PERFECT_CHECK")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_FAN_CHALLENGE_PERFECT_CHECK",
+                    "팬챌린지 퍼펙트 검사",
+                    "아티스트에 곡이 추가되면 해당 아티스트의 퍼펙트 클리어를 무효화합니다.",
+                    "0 0 4 * * *",
+                    "매일 새벽 4시",
+                    "FanChallengeRecord",
+                    BatchConfig.Priority.MEDIUM,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_FAN_CHALLENGE_PERFECT_CHECK 배치 설정 추가 완료");
         }
     }
 
