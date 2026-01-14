@@ -111,9 +111,15 @@ public class GameRoomService {
 
     /**
      * 방 나가기
+     * 게임 진행 중(PLAYING)에는 나가기 무시 (페이지 전환 시 sendBeacon 버그 방지)
      */
     @Transactional
     public void leaveRoom(GameRoom room, Member member) {
+        // 게임 진행 중에는 나가기 무시
+        if (room.getStatus() == GameRoom.RoomStatus.PLAYING) {
+            return;
+        }
+
         GameRoomParticipant participant = participantRepository.findByGameRoomAndMember(room, member)
                 .orElseThrow(() -> new IllegalArgumentException("참가 정보를 찾을 수 없습니다."));
 
