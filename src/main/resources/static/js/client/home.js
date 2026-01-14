@@ -17,6 +17,7 @@ async function checkLoginStatus() {
             const adminBtn = result.role === 'ADMIN' ? '<a href="/admin/login" class="btn btn-admin">관리자</a>' : '';
             userInfo.innerHTML = `
                 <span class="user-greeting">안녕하세요, <strong>${result.nickname}</strong>님!</span>
+                <a href="/mypage" class="btn btn-mypage">마이페이지</a>
                 <button class="btn btn-logout" onclick="logout()">로그아웃</button>
                 ${adminBtn}
             `;
