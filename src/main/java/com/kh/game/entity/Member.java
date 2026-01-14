@@ -30,9 +30,6 @@ public class Member {
     @Column(nullable = false, length = 30)
     private String username;
 
-    @Column(name = "profile_image", length = 255)
-    private String profileImage;
-
     @Column(name = "total_games")
     private Integer totalGames = 0;
 
