@@ -19,9 +19,20 @@ let lastAudioPlaying = false;
 let lastAudioPlayedAt = null;
 let serverTimeOffset = 0;  // 서버 시간 - 클라이언트 시간
 
+// 재시도 관련
+let loadRetryCount = 0;
+const MAX_LOAD_RETRIES = 2;
+let errorRetryCount = 0;
+const MAX_ERROR_RETRIES = 1;
+
 // YouTube video ID 유효성 검사 (11자 alphanumeric + -_)
 function isValidYoutubeVideoId(videoId) {
-    return videoId && /^[a-zA-Z0-9_-]{11}$/.test(videoId.trim());
+    if (!videoId || typeof videoId !== 'string') return false;
+    var trimmed = videoId.trim();
+    // 정확히 11자, alphanumeric + - _
+    return /^[a-zA-Z0-9_-]{11}$/.test(trimmed) &&
+           trimmed !== 'undefined' &&
+           trimmed !== 'null';
 }
 
 // 페이지 로드 시 시작
@@ -297,6 +308,24 @@ function syncAudio(serverPlaying, serverPlayedAt) {
     lastAudioPlayedAt = serverPlayedAt;
 
     if (serverPlaying && serverPlayedAt && currentSong) {
+        // 플레이어 상태 체크
+        var playerState = YouTubePlayerManager.getPlayerState();
+
+        // UNSTARTED(-1) 상태면 아직 준비 안됨 - 500ms 후 재시도
+        if (playerState === -1) {
+            console.log('플레이어 아직 준비 안됨 (UNSTARTED), 500ms 후 재시도');
+            setTimeout(function() {
+                syncAudio(serverPlaying, serverPlayedAt);
+            }, 500);
+            return;
+        }
+
+        // 에러 상태면 재생 시도 안함
+        if (YouTubePlayerManager.hasPlaybackError()) {
+            console.warn('플레이어 에러 상태, 재생 스킵');
+            return;
+        }
+
         // 서버 시간 기준으로 경과 시간 계산 (오프셋 보정)
         var adjustedClientTime = Date.now() + serverTimeOffset;
         var elapsedMs = adjustedClientTime - serverPlayedAt;
@@ -349,13 +378,32 @@ function loadSong(song) {
 
     if (!youtubePlayerReady) {
         console.warn('YouTube Player not ready for loadSong');
+        // 1초 후 재시도
+        if (loadRetryCount < MAX_LOAD_RETRIES) {
+            loadRetryCount++;
+            console.log('YouTube Player not ready, 재시도 예정 (' + loadRetryCount + '/' + MAX_LOAD_RETRIES + ')');
+            setTimeout(function() { loadSong(song); }, 1000);
+        }
         return;
     }
 
     if (isValidYoutubeVideoId(song.youtubeVideoId)) {
+        // 새 곡이면 카운터 리셋
+        if (!currentSong || currentSong.id !== song.id) {
+            loadRetryCount = 0;
+            errorRetryCount = 0;
+        }
+
         var loaded = YouTubePlayerManager.loadVideo(song.youtubeVideoId.trim(), song.startTime || 0);
+        if (!loaded && loadRetryCount < MAX_LOAD_RETRIES) {
+            loadRetryCount++;
+            console.log('YouTube loadVideo 실패, 재시도 예정 (' + loadRetryCount + '/' + MAX_LOAD_RETRIES + ')');
+            setTimeout(function() { loadSong(song); }, 1000);
+            return;
+        }
+
         if (!loaded) {
-            console.error('YouTube loadVideo 실패');
+            console.error('YouTube loadVideo 실패 (최대 재시도 초과)');
             handlePlaybackError({
                 code: 'LOAD_FAILED',
                 message: 'YouTube 영상 로드 실패',
@@ -705,9 +753,10 @@ function handlePlaybackError(errorInfo) {
 }
 
 /**
- * 재생 불가 곡 자동 신고
+ * 재생 불가 곡 자동 신고 및 서버에 재생 오류 보고
  */
 async function reportUnplayableSong(songId, errorCode) {
+    // 1. 기존 신고 API 호출
     try {
         await fetch('/api/song-report', {
             method: 'POST',
@@ -721,6 +770,21 @@ async function reportUnplayableSong(songId, errorCode) {
         console.log('재생 불가 곡 자동 신고 완료');
     } catch (error) {
         console.error('자동 신고 실패:', error);
+    }
+
+    // 2. 서버에 재생 오류 보고 (YouTube 유효성 플래그 업데이트)
+    try {
+        await fetch('/game/multi/room/' + roomCode + '/playback-error', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                songId: songId,
+                errorCode: errorCode
+            })
+        });
+        console.log('서버에 재생 오류 보고 완료');
+    } catch (error) {
+        console.error('재생 오류 보고 실패:', error);
     }
 }
 
@@ -740,6 +804,9 @@ function showPlaybackErrorNotice(errorInfo) {
     if (isHost && currentSong) {
         html += '<button class="btn-skip-song" onclick="skipUnplayableSong(' + currentSong.id + ')">다른 곡으로 변경</button>';
     }
+
+    // 모든 사용자에게 플레이어 재시작 버튼 표시
+    html += '<button class="btn-skip-song" onclick="reinitializePlayer()" style="margin-left:5px;">플레이어 재시작</button>';
 
     div.innerHTML = html;
     container.appendChild(div);
@@ -771,5 +838,74 @@ async function skipUnplayableSong(songId) {
     } catch (error) {
         console.error('스킵 요청 실패:', error);
         alert('스킵 요청 중 오류가 발생했습니다.');
+    }
+}
+
+// ========== YouTube 플레이어 재초기화 ==========
+
+/**
+ * YouTube IFrame API 재초기화
+ * 심각한 오류 시 플레이어를 재생성합니다.
+ */
+async function reinitializePlayer() {
+    console.log('YouTube 플레이어 재초기화 중...');
+
+    // 기존 플레이어 정리
+    if (YouTubePlayerManager.player) {
+        try {
+            YouTubePlayerManager.player.destroy();
+        } catch (e) {
+            console.warn('플레이어 destroy 실패:', e);
+        }
+    }
+
+    YouTubePlayerManager.player = null;
+    YouTubePlayerManager.isReady = false;
+    YouTubePlayerManager.lastError = null;
+    YouTubePlayerManager.currentVideoId = null;
+    YouTubePlayerManager.retryCount = 0;
+    youtubePlayerReady = false;
+    isPlaying = false;
+
+    // 컨테이너 재생성
+    var container = document.getElementById('youtubePlayerContainer');
+    if (container) {
+        container.innerHTML = '<div id="youtubePlayerContainer"></div>';
+    }
+
+    try {
+        await YouTubePlayerManager.init('youtubePlayerContainer', {
+            onStateChange: function(e) {
+                if (e.data === 0) { // ENDED
+                    isPlaying = false;
+                }
+            },
+            onError: function(e, errorInfo) {
+                console.error('YouTube 재생 오류:', e.data);
+                handlePlaybackError(errorInfo);
+            }
+        });
+        youtubePlayerReady = true;
+
+        // 현재 곡 다시 로드
+        if (currentSong) {
+            loadRetryCount = 0;
+            errorRetryCount = 0;
+            loadSong(currentSong);
+        }
+
+        console.log('YouTube 플레이어 재초기화 완료');
+
+        // 재초기화 성공 알림
+        var chatContainer = document.getElementById('chatMessages');
+        var div = document.createElement('div');
+        div.className = 'chat-message system-message';
+        div.innerHTML = '<span class="system-text">✓ 플레이어가 재시작되었습니다.</span>';
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    } catch (error) {
+        console.error('YouTube 플레이어 재초기화 실패:', error);
+        showYouTubeInitError();
     }
 }

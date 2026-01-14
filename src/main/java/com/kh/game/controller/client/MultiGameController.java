@@ -8,6 +8,7 @@ import com.kh.game.service.GameRoomService;
 import com.kh.game.service.GenreService;
 import com.kh.game.service.MemberService;
 import com.kh.game.service.MultiGameService;
+import com.kh.game.service.SongService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class MultiGameController {
     private final MultiGameService multiGameService;
     private final MemberService memberService;
     private final GenreService genreService;
+    private final SongService songService;
     private final ObjectMapper objectMapper;
 
     // ========== 페이지 ==========
@@ -900,6 +902,57 @@ public class MultiGameController {
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "초기화 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 재생 오류 보고 API (Error 2 등)
+     * 참가자가 재생 오류를 보고하면 서버에서 곡 무효화 처리
+     */
+    @PostMapping("/room/{roomCode}/playback-error")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> reportPlaybackError(
+            @PathVariable String roomCode,
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            Long songId = request.get("songId") != null ? ((Number) request.get("songId")).longValue() : null;
+            Object errorCodeObj = request.get("errorCode");
+            final Integer finalErrorCode = (errorCodeObj instanceof Number) ? ((Number) errorCodeObj).intValue() : null;
+
+            if (songId == null) {
+                result.put("success", false);
+                result.put("message", "곡 정보가 없습니다.");
+                return ResponseEntity.ok(result);
+            }
+
+            // 곡의 YouTube 유효성 플래그 업데이트
+            songService.findById(songId).ifPresent(song -> {
+                song.setIsYoutubeValid(false);
+                song.setYoutubeCheckedAt(java.time.LocalDateTime.now());
+                song.setYoutubeErrorCode(finalErrorCode);
+                songService.save(song);
+            });
+
+            result.put("success", true);
+            result.put("message", "재생 오류가 보고되었습니다.");
+            result.put("songId", songId);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "오류 보고 실패: " + e.getMessage());
         }
 
         return ResponseEntity.ok(result);

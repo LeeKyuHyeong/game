@@ -51,6 +51,16 @@ public class Song {
     @Column(name = "use_yn")
     private String useYn = "Y";
 
+    // YouTube 유효성 플래그 (Error 2 방지용)
+    @Column(name = "is_youtube_valid")
+    private Boolean isYoutubeValid = true;
+
+    @Column(name = "youtube_checked_at")
+    private LocalDateTime youtubeCheckedAt;
+
+    @Column(name = "youtube_error_code")
+    private Integer youtubeErrorCode;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

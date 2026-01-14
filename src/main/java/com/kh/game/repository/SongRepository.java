@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface SongRepository extends JpaRepository<Song, Long> {
@@ -111,4 +113,57 @@ public interface SongRepository extends JpaRepository<Song, Long> {
 
     // 특정 YouTube video ID를 가진 곡 조회 (ID 오름차순)
     List<Song> findByYoutubeVideoIdAndUseYnOrderByIdAsc(String youtubeVideoId, String useYn);
+
+    // 유효한 YouTube Video ID를 가진 곡만 조회 (null, 빈 문자열 제외) - Error 2 방지용
+    @Query("SELECT s FROM Song s WHERE s.useYn = :useYn " +
+           "AND s.youtubeVideoId IS NOT NULL " +
+           "AND s.youtubeVideoId <> '' " +
+           "AND LENGTH(TRIM(s.youtubeVideoId)) = 11")
+    List<Song> findByUseYnAndValidYoutubeVideoId(@Param("useYn") String useYn);
+
+    // 유효한 YouTube Video ID를 가진 곡 조회 (특정 장르 제외, ID 제외) - 멀티게임용
+    @Query("SELECT s FROM Song s WHERE s.useYn = 'Y' " +
+           "AND s.youtubeVideoId IS NOT NULL " +
+           "AND s.youtubeVideoId <> '' " +
+           "AND LENGTH(TRIM(s.youtubeVideoId)) = 11 " +
+           "AND (s.genre IS NULL OR s.genre.code <> :excludeGenreCode) " +
+           "AND s.id NOT IN :excludeIds")
+    List<Song> findValidSongsExcluding(
+            @Param("excludeGenreCode") String excludeGenreCode,
+            @Param("excludeIds") Set<Long> excludeIds);
+
+    // 장르별 유효한 YouTube Video ID를 가진 곡 조회 - 멀티게임용
+    @Query("SELECT s FROM Song s WHERE s.useYn = 'Y' " +
+           "AND s.youtubeVideoId IS NOT NULL " +
+           "AND s.youtubeVideoId <> '' " +
+           "AND LENGTH(TRIM(s.youtubeVideoId)) = 11 " +
+           "AND (:genreId IS NULL OR s.genre.id = :genreId) " +
+           "AND (s.genre IS NULL OR s.genre.code <> :excludeGenreCode) " +
+           "AND s.id NOT IN :excludeIds")
+    List<Song> findValidSongsByGenreExcluding(
+            @Param("genreId") Long genreId,
+            @Param("excludeGenreCode") String excludeGenreCode,
+            @Param("excludeIds") Set<Long> excludeIds);
+
+    // YouTube 유효성 플래그 기반 조회 (검증된 곡만)
+    @Query("SELECT s FROM Song s WHERE s.useYn = 'Y' " +
+           "AND s.youtubeVideoId IS NOT NULL " +
+           "AND s.youtubeVideoId <> '' " +
+           "AND (s.isYoutubeValid IS NULL OR s.isYoutubeValid = true) " +
+           "AND (s.genre IS NULL OR s.genre.code <> :excludeGenreCode) " +
+           "AND s.id NOT IN :excludeIds")
+    List<Song> findYoutubeValidSongsExcluding(
+            @Param("excludeGenreCode") String excludeGenreCode,
+            @Param("excludeIds") Set<Long> excludeIds);
+
+    // YouTube 무효화된 곡 조회 (배치용)
+    @Query("SELECT s FROM Song s WHERE s.isYoutubeValid = false")
+    List<Song> findInvalidYoutubeSongs();
+
+    // YouTube 유효성 미확인 곡 조회 (배치용)
+    @Query("SELECT s FROM Song s WHERE s.useYn = 'Y' " +
+           "AND s.youtubeVideoId IS NOT NULL " +
+           "AND s.youtubeVideoId <> '' " +
+           "AND (s.youtubeCheckedAt IS NULL OR s.youtubeCheckedAt < :beforeDate)")
+    List<Song> findSongsNeedingYoutubeCheck(@Param("beforeDate") LocalDateTime beforeDate);
 }

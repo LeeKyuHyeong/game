@@ -10,6 +10,9 @@ const YouTubePlayerManager = {
     onStateChangeCallback: null,
     onErrorCallback: null,
     lastError: null,
+    currentVideoId: null,
+    retryCount: 0,
+    MAX_ERROR_RETRIES: 1,
 
     // YouTube 에러 코드 설명
     ERROR_CODES: {
@@ -83,6 +86,20 @@ const YouTubePlayerManager = {
                     const errorMessage = this.ERROR_CODES[errorCode] || '알 수 없는 오류';
                     console.error('YouTube Player Error:', errorCode, errorMessage);
 
+                    // Error 2일 때 startTime=0으로 한 번 재시도 (startTime 문제일 수 있음)
+                    if (errorCode === 2 && this.retryCount < this.MAX_ERROR_RETRIES && this.currentVideoId) {
+                        this.retryCount++;
+                        console.log('Error 2 재시도 중... (startTime=0, 시도:', this.retryCount + '/' + this.MAX_ERROR_RETRIES + ')');
+                        this.player.cueVideoById({
+                            videoId: this.currentVideoId,
+                            startSeconds: 0
+                        });
+                        return; // 재시도 후 대기
+                    }
+
+                    // 재시도 카운터 리셋
+                    this.retryCount = 0;
+
                     this.lastError = {
                         code: errorCode,
                         message: errorMessage,
@@ -108,9 +125,15 @@ const YouTubePlayerManager = {
         }
         // 이전 에러 상태 초기화
         this.lastError = null;
+        this.currentVideoId = videoId;
+        this.retryCount = 0;
+
+        // startTime이 음수면 0으로 보정
+        var safeStartTime = Math.max(0, startTime || 0);
+
         this.player.cueVideoById({
             videoId: videoId,
-            startSeconds: startTime
+            startSeconds: safeStartTime
         });
         return true;
     },
