@@ -1,6 +1,8 @@
 package com.kh.game.controller.admin;
 
 import com.kh.game.entity.Member;
+import com.kh.game.entity.MemberBadge;
+import com.kh.game.repository.MemberBadgeRepository;
 import com.kh.game.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,7 +15,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/member")
@@ -21,6 +25,7 @@ import java.util.Map;
 public class AdminMemberController {
 
     private final MemberService memberService;
+    private final MemberBadgeRepository memberBadgeRepository;
 
     @GetMapping
     public String list(@RequestParam(defaultValue = "0") int page,
@@ -98,6 +103,26 @@ public class AdminMemberController {
                     result.put("multiTop3", member.getMultiTop3());
                     result.put("lastLoginAt", member.getLastLoginAt());
                     result.put("createdAt", member.getCreatedAt());
+
+                    // 뱃지 목록 추가
+                    List<MemberBadge> memberBadges = memberBadgeRepository.findByMemberWithBadge(member);
+                    List<Map<String, Object>> badges = memberBadges.stream()
+                            .map(mb -> {
+                                Map<String, Object> badgeInfo = new HashMap<>();
+                                badgeInfo.put("emoji", mb.getBadge().getEmoji());
+                                badgeInfo.put("name", mb.getBadge().getName());
+                                badgeInfo.put("description", mb.getBadge().getDescription());
+                                badgeInfo.put("rarity", mb.getBadge().getRarity().name());
+                                badgeInfo.put("rarityColor", mb.getBadge().getRarity().getColor());
+                                badgeInfo.put("rarityName", mb.getBadge().getRarity().getDisplayName());
+                                badgeInfo.put("category", mb.getBadge().getCategory().getDisplayName());
+                                badgeInfo.put("earnedAt", mb.getEarnedAt());
+                                return badgeInfo;
+                            })
+                            .collect(Collectors.toList());
+                    result.put("badges", badges);
+                    result.put("badgeCount", badges.size());
+
                     return ResponseEntity.ok(result);
                 })
                 .orElse(ResponseEntity.notFound().build());

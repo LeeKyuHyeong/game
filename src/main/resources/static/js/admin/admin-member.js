@@ -117,6 +117,11 @@ function viewDetail(id) {
                         </div>
                     </div>
                 </div>
+
+                <div class="detail-section">
+                    <h3>보유 뱃지 (${data.badgeCount || 0}개)</h3>
+                    ${renderBadges(data.badges)}
+                </div>
             `;
             openModal('detailModal');
         })
@@ -294,3 +299,28 @@ document.addEventListener('keydown', function(e) {
         });
     }
 });
+
+// 뱃지 렌더링 (컴팩트 인라인형)
+function renderBadges(badges) {
+    if (!badges || badges.length === 0) {
+        return '<div class="no-badges">보유한 뱃지가 없습니다.</div>';
+    }
+
+    const badgeItems = badges.map(badge => `
+        <div class="badge-item" style="border-color: ${badge.rarityColor}" title="${badge.name} (${badge.rarityName})&#10;${badge.description}&#10;획득: ${formatDateTime(badge.earnedAt)}">
+            <span class="badge-emoji">${badge.emoji || '🏅'}</span>
+        </div>
+    `).join('');
+
+    return `
+        <div class="badge-inline-container">
+            ${badgeItems}
+        </div>
+        <div class="badge-legend">
+            <span class="legend-item"><span class="legend-dot" style="background: #9CA3AF"></span>일반</span>
+            <span class="legend-item"><span class="legend-dot" style="background: #3B82F6"></span>레어</span>
+            <span class="legend-item"><span class="legend-dot" style="background: #A855F7"></span>에픽</span>
+            <span class="legend-item"><span class="legend-dot" style="background: #F59E0B"></span>전설</span>
+        </div>
+    `;
+}

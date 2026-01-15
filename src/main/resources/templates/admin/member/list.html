@@ -327,6 +327,64 @@
     max-width: 600px;
 }
 
+/* 뱃지 인라인 스타일 */
+.badge-inline-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+}
+
+.badge-item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid;
+    border-radius: 8px;
+    background: var(--card-bg, #1a1a2e);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.badge-item:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.badge-emoji {
+    font-size: 1.25rem;
+}
+
+.badge-legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color, #333);
+    font-size: 0.75rem;
+    color: var(--text-muted, #888);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.no-badges {
+    color: var(--text-muted, #888);
+    font-size: 0.875rem;
+    padding: 1rem 0;
+}
+
 @media (max-width: 768px) {
     .stats-cards {
         grid-template-columns: repeat(2, 1fr);
@@ -343,6 +401,20 @@
     .form-select {
         width: 100%;
         margin-top: 0.5rem;
+    }
+
+    .badge-item {
+        width: 36px;
+        height: 36px;
+    }
+
+    .badge-emoji {
+        font-size: 1.1rem;
+    }
+
+    .badge-legend {
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 }
 </style>
