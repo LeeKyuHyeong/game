@@ -258,8 +258,9 @@
             const el = document.getElementById(place.id);
             const member = rankings[place.index];
 
+            el.style.display = 'flex';
             if (member) {
-                el.style.display = 'flex';
+                el.classList.remove('empty');
                 const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
                 el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
                 el.querySelector('.podium-value').textContent = (member.multiLp || 0) + ' LP';
@@ -271,7 +272,10 @@
                 tierEl.className = 'podium-tier tier-badge tier-' + (member.multiTier || 'BRONZE').toLowerCase();
                 tierEl.style.display = 'block';
             } else {
-                el.style.display = 'none';
+                el.classList.add('empty');
+                el.querySelector('.podium-name').textContent = '도전하세요!';
+                el.querySelector('.podium-value').textContent = '-';
+                el.querySelector('.podium-stand').textContent = place.index + 1;
             }
         });
     }
@@ -332,8 +336,9 @@
             const el = document.getElementById(place.id);
             const member = rankings[place.index];
 
+            el.style.display = 'flex';
             if (member) {
-                el.style.display = 'flex';
+                el.classList.remove('empty');
                 const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
                 el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
                 el.querySelector('.podium-value').textContent = (member.score || 0) + '점';
@@ -343,7 +348,10 @@
                 tierEl.textContent = '';
                 tierEl.style.display = 'none';
             } else {
-                el.style.display = 'none';
+                el.classList.add('empty');
+                el.querySelector('.podium-name').textContent = '도전하세요!';
+                el.querySelector('.podium-value').textContent = '-';
+                el.querySelector('.podium-stand').textContent = place.index + 1;
             }
         });
     }
@@ -457,8 +465,9 @@
             const el = document.getElementById(place.id);
             const member = rankings[place.index];
 
+            el.style.display = 'flex';
             if (member) {
-                el.style.display = 'flex';
+                el.classList.remove('empty');
                 const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
                 el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
                 el.querySelector('.podium-value').textContent = formatStatsValue(member);
@@ -468,7 +477,10 @@
                 tierEl.textContent = '';
                 tierEl.style.display = 'none';
             } else {
-                el.style.display = 'none';
+                el.classList.add('empty');
+                el.querySelector('.podium-name').textContent = '도전하세요!';
+                el.querySelector('.podium-value').textContent = '-';
+                el.querySelector('.podium-stand').textContent = place.index + 1;
             }
         });
     }

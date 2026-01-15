@@ -292,6 +292,33 @@
     background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
 }
 
+/* Empty Podium Place - Placeholder */
+.podium-place.empty {
+    opacity: 0.6;
+}
+
+.podium-place.empty .podium-avatar {
+    filter: grayscale(0.5);
+}
+
+.podium-place.empty .podium-name {
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+}
+
+.podium-place.empty .podium-value {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.podium-place.empty .podium-stand {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+}
+
+.podium-place.empty .podium-tier {
+    display: none !important;
+}
+
 /* Ranking Table */
 .ranking-table-section {
     background: white;
