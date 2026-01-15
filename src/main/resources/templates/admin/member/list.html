@@ -62,8 +62,6 @@
                     <th class="sortable" th:classappend="${sort == 'nickname'} ? ('sorted-' + ${direction})"
                         onclick="sortBy('nickname')">닉네임 <span class="sort-icon"></span></th>
                     <th>티어</th>
-                    <th class="sortable" th:classappend="${sort == 'totalScore'} ? ('sorted-' + ${direction})"
-                        onclick="sortBy('totalScore')">총 점수 <span class="sort-icon"></span></th>
                     <th class="sortable" th:classappend="${sort == 'totalGames'} ? ('sorted-' + ${direction})"
                         onclick="sortBy('totalGames')">게임 수 <span class="sort-icon"></span></th>
                     <th>권한</th>
@@ -83,7 +81,6 @@
                         <span class="tier-badge" th:style="'background-color:' + ${member.multiTierColor}"
                               th:text="${member.multiTierDisplayName}"></span>
                     </td>
-                    <td data-label="총 점수" th:text="${#numbers.formatInteger(member.totalScore, 0, 'COMMA')}"></td>
                     <td data-label="게임 수" th:text="${member.totalGames}"></td>
                     <td data-label="권한">
                         <span class="role-badge" th:classappend="${member.role.name() == 'ADMIN'} ? 'admin' : 'user'"
@@ -101,7 +98,7 @@
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(members)}">
-                    <td colspan="11" class="empty-row">등록된 회원이 없습니다.</td>
+                    <td colspan="10" class="empty-row">등록된 회원이 없습니다.</td>
                 </tr>
                 </tbody>
             </table>

@@ -142,9 +142,9 @@
                         <span th:if="${idx.index == 2}">🥉 3위</span>
                         <span th:if="${idx.index > 2}" th:text="${idx.index + 1} + '위'"></span>
                     </div>
-                    <div class="ranker-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</div>
+                    <div class="ranker-tier-badge" th:if="${rankType != 'best'}" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</div>
                     <div class="ranker-nickname" th:text="${member.nickname}">닉네임</div>
-                    <div class="ranker-score" th:text="${member.totalScore} + '점'">0점</div>
+                    <div class="ranker-score" th:text="${rankType == 'best'} ? (${member.bestGuessScore} + '점') : (${member.totalScore} + '점')">0점</div>
                     <div class="ranker-stats">
                         게임 <span th:text="${member.totalGames}">0</span>회 |
                         정답률 <span th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)}">0</span>%
@@ -187,14 +187,14 @@
                     <div class="mobile-rank-center">
                         <div class="mobile-rank-name">
                             <span th:text="${member.nickname}">닉네임</span>
-                            <span class="mobile-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</span>
+                            <span class="mobile-tier-badge" th:if="${rankType != 'best'}" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</span>
                         </div>
                         <div class="mobile-rank-info">
                             게임 <span th:text="${member.totalGames}">0</span>회 · 정답률 <span th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)}">0</span>%
                         </div>
                     </div>
                     <div class="mobile-rank-right">
-                        <span class="mobile-rank-score" th:text="${#numbers.formatInteger(member.totalScore, 0, 'COMMA')} + '점'">0점</span>
+                        <span class="mobile-rank-score" th:text="${rankType == 'best'} ? (${#numbers.formatInteger(member.bestGuessScore, 0, 'COMMA')} + '점') : (${#numbers.formatInteger(member.totalScore, 0, 'COMMA')} + '점')">0점</span>
                     </div>
                 </div>
             </th:block>
@@ -234,9 +234,9 @@
                 <thead>
                 <tr>
                     <th style="width: 60px;">순위</th>
-                    <th style="width: 80px;">티어</th>
+                    <th th:if="${rankType != 'best'}" style="width: 80px;">티어</th>
                     <th>닉네임</th>
-                    <th>점수</th>
+                    <th th:text="${rankType == 'best'} ? '최고점수' : '점수'">점수</th>
                     <th>게임수</th>
                     <th>정답률</th>
                     <th>가입일</th>
@@ -250,17 +250,17 @@
                         <span th:if="${idx.index == 2}" class="rank-medal">🥉</span>
                         <span th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
                     </td>
-                    <td>
+                    <td th:if="${rankType != 'best'}">
                         <span class="table-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</span>
                     </td>
                     <td th:text="${member.nickname}">닉네임</td>
-                    <td th:text="${#numbers.formatInteger(member.totalScore, 0, 'COMMA')}">0</td>
+                    <td th:text="${rankType == 'best'} ? ${#numbers.formatInteger(member.bestGuessScore, 0, 'COMMA')} : ${#numbers.formatInteger(member.totalScore, 0, 'COMMA')}">0</td>
                     <td th:text="${member.totalGames}">0</td>
                     <td th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)} + '%'">0%</td>
                     <td th:text="${member.createdAt != null} ? ${#temporals.format(member.createdAt, 'yyyy-MM-dd')} : '-'">-</td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(memberRankings)}">
-                    <td colspan="7" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+                    <td th:colspan="${rankType == 'best'} ? 6 : 7" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
                         랭킹 데이터가 없습니다.
                     </td>
                 </tr>
