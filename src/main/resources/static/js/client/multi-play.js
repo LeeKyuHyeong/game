@@ -4,6 +4,8 @@ let currentPhase = null;  // null, PLAYING, RESULT
 let currentSong = null;
 let isPlaying = false;
 let youtubePlayerReady = false;
+let videoReady = false;  // YouTube 영상 로드 완료 여부 (CUED 상태)
+let pendingPlay = false; // 서버에서 재생 요청이 왔지만 영상 로드 대기 중
 let mySkipVoted = false;  // 내가 스킵 투표했는지
 
 // 폴링 관련
@@ -41,12 +43,31 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         await YouTubePlayerManager.init('youtubePlayerContainer', {
             onStateChange: function(e) {
-                if (e.data === 0) { // ENDED
+                // 상태: -1=unstarted, 0=ended, 1=playing, 2=paused, 3=buffering, 5=cued
+                console.log('YouTube 상태 변경:', e.data);
+
+                if (e.data === 5) { // CUED - 영상 로드 완료
+                    videoReady = true;
+                    console.log('영상 로드 완료 (CUED)');
+
+                    // 서버에서 재생 요청이 대기 중이었으면 자동 재생
+                    if (pendingPlay && currentSong) {
+                        console.log('대기 중이던 재생 시작');
+                        startPlayback();
+                    }
+                } else if (e.data === 1) { // PLAYING
+                    isPlaying = true;
+                    pendingPlay = false;
+                } else if (e.data === 0) { // ENDED
+                    isPlaying = false;
+                } else if (e.data === 2) { // PAUSED
                     isPlaying = false;
                 }
             },
             onError: function(e, errorInfo) {
                 console.error('YouTube 재생 오류:', e.data);
+                videoReady = false;
+                pendingPlay = false;
                 // 재생 불가 처리 (자동 신고 + 방장에게 스킵 버튼 표시)
                 handlePlaybackError(errorInfo);
             }
@@ -308,64 +329,30 @@ function syncAudio(serverPlaying, serverPlayedAt) {
     lastAudioPlayedAt = serverPlayedAt;
 
     if (serverPlaying && serverPlayedAt && currentSong) {
-        // 플레이어 상태 체크
-        var playerState = YouTubePlayerManager.getPlayerState();
-
-        // UNSTARTED(-1) 상태면 아직 준비 안됨 - 500ms 후 재시도
-        if (playerState === -1) {
-            console.log('플레이어 아직 준비 안됨 (UNSTARTED), 500ms 후 재시도');
-            setTimeout(function() {
-                syncAudio(serverPlaying, serverPlayedAt);
-            }, 500);
-            return;
-        }
-
         // 에러 상태면 재생 시도 안함
         if (YouTubePlayerManager.hasPlaybackError()) {
             console.warn('플레이어 에러 상태, 재생 스킵');
             return;
         }
 
-        // 서버 시간 기준으로 경과 시간 계산 (오프셋 보정)
-        var adjustedClientTime = Date.now() + serverTimeOffset;
-        var elapsedMs = adjustedClientTime - serverPlayedAt;
-        var elapsedSec = elapsedMs / 1000;
-        var startTime = currentSong.startTime || 0;
-
-        var playDuration = currentSong.playDuration || 30;
-
-        // 디버깅: 비정상적인 시간 차이 확인
-        if (Math.abs(elapsedSec) > 5 || Math.abs(serverTimeOffset) > 5000) {
-            console.warn('Audio sync info:', {
-                serverPlayedAt: serverPlayedAt,
-                clientNow: Date.now(),
-                serverTimeOffset: serverTimeOffset,
-                adjustedClientTime: adjustedClientTime,
-                elapsedSec: elapsedSec.toFixed(1),
-                startTime: startTime,
-                playDuration: playDuration
-            });
-        }
-
-        // 음수이거나 재생 시간을 초과하면 처음부터
-        if (elapsedSec < 0 || elapsedSec > playDuration) {
-            elapsedSec = 0;
-        }
-
-        var targetTime = startTime + elapsedSec;
-
         if (!youtubePlayerReady) {
             console.warn('YouTube Player not ready for sync');
+            pendingPlay = true;
             return;
         }
 
-        // YouTube 동기화
-        YouTubePlayerManager.seekTo(targetTime);
-        if (!isPlaying) {
-            YouTubePlayerManager.play();
-            isPlaying = true;
+        // 영상이 아직 로드되지 않았으면 대기
+        if (!videoReady) {
+            console.log('영상 로드 대기 중... pendingPlay 설정');
+            pendingPlay = true;
+            return;
         }
+
+        // 영상 준비됨 - 재생 시작
+        startPlayback();
     } else {
+        // 재생 중지
+        pendingPlay = false;
         if (isPlaying && youtubePlayerReady) {
             YouTubePlayerManager.pause();
             isPlaying = false;
@@ -373,8 +360,61 @@ function syncAudio(serverPlaying, serverPlayedAt) {
     }
 }
 
+/**
+ * 영상 재생 시작 (영상 로드 완료 후 호출)
+ */
+function startPlayback() {
+    if (!currentSong || !youtubePlayerReady || !videoReady) {
+        console.warn('startPlayback: 조건 불충족', {
+            currentSong: !!currentSong,
+            youtubePlayerReady: youtubePlayerReady,
+            videoReady: videoReady
+        });
+        return;
+    }
+
+    // 서버 시간 기준으로 경과 시간 계산 (오프셋 보정)
+    var adjustedClientTime = Date.now() + serverTimeOffset;
+    var elapsedMs = adjustedClientTime - lastAudioPlayedAt;
+    var elapsedSec = elapsedMs / 1000;
+    var startTime = currentSong.startTime || 0;
+    var playDuration = currentSong.playDuration || 30;
+
+    // 디버깅: 비정상적인 시간 차이 확인
+    if (Math.abs(elapsedSec) > 5 || Math.abs(serverTimeOffset) > 5000) {
+        console.warn('Audio sync info:', {
+            lastAudioPlayedAt: lastAudioPlayedAt,
+            clientNow: Date.now(),
+            serverTimeOffset: serverTimeOffset,
+            adjustedClientTime: adjustedClientTime,
+            elapsedSec: elapsedSec.toFixed(1),
+            startTime: startTime,
+            playDuration: playDuration
+        });
+    }
+
+    // 음수이거나 재생 시간을 초과하면 처음부터
+    if (elapsedSec < 0 || elapsedSec > playDuration) {
+        elapsedSec = 0;
+    }
+
+    var targetTime = startTime + elapsedSec;
+
+    console.log('재생 시작: targetTime=' + targetTime.toFixed(1) + 's');
+
+    // YouTube 동기화 및 재생
+    YouTubePlayerManager.seekTo(targetTime);
+    YouTubePlayerManager.play();
+    isPlaying = true;
+    pendingPlay = false;
+}
+
 function loadSong(song) {
     if (!song) return;
+
+    // 새 곡 로드 시 상태 초기화
+    videoReady = false;
+    pendingPlay = false;
 
     if (!youtubePlayerReady) {
         console.warn('YouTube Player not ready for loadSong');
@@ -394,6 +434,7 @@ function loadSong(song) {
             errorRetryCount = 0;
         }
 
+        console.log('영상 로드 시작: ' + song.youtubeVideoId);
         var loaded = YouTubePlayerManager.loadVideo(song.youtubeVideoId.trim(), song.startTime || 0);
         if (!loaded && loadRetryCount < MAX_LOAD_RETRIES) {
             loadRetryCount++;
@@ -865,6 +906,8 @@ async function reinitializePlayer() {
     YouTubePlayerManager.currentVideoId = null;
     YouTubePlayerManager.retryCount = 0;
     youtubePlayerReady = false;
+    videoReady = false;
+    pendingPlay = false;
     isPlaying = false;
 
     // 컨테이너 재생성
@@ -876,12 +919,28 @@ async function reinitializePlayer() {
     try {
         await YouTubePlayerManager.init('youtubePlayerContainer', {
             onStateChange: function(e) {
-                if (e.data === 0) { // ENDED
+                console.log('YouTube 상태 변경:', e.data);
+
+                if (e.data === 5) { // CUED - 영상 로드 완료
+                    videoReady = true;
+                    console.log('영상 로드 완료 (CUED)');
+                    if (pendingPlay && currentSong) {
+                        console.log('대기 중이던 재생 시작');
+                        startPlayback();
+                    }
+                } else if (e.data === 1) { // PLAYING
+                    isPlaying = true;
+                    pendingPlay = false;
+                } else if (e.data === 0) { // ENDED
+                    isPlaying = false;
+                } else if (e.data === 2) { // PAUSED
                     isPlaying = false;
                 }
             },
             onError: function(e, errorInfo) {
                 console.error('YouTube 재생 오류:', e.data);
+                videoReady = false;
+                pendingPlay = false;
                 handlePlaybackError(errorInfo);
             }
         });
