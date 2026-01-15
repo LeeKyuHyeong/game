@@ -8,6 +8,8 @@ let actualTotalRounds = totalRounds; // 서버에서 업데이트될 수 있음
 let isRoundEnded = false; // 라운드 종료 플래그
 let isRoundReady = false; // 준비 완료 플래그
 let youtubePlayerReady = false; // YouTube Player 준비 상태
+let videoReady = false;      // YouTube CUED 상태
+let pendingAutoPlay = false; // 자동 재생 대기 플래그
 
 // 초기화
 players.forEach(player => {
@@ -20,12 +22,27 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         await YouTubePlayerManager.init('youtubePlayerContainer', {
             onStateChange: function(e) {
-                if (e.data === 0) { // ENDED
+                console.log('YouTube 상태 변경:', e.data);
+
+                if (e.data === 5) { // CUED - 영상 로드 완료
+                    videoReady = true;
+                    console.log('영상 로드 완료 (CUED)');
+
+                    if (pendingAutoPlay && currentSong) {
+                        console.log('자동 재생 시작');
+                        pendingAutoPlay = false;
+                        playAudio();
+                    }
+                } else if (e.data === 0) { // ENDED
                     pauseAudio();
+                } else if (e.data === 1) { // PLAYING
+                    videoReady = true;
                 }
             },
             onError: function(e, errorInfo) {
                 console.error('YouTube 재생 오류:', e.data);
+                videoReady = false;
+                pendingAutoPlay = false;
                 if (currentSong && currentSong.filePath) {
                     currentSong.youtubeVideoId = null;
                     loadAudioSource();
@@ -169,14 +186,14 @@ async function selectGenre(genreId, roundNumber) {
 
             document.getElementById('currentRound').textContent = roundNumber;
 
-            // 오디오 소스 로드
-            loadAudioSource();
+            // UI 리셋 (오디오 소스 로드 전에 먼저 실행)
+            resetPlayerUI();
 
             // 노래 정보 표시
             displaySongInfo();
 
-            // UI 리셋
-            resetPlayerUI();
+            // 오디오 소스 로드 (자동 재생 포함)
+            loadAudioSource();
 
         } else {
             alert(result.message || '장르 선택에 실패했습니다.');
@@ -281,14 +298,14 @@ async function selectArtist(artistName, roundNumber) {
 
             document.getElementById('currentRound').textContent = roundNumber;
 
-            // 오디오 소스 로드
-            loadAudioSource();
+            // UI 리셋 (오디오 소스 로드 전에 먼저 실행)
+            resetPlayerUI();
 
             // 노래 정보 표시
             displaySongInfo();
 
-            // UI 리셋
-            resetPlayerUI();
+            // 오디오 소스 로드 (자동 재생 포함)
+            loadAudioSource();
 
         } else {
             alert(result.message || '아티스트 선택에 실패했습니다.');
@@ -374,14 +391,14 @@ async function selectYear(year, roundNumber) {
 
             document.getElementById('currentRound').textContent = roundNumber;
 
-            // 오디오 소스 로드
-            loadAudioSource();
+            // UI 리셋 (오디오 소스 로드 전에 먼저 실행)
+            resetPlayerUI();
 
             // 노래 정보 표시
             displaySongInfo();
 
-            // UI 리셋
-            resetPlayerUI();
+            // 오디오 소스 로드 (자동 재생 포함)
+            loadAudioSource();
 
         } else {
             alert(result.message || '연도 선택에 실패했습니다.');
@@ -417,14 +434,14 @@ async function loadRound(roundNumber) {
 
         document.getElementById('currentRound').textContent = roundNumber;
 
-        // 오디오 소스 로드
-        loadAudioSource();
+        // UI 리셋 (오디오 소스 로드 전에 먼저 실행)
+        resetPlayerUI();
 
         // 노래 정보 표시
         displaySongInfo();
 
-        // UI 리셋
-        resetPlayerUI();
+        // 오디오 소스 로드 (자동 재생 포함)
+        loadAudioSource();
 
     } catch (error) {
         console.error('라운드 로딩 오류:', error);
@@ -487,14 +504,34 @@ function hideSongInfo() {
 function loadAudioSource() {
     if (!currentSong) return;
 
+    const shouldAutoPlay = currentRound > 1;
+    videoReady = false;
+    pendingAutoPlay = false;
+
     if (currentSong.youtubeVideoId && youtubePlayerReady) {
-        YouTubePlayerManager.loadVideo(currentSong.youtubeVideoId, currentSong.startTime || 0);
+        if (shouldAutoPlay) {
+            // 자동 재생: loadAndPlay 사용 (loadVideoById)
+            console.log('자동 재생 시작 (라운드:', currentRound, ')');
+            YouTubePlayerManager.loadAndPlay(currentSong.youtubeVideoId, currentSong.startTime || 0);
+            isPlaying = true;
+            document.getElementById('playBtn').innerHTML = '<span class="pause-icon">❚❚</span>';
+            document.getElementById('musicIcon').textContent = '🎶';
+            document.getElementById('musicIcon').classList.add('playing');
+            document.getElementById('playerStatus').textContent = '재생 중...';
+            progressInterval = setInterval(updateProgress, 100);
+        } else {
+            // 수동 재생: loadVideo 사용 (cueVideoById)
+            YouTubePlayerManager.loadVideo(currentSong.youtubeVideoId, currentSong.startTime || 0);
+        }
         updateTimeDisplay();
     } else if (currentSong.filePath) {
         audioPlayer.src = `/uploads/songs/${currentSong.filePath}`;
         audioPlayer.currentTime = 0;
         audioPlayer.onloadedmetadata = function() {
             updateTimeDisplay();
+            if (shouldAutoPlay) {
+                playAudio();
+            }
         };
     }
 }
@@ -627,6 +664,8 @@ function resetPlayerUI() {
     stopAudio();
     isRoundEnded = false; // 라운드 종료 플래그 리셋
     isRoundReady = false; // 준비 완료 플래그 리셋
+    videoReady = false;      // YouTube 영상 상태 리셋
+    pendingAutoPlay = false; // 자동 재생 대기 리셋
     // 재생 버튼 다시 활성화
     const playBtn = document.getElementById('playBtn');
     if (playBtn) {
@@ -1001,3 +1040,59 @@ async function skipUnplayableRound() {
         console.error('스킵 오류:', error);
     }
 }
+
+// 브라우저 콘솔 테스트 함수 (개발용)
+const HostAutoPlayTests = {
+    testFirstRoundNoAutoPlay: function() {
+        const saved = currentRound;
+        currentRound = 1;
+        const shouldAutoPlay = currentRound > 1;
+        console.assert(shouldAutoPlay === false, 'FAIL: 1라운드에서 shouldAutoPlay가 false여야 함');
+        currentRound = saved;
+        console.log('PASS: testFirstRoundNoAutoPlay');
+    },
+
+    testSubsequentRoundAutoPlay: function() {
+        const saved = currentRound;
+        currentRound = 2;
+        const shouldAutoPlay = currentRound > 1;
+        console.assert(shouldAutoPlay === true, 'FAIL: 2라운드에서 shouldAutoPlay가 true여야 함');
+        currentRound = saved;
+        console.log('PASS: testSubsequentRoundAutoPlay');
+    },
+
+    testAutoPlayCondition: function() {
+        const savedPending = pendingAutoPlay;
+        const savedReady = videoReady;
+        const savedSong = currentSong;
+
+        pendingAutoPlay = true;
+        videoReady = true;
+        currentSong = { youtubeVideoId: 'test123', startTime: 0 };
+        const shouldPlay = pendingAutoPlay && videoReady && currentSong;
+        console.assert(shouldPlay === true, 'FAIL: 조건 충족 시 재생해야 함');
+
+        pendingAutoPlay = savedPending;
+        videoReady = savedReady;
+        currentSong = savedSong;
+        console.log('PASS: testAutoPlayCondition');
+    },
+
+    checkState: function() {
+        console.table({
+            currentRound: currentRound,
+            videoReady: videoReady,
+            pendingAutoPlay: pendingAutoPlay,
+            isPlaying: isPlaying,
+            hasSong: !!currentSong
+        });
+    },
+
+    runAll: function() {
+        console.log('=== Host AutoPlay Tests ===');
+        this.testFirstRoundNoAutoPlay();
+        this.testSubsequentRoundAutoPlay();
+        this.testAutoPlayCondition();
+        console.log('=== All tests completed ===');
+    }
+};

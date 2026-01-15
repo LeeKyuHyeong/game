@@ -139,6 +139,29 @@ const YouTubePlayerManager = {
     },
 
     /**
+     * 영상 로드 및 자동 재생
+     * @returns {boolean} 로드 시도 성공 여부
+     */
+    loadAndPlay(videoId, startTime = 0) {
+        if (!this.isReady || !this.player) {
+            console.warn('YouTube Player not ready');
+            return false;
+        }
+        this.lastError = null;
+        this.currentVideoId = videoId;
+        this.retryCount = 0;
+
+        var safeStartTime = Math.max(0, startTime || 0);
+
+        // loadVideoById는 로드 후 자동 재생
+        this.player.loadVideoById({
+            videoId: videoId,
+            startSeconds: safeStartTime
+        });
+        return true;
+    },
+
+    /**
      * 재생
      */
     play() {
