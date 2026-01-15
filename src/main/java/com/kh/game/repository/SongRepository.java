@@ -166,4 +166,19 @@ public interface SongRepository extends JpaRepository<Song, Long> {
            "AND s.youtubeVideoId <> '' " +
            "AND (s.youtubeCheckedAt IS NULL OR s.youtubeCheckedAt < :beforeDate)")
     List<Song> findSongsNeedingYoutubeCheck(@Param("beforeDate") LocalDateTime beforeDate);
+
+    // ========== 이력 기반 관리용 메서드 ==========
+
+    /**
+     * 아티스트의 활성 곡 목록 조회
+     */
+    List<Song> findByArtistAndUseYn(String artist, String useYn);
+
+    /**
+     * 아티스트의 활성 곡 수 조회
+     */
+    @Query("SELECT COUNT(s) FROM Song s WHERE s.artist = :artist AND s.useYn = 'Y' " +
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
+           "AND (s.genre IS NULL OR s.genre.code <> 'RETRO')")
+    int countActiveSongsByArtist(@Param("artist") String artist);
 }

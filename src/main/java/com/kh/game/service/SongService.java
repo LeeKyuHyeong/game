@@ -3,12 +3,15 @@ package com.kh.game.service;
 import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.Song;
 import com.kh.game.entity.SongAnswer;
+import com.kh.game.entity.SongHistory;
 import com.kh.game.repository.GameRoomRepository;
 import com.kh.game.repository.GameRoundRepository;
 import com.kh.game.repository.SongAnswerRepository;
+import com.kh.game.repository.SongHistoryRepository;
 import com.kh.game.repository.SongReportRepository;
 import com.kh.game.repository.SongRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +28,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class SongService {
 
     private final SongRepository songRepository;
@@ -32,6 +36,7 @@ public class SongService {
     private final SongReportRepository songReportRepository;
     private final GameRoundRepository gameRoundRepository;
     private final GameRoomRepository gameRoomRepository;
+    private final SongHistoryRepository songHistoryRepository;
     private final YouTubeValidationService youTubeValidationService;
 
     @Value("${file.upload-dir:uploads/songs}")
@@ -768,5 +773,157 @@ public class SongService {
         public boolean wasReplaced() {
             return wasReplaced;
         }
+    }
+
+    // ========== 이력 기반 곡 관리 메서드 ==========
+
+    /**
+     * Soft Delete - useYn='N'으로 변경
+     */
+    @Transactional
+    public void softDeleteSong(Long songId) {
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new IllegalArgumentException("곡을 찾을 수 없습니다: " + songId));
+        song.setUseYn("N");
+        songRepository.save(song);
+        log.info("곡 soft delete: {} - {}", song.getArtist(), song.getTitle());
+    }
+
+    /**
+     * 곡 복구 - useYn='Y'로 변경
+     */
+    @Transactional
+    public void restoreSong(Long songId) {
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new IllegalArgumentException("곡을 찾을 수 없습니다: " + songId));
+        song.setUseYn("Y");
+        songRepository.save(song);
+        log.info("곡 복구: {} - {}", song.getArtist(), song.getTitle());
+    }
+
+    /**
+     * 곡 추가 + 이력 생성
+     */
+    @Transactional
+    public Song addSongWithHistory(Song song) {
+        Song saved = songRepository.save(song);
+
+        SongHistory history = new SongHistory(
+                saved.getId(),
+                saved.getArtist(),
+                saved.getTitle(),
+                SongHistory.Action.ADDED
+        );
+        songHistoryRepository.save(history);
+
+        log.info("곡 추가 (이력 포함): {} - {}", saved.getArtist(), saved.getTitle());
+        return saved;
+    }
+
+    /**
+     * 곡 추가 + 특정 시점 이력 생성 (테스트용)
+     */
+    @Transactional
+    public Song addSongWithHistoryAt(Song song, java.time.LocalDateTime actionAt) {
+        Song saved = songRepository.save(song);
+
+        SongHistory history = new SongHistory(
+                saved.getId(),
+                saved.getArtist(),
+                saved.getTitle(),
+                SongHistory.Action.ADDED,
+                actionAt
+        );
+        songHistoryRepository.save(history);
+
+        log.info("곡 추가 (이력 포함, 시점 지정): {} - {} at {}", saved.getArtist(), saved.getTitle(), actionAt);
+        return saved;
+    }
+
+    /**
+     * 곡 삭제 + 이력 생성 (Soft Delete)
+     */
+    @Transactional
+    public void deleteSongWithHistory(Long songId) {
+        deleteSongWithHistoryAt(songId, java.time.LocalDateTime.now());
+    }
+
+    /**
+     * 곡 삭제 + 특정 시점 이력 생성 (테스트용)
+     */
+    @Transactional
+    public void deleteSongWithHistoryAt(Long songId, java.time.LocalDateTime actionAt) {
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new IllegalArgumentException("곡을 찾을 수 없습니다: " + songId));
+
+        song.setUseYn("N");
+        songRepository.save(song);
+
+        SongHistory history = new SongHistory(
+                song.getId(),
+                song.getArtist(),
+                song.getTitle(),
+                SongHistory.Action.DELETED,
+                actionAt
+        );
+        songHistoryRepository.save(history);
+
+        log.info("곡 삭제 (이력 포함): {} - {} at {}", song.getArtist(), song.getTitle(), actionAt);
+    }
+
+    /**
+     * 곡 복구 + 이력 생성
+     */
+    @Transactional
+    public void restoreSongWithHistory(Long songId) {
+        restoreSongWithHistoryAt(songId, java.time.LocalDateTime.now());
+    }
+
+    /**
+     * 곡 복구 + 특정 시점 이력 생성 (테스트용)
+     */
+    @Transactional
+    public void restoreSongWithHistoryAt(Long songId, java.time.LocalDateTime actionAt) {
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new IllegalArgumentException("곡을 찾을 수 없습니다: " + songId));
+
+        song.setUseYn("Y");
+        songRepository.save(song);
+
+        SongHistory history = new SongHistory(
+                song.getId(),
+                song.getArtist(),
+                song.getTitle(),
+                SongHistory.Action.RESTORED,
+                actionAt
+        );
+        songHistoryRepository.save(history);
+
+        log.info("곡 복구 (이력 포함): {} - {} at {}", song.getArtist(), song.getTitle(), actionAt);
+    }
+
+    /**
+     * 특정 시점의 아티스트 곡 수 조회 (BETWEEN 쿼리)
+     */
+    public int countSongsAtTime(String artist, java.time.LocalDateTime targetTime) {
+        return songHistoryRepository.countActiveSongsAtTime(artist, targetTime);
+    }
+
+    /**
+     * 현재 활성 곡 수 조회
+     */
+    public int countActiveSongsByArtist(String artist) {
+        return songRepository.countActiveSongsByArtist(artist);
+    }
+
+    /**
+     * 1년 이상 된 이력 정리
+     */
+    @Transactional
+    public int cleanupOldHistory() {
+        java.time.LocalDateTime cutoffDate = java.time.LocalDateTime.now().minusYears(1);
+        int deletedCount = songHistoryRepository.deleteOlderThan(cutoffDate);
+        log.info("오래된 이력 정리: {}건 삭제 (기준: {})", deletedCount, cutoffDate);
+        return deletedCount;
     }
 }

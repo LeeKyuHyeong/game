@@ -429,4 +429,103 @@ public class FanChallengeService {
             boolean isGameOver,
             String gameOverReason
     ) {}
+
+    // ========== 이력 기반 랭킹 메서드 ==========
+
+    /**
+     * 기록의 랭킹 데이터 조회 (달성시점 + 현재시점)
+     */
+    public Map<String, Object> getRankingDataWithHistory(FanChallengeRecord record) {
+        Map<String, Object> data = new HashMap<>();
+
+        // 달성시점 데이터
+        int achievedTotalSongs = record.getTotalSongs() != null ? record.getTotalSongs() : 0;
+        int correctCount = record.getCorrectCount() != null ? record.getCorrectCount() : 0;
+        double achievedClearRate = achievedTotalSongs > 0
+                ? (double) correctCount / achievedTotalSongs * 100
+                : 0.0;
+
+        // 현재시점 데이터
+        int currentTotalSongs = songService.countActiveSongsByArtist(record.getArtist());
+        double currentClearRate;
+        if (currentTotalSongs == 0) {
+            currentClearRate = 0.0;
+        } else {
+            currentClearRate = (double) correctCount / currentTotalSongs * 100;
+            // max 100%
+            currentClearRate = Math.min(currentClearRate, 100.0);
+        }
+
+        data.put("achievedTotalSongs", achievedTotalSongs);
+        data.put("currentTotalSongs", currentTotalSongs);
+        data.put("correctCount", correctCount);
+        data.put("achievedClearRate", Math.round(achievedClearRate * 10.0) / 10.0);
+        data.put("currentClearRate", Math.round(currentClearRate * 10.0) / 10.0);
+        data.put("isPerfectClear", record.getIsPerfectClear());
+        data.put("isCurrentPerfect", record.getIsCurrentPerfect());
+        data.put("bestTimeMs", record.getBestTimeMs());
+        data.put("achievedAt", record.getAchievedAt());
+
+        return data;
+    }
+
+    /**
+     * 아티스트별 랭킹 조회 (현재시점 클리어율 기준)
+     */
+    public List<Map<String, Object>> getArtistRankingWithCurrentRate(String artist, int limit) {
+        // 현재 곡 수
+        int currentTotalSongs = songService.countActiveSongsByArtist(artist);
+
+        // 하드코어 기록 조회
+        List<FanChallengeRecord> records = fanChallengeRecordRepository.findTopByArtist(
+                artist, org.springframework.data.domain.PageRequest.of(0, limit * 2)); // 여유분
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (FanChallengeRecord record : records) {
+            Map<String, Object> item = new HashMap<>();
+            int correctCount = record.getCorrectCount() != null ? record.getCorrectCount() : 0;
+
+            // 현재시점 클리어율 계산
+            double currentClearRate;
+            if (currentTotalSongs == 0) {
+                currentClearRate = 0.0;
+            } else {
+                currentClearRate = (double) correctCount / currentTotalSongs * 100;
+                currentClearRate = Math.min(currentClearRate, 100.0);
+            }
+
+            item.put("nickname", record.getMember().getNickname());
+            item.put("correctCount", correctCount);
+            item.put("achievedTotalSongs", record.getTotalSongs());
+            item.put("currentTotalSongs", currentTotalSongs);
+            item.put("currentClearRate", Math.round(currentClearRate * 10.0) / 10.0);
+            item.put("isPerfectClear", record.getIsPerfectClear());
+            item.put("isCurrentPerfect", record.getIsCurrentPerfect());
+            item.put("bestTimeMs", record.getBestTimeMs());
+            item.put("achievedAt", record.getAchievedAt());
+
+            result.add(item);
+        }
+
+        // 현재시점 클리어율 → 시간 순으로 정렬
+        result.sort((a, b) -> {
+            double rateA = (double) a.get("currentClearRate");
+            double rateB = (double) b.get("currentClearRate");
+            if (rateA != rateB) {
+                return Double.compare(rateB, rateA); // 클리어율 높은 순
+            }
+            // 동률이면 시간 빠른 순
+            Long timeA = (Long) a.get("bestTimeMs");
+            Long timeB = (Long) b.get("bestTimeMs");
+            if (timeA == null) return 1;
+            if (timeB == null) return -1;
+            return Long.compare(timeA, timeB);
+        });
+
+        // limit 적용
+        if (result.size() > limit) {
+            return result.subList(0, limit);
+        }
+        return result;
+    }
 }

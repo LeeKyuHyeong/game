@@ -41,11 +41,26 @@ public class FanChallengeRecord {
     @Column(name = "is_perfect_clear")
     private Boolean isPerfectClear = false;
 
+    /**
+     * 현재 시점 기준 퍼펙트 여부
+     * - 주간 배치에서 갱신
+     * - 곡 수 변경 시 false로 변경
+     */
+    @Column(name = "is_current_perfect")
+    private Boolean isCurrentPerfect = false;
+
     @Column(name = "best_time_ms")
     private Long bestTimeMs;
 
     @Column(name = "achieved_at")
     private LocalDateTime achievedAt;
+
+    /**
+     * 마지막 퍼펙트 검사 시점
+     * - 주간 배치 실행 시 갱신
+     */
+    @Column(name = "last_checked_at")
+    private LocalDateTime lastCheckedAt;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
