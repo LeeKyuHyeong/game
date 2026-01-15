@@ -536,7 +536,9 @@ public class MultiGameController {
      */
     @GetMapping("/room/{roomCode}/status")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getRoomStatus(@PathVariable String roomCode) {
+    public ResponseEntity<Map<String, Object>> getRoomStatus(
+            @PathVariable String roomCode,
+            HttpSession httpSession) {
         Map<String, Object> result = new HashMap<>();
 
         GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
@@ -544,6 +546,17 @@ public class MultiGameController {
             result.put("success", false);
             result.put("message", "방을 찾을 수 없습니다.");
             return ResponseEntity.ok(result);
+        }
+
+        // 요청자의 참가 상태 확인 (강퇴 감지용)
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+        if (memberId != null) {
+            Member member = memberService.findById(memberId).orElse(null);
+            if (member != null) {
+                GameRoomParticipant myParticipant = gameRoomService.getParticipant(room, member).orElse(null);
+                boolean isKicked = myParticipant == null || myParticipant.getStatus() == GameRoomParticipant.ParticipantStatus.LEFT;
+                result.put("kicked", isKicked);
+            }
         }
 
         result.put("success", true);

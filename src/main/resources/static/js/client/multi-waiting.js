@@ -64,6 +64,15 @@ async function fetchRoomStatus() {
             return;
         }
 
+        // 강퇴 여부 확인
+        if (result.kicked) {
+            stopPolling();
+            stopChatPolling();
+            alert('방에서 강퇴되었습니다.');
+            window.location.href = '/game/multi';
+            return;
+        }
+
         if (result.status === 'PLAYING') {
             stopPolling();
             stopChatPolling();
