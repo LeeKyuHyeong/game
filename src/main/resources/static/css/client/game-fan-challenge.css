@@ -1048,9 +1048,33 @@
 
 .badges-collection {
     display: flex;
-    justify-content: center;
     gap: 1rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.5rem;
+    cursor: grab;
+}
+
+.badges-collection:active,
+.badges-collection.dragging {
+    cursor: grabbing;
+}
+
+/* 스크롤바 스타일링 */
+.badges-collection::-webkit-scrollbar {
+    height: 4px;
+}
+
+.badges-collection::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+}
+
+.badges-collection::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 2px;
 }
 
 .badge-item {
@@ -1063,6 +1087,8 @@
     border: 2px solid var(--border-color);
     border-radius: 12px;
     min-width: 80px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
 }
 
 .badge-item[data-difficulty="BEGINNER"] {
