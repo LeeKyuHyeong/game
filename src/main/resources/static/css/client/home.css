@@ -350,6 +350,8 @@
 .artist-ranking-scroll:active,
 .artist-ranking-scroll.dragging {
     cursor: grabbing;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .artist-ranking-scroll::-webkit-scrollbar {

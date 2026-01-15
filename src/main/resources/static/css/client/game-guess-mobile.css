@@ -31,64 +31,6 @@
         font-size: 11px;
     }
 
-    /* 플레이어 가로 1줄 */
-    .guess-mobile-compact .music-player {
-        padding: 10px 12px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: nowrap;
-    }
-
-    .guess-mobile-compact .player-display {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-shrink: 0;
-    }
-
-    .guess-mobile-compact .music-icon {
-        font-size: 20px;
-    }
-
-    .guess-mobile-compact .player-status {
-        font-size: 11px;
-        min-width: 50px;
-        text-align: center;
-    }
-
-    .guess-mobile-compact .player-controls {
-        flex-shrink: 0;
-    }
-
-    .guess-mobile-compact .play-btn {
-        width: 42px;
-        height: 42px;
-        font-size: 16px;
-    }
-
-    /* 프로그레스 바 영역 */
-    .guess-mobile-compact .music-player .progress-container {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        min-width: 0;
-    }
-
-    .guess-mobile-compact .progress-bar {
-        flex: 1;
-        height: 6px;
-        min-width: 60px;
-        border-radius: 3px;
-    }
-
-    .guess-mobile-compact .time-display {
-        font-size: 10px;
-        flex-shrink: 0;
-        white-space: nowrap;
-    }
-
     /* 정답 섹션 */
     .guess-mobile-compact .guess-answer-section {
         padding: 12px;

@@ -284,9 +284,9 @@
 
 /* Score/Fail Info in Round Card */
 .score-info {
-    margin-top: 0.75rem;
+    /*margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px dashed #e5e7eb;
+    border-top: 1px dashed #e5e7eb;*/
 }
 
 .score-plus {

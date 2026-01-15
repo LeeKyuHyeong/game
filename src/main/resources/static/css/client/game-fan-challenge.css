@@ -1060,6 +1060,8 @@
 .badges-collection:active,
 .badges-collection.dragging {
     cursor: grabbing;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 /* 스크롤바 스타일링 */

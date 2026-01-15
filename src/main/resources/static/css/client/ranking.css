@@ -7,6 +7,11 @@
  * - Full ranking table
  */
 
+/* Ranking Page - 컨텐츠 상단 정렬 */
+.ranking-page .client-main {
+    align-items: flex-start;
+}
+
 /* Ranking Content Container */
 .ranking-content {
     width: 100%;

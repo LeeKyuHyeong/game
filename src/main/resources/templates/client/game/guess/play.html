@@ -10,7 +10,7 @@
         <span class="challenge-progress" id="challengeProgress">0/30</span>
     </div>
 
-    <header class="game-header">
+    <header class="game-header game-header-with-status">
         <div class="game-info">
             <span class="round-info">
                 라운드 <span id="currentRound">1</span> / <span th:text="${gameSession.totalRounds}"></span>
@@ -19,6 +19,13 @@
                 점수: <span id="currentScore">0</span>점
             </span>
         </div>
+
+        <!-- 헤더 내 상태 표시만 -->
+        <div class="header-status">
+            <div class="music-icon" id="musicIcon">🎵</div>
+            <div class="player-status" id="playerStatus">재생 대기중</div>
+        </div>
+
         <div style="display: flex; gap: 8px; align-items: center;">
             <a href="/" class="btn-home">🏠 홈</a>
             <button class="btn btn-quit" onclick="quitGame()">게임 종료</button>
@@ -35,18 +42,11 @@
             </div>
         </div>
 
-        <div class="music-player">
-            <div class="player-display">
-                <div class="music-icon" id="musicIcon">🎵</div>
-                <div class="player-status" id="playerStatus">재생 대기중</div>
-            </div>
-
-            <div class="player-controls">
-                <button class="control-btn play-btn" id="playBtn" onclick="togglePlay()">
-                    <span class="play-icon">▶</span>
-                </button>
-            </div>
-
+        <!-- 음악 컨트롤 바 -->
+        <div class="music-controls-bar">
+            <button class="control-btn play-btn" id="playBtn" onclick="togglePlay()">
+                <span class="play-icon">▶</span>
+            </button>
             <div class="progress-bar">
                 <div class="progress" id="progressBar"></div>
             </div>

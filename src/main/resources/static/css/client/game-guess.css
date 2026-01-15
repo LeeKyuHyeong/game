@@ -294,6 +294,18 @@
         grid-template-columns: 1fr;
     }
 
+    /* 모바일 헤더 - 항상 가로 레이아웃 유지 */
+    .game-container.guess-mode .game-header .game-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .game-container.guess-mode .game-header .round-info,
+    .game-container.guess-mode .game-header .score-info {
+        font-size: 13px;
+    }
+
     .stats-sidebar {
         order: -1;
         padding: 0.75rem;

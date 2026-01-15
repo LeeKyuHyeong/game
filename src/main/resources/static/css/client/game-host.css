@@ -191,55 +191,6 @@
         text-align: center;
     }
 
-    /* 플레이어 가로 1줄 */
-    .host-mobile-compact .music-player {
-        padding: 10px 12px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: nowrap;
-    }
-
-    .host-mobile-compact .player-display {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-shrink: 0;
-    }
-
-    .host-mobile-compact .music-icon {
-        font-size: 20px;
-    }
-
-    .host-mobile-compact .player-status {
-        font-size: 11px;
-        min-width: 50px;
-        text-align: center;
-    }
-
-    .host-mobile-compact .player-controls {
-        flex-shrink: 0;
-    }
-
-    .host-mobile-compact .play-btn {
-        width: 42px;
-        height: 42px;
-        font-size: 16px;
-    }
-
-    .host-mobile-compact .progress-bar {
-        flex: 1;
-        height: 6px;
-        min-width: 60px;
-        border-radius: 3px;
-    }
-
-    .host-mobile-compact .time-display {
-        font-size: 10px;
-        flex-shrink: 0;
-        white-space: nowrap;
-    }
-
     /* 정답자 선택 섹션 */
     .host-mobile-compact .answer-section {
         padding: 12px;
