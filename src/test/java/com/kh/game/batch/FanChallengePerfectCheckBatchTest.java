@@ -156,4 +156,180 @@ class FanChallengePerfectCheckBatchTest {
         song.setYoutubeVideoId("vid_" + (++songCounter));  // 짧은 ID (VARCHAR(20) 제한)
         return songRepository.save(song);
     }
+
+    // =====================================================
+    // Soft Delete 정책 테스트
+    // 정책: 삭제 시 퍼펙트 유지, 추가 시만 무효화
+    // =====================================================
+
+    @Test
+    @DisplayName("Soft Delete 시 퍼펙트가 유지되어야 함 (삭제는 관대)")
+    void execute_softDelete_shouldKeepPerfect() {
+        // Given: BTS 곡 5개
+        Song song1 = createSong("BTS Song 1", "BTS");
+        Song song2 = createSong("BTS Song 2", "BTS");
+        createSong("BTS Song 3", "BTS");
+        createSong("BTS Song 4", "BTS");
+        createSong("BTS Song 5", "BTS");
+
+        // 퍼펙트 기록 생성 (5곡 모두 맞춤)
+        FanChallengeRecord record = new FanChallengeRecord(testMember, "BTS", 5, FanChallengeDifficulty.HARDCORE);
+        record.setCorrectCount(5);
+        record.setIsPerfectClear(true);
+        record.setBestTimeMs(30000L);
+        record.setAchievedAt(LocalDateTime.now());
+        record = fanChallengeRecordRepository.save(record);
+
+        // Soft delete 2곡 (총 3곡 남음)
+        song1.setUseYn("N");
+        song2.setUseYn("N");
+        songRepository.save(song1);
+        songRepository.save(song2);
+
+        // When
+        int invalidatedCount = fanChallengePerfectCheckBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+
+        // Then: 삭제는 퍼펙트에 영향 없음
+        assertThat(invalidatedCount).isEqualTo(0);
+        FanChallengeRecord updated = fanChallengeRecordRepository.findById(record.getId()).orElseThrow();
+        assertThat(updated.getIsPerfectClear()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Soft Delete 후 곡 추가 시 퍼펙트가 무효화되어야 함")
+    void execute_softDeleteThenAdd_shouldInvalidatePerfect() {
+        // Given: BTS 곡 5개
+        Song song1 = createSong("BTS Song 1", "BTS");
+        createSong("BTS Song 2", "BTS");
+        createSong("BTS Song 3", "BTS");
+        createSong("BTS Song 4", "BTS");
+        createSong("BTS Song 5", "BTS");
+
+        // 퍼펙트 기록 생성 (5곡 모두 맞춤)
+        FanChallengeRecord record = new FanChallengeRecord(testMember, "BTS", 5, FanChallengeDifficulty.HARDCORE);
+        record.setCorrectCount(5);
+        record.setIsPerfectClear(true);
+        record.setBestTimeMs(30000L);
+        record.setAchievedAt(LocalDateTime.now());
+        record = fanChallengeRecordRepository.save(record);
+
+        // Soft delete 1곡 (4곡)
+        song1.setUseYn("N");
+        songRepository.save(song1);
+
+        // 새 곡 2개 추가 (총 6곡)
+        createSong("BTS Song 6", "BTS");
+        createSong("BTS Song 7", "BTS");
+
+        // When
+        int invalidatedCount = fanChallengePerfectCheckBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+
+        // Then: 곡이 추가되어 퍼펙트 무효화 (현재 6곡 > 기록 5곡)
+        assertThat(invalidatedCount).isEqualTo(1);
+        FanChallengeRecord updated = fanChallengeRecordRepository.findById(record.getId()).orElseThrow();
+        assertThat(updated.getIsPerfectClear()).isFalse();
+    }
+
+    @Test
+    @DisplayName("전곡 Soft Delete 시 퍼펙트가 무효화되어야 함")
+    void execute_allSoftDeleted_shouldInvalidatePerfect() {
+        // Given: BTS 곡 3개
+        Song song1 = createSong("BTS Song 1", "BTS");
+        Song song2 = createSong("BTS Song 2", "BTS");
+        Song song3 = createSong("BTS Song 3", "BTS");
+
+        // 퍼펙트 기록 생성
+        FanChallengeRecord record = new FanChallengeRecord(testMember, "BTS", 3, FanChallengeDifficulty.HARDCORE);
+        record.setCorrectCount(3);
+        record.setIsPerfectClear(true);
+        record.setBestTimeMs(20000L);
+        record.setAchievedAt(LocalDateTime.now());
+        record = fanChallengeRecordRepository.save(record);
+
+        // When: 전곡 soft delete
+        song1.setUseYn("N");
+        song2.setUseYn("N");
+        song3.setUseYn("N");
+        songRepository.save(song1);
+        songRepository.save(song2);
+        songRepository.save(song3);
+
+        int invalidatedCount = fanChallengePerfectCheckBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+
+        // Then: 아티스트가 없어짐 → 퍼펙트 무효화
+        assertThat(invalidatedCount).isEqualTo(1);
+        FanChallengeRecord updated = fanChallengeRecordRepository.findById(record.getId()).orElseThrow();
+        assertThat(updated.getIsPerfectClear()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Soft Delete로 곡 수가 같아지면 퍼펙트 유지")
+    void execute_softDeleteToSameCount_shouldKeepPerfect() {
+        // Given: BTS 곡 7개 (기록은 5곡에서 달성)
+        createSong("BTS Song 1", "BTS");
+        createSong("BTS Song 2", "BTS");
+        createSong("BTS Song 3", "BTS");
+        createSong("BTS Song 4", "BTS");
+        createSong("BTS Song 5", "BTS");
+        Song song6 = createSong("BTS Song 6", "BTS");
+        Song song7 = createSong("BTS Song 7", "BTS");
+
+        // 퍼펙트 기록 (5곡 기준)
+        FanChallengeRecord record = new FanChallengeRecord(testMember, "BTS", 5, FanChallengeDifficulty.HARDCORE);
+        record.setCorrectCount(5);
+        record.setIsPerfectClear(true);
+        record.setBestTimeMs(30000L);
+        record.setAchievedAt(LocalDateTime.now());
+        record = fanChallengeRecordRepository.save(record);
+
+        // 새로 추가된 2곡 soft delete (다시 5곡)
+        song6.setUseYn("N");
+        song7.setUseYn("N");
+        songRepository.save(song6);
+        songRepository.save(song7);
+
+        // When
+        int invalidatedCount = fanChallengePerfectCheckBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+
+        // Then: 곡 수가 같으므로 퍼펙트 유지
+        assertThat(invalidatedCount).isEqualTo(0);
+        FanChallengeRecord updated = fanChallengeRecordRepository.findById(record.getId()).orElseThrow();
+        assertThat(updated.getIsPerfectClear()).isTrue();
+    }
+
+    @Test
+    @DisplayName("다중 난이도 기록에서 Soft Delete 처리")
+    void execute_multiDifficulty_softDelete() {
+        // Given: BTS 곡 5개
+        createSong("BTS Song 1", "BTS");
+        createSong("BTS Song 2", "BTS");
+        createSong("BTS Song 3", "BTS");
+        createSong("BTS Song 4", "BTS");
+        createSong("BTS Song 5", "BTS");
+
+        // BEGINNER 퍼펙트
+        FanChallengeRecord beginnerRecord = new FanChallengeRecord(testMember, "BTS", 5, FanChallengeDifficulty.BEGINNER);
+        beginnerRecord.setCorrectCount(5);
+        beginnerRecord.setIsPerfectClear(true);
+        beginnerRecord.setBestTimeMs(40000L);
+        beginnerRecord.setAchievedAt(LocalDateTime.now());
+        fanChallengeRecordRepository.save(beginnerRecord);
+
+        // HARDCORE 퍼펙트
+        FanChallengeRecord hardcoreRecord = new FanChallengeRecord(testMember, "BTS", 5, FanChallengeDifficulty.HARDCORE);
+        hardcoreRecord.setCorrectCount(5);
+        hardcoreRecord.setIsPerfectClear(true);
+        hardcoreRecord.setBestTimeMs(30000L);
+        hardcoreRecord.setAchievedAt(LocalDateTime.now());
+        fanChallengeRecordRepository.save(hardcoreRecord);
+
+        // 신곡 1개 추가 (총 6곡)
+        createSong("BTS Song 6", "BTS");
+
+        // When
+        int invalidatedCount = fanChallengePerfectCheckBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+
+        // Then: 두 난이도 모두 무효화
+        assertThat(invalidatedCount).isEqualTo(2);
+    }
 }
