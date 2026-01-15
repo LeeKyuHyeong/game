@@ -344,6 +344,12 @@
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 0.5rem;
+    cursor: grab;
+}
+
+.artist-ranking-scroll:active,
+.artist-ranking-scroll.dragging {
+    cursor: grabbing;
 }
 
 .artist-ranking-scroll::-webkit-scrollbar {

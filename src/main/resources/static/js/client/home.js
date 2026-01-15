@@ -148,6 +148,9 @@ async function loadArtistChallengeRanking() {
         });
 
         scroll.innerHTML = html;
+
+        // PC 드래그 스크롤 활성화
+        enableDragScroll(scroll);
     } catch (error) {
         console.error('아티스트 챌린지 랭킹 로딩 오류:', error);
     }
