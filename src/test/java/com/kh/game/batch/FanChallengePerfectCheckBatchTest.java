@@ -307,13 +307,13 @@ class FanChallengePerfectCheckBatchTest {
         createSong("BTS Song 4", "BTS");
         createSong("BTS Song 5", "BTS");
 
-        // BEGINNER 퍼펙트
-        FanChallengeRecord beginnerRecord = new FanChallengeRecord(testMember, "BTS", 5, FanChallengeDifficulty.BEGINNER);
-        beginnerRecord.setCorrectCount(5);
-        beginnerRecord.setIsPerfectClear(true);
-        beginnerRecord.setBestTimeMs(40000L);
-        beginnerRecord.setAchievedAt(LocalDateTime.now());
-        fanChallengeRecordRepository.save(beginnerRecord);
+        // NORMAL 퍼펙트
+        FanChallengeRecord normalRecord = new FanChallengeRecord(testMember, "BTS", 5, FanChallengeDifficulty.NORMAL);
+        normalRecord.setCorrectCount(5);
+        normalRecord.setIsPerfectClear(true);
+        normalRecord.setBestTimeMs(40000L);
+        normalRecord.setAchievedAt(LocalDateTime.now());
+        fanChallengeRecordRepository.save(normalRecord);
 
         // HARDCORE 퍼펙트
         FanChallengeRecord hardcoreRecord = new FanChallengeRecord(testMember, "BTS", 5, FanChallengeDifficulty.HARDCORE);

@@ -98,157 +98,63 @@ class FanChallengeServiceTest {
     }
 
     // =====================================================
-    // Edge Case 1: 곡 1개 시나리오
+    // Edge Case 1: 최소 곡 수 요구사항
     // =====================================================
     @Nested
-    @DisplayName("곡 1개 시나리오")
-    class SingleSongScenarios {
+    @DisplayName("최소 곡 수 요구사항")
+    class MinimumSongRequirementScenarios {
 
         @Test
-        @DisplayName("[버그] 곡 1개 + 첫 라운드 실패 → PERFECT_CLEAR가 아닌 실패로 처리되어야 함")
-        void singleSong_firstRoundFail_shouldNotBePerfectClear() {
-            // Given: 곡 1개인 아티스트
-            createSong("Only Song", "Solo Artist");
-            GameSession session = fanChallengeService.startChallenge(
-                    null, "테스터", "Solo Artist", FanChallengeDifficulty.HARDCORE);
+        @DisplayName("30곡 미만 아티스트로 게임 시작 시 예외 발생")
+        void lessThan30Songs_shouldThrowException() {
+            // Given: 29곡인 아티스트
+            for (int i = 1; i <= 29; i++) {
+                createSong("Song " + i, "Few Songs Artist");
+            }
 
-            assertThat(session.getTotalRounds()).isEqualTo(1);
-            assertThat(session.getRemainingLives()).isEqualTo(3); // 하드코어 라이프 3개
-
-            // When: 첫 라운드 오답
-            FanChallengeService.AnswerResult result = fanChallengeService.processAnswer(
-                    session.getId(), 1, "틀린 답", 5000);
-
-            // Then: ALL_ROUNDS_COMPLETED (퍼펙트가 아니므로)
-            assertThat(result.isCorrect()).isFalse();
-            assertThat(result.isGameOver()).isTrue();
-            assertThat(result.gameOverReason()).isEqualTo("ALL_ROUNDS_COMPLETED");
-            assertThat(result.correctCount()).isEqualTo(0);
+            // When & Then
+            assertThatThrownBy(() -> fanChallengeService.startChallenge(
+                    null, "테스터", "Few Songs Artist", FanChallengeDifficulty.HARDCORE))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("30곡 이상");
         }
 
         @Test
-        @DisplayName("곡 1개 + 첫 라운드 성공 → 진짜 PERFECT_CLEAR")
-        void singleSong_firstRoundSuccess_shouldBePerfectClear() {
-            // Given
-            createSong("Only Song", "Solo Artist");
-            GameSession session = fanChallengeService.startChallenge(
-                    null, "테스터", "Solo Artist", FanChallengeDifficulty.HARDCORE);
+        @DisplayName("정확히 30곡인 아티스트로 게임 시작 가능")
+        void exactly30Songs_shouldStartSuccessfully() {
+            // Given: 30곡인 아티스트
+            for (int i = 1; i <= 30; i++) {
+                createSong("Song " + i, "Exact Artist");
+            }
 
-            // When: 첫 라운드 정답
-            FanChallengeService.AnswerResult result = fanChallengeService.processAnswer(
-                    session.getId(), 1, "Only Song", 5000);
+            // When
+            GameSession session = fanChallengeService.startChallenge(
+                    null, "테스터", "Exact Artist", FanChallengeDifficulty.HARDCORE);
 
             // Then
-            assertThat(result.isCorrect()).isTrue();
-            assertThat(result.isGameOver()).isTrue();
-            assertThat(result.gameOverReason()).isEqualTo("PERFECT_CLEAR");
-            assertThat(result.correctCount()).isEqualTo(1);
+            assertThat(session).isNotNull();
+            assertThat(session.getTotalRounds()).isEqualTo(30);
         }
 
         @Test
-        @DisplayName("곡 1개 + 시간 초과 → 게임 오버 (퍼펙트 아님)")
-        void singleSong_timeout_shouldNotBePerfectClear() {
-            // Given
-            createSong("Only Song", "Solo Artist");
+        @DisplayName("50곡인 아티스트도 30곡만 출제")
+        void moreThan30Songs_shouldSelect30Only() {
+            // Given: 50곡인 아티스트
+            for (int i = 1; i <= 50; i++) {
+                createSong("Song " + i, "Many Songs Artist");
+            }
+
+            // When
             GameSession session = fanChallengeService.startChallenge(
-                    null, "테스터", "Solo Artist", FanChallengeDifficulty.HARDCORE);
+                    null, "테스터", "Many Songs Artist", FanChallengeDifficulty.HARDCORE);
 
-            // When: 시간 초과
-            FanChallengeService.AnswerResult result = fanChallengeService.processTimeout(
-                    session.getId(), 1);
-
-            // Then: ALL_ROUNDS_COMPLETED (시간 초과로 실패)
-            assertThat(result.isTimeout()).isTrue();
-            assertThat(result.isCorrect()).isFalse();
-            assertThat(result.isGameOver()).isTrue();
-            assertThat(result.gameOverReason()).isEqualTo("ALL_ROUNDS_COMPLETED");
+            // Then
+            assertThat(session.getTotalRounds()).isEqualTo(30);
         }
     }
 
     // =====================================================
-    // Edge Case 2: 곡 2개 시나리오
-    // =====================================================
-    @Nested
-    @DisplayName("곡 2개 시나리오")
-    class TwoSongScenarios {
-
-        @Test
-        @DisplayName("곡 2개 + 첫 번째 실패 + 두 번째 성공 → 완료 (퍼펙트 아님)")
-        void twoSongs_firstFailSecondSuccess_notPerfect() {
-            // Given
-            createSong("Song 1", "Duo Artist");
-            createSong("Song 2", "Duo Artist");
-            GameSession session = fanChallengeService.startChallenge(
-                    null, "테스터", "Duo Artist", FanChallengeDifficulty.HARDCORE);
-
-            assertThat(session.getTotalRounds()).isEqualTo(2);
-
-            // When: 첫 번째 오답
-            FanChallengeService.AnswerResult result1 = fanChallengeService.processAnswer(
-                    session.getId(), 1, "틀린 답", 5000);
-
-            assertThat(result1.isCorrect()).isFalse();
-            assertThat(result1.isGameOver()).isFalse();
-            assertThat(result1.remainingLives()).isEqualTo(2);
-
-            // When: 두 번째 정답
-            FanChallengeService.AnswerResult result2 = fanChallengeService.processAnswer(
-                    session.getId(), 2, "Song 2", 5000);
-
-            // Then
-            assertThat(result2.isCorrect()).isTrue();
-            assertThat(result2.isGameOver()).isTrue();
-            assertThat(result2.correctCount()).isEqualTo(1);
-            assertThat(result2.completedRounds()).isEqualTo(2);
-            // 퍼펙트가 아니므로 gameOverReason 확인
-            // 수정 후: PERFECT_CLEAR가 아닌 다른 값이어야 함
-        }
-
-        @Test
-        @DisplayName("곡 2개 + 둘 다 성공 → PERFECT_CLEAR")
-        void twoSongs_bothSuccess_perfectClear() {
-            // Given
-            createSong("Song 1", "Duo Artist");
-            createSong("Song 2", "Duo Artist");
-            GameSession session = fanChallengeService.startChallenge(
-                    null, "테스터", "Duo Artist", FanChallengeDifficulty.HARDCORE);
-
-            // When
-            fanChallengeService.processAnswer(session.getId(), 1, "Song 1", 5000);
-            FanChallengeService.AnswerResult result = fanChallengeService.processAnswer(
-                    session.getId(), 2, "Song 2", 5000);
-
-            // Then
-            assertThat(result.isGameOver()).isTrue();
-            assertThat(result.gameOverReason()).isEqualTo("PERFECT_CLEAR");
-            assertThat(result.correctCount()).isEqualTo(2);
-        }
-
-        @Test
-        @DisplayName("곡 2개 + 둘 다 실패 (라이프 3개) → 라이프 1개 남고 게임 완료")
-        void twoSongs_bothFail_livesRemaining() {
-            // Given
-            createSong("Song 1", "Duo Artist");
-            createSong("Song 2", "Duo Artist");
-            GameSession session = fanChallengeService.startChallenge(
-                    null, "테스터", "Duo Artist", FanChallengeDifficulty.HARDCORE);
-
-            // When
-            FanChallengeService.AnswerResult result1 = fanChallengeService.processAnswer(
-                    session.getId(), 1, "틀린 답", 5000);
-            FanChallengeService.AnswerResult result2 = fanChallengeService.processAnswer(
-                    session.getId(), 2, "틀린 답", 5000);
-
-            // Then: ALL_ROUNDS_COMPLETED (둘 다 실패, 라이프 1개 남음)
-            assertThat(result2.isGameOver()).isTrue();
-            assertThat(result2.remainingLives()).isEqualTo(1);
-            assertThat(result2.correctCount()).isEqualTo(0);
-            assertThat(result2.gameOverReason()).isEqualTo("ALL_ROUNDS_COMPLETED");
-        }
-    }
-
-    // =====================================================
-    // Edge Case 3: 라이프 소진 시나리오
+    // Edge Case 2: 라이프 소진 시나리오
     // =====================================================
     @Nested
     @DisplayName("라이프 소진 시나리오")
@@ -258,7 +164,7 @@ class FanChallengeServiceTest {
         @DisplayName("곡 5개 + 라이프 3개 + 3회 연속 실패 → LIFE_EXHAUSTED")
         void fiveSongs_threeConsecutiveFails_lifeExhausted() {
             // Given
-            createSongsForArtist("Test Artist", 5);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -279,35 +185,10 @@ class FanChallengeServiceTest {
         }
 
         @Test
-        @DisplayName("입문 모드 (라이프 5개) + 5회 연속 실패 → LIFE_EXHAUSTED")
-        void beginnerMode_fiveConsecutiveFails_lifeExhausted() {
-            // Given
-            createSongsForArtist("Test Artist", 10);
-            GameSession session = fanChallengeService.startChallenge(
-                    null, "테스터", "Test Artist", FanChallengeDifficulty.BEGINNER);
-
-            assertThat(session.getRemainingLives()).isEqualTo(5);
-
-            // When: 5회 연속 실패
-            for (int i = 1; i <= 4; i++) {
-                FanChallengeService.AnswerResult r = fanChallengeService.processAnswer(
-                        session.getId(), i, "틀림", 10000);
-                assertThat(r.isGameOver()).isFalse();
-            }
-            FanChallengeService.AnswerResult result = fanChallengeService.processAnswer(
-                    session.getId(), 5, "틀림", 10000);
-
-            // Then
-            assertThat(result.isGameOver()).isTrue();
-            assertThat(result.gameOverReason()).isEqualTo("LIFE_EXHAUSTED");
-            assertThat(result.remainingLives()).isEqualTo(0);
-        }
-
-        @Test
         @DisplayName("라이프가 딱 0이 되는 시점 + 라운드 완료 시점 동시 발생")
         void lifeExhaustedAndRoundsCompletedSimultaneously() {
             // Given: 곡 3개, 라이프 3개
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -337,7 +218,7 @@ class FanChallengeServiceTest {
         @DisplayName("시간 초과 → 라이프 감소")
         void timeout_decreasesLife() {
             // Given
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -355,7 +236,7 @@ class FanChallengeServiceTest {
         @DisplayName("시간 제한 초과한 정답 제출 → 시간 초과로 처리")
         void answerAfterTimeLimit_treatedAsTimeout() {
             // Given
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -376,7 +257,7 @@ class FanChallengeServiceTest {
         @DisplayName("시간 제한 내 정답 제출 → 정상 처리")
         void answerWithinTimeLimit_processedNormally() {
             // Given
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -404,7 +285,7 @@ class FanChallengeServiceTest {
         @DisplayName("빈 문자열 답안 → 오답 처리")
         void emptyAnswer_treatedAsWrong() {
             // Given
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -421,7 +302,7 @@ class FanChallengeServiceTest {
         @DisplayName("null 답안 → 오답 처리")
         void nullAnswer_treatedAsWrong() {
             // Given
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -437,7 +318,7 @@ class FanChallengeServiceTest {
         @DisplayName("공백만 있는 답안 → 오답 처리")
         void whitespaceOnlyAnswer_treatedAsWrong() {
             // Given
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -463,7 +344,7 @@ class FanChallengeServiceTest {
         @DisplayName("존재하지 않는 라운드 번호 → 예외 발생")
         void nonExistentRoundNumber_throwsException() {
             // Given
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -522,24 +403,10 @@ class FanChallengeServiceTest {
     class DifficultyScenarios {
 
         @Test
-        @DisplayName("입문 모드 초기 라이프 5개")
-        void beginnerMode_initialLives5() {
-            // Given
-            createSongsForArtist("Test Artist", 3);
-
-            // When
-            GameSession session = fanChallengeService.startChallenge(
-                    null, "테스터", "Test Artist", FanChallengeDifficulty.BEGINNER);
-
-            // Then
-            assertThat(session.getRemainingLives()).isEqualTo(5);
-        }
-
-        @Test
         @DisplayName("일반 모드 초기 라이프 3개")
         void normalMode_initialLives3() {
             // Given
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
 
             // When
             GameSession session = fanChallengeService.startChallenge(
@@ -553,7 +420,7 @@ class FanChallengeServiceTest {
         @DisplayName("하드코어 모드 초기 라이프 3개 (수정됨)")
         void hardcoreMode_initialLives3() {
             // Given
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
 
             // When
             GameSession session = fanChallengeService.startChallenge(
@@ -566,10 +433,7 @@ class FanChallengeServiceTest {
         @Test
         @DisplayName("난이도별 시간 제한 확인")
         void difficultyTimeSettings() {
-            // 입문: 7초 + 5초 = 12초
-            assertThat(FanChallengeDifficulty.BEGINNER.getTotalTimeMs()).isEqualTo(12000);
-
-            // 일반: 5초 + 5초 = 10초
+            // 노말: 5초 + 5초 = 10초
             assertThat(FanChallengeDifficulty.NORMAL.getTotalTimeMs()).isEqualTo(10000);
 
             // 하드코어: 3초 + 5초 = 8초
@@ -577,9 +441,8 @@ class FanChallengeServiceTest {
         }
 
         @Test
-        @DisplayName("입문 모드만 초성 힌트 제공")
-        void onlyBeginnerShowsChosungHint() {
-            assertThat(FanChallengeDifficulty.BEGINNER.isShowChosungHint()).isTrue();
+        @DisplayName("모든 난이도 초성 힌트 미제공")
+        void noChosungHintForAllDifficulties() {
             assertThat(FanChallengeDifficulty.NORMAL.isShowChosungHint()).isFalse();
             assertThat(FanChallengeDifficulty.HARDCORE.isShowChosungHint()).isFalse();
         }
@@ -587,7 +450,6 @@ class FanChallengeServiceTest {
         @Test
         @DisplayName("하드코어만 공식 랭킹 반영")
         void onlyHardcoreIsRanked() {
-            assertThat(FanChallengeDifficulty.BEGINNER.isRanked()).isFalse();
             assertThat(FanChallengeDifficulty.NORMAL.isRanked()).isFalse();
             assertThat(FanChallengeDifficulty.HARDCORE.isRanked()).isTrue();
         }
@@ -643,7 +505,7 @@ class FanChallengeServiceTest {
         @DisplayName("정확히 시간 제한에 맞춘 답안 → 정상 처리")
         void answerExactlyAtTimeLimit_processedNormally() {
             // Given
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -661,7 +523,7 @@ class FanChallengeServiceTest {
         @DisplayName("라이프가 정확히 1개 남은 상태에서 실패")
         void exactlyOneLifeRemaining_fail() {
             // Given
-            createSongsForArtist("Test Artist", 5);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -686,7 +548,7 @@ class FanChallengeServiceTest {
         @DisplayName("마지막 라운드에서 정답")
         void lastRound_correct() {
             // Given: 곡 3개
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
@@ -708,7 +570,7 @@ class FanChallengeServiceTest {
         @DisplayName("마지막 라운드에서 오답 (라이프 남음)")
         void lastRound_wrongWithLivesRemaining() {
             // Given: 곡 3개
-            createSongsForArtist("Test Artist", 3);
+            createSongsForArtist("Test Artist", 30);
             GameSession session = fanChallengeService.startChallenge(
                     null, "테스터", "Test Artist", FanChallengeDifficulty.HARDCORE);
 
