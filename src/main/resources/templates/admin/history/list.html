@@ -43,6 +43,7 @@
                     <option value="">게임유형 전체</option>
                     <option value="SOLO_HOST" th:selected="${gameType == 'SOLO_HOST'}">게임진행용</option>
                     <option value="SOLO_GUESS" th:selected="${gameType == 'SOLO_GUESS'}">내가맞추기</option>
+                    <option value="FAN_CHALLENGE" th:selected="${gameType == 'FAN_CHALLENGE'}">아티스트 챌린지</option>
                 </select>
                 <select name="status">
                     <option value="">상태 전체</option>
@@ -76,15 +77,25 @@
                     <td data-label="ID" th:text="${s.id}"></td>
                     <td data-label="별명" th:text="${s.nickname}"></td>
                     <td data-label="게임유형">
-                                <span class="type-badge" th:classappend="${s.gameType.name()}"
-                                      th:text="${s.gameType.name() == 'SOLO_HOST'} ? '게임진행용' : '내가맞추기'"></span>
+                        <span class="type-badge" th:classappend="${s.gameType.name()}"
+                              th:switch="${s.gameType.name()}">
+                            <span th:case="'SOLO_HOST'">게임진행용</span>
+                            <span th:case="'SOLO_GUESS'">내가맞추기</span>
+                            <span th:case="'FAN_CHALLENGE'">아티스트 챌린지</span>
+                            <span th:case="*">기타</span>
+                        </span>
                     </td>
                     <td data-label="게임모드">
-                                <span th:switch="${s.gameMode.name()}">
-                                    <span th:case="'RANDOM'">전체랜덤</span>
-                                    <span th:case="'GENRE_PER_ROUND'">라운드별장르</span>
-                                    <span th:case="'FIXED_GENRE'">고정장르</span>
-                                </span>
+                        <span th:switch="${s.gameMode.name()}">
+                            <span th:case="'RANDOM'">전체랜덤</span>
+                            <span th:case="'FIXED_GENRE'">고정장르</span>
+                            <span th:case="'FIXED_ARTIST'">고정아티스트</span>
+                            <span th:case="'FIXED_YEAR'">고정연도</span>
+                            <span th:case="'GENRE_PER_ROUND'">라운드별장르</span>
+                            <span th:case="'ARTIST_PER_ROUND'">라운드별아티스트</span>
+                            <span th:case="'YEAR_PER_ROUND'">라운드별연도</span>
+                            <span th:case="*">-</span>
+                        </span>
                     </td>
                     <td data-label="라운드">
                         <span th:text="${s.completedRounds}"></span>/<span th:text="${s.totalRounds}"></span>
