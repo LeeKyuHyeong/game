@@ -19,9 +19,9 @@
         </div>
 
         <!-- 전체 통계 탭 -->
-        <div class="stats-content tab-content active" id="tab-global">
+        <div class="stats-content tab-content active bento-grid" id="tab-global">
             <!-- 어려운 곡 TOP 10 -->
-            <div class="stats-section">
+            <div class="stats-section" data-area="hard-songs">
                 <h2 class="section-title">💀 가장 어려운 곡 TOP 10</h2>
                 <p class="section-desc">정답률이 가장 낮은 곡들입니다</p>
 
@@ -50,7 +50,7 @@
             </div>
 
             <!-- 자주 틀리는 답변 TOP 10 -->
-            <div class="stats-section">
+            <div class="stats-section" data-area="wrong-answers">
                 <h2 class="section-title">❌ 자주 틀리는 답변 TOP 10</h2>
                 <p class="section-desc">다른 사람들이 가장 많이 틀린 답변들</p>
 
@@ -70,9 +70,9 @@
         </div>
 
         <!-- 내 기록 탭 -->
-        <div class="stats-content tab-content" id="tab-my" th:if="${member != null}">
+        <div class="stats-content tab-content bento-grid" id="tab-my" th:if="${member != null}">
             <!-- 내가 가장 많이 맞춘 곡 -->
-            <div class="stats-section">
+            <div class="stats-section" data-area="my-correct">
                 <h2 class="section-title">🏆 내가 가장 많이 맞춘 곡</h2>
                 <p class="section-desc">정답 횟수가 많은 곡들</p>
 
@@ -101,7 +101,7 @@
             </div>
 
             <!-- 내가 어려워하는 곡 -->
-            <div class="stats-section">
+            <div class="stats-section" data-area="my-hard">
                 <h2 class="section-title">💀 내가 어려워하는 곡</h2>
                 <p class="section-desc">정답률이 낮은 곡들 (2회 이상 플레이)</p>
 
@@ -130,7 +130,7 @@
             </div>
 
             <!-- 내 모든 곡 통계 -->
-            <div class="stats-section">
+            <div class="stats-section" data-area="my-all">
                 <h2 class="section-title">📋 내 플레이 기록</h2>
                 <p class="section-desc">플레이한 모든 곡의 통계</p>
 
@@ -203,7 +203,7 @@
         gap: 8px;
         margin-bottom: 24px;
         width: 100%;
-        max-width: 800px;
+        max-width: 1200px;
     }
     .tab-btn {
         flex: 1;
@@ -230,8 +230,7 @@
         display: none !important;
     }
     .tab-content.active {
-        display: flex !important;
-        flex-direction: column;
+        display: grid !important;
     }
     /* 비로그인 안내 */
     .login-prompt {
@@ -241,7 +240,7 @@
         border-radius: 16px;
         margin-top: 16px;
         width: 100%;
-        max-width: 800px;
+        max-width: 1200px;
     }
     .login-prompt p {
         color: rgba(255, 255, 255, 0.7);
@@ -270,16 +269,42 @@
         text-align: center;
         flex-shrink: 0;
     }
-    .stats-content {
+
+    /* ========================================
+       벤토 그리드 레이아웃
+       ======================================== */
+    .stats-content.bento-grid {
         width: 100%;
-        max-width: 800px;
-        gap: 32px;
+        max-width: 1200px;
+        gap: 20px;
     }
+
+    /* 전체 통계 탭 그리드 레이아웃 */
+    #tab-global {
+        grid-template-columns: 2fr 2fr;
+        grid-template-areas: "hard-songs wrong-answers";
+    }
+    #tab-global [data-area="hard-songs"] { grid-area: hard-songs; }
+    #tab-global [data-area="wrong-answers"] { grid-area: wrong-answers; }
+
+    /* 내 기록 탭 그리드 레이아웃 */
+    #tab-my {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "my-correct my-hard"
+            "my-all     my-all";
+    }
+    #tab-my [data-area="my-correct"] { grid-area: my-correct; }
+    #tab-my [data-area="my-hard"] { grid-area: my-hard; }
+    #tab-my [data-area="my-all"] { grid-area: my-all; }
+
     .stats-section {
         background: rgba(255, 255, 255, 0.1);
         border-radius: 16px;
         padding: 24px;
         backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
     }
     .section-title {
         color: white;
@@ -295,6 +320,8 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        flex: 1;
+        overflow-y: auto;
     }
     .hard-song-item {
         display: flex;
@@ -393,6 +420,10 @@
         display: block;
         margin-bottom: 12px;
     }
+
+    /* ========================================
+       모바일 반응형
+       ======================================== */
     @media (max-width: 768px) {
         .stats-tabs {
             flex-direction: column;
@@ -401,6 +432,20 @@
         .tab-btn {
             padding: 12px 16px;
             font-size: 0.95rem;
+        }
+        /* 모바일에서 1열로 전환 */
+        #tab-global,
+        #tab-my {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "hard-songs"
+                "wrong-answers";
+        }
+        #tab-my {
+            grid-template-areas:
+                "my-correct"
+                "my-hard"
+                "my-all";
         }
         .stats-section {
             padding: 16px;
@@ -415,7 +460,6 @@
         .login-prompt {
             padding: 24px 16px;
         }
-        /* 모바일에서 song-stats 오버플로우 방지 */
         .song-stats {
             flex-shrink: 0;
             min-width: 0;
