@@ -595,6 +595,14 @@ function updateScoreboard(participants) {
         var hostIcon = p.isHost ? '👑 ' : '';
         var meBadge = p.memberId === myMemberId ? ' (나)' : '';
 
+        // 내 점수 헤더에 업데이트
+        if (p.memberId === myMemberId) {
+            var myScoreEl = document.getElementById('myScore');
+            if (myScoreEl) {
+                myScoreEl.textContent = p.score;
+            }
+        }
+
         html += '<div class="score-item ' + meClass + '">' +
             '<span class="rank">' + (index + 1) + '</span>' +
             '<span class="player-name">' + hostIcon + escapeHtml(p.nickname) + meBadge + '</span>' +
