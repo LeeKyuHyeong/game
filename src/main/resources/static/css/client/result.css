@@ -457,6 +457,84 @@
     text-decoration: line-through;
 }
 
+/* Multi Result - Tier Badge & LP */
+.tier-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-right: 6px;
+}
+
+.tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.7); color: #fff; }
+.tier-badge.MASTER { background: rgba(255, 107, 107, 0.7); color: #fff; }
+.tier-badge.DIAMOND { background: rgba(185, 242, 255, 0.7); color: #000; }
+.tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.7); color: #000; }
+.tier-badge.GOLD { background: rgba(255, 215, 0, 0.7); color: #000; }
+.tier-badge.SILVER { background: rgba(192, 192, 192, 0.7); color: #000; }
+.tier-badge.BRONZE { background: rgba(205, 127, 50, 0.7); color: #fff; }
+
+.lp-change {
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.lp-change.positive {
+    color: var(--success);
+}
+
+.lp-change.negative {
+    color: var(--danger);
+}
+
+.lp-change.neutral {
+    color: var(--text-secondary);
+}
+
+.podium-tier {
+    margin-top: 4px;
+}
+
+.podium-lp {
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+.player-tier-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--overlay-light);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.ranking-item.me {
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.stats-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 /* Podium Section */
 .podium-section {
     background: white;

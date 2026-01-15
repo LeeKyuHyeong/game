@@ -32,43 +32,43 @@
         <div class="tier-dashboard desktop-only">
             <h2>멀티게임 LP 티어 분포 <span style="font-size: 0.9rem; color: rgba(255,255,255,0.5);">총 [[${totalMultiPlayers}]]명</span></h2>
             <div class="tier-cards" style="grid-template-columns: repeat(7, 1fr);">
-                <div class="tier-card" style="background: linear-gradient(135deg, #00BFFF 0%, #1E90FF 100%);">
+                <div class="tier-card CHALLENGER">
                     <div class="tier-icon">🏆</div>
                     <div class="tier-name">CHALLENGER</div>
                     <div class="tier-count" th:text="${multiTierDistribution['CHALLENGER']}">0</div>
                     <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['CHALLENGER'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
                 </div>
-                <div class="tier-card" style="background: linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%);">
+                <div class="tier-card MASTER">
                     <div class="tier-icon">👑</div>
                     <div class="tier-name">MASTER</div>
                     <div class="tier-count" th:text="${multiTierDistribution['MASTER']}">0</div>
                     <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['MASTER'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
                 </div>
-                <div class="tier-card" style="background: linear-gradient(135deg, #B9F2FF 0%, #87CEEB 100%);">
+                <div class="tier-card DIAMOND">
                     <div class="tier-icon">💎</div>
                     <div class="tier-name">DIAMOND</div>
                     <div class="tier-count" th:text="${multiTierDistribution['DIAMOND']}">0</div>
                     <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['DIAMOND'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
                 </div>
-                <div class="tier-card" style="background: linear-gradient(135deg, #E5E4E2 0%, #C0C0C0 100%);">
+                <div class="tier-card PLATINUM">
                     <div class="tier-icon">🔮</div>
                     <div class="tier-name">PLATINUM</div>
                     <div class="tier-count" th:text="${multiTierDistribution['PLATINUM']}">0</div>
                     <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['PLATINUM'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
                 </div>
-                <div class="tier-card" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);">
+                <div class="tier-card GOLD">
                     <div class="tier-icon">🏅</div>
                     <div class="tier-name">GOLD</div>
                     <div class="tier-count" th:text="${multiTierDistribution['GOLD']}">0</div>
                     <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['GOLD'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
                 </div>
-                <div class="tier-card" style="background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);">
+                <div class="tier-card SILVER">
                     <div class="tier-icon">🥈</div>
                     <div class="tier-name">SILVER</div>
                     <div class="tier-count" th:text="${multiTierDistribution['SILVER']}">0</div>
                     <div class="tier-percent" th:text="${totalMultiPlayers > 0} ? ${#numbers.formatDecimal(multiTierDistribution['SILVER'] * 100.0 / totalMultiPlayers, 0, 1)} + '%' : '0%'"></div>
                 </div>
-                <div class="tier-card" style="background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%);">
+                <div class="tier-card BRONZE">
                     <div class="tier-icon">🥉</div>
                     <div class="tier-name">BRONZE</div>
                     <div class="tier-count" th:text="${multiTierDistribution['BRONZE']}">0</div>
@@ -81,43 +81,43 @@
                     <div class="chart-bar-row">
                         <span class="chart-bar-label">CHALLENGER</span>
                         <div class="chart-bar-container">
-                            <div class="chart-bar" style="background: linear-gradient(90deg, #00BFFF, #1E90FF);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['CHALLENGER'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['CHALLENGER']}"></div>
+                            <div class="chart-bar CHALLENGER" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['CHALLENGER'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['CHALLENGER']}"></div>
                         </div>
                     </div>
                     <div class="chart-bar-row">
                         <span class="chart-bar-label">MASTER</span>
                         <div class="chart-bar-container">
-                            <div class="chart-bar" style="background: linear-gradient(90deg, #FF6B6B, #EE5A5A);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['MASTER'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['MASTER']}"></div>
+                            <div class="chart-bar MASTER" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['MASTER'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['MASTER']}"></div>
                         </div>
                     </div>
                     <div class="chart-bar-row">
                         <span class="chart-bar-label">DIAMOND</span>
                         <div class="chart-bar-container">
-                            <div class="chart-bar" style="background: linear-gradient(90deg, #B9F2FF, #87CEEB);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['DIAMOND'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['DIAMOND']}"></div>
+                            <div class="chart-bar DIAMOND" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['DIAMOND'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['DIAMOND']}"></div>
                         </div>
                     </div>
                     <div class="chart-bar-row">
                         <span class="chart-bar-label">PLATINUM</span>
                         <div class="chart-bar-container">
-                            <div class="chart-bar" style="background: linear-gradient(90deg, #E5E4E2, #C0C0C0);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['PLATINUM'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['PLATINUM']}"></div>
+                            <div class="chart-bar PLATINUM" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['PLATINUM'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['PLATINUM']}"></div>
                         </div>
                     </div>
                     <div class="chart-bar-row">
                         <span class="chart-bar-label">GOLD</span>
                         <div class="chart-bar-container">
-                            <div class="chart-bar" style="background: linear-gradient(90deg, #FFD700, #FFA500);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['GOLD'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['GOLD']}"></div>
+                            <div class="chart-bar GOLD" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['GOLD'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['GOLD']}"></div>
                         </div>
                     </div>
                     <div class="chart-bar-row">
                         <span class="chart-bar-label">SILVER</span>
                         <div class="chart-bar-container">
-                            <div class="chart-bar" style="background: linear-gradient(90deg, #C0C0C0, #A8A8A8);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['SILVER'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['SILVER']}"></div>
+                            <div class="chart-bar SILVER" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['SILVER'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['SILVER']}"></div>
                         </div>
                     </div>
                     <div class="chart-bar-row">
                         <span class="chart-bar-label">BRONZE</span>
                         <div class="chart-bar-container">
-                            <div class="chart-bar" style="background: linear-gradient(90deg, #CD7F32, #B87333);" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['BRONZE'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['BRONZE']}"></div>
+                            <div class="chart-bar BRONZE" th:style="${totalMultiPlayers > 0} ? 'width:' + ${multiTierDistribution['BRONZE'] * 100.0 / totalMultiPlayers} + '%' : 'width:0%'" th:text="${multiTierDistribution['BRONZE']}"></div>
                         </div>
                     </div>
                 </div>
@@ -142,7 +142,7 @@
                         <span th:if="${idx.index == 2}">🥉 3위</span>
                         <span th:if="${idx.index > 2}" th:text="${idx.index + 1} + '위'"></span>
                     </div>
-                    <div class="ranker-tier-badge" th:if="${rankType != 'best'}" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</div>
+                    <div class="ranker-tier-badge" th:if="${rankType != 'best'}" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</div>
                     <div class="ranker-nickname" th:text="${member.nickname}">닉네임</div>
                     <div class="ranker-score" th:text="${rankType == 'best'} ? (${member.bestGuessScore} + '점') : (${member.totalScore} + '점')">0점</div>
                     <div class="ranker-stats">
@@ -163,7 +163,7 @@
                         <span th:if="${idx.index == 2}">🥉 3위</span>
                         <span th:if="${idx.index > 2}" th:text="${idx.index + 1} + '위'"></span>
                     </div>
-                    <div class="ranker-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</div>
+                    <div class="ranker-tier-badge" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</div>
                     <div class="ranker-nickname" th:text="${member.nickname}">닉네임</div>
                     <div class="ranker-score" th:text="${member.multiLp} + ' LP'">0 LP</div>
                     <div class="ranker-stats">
@@ -187,7 +187,7 @@
                     <div class="mobile-rank-center">
                         <div class="mobile-rank-name">
                             <span th:text="${member.nickname}">닉네임</span>
-                            <span class="mobile-tier-badge" th:if="${rankType != 'best'}" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</span>
+                            <span class="mobile-tier-badge" th:if="${rankType != 'best'}" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</span>
                         </div>
                         <div class="mobile-rank-info">
                             게임 <span th:text="${member.totalGames}">0</span>회 · 정답률 <span th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)}">0</span>%
@@ -214,7 +214,7 @@
                     <div class="mobile-rank-center">
                         <div class="mobile-rank-name">
                             <span th:text="${member.nickname}">닉네임</span>
-                            <span class="mobile-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</span>
+                            <span class="mobile-tier-badge" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</span>
                         </div>
                         <div class="mobile-rank-info">
                             1위 <span th:text="${member.multiWins}">0</span>회 · TOP3 <span th:text="${member.multiTop3}">0</span>회
@@ -251,7 +251,7 @@
                         <span th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
                     </td>
                     <td th:if="${rankType != 'best'}">
-                        <span class="table-tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}">브론즈</span>
+                        <span class="table-tier-badge" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</span>
                     </td>
                     <td th:text="${member.nickname}">닉네임</td>
                     <td th:text="${rankType == 'best'} ? ${#numbers.formatInteger(member.bestGuessScore, 0, 'COMMA')} : ${#numbers.formatInteger(member.totalScore, 0, 'COMMA')}">0</td>
@@ -291,7 +291,7 @@
                         <span th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
                     </td>
                     <td>
-                        <span class="table-tier-badge" th:style="'background-color:' + ${member.multiTierColor} + '; color: #000;'" th:text="${member.multiTierDisplayName}">브론즈</span>
+                        <span class="table-tier-badge" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</span>
                     </td>
                     <td th:text="${member.nickname}">닉네임</td>
                     <td th:text="${member.multiLp} + ' LP'">0 LP</td>

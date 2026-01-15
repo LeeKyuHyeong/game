@@ -6,6 +6,7 @@
 }
 
 :root {
+    /* ========== 기존 변수 (하위 호환성 유지) ========== */
     --primary-color: #6366f1;
     --primary-hover: #4f46e5;
     --secondary-color: #64748b;
@@ -13,13 +14,278 @@
     --danger-color: #ef4444;
     --warning-color: #f59e0b;
     --info-color: #3b82f6;
+
+    /* ========== 배경 계층 (Light Mode) ========== */
+    --bg-base: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-elevated: #f1f5f9;
+    --bg-muted: #e2e8f0;
+    --bg-color: var(--bg-base);
+    --card-bg: var(--bg-surface);
+
+    /* ========== 텍스트 계층 ========== */
     --text-primary: #1e293b;
     --text-secondary: #64748b;
-    --bg-color: #f8fafc;
-    --card-bg: #ffffff;
-    --border-color: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-inverse: #ffffff;
+
+    /* ========== 테두리 ========== */
+    --border-default: #e2e8f0;
+    --border-subtle: #f1f5f9;
+    --border-strong: #cbd5e1;
+    --border-color: var(--border-default);
+
+    /* ========== 오버레이 (다크모드 핵심) ========== */
+    --overlay-subtle: rgba(0, 0, 0, 0.04);
+    --overlay-light: rgba(0, 0, 0, 0.08);
+    --overlay-medium: rgba(0, 0, 0, 0.16);
+    --overlay-strong: rgba(0, 0, 0, 0.32);
+    --overlay-heavy: rgba(0, 0, 0, 0.64);
+
+    /* ========== 그림자 ========== */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+    /* ========== 상태 색상 (고정) ========== */
+    --primary: #6366f1;
+    --primary-light: #e0e7ff;
+    --primary-dark: #4f46e5;
+    --success: #22c55e;
+    --success-light: #dcfce7;
+    --success-dark: #16a34a;
+    --danger: #ef4444;
+    --danger-light: #fee2e2;
+    --danger-dark: #dc2626;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+    --warning-dark: #d97706;
+    --info: #3b82f6;
+    --info-light: #dbeafe;
+    --info-dark: #2563eb;
+
+    /* ========== 뱃지 배경/텍스트 ========== */
+    --badge-success-bg: #dcfce7;
+    --badge-success-text: #166534;
+    --badge-danger-bg: #fee2e2;
+    --badge-danger-text: #991b1b;
+    --badge-warning-bg: #fef3c7;
+    --badge-warning-text: #b45309;
+    --badge-info-bg: #dbeafe;
+    --badge-info-text: #1d4ed8;
+    --badge-gray-bg: #f1f5f9;
+    --badge-gray-text: #475569;
+    --badge-indigo-bg: #e0e7ff;
+    --badge-indigo-text: #3730a3;
+    --badge-pink-bg: #fce7f3;
+    --badge-pink-text: #9d174d;
+
+    /* ========== 보조 색상 ========== */
+    --secondary-hover: #4b5563;
+    --correct-row-bg: #f0fdf4;
+
+    /* ========== 입력 필드 ========== */
+    --input-bg: #ffffff;
+    --input-border: #e2e8f0;
+    --input-focus-border: var(--primary-color);
+    --input-placeholder: #94a3b8;
+
+    /* ========== 테이블 ========== */
+    --table-header-bg: #f8fafc;
+    --table-row-hover: #f1f5f9;
+    --table-border: #e2e8f0;
+
+    /* ========== 그라디언트 ========== */
+    --gradient-client: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-game: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --gradient-sidebar: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    --gradient-success: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    --gradient-primary: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --gradient-gold: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    --gradient-silver: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    --gradient-bronze: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+
+    /* ========== 티어 색상 (브랜드 고정) ========== */
+    --tier-bronze: #CD7F32;
+    --tier-silver: #C0C0C0;
+    --tier-gold: #FFD700;
+    --tier-platinum: #E5E4E2;
+    --tier-diamond: #B9F2FF;
+    --tier-master: #FF6B6B;
+    --tier-challenger: #00BFFF;
+
+    /* ========== 희귀도 색상 (브랜드 고정) ========== */
+    --rarity-common: #9CA3AF;
+    --rarity-rare: #3B82F6;
+    --rarity-epic: #A855F7;
+    --rarity-legendary: #F59E0B;
+}
+
+/* ========== 다크 모드 ========== */
+[data-theme="dark"] {
+    /* 배경 계층 */
+    --bg-base: #0f172a;
+    --bg-surface: #1e293b;
+    --bg-elevated: #334155;
+    --bg-muted: #475569;
+    --bg-color: var(--bg-base);
+    --card-bg: var(--bg-surface);
+
+    /* 텍스트 계층 */
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-inverse: #0f172a;
+
+    /* 테두리 */
+    --border-default: #334155;
+    --border-subtle: #1e293b;
+    --border-strong: #475569;
+    --border-color: var(--border-default);
+
+    /* 오버레이 반전 */
+    --overlay-subtle: rgba(255, 255, 255, 0.04);
+    --overlay-light: rgba(255, 255, 255, 0.08);
+    --overlay-medium: rgba(255, 255, 255, 0.16);
+    --overlay-strong: rgba(255, 255, 255, 0.32);
+    --overlay-heavy: rgba(255, 255, 255, 0.64);
+
+    /* 그림자 (더 진하게) */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+
+    /* 뱃지 반전 */
+    --badge-success-bg: #166534;
+    --badge-success-text: #dcfce7;
+    --badge-danger-bg: #991b1b;
+    --badge-danger-text: #fee2e2;
+    --badge-warning-bg: #92400e;
+    --badge-warning-text: #fef3c7;
+    --badge-info-bg: #1e40af;
+    --badge-info-text: #dbeafe;
+    --badge-gray-bg: #334155;
+    --badge-gray-text: #e2e8f0;
+    --badge-indigo-bg: #3730a3;
+    --badge-indigo-text: #e0e7ff;
+    --badge-pink-bg: #9d174d;
+    --badge-pink-text: #fce7f3;
+
+    /* 보조 색상 */
+    --secondary-hover: #9ca3af;
+    --correct-row-bg: #166534;
+
+    /* 입력 필드 */
+    --input-bg: #1e293b;
+    --input-border: #475569;
+    --input-placeholder: #64748b;
+
+    /* 테이블 */
+    --table-header-bg: #1e293b;
+    --table-row-hover: #334155;
+    --table-border: #475569;
+
+    /* 정보 박스 (info-box) */
+    --info: #1d4ed8;
+    --info-light: #1e3a5f;
+    --info-dark: #93c5fd;
+}
+
+/* ========== 시스템 설정 따르기 (저장값 없을 때) ========== */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        /* 배경 계층 */
+        --bg-base: #0f172a;
+        --bg-surface: #1e293b;
+        --bg-elevated: #334155;
+        --bg-muted: #475569;
+        --bg-color: var(--bg-base);
+        --card-bg: var(--bg-surface);
+
+        /* 텍스트 계층 */
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --text-inverse: #0f172a;
+
+        /* 테두리 */
+        --border-default: #334155;
+        --border-subtle: #1e293b;
+        --border-strong: #475569;
+        --border-color: var(--border-default);
+
+        /* 오버레이 반전 */
+        --overlay-subtle: rgba(255, 255, 255, 0.04);
+        --overlay-light: rgba(255, 255, 255, 0.08);
+        --overlay-medium: rgba(255, 255, 255, 0.16);
+        --overlay-strong: rgba(255, 255, 255, 0.32);
+        --overlay-heavy: rgba(255, 255, 255, 0.64);
+
+        /* 그림자 */
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+        --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+
+        /* 뱃지 반전 */
+        --badge-success-bg: #166534;
+        --badge-success-text: #dcfce7;
+        --badge-danger-bg: #991b1b;
+        --badge-danger-text: #fee2e2;
+        --badge-warning-bg: #92400e;
+        --badge-warning-text: #fef3c7;
+        --badge-info-bg: #1e40af;
+        --badge-info-text: #dbeafe;
+        --badge-gray-bg: #334155;
+        --badge-gray-text: #e2e8f0;
+        --badge-indigo-bg: #3730a3;
+        --badge-indigo-text: #e0e7ff;
+        --badge-pink-bg: #9d174d;
+        --badge-pink-text: #fce7f3;
+
+        /* 보조 색상 */
+        --secondary-hover: #9ca3af;
+        --correct-row-bg: #166534;
+
+        /* 입력 필드 */
+        --input-bg: #1e293b;
+        --input-border: #475569;
+        --input-placeholder: #64748b;
+
+        /* 테이블 */
+        --table-header-bg: #1e293b;
+        --table-row-hover: #334155;
+        --table-border: #475569;
+
+        /* 정보 박스 (info-box) */
+        --info: #1d4ed8;
+        --info-light: #1e3a5f;
+        --info-dark: #93c5fd;
+    }
+}
+
+/* ========== 게임 페이지 다크 고정 ========== */
+.game-page {
+    --bg-base: #0f172a;
+    --bg-surface: #1e293b;
+    --bg-elevated: #334155;
+    --bg-muted: #475569;
+    --bg-color: var(--bg-base);
+    --card-bg: var(--bg-surface);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --border-default: rgba(255, 255, 255, 0.1);
+    --border-color: var(--border-default);
+    --overlay-light: rgba(255, 255, 255, 0.1);
+    --overlay-medium: rgba(255, 255, 255, 0.2);
+    --overlay-strong: rgba(255, 255, 255, 0.3);
 }
 
 body {
@@ -74,25 +340,25 @@ button {
 }
 
 .btn-search:hover {
-    background: #2563eb;
+    background: var(--info-dark);
 }
 
 .btn-reset {
-    background: #f1f5f9;
+    background: var(--bg-elevated);
     color: var(--text-secondary);
 }
 
 .btn-reset:hover {
-    background: #e2e8f0;
+    background: var(--bg-muted);
 }
 
 .btn-cancel {
-    background: #f1f5f9;
+    background: var(--bg-elevated);
     color: var(--text-secondary);
 }
 
 .btn-cancel:hover {
-    background: #e2e8f0;
+    background: var(--bg-muted);
 }
 
 .btn-sm {
@@ -101,39 +367,39 @@ button {
 }
 
 .btn-edit {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
 }
 
 .btn-edit:hover {
-    background: #bfdbfe;
+    background: var(--info-light);
 }
 
 .btn-toggle {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 .btn-toggle:hover {
-    background: #fde68a;
+    background: var(--warning-light);
 }
 
 .btn-delete {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--badge-danger-bg);
+    color: var(--badge-danger-text);
 }
 
 .btn-delete:hover {
-    background: #fecaca;
+    background: var(--danger-light);
 }
 
 .btn-view {
-    background: #e0e7ff;
-    color: #4338ca;
+    background: var(--primary-light);
+    color: var(--primary-dark);
 }
 
 .btn-view:hover {
-    background: #c7d2fe;
+    background: var(--badge-info-bg);
 }
 
 /* ========== 뱃지 토스트 알림 ========== */
@@ -141,13 +407,13 @@ button {
     position: fixed;
     top: 20px;
     right: 20px;
-    background: white;
+    background: var(--bg-surface);
     border-radius: 12px;
     padding: 16px 20px;
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-xl);
     transform: translateX(120%);
     transition: transform 0.3s ease;
     z-index: 10000;
@@ -170,35 +436,85 @@ button {
 
 .badge-toast-title {
     font-size: 0.75rem;
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 2px;
 }
 
 .badge-toast-name {
     font-weight: 600;
     font-size: 1rem;
-    color: #1a1a1a;
+    color: var(--text-primary);
 }
 
 /* 희귀도별 색상 */
 .badge-rarity-common {
-    border-left: 4px solid #9CA3AF;
+    border-left: 4px solid var(--rarity-common);
 }
 
 .badge-rarity-rare {
-    border-left: 4px solid #3B82F6;
+    border-left: 4px solid var(--rarity-rare);
 }
 
 .badge-rarity-epic {
-    border-left: 4px solid #A855F7;
+    border-left: 4px solid var(--rarity-epic);
 }
 
 .badge-rarity-legendary {
-    border-left: 4px solid #F59E0B;
+    border-left: 4px solid var(--rarity-legendary);
     animation: legendary-glow 2s infinite;
 }
 
 @keyframes legendary-glow {
     0%, 100% { box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3); }
     50% { box-shadow: 0 10px 40px rgba(245, 158, 11, 0.5); }
+}
+
+/* ========== 테마 토글 버튼 ========== */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--overlay-light);
+    border: 1px solid var(--border-default);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.theme-toggle:hover {
+    background: var(--overlay-medium);
+    transform: scale(1.05);
+}
+
+.theme-toggle:active {
+    transform: scale(0.95);
+}
+
+.theme-icon {
+    line-height: 1;
+}
+
+.theme-icon.moon {
+    display: none;
+}
+
+[data-theme="dark"] .theme-icon.sun {
+    display: none;
+}
+
+[data-theme="dark"] .theme-icon.moon {
+    display: block;
+}
+
+/* 시스템 다크모드 시 아이콘 전환 (저장값 없을 때) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .theme-icon.sun {
+        display: none;
+    }
+    :root:not([data-theme]) .theme-icon.moon {
+        display: block;
+    }
 }

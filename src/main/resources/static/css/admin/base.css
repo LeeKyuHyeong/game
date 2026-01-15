@@ -19,22 +19,22 @@
 
 /* Code Style */
 code {
-    background: #f1f5f9;
+    background: var(--bg-elevated);
     padding: 0.125rem 0.375rem;
     border-radius: 0.25rem;
     font-family: 'Consolas', 'Monaco', monospace;
     font-size: 0.875rem;
-    color: #0f172a;
+    color: var(--text-primary);
 }
 
 /* File indicators */
 .file-exists {
-    color: #22c55e;
+    color: var(--success);
     font-size: 1rem;
 }
 
 .file-none {
-    color: #9ca3af;
+    color: var(--text-muted);
 }
 
 /* Badges */
@@ -47,13 +47,13 @@ code {
 }
 
 .solo-badge.solo {
-    background: #e0e7ff;
-    color: #3730a3;
+    background: var(--badge-indigo-bg);
+    color: var(--badge-indigo-text);
 }
 
 .solo-badge.group {
-    background: #fce7f3;
-    color: #9d174d;
+    background: var(--badge-pink-bg);
+    color: var(--badge-pink-text);
 }
 
 .status {
@@ -65,13 +65,13 @@ code {
 }
 
 .status.active {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
 }
 
 .status.inactive {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--badge-gray-bg);
+    color: var(--badge-gray-text);
 }
 
 /* Status Badge */
@@ -84,23 +84,23 @@ code {
 }
 
 .status-badge.success {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
 }
 
 .status-badge.danger {
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--badge-danger-bg);
+    color: var(--badge-danger-text);
 }
 
 .status-badge.warning {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 .status-badge.info {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
 }
 
 /* Type Badge */
@@ -113,13 +113,13 @@ code {
 }
 
 .type-badge.SOLO_HOST {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
 }
 
 .type-badge.SOLO_GUESS {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 .type-badge.small {
@@ -137,18 +137,18 @@ code {
 }
 
 .game-status.PLAYING {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
 }
 
 .game-status.COMPLETED {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
 }
 
 .game-status.ABANDONED {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--badge-gray-bg);
+    color: var(--badge-gray-text);
 }
 
 /* Round Status */
@@ -160,11 +160,11 @@ code {
     font-weight: 500;
 }
 
-.round-status.WAITING { background: #f3f4f6; color: #6b7280; }
-.round-status.PLAYING { background: #dbeafe; color: #1d4ed8; }
-.round-status.ANSWERED { background: #dcfce7; color: #166534; }
-.round-status.SKIPPED { background: #fef3c7; color: #b45309; }
-.round-status.TIMEOUT { background: #fee2e2; color: #991b1b; }
+.round-status.WAITING { background: var(--badge-gray-bg); color: var(--badge-gray-text); }
+.round-status.PLAYING { background: var(--badge-info-bg); color: var(--badge-info-text); }
+.round-status.ANSWERED { background: var(--badge-success-bg); color: var(--badge-success-text); }
+.round-status.SKIPPED { background: var(--badge-warning-bg); color: var(--badge-warning-text); }
+.round-status.TIMEOUT { background: var(--badge-danger-bg); color: var(--badge-danger-text); }
 
 /* General Badges */
 .badge {
@@ -178,8 +178,8 @@ code {
 }
 
 .badge-private {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 /* Score Cell */
@@ -190,12 +190,12 @@ code {
 
 /* Text Colors */
 .text-success {
-    color: #16a34a;
+    color: var(--success-dark);
     font-weight: 600;
 }
 
 .text-danger {
-    color: #dc2626;
+    color: var(--danger-dark);
     font-weight: 600;
 }
 
@@ -239,11 +239,11 @@ code {
     font-size: 0.75rem;
 }
 
-.correct-badge { background: #22c55e; }
-.wrong-badge { background: #ef4444; }
+.correct-badge { background: var(--success); }
+.wrong-badge { background: var(--danger); }
 
 .correct-row {
-    background: #f0fdf4 !important;
+    background: var(--correct-row-bg) !important;
 }
 
 /* Button Variants */
@@ -258,12 +258,12 @@ code {
 }
 
 .btn-secondary {
-    background: #6b7280;
+    background: var(--secondary-color);
     color: white;
 }
 
 .btn-secondary:hover {
-    background: #4b5563;
+    background: var(--secondary-hover);
 }
 
 .btn-info {
@@ -272,7 +272,7 @@ code {
 }
 
 .btn-info:hover {
-    background: #2563eb;
+    background: var(--info-dark);
 }
 
 .btn-success {
@@ -281,7 +281,7 @@ code {
 }
 
 .btn-success:hover {
-    background: #16a34a;
+    background: var(--success-dark);
 }
 
 .btn-warning {
@@ -290,7 +290,7 @@ code {
 }
 
 .btn-warning:hover {
-    background: #d97706;
+    background: var(--warning-dark);
 }
 
 .btn-danger {
@@ -299,5 +299,5 @@ code {
 }
 
 .btn-danger:hover {
-    background: #dc2626;
+    background: var(--danger-dark);
 }

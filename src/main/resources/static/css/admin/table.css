@@ -35,14 +35,14 @@
 }
 
 .data-table th {
-    background: #f8fafc;
+    background: var(--table-header-bg);
     font-weight: 600;
     color: var(--text-secondary);
     font-size: 0.875rem;
 }
 
 .data-table tbody tr:hover {
-    background: #f8fafc;
+    background: var(--table-row-hover);
 }
 
 .data-table tbody tr:last-child td {
@@ -91,12 +91,12 @@
 
 /* Toggle Button */
 .btn-toggle {
-    background: #f3f4f6;
-    color: var(--text-primary);
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 .btn-toggle:hover {
-    background: #e5e7eb;
+    background: var(--warning-light);
 }
 
 /* View Button */
@@ -144,7 +144,7 @@
 }
 
 .page-link:hover:not(.disabled):not(.active) {
-    background: #f8fafc;
+    background: var(--table-row-hover);
     border-color: var(--primary-color);
 }
 
@@ -230,7 +230,7 @@
     align-items: center;
     margin-bottom: 1rem;
     padding: 0.75rem;
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-radius: 0.5rem;
 }
 
@@ -276,8 +276,8 @@
     display: inline-block;
     padding: 0.125rem 0.5rem;
     font-size: 0.7rem;
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
     border-radius: 0.25rem;
     white-space: nowrap;
     max-width: 120px;
@@ -286,8 +286,8 @@
 }
 
 .answer-tag.primary {
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
     font-weight: 500;
 }
 
@@ -310,11 +310,11 @@
     top: 100%;
     left: 0;
     z-index: 100;
-    background: white;
-    border: 1px solid #e2e8f0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 0.5rem;
     padding: 0.75rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
     min-width: 200px;
     max-width: 400px;
     flex-wrap: wrap;
@@ -353,7 +353,7 @@ tr:nth-last-child(-n+3) .answer-tooltip {
 }
 
 .sortable-table th.sortable:hover {
-    background: #e2e8f0;
+    background: var(--table-row-hover);
 }
 
 .sortable-table th .sort-icon {

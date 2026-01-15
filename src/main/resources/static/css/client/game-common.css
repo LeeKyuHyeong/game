@@ -12,7 +12,7 @@
 
 /* Game Page Layout */
 .game-page {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    background: var(--gradient-game);
 }
 
 .game-container {
@@ -57,7 +57,7 @@
 }
 
 .round-info span {
-    color: #fbbf24;
+    color: var(--warning);
 }
 
 .header-actions {
@@ -371,15 +371,15 @@
 }
 
 .answer-header.correct {
-    color: #22c55e;
+    color: var(--success);
 }
 
 .answer-header.skip {
-    color: #f59e0b;
+    color: var(--warning);
 }
 
 .answer-header.wrong {
-    color: #ef4444;
+    color: var(--danger);
 }
 
 .answer-info {
@@ -406,14 +406,14 @@
 
 .winner-info {
     padding: 1rem;
-    background: #f0fdf4;
+    background: var(--success-light);
     border-radius: 0.75rem;
     margin-bottom: 1.5rem;
 }
 
 .winner-info .winner-name {
     font-weight: 700;
-    color: #22c55e;
+    color: var(--success);
 }
 
 .btn-next-round {
@@ -447,7 +447,7 @@
 .playback-error-modal h3 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #ef4444;
+    color: var(--danger);
     margin-bottom: 1rem;
 }
 

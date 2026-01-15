@@ -134,7 +134,7 @@
 .stats-summary .stat-card {
     flex: 1;
     min-width: 150px;
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-radius: 0.5rem;
     padding: 1rem;
     display: flex;
@@ -164,7 +164,7 @@
 .result-card {
     text-align: center;
     padding: 1rem;
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-radius: 0.5rem;
 }
 

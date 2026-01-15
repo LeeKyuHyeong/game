@@ -2019,3 +2019,504 @@
 .btn-skip-song:hover {
     background: #d97706;
 }
+
+/* ========================================
+   다크 테마 지원
+   ======================================== */
+
+/* Room Card (Lobby) */
+[data-theme="dark"] .room-card {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .room-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Create Room Card */
+[data-theme="dark"] .create-card {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .input-full,
+[data-theme="dark"] .select-full {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-cancel {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .btn-cancel:hover {
+    background: var(--bg-muted);
+}
+
+/* Waiting Room - Participant Card */
+[data-theme="dark"] .participant-card {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .participant-card.ready {
+    background: rgba(34, 197, 94, 0.15);
+}
+
+[data-theme="dark"] .status-badge.waiting {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .btn-ready {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-ready:hover {
+    background: var(--bg-muted);
+}
+
+/* Game Area */
+[data-theme="dark"] .game-area {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .game-area .answer-section,
+[data-theme="dark"] .game-area .multi-answer-section {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
+/* Genre Grid */
+[data-theme="dark"] .genre-grid .genre-item {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .genre-grid .genre-item:hover:not(.disabled) {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .genre-grid .genre-item.disabled {
+    background: var(--bg-muted);
+}
+
+/* Result Items */
+[data-theme="dark"] .result-item {
+    background: var(--bg-elevated);
+    border-left-color: var(--border-color);
+}
+
+[data-theme="dark"] .result-item.correct {
+    background: rgba(34, 197, 94, 0.15);
+}
+
+[data-theme="dark"] .result-item.wrong {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+/* Scoreboard */
+[data-theme="dark"] .multi-scoreboard .score-item {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .multi-scoreboard .score-item.me {
+    background: rgba(99, 102, 241, 0.2);
+}
+
+[data-theme="dark"] .mini-scoreboard .score-item {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .mini-scoreboard .score-item.me {
+    background: rgba(99, 102, 241, 0.2);
+}
+
+/* Chat Section */
+[data-theme="dark"] .chat-section {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .chat-message {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .chat-message.my-message {
+    background: rgba(99, 102, 241, 0.2);
+}
+
+[data-theme="dark"] .chat-message.correct-answer {
+    background: rgba(34, 197, 94, 0.2);
+}
+
+[data-theme="dark"] .chat-message.system-message {
+    background: rgba(251, 191, 36, 0.2);
+}
+
+[data-theme="dark"] .system-text {
+    color: #fbbf24;
+}
+
+[data-theme="dark"] .chat-input-area {
+    background: var(--bg-elevated);
+    border-top-color: var(--border-color);
+}
+
+[data-theme="dark"] .chat-input {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+/* Play Hint */
+[data-theme="dark"] .play-hint {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+/* Winner Info */
+[data-theme="dark"] .winner-info {
+    background: rgba(34, 197, 94, 0.15);
+}
+
+/* Join Page */
+[data-theme="dark"] .room-info-card {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .room-info-card h2 {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .room-info-card .room-meta {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .participant-tag {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .participant-tag.host {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+}
+
+[data-theme="dark"] .badge-status.waiting {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+}
+
+[data-theme="dark"] .badge-status.playing {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+}
+
+[data-theme="dark"] .badge-status.finished {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .join-form-card {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .join-form-card h3 {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .join-form-card .form-group label {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .join-form-card .form-group input {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+/* Waiting Chat */
+[data-theme="dark"] .waiting-chat {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .waiting-chat .chat-header {
+    border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .waiting-chat .chat-header h3 {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .waiting-chat .chat-nickname {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .waiting-chat .chat-nickname.me {
+    color: var(--primary-color);
+}
+
+[data-theme="dark"] .waiting-chat .chat-text {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .waiting-chat .chat-message.system .system-text {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .waiting-chat .chat-message.mine {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="dark"] .waiting-chat .chat-input-area {
+    border-top-color: var(--border-color);
+}
+
+[data-theme="dark"] .waiting-chat .chat-input-area input {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+/* Troubleshoot Section */
+[data-theme="dark"] .troubleshoot-section {
+    border-top-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-link {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .btn-link:hover {
+    color: var(--text-primary);
+}
+
+/* User Answer Info */
+[data-theme="dark"] .user-answer-info {
+    background: var(--bg-elevated);
+}
+
+/* 시스템 다크모드 따르기 (저장값 없을 때) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .room-card {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .room-card:hover {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    :root:not([data-theme]) .create-card {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .input-full,
+    :root:not([data-theme]) .select-full {
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .btn-cancel {
+        background: var(--bg-elevated);
+        color: var(--text-secondary);
+    }
+
+    :root:not([data-theme]) .participant-card {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .participant-card.ready {
+        background: rgba(34, 197, 94, 0.15);
+    }
+
+    :root:not([data-theme]) .status-badge.waiting {
+        background: var(--bg-elevated);
+        color: var(--text-secondary);
+    }
+
+    :root:not([data-theme]) .btn-ready {
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .game-area {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .game-area .answer-section,
+    :root:not([data-theme]) .game-area .multi-answer-section {
+        background: var(--bg-elevated);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .genre-grid .genre-item {
+        background: var(--bg-surface);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .genre-grid .genre-item:hover:not(.disabled) {
+        background: var(--bg-elevated);
+    }
+
+    :root:not([data-theme]) .result-item {
+        background: var(--bg-elevated);
+        border-left-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .result-item.correct {
+        background: rgba(34, 197, 94, 0.15);
+    }
+
+    :root:not([data-theme]) .result-item.wrong {
+        background: rgba(239, 68, 68, 0.15);
+    }
+
+    :root:not([data-theme]) .multi-scoreboard .score-item,
+    :root:not([data-theme]) .mini-scoreboard .score-item {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .multi-scoreboard .score-item.me,
+    :root:not([data-theme]) .mini-scoreboard .score-item.me {
+        background: rgba(99, 102, 241, 0.2);
+    }
+
+    :root:not([data-theme]) .chat-section {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .chat-message {
+        background: var(--bg-elevated);
+    }
+
+    :root:not([data-theme]) .chat-message.my-message {
+        background: rgba(99, 102, 241, 0.2);
+    }
+
+    :root:not([data-theme]) .chat-message.correct-answer {
+        background: rgba(34, 197, 94, 0.2);
+    }
+
+    :root:not([data-theme]) .chat-message.system-message {
+        background: rgba(251, 191, 36, 0.2);
+    }
+
+    :root:not([data-theme]) .system-text {
+        color: #fbbf24;
+    }
+
+    :root:not([data-theme]) .chat-input-area {
+        background: var(--bg-elevated);
+        border-top-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .chat-input {
+        background: var(--bg-surface);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .play-hint {
+        background: rgba(99, 102, 241, 0.15);
+    }
+
+    :root:not([data-theme]) .winner-info {
+        background: rgba(34, 197, 94, 0.15);
+    }
+
+    :root:not([data-theme]) .room-info-card {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .room-info-card h2 {
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .participant-tag {
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .participant-tag.host {
+        background: rgba(251, 191, 36, 0.2);
+        color: #fbbf24;
+    }
+
+    :root:not([data-theme]) .badge-status.waiting {
+        background: rgba(34, 197, 94, 0.2);
+        color: #86efac;
+    }
+
+    :root:not([data-theme]) .badge-status.playing {
+        background: rgba(251, 191, 36, 0.2);
+        color: #fbbf24;
+    }
+
+    :root:not([data-theme]) .join-form-card {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .join-form-card h3,
+    :root:not([data-theme]) .join-form-card .form-group label {
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .join-form-card .form-group input {
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .waiting-chat {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .waiting-chat .chat-header {
+        border-bottom-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .waiting-chat .chat-header h3 {
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .waiting-chat .chat-nickname {
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .waiting-chat .chat-text {
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .waiting-chat .chat-message.system .system-text {
+        background: var(--bg-elevated);
+        color: var(--text-secondary);
+    }
+
+    :root:not([data-theme]) .waiting-chat .chat-message.mine {
+        background: rgba(99, 102, 241, 0.15);
+    }
+
+    :root:not([data-theme]) .waiting-chat .chat-input-area {
+        border-top-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .waiting-chat .chat-input-area input {
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .troubleshoot-section {
+        border-top-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .btn-link {
+        color: var(--text-secondary);
+    }
+
+    :root:not([data-theme]) .user-answer-info {
+        background: var(--bg-elevated);
+    }
+}

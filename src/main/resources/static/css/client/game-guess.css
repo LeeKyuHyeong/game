@@ -424,3 +424,69 @@
         max-height: 40vh;
     }
 }
+
+/* ========== 다크 테마 지원 ========== */
+[data-theme="dark"] .user-answer-info {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .genre-item {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .genre-item:hover:not(.disabled):not(.hidden) {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .genre-item.disabled {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .genre-item.disabled .genre-count {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .modal-search-input {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .genre-select-modal {
+    background: var(--bg-surface);
+}
+
+/* 시스템 다크모드 따르기 (저장값 없을 때) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .user-answer-info {
+        background: var(--bg-elevated);
+    }
+
+    :root:not([data-theme]) .genre-item {
+        background: var(--bg-surface);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .genre-item:hover:not(.disabled):not(.hidden) {
+        background: var(--bg-elevated);
+    }
+
+    :root:not([data-theme]) .genre-item.disabled {
+        background: var(--bg-muted);
+    }
+
+    :root:not([data-theme]) .genre-item.disabled .genre-count {
+        background: var(--bg-muted);
+    }
+
+    :root:not([data-theme]) .modal-search-input {
+        background: var(--bg-surface);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .genre-select-modal {
+        background: var(--bg-surface);
+    }
+}

@@ -480,7 +480,7 @@
 }
 
 .sortable-table th.sortable:hover {
-    background: #f1f5f9;
+    background: var(--table-row-hover);
 }
 
 .sortable-table th .sort-icon {

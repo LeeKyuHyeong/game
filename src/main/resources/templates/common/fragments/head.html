@@ -4,22 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title}">Song Quiz</title>
+    <!-- FOUC 방지: CSS 로드 전 테마 적용 -->
+    <script th:inline="javascript">
+        (function() {
+            try {
+                var saved = localStorage.getItem('theme-preference');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var theme = saved || (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <link rel="stylesheet" th:href="@{/css/common/common.css}">
+    <script th:src="@{/js/common/theme-toggle.js}" defer></script>
 </th:block>
 
 <th:block th:fragment="adminHead(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title}">Song Quiz Admin</title>
+    <!-- FOUC 방지: CSS 로드 전 테마 적용 -->
+    <script th:inline="javascript">
+        (function() {
+            try {
+                var saved = localStorage.getItem('theme-preference');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var theme = saved || (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <link rel="stylesheet" th:href="@{/css/common/common.css}">
     <link rel="stylesheet" th:href="@{/css/admin/admin.css}">
+    <script th:src="@{/js/common/theme-toggle.js}" defer></script>
 </th:block>
 
 <th:block th:fragment="clientHead(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title}">Song Quiz</title>
+    <!-- FOUC 방지: CSS 로드 전 테마 적용 -->
+    <script th:inline="javascript">
+        (function() {
+            try {
+                var saved = localStorage.getItem('theme-preference');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var theme = saved || (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <link rel="stylesheet" th:href="@{/css/common/common.css}">
     <link rel="stylesheet" th:href="@{/css/client/client.css}">
+    <script th:src="@{/js/common/theme-toggle.js}" defer></script>
 </th:block>
 </html>

@@ -521,6 +521,52 @@
     transform: translateY(-2px);
 }
 
+/* ========== 다크 모드 오버라이드 ========== */
+[data-theme="dark"] .category-tab.active,
+[data-theme="dark"] .page-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+[data-theme="dark"] .board-search button,
+[data-theme="dark"] .btn-write,
+[data-theme="dark"] .comment-form button,
+[data-theme="dark"] .write-form .btn-submit {
+    background: var(--primary);
+    color: white;
+}
+
+[data-theme="dark"] .board-search button:hover,
+[data-theme="dark"] .btn-write:hover,
+[data-theme="dark"] .comment-form button:hover,
+[data-theme="dark"] .write-form .btn-submit:hover {
+    background: var(--primary-dark);
+}
+
+/* 시스템 다크모드 (저장값 없을 때) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .category-tab.active,
+    :root:not([data-theme]) .page-btn.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    :root:not([data-theme]) .board-search button,
+    :root:not([data-theme]) .btn-write,
+    :root:not([data-theme]) .comment-form button,
+    :root:not([data-theme]) .write-form .btn-submit {
+        background: var(--primary);
+        color: white;
+    }
+
+    :root:not([data-theme]) .board-search button:hover,
+    :root:not([data-theme]) .btn-write:hover,
+    :root:not([data-theme]) .comment-form button:hover,
+    :root:not([data-theme]) .write-form .btn-submit:hover {
+        background: var(--primary-dark);
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .board-content {

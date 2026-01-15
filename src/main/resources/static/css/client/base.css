@@ -10,7 +10,12 @@
 /* Client Page */
 .client-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-client);
+}
+
+/* 다크모드에서 클라이언트 페이지 배경 변경 */
+[data-theme="dark"] .client-page {
+    background: var(--gradient-game);
 }
 
 .client-container {
@@ -81,7 +86,7 @@
     align-items: center;
     gap: 4px;
     padding: 8px 16px;
-    background: #4a5568;
+    background: var(--secondary-color);
     border-radius: 6px;
     color: white;
     font-size: 0.9rem;
@@ -93,7 +98,8 @@
 }
 
 .btn-home:hover {
-    background: #3d4852;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
     transform: translateY(-1px);
 }
 

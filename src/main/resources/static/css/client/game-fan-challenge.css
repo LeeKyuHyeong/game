@@ -1625,3 +1625,335 @@
         font-size: 0.9rem;
     }
 }
+
+/* ========== 다크 테마 지원 ========== */
+[data-theme="dark"] .setup-card.fan-challenge-card {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .fan-challenge-card .input-text {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .search-results {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .search-result-item:hover {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .artist-item {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .artist-item:hover {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .difficulty-btn {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .difficulty-btn:hover {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .difficulty-btn.selected {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .fan-challenge-card .rules-section {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .ready-content {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .game-container.fan-challenge .modal-content {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .fan-challenge-result {
+    background: var(--bg-base);
+}
+
+[data-theme="dark"] .fan-challenge-result .ranking-section {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .ranking-item {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .ranking-item.my-rank {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="dark"] .my-record {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="dark"] .badge-item {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .badge-item.locked {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .badge-item[data-difficulty="BEGINNER"] {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: #10b981;
+}
+
+[data-theme="dark"] .badge-item[data-difficulty="NORMAL"] {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: #3b82f6;
+}
+
+[data-theme="dark"] .badge-item[data-difficulty="HARDCORE"] {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+}
+
+[data-theme="dark"] .round-card {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .round-card.correct {
+    background: rgba(34, 197, 94, 0.15);
+}
+
+[data-theme="dark"] .round-card.wrong {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+[data-theme="dark"] .btn-change-artist {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .btn-change-artist:hover {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .selected-artist-card {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="dark"] .login-notice {
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .result-actions .btn-home,
+[data-theme="dark"] .result-footer .btn-home {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .result-actions .btn-home:hover,
+[data-theme="dark"] .result-footer .btn-home:hover {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .diff-badge.practice {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .practice-label {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .mode-label.practice {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+/* 시스템 다크모드 따르기 (저장값 없을 때) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .setup-card.fan-challenge-card {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .fan-challenge-card .input-text {
+        background: var(--bg-surface);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .search-results {
+        background: var(--bg-surface);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .search-result-item:hover {
+        background: var(--bg-elevated);
+    }
+
+    :root:not([data-theme]) .artist-item {
+        background: var(--bg-elevated);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .artist-item:hover {
+        background: var(--bg-muted);
+    }
+
+    :root:not([data-theme]) .difficulty-btn {
+        background: var(--bg-surface);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .difficulty-btn:hover {
+        background: var(--bg-elevated);
+    }
+
+    :root:not([data-theme]) .difficulty-btn.selected {
+        background: var(--bg-elevated);
+    }
+
+    :root:not([data-theme]) .fan-challenge-card .rules-section {
+        background: var(--bg-elevated);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .ready-content {
+        background: var(--bg-surface);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .game-container.fan-challenge .modal-content {
+        background: var(--bg-surface);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .fan-challenge-result {
+        background: var(--bg-base);
+    }
+
+    :root:not([data-theme]) .fan-challenge-result .ranking-section {
+        background: var(--bg-surface);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .ranking-item {
+        background: var(--bg-elevated);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .ranking-item.my-rank {
+        background: rgba(99, 102, 241, 0.15);
+    }
+
+    :root:not([data-theme]) .my-record {
+        background: rgba(99, 102, 241, 0.15);
+    }
+
+    :root:not([data-theme]) .badge-item {
+        background: var(--bg-surface);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .badge-item.locked {
+        background: var(--bg-elevated);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .badge-item[data-difficulty="BEGINNER"] {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: #10b981;
+    }
+
+    :root:not([data-theme]) .badge-item[data-difficulty="NORMAL"] {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: #3b82f6;
+    }
+
+    :root:not([data-theme]) .badge-item[data-difficulty="HARDCORE"] {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: #ef4444;
+    }
+
+    :root:not([data-theme]) .round-card {
+        background: var(--bg-surface);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .round-card.correct {
+        background: rgba(34, 197, 94, 0.15);
+    }
+
+    :root:not([data-theme]) .round-card.wrong {
+        background: rgba(239, 68, 68, 0.15);
+    }
+
+    :root:not([data-theme]) .btn-change-artist {
+        background: var(--bg-elevated);
+        border-color: var(--border-color);
+        color: var(--text-secondary);
+    }
+
+    :root:not([data-theme]) .btn-change-artist:hover {
+        background: var(--bg-muted);
+    }
+
+    :root:not([data-theme]) .selected-artist-card {
+        background: rgba(99, 102, 241, 0.15);
+    }
+
+    :root:not([data-theme]) .login-notice {
+        background: rgba(99, 102, 241, 0.15);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .result-actions .btn-home,
+    :root:not([data-theme]) .result-footer .btn-home {
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .result-actions .btn-home:hover,
+    :root:not([data-theme]) .result-footer .btn-home:hover {
+        background: var(--bg-muted);
+    }
+
+    :root:not([data-theme]) .diff-badge.practice {
+        background: var(--bg-elevated);
+        color: var(--text-secondary);
+    }
+
+    :root:not([data-theme]) .practice-label {
+        background: var(--bg-elevated);
+        color: var(--text-secondary);
+    }
+
+    :root:not([data-theme]) .mode-label.practice {
+        background: var(--bg-elevated);
+        color: var(--text-secondary);
+    }
+}

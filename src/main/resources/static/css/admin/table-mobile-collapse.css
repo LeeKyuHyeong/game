@@ -36,7 +36,7 @@
     .data-table td {
         display: none;
         padding: 0.5rem 1rem;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--border-subtle);
     }
 
     /* 제목, 아티스트, 상태만 표시 (핵심 정보) */
@@ -62,7 +62,7 @@
         font-size: 0.875rem;
         padding-top: 0;
         padding-bottom: 0.5rem;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--border-subtle);
     }
 
     /* 사용여부 */
@@ -93,7 +93,7 @@
 
     /* 액션 버튼 */
     .data-table td.action-buttons {
-        background: #f8fafc;
+        background: var(--bg-elevated);
         justify-content: center;
         gap: 0.5rem;
         padding: 0.75rem 1rem;
@@ -115,10 +115,10 @@
         text-align: center;
         padding: 0.5rem;
         font-size: 0.75rem;
-        color: var(--primary-color);
+        color: var(--text-secondary);
         cursor: pointer;
-        background: #f8fafc;
-        border-top: 1px solid #f1f5f9;
+        background: var(--bg-elevated);
+        border-top: 1px solid var(--border-color);
     }
 
     .data-table tbody tr.expanded::after {

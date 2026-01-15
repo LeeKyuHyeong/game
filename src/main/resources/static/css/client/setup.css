@@ -1294,3 +1294,280 @@
         font-size: 0.85rem;
     }
 }
+
+/* ========== 다크 테마 지원 ========== */
+[data-theme="dark"] .setup-card {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .round-btn {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .round-btn:hover {
+    border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .round-btn.disabled {
+    background: var(--bg-muted);
+    border-color: var(--border-color);
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .preset-btn {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .preset-btn.disabled {
+    background: var(--bg-muted);
+    border-color: var(--border-color);
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .toggle-option {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .toggle-option:hover {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .artist-list-select {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .chip {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .multi-select-chips {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .challenge-modal {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .challenge-modal-body {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .challenge-rules li {
+    border-bottom-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .scoring-table {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .score-row {
+    border-bottom-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .challenge-modal-footer .btn-cancel {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .btn-back {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .year-range input {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .genre-select select {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .mode-select {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .artist-search-input {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .filter-search-input {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .player-input-item input {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .nickname-input {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .round-input {
+    background: var(--bg-surface);
+    color: var(--primary-color);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .ranking-notice {
+    background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+    border-color: #d97706;
+}
+
+[data-theme="dark"] .notice-title {
+    color: #fef3c7;
+}
+
+[data-theme="dark"] .condition {
+    color: #fef3c7;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .condition.met {
+    background: rgba(34, 197, 94, 0.3);
+    color: #86efac;
+}
+
+[data-theme="dark"] .condition.unmet {
+    background: rgba(0, 0, 0, 0.2);
+    color: #fef3c7;
+}
+
+/* 시스템 다크모드 따르기 (저장값 없을 때) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .setup-card {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .round-btn {
+        background: var(--bg-surface);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .round-btn.disabled {
+        background: var(--bg-muted);
+        border-color: var(--border-color);
+        color: var(--text-muted);
+    }
+
+    :root:not([data-theme]) .preset-btn {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .preset-btn.disabled {
+        background: var(--bg-muted);
+        border-color: var(--border-color);
+        color: var(--text-muted);
+    }
+
+    :root:not([data-theme]) .toggle-option {
+        background: var(--bg-elevated);
+    }
+
+    :root:not([data-theme]) .toggle-option:hover {
+        background: var(--bg-muted);
+    }
+
+    :root:not([data-theme]) .artist-list-select {
+        background: var(--bg-surface);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .chip {
+        background: var(--bg-surface);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .multi-select-chips {
+        background: var(--bg-elevated);
+    }
+
+    :root:not([data-theme]) .challenge-modal {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .challenge-modal-body {
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .challenge-rules li {
+        border-bottom-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .scoring-table {
+        background: var(--bg-elevated);
+    }
+
+    :root:not([data-theme]) .score-row {
+        border-bottom-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .challenge-modal-footer .btn-cancel {
+        background: var(--bg-elevated);
+        border-color: var(--border-color);
+        color: var(--text-secondary);
+    }
+
+    :root:not([data-theme]) .btn-back {
+        background: var(--bg-elevated);
+        color: var(--text-secondary);
+    }
+
+    :root:not([data-theme]) .year-range input,
+    :root:not([data-theme]) .genre-select select,
+    :root:not([data-theme]) .mode-select,
+    :root:not([data-theme]) .artist-search-input,
+    :root:not([data-theme]) .filter-search-input,
+    :root:not([data-theme]) .player-input-item input,
+    :root:not([data-theme]) .nickname-input,
+    :root:not([data-theme]) .round-input {
+        background: var(--bg-surface);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    :root:not([data-theme]) .ranking-notice {
+        background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+        border-color: #d97706;
+    }
+
+    :root:not([data-theme]) .notice-title {
+        color: #fef3c7;
+    }
+
+    :root:not([data-theme]) .condition {
+        color: #fef3c7;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    :root:not([data-theme]) .condition.met {
+        background: rgba(34, 197, 94, 0.3);
+        color: #86efac;
+    }
+
+    :root:not([data-theme]) .condition.unmet {
+        background: rgba(0, 0, 0, 0.2);
+        color: #fef3c7;
+    }
+}
