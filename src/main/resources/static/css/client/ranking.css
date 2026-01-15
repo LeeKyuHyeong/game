@@ -436,13 +436,20 @@
     }
 
     .mode-tab {
-        padding: 0.625rem 0.75rem;
+        padding: 0.75rem;
         border-radius: 0.5rem;
         font-size: 0.875rem;
+        flex-direction: column;
+        gap: 0.25rem;
     }
 
     .mode-tab .tab-icon {
-        font-size: 1rem;
+        font-size: 1.25rem;
+    }
+
+    .mode-tab .tab-label {
+        font-size: 0.65rem;
+        white-space: nowrap;
     }
 
     .ranking-type-tabs {

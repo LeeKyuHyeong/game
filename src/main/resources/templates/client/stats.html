@@ -407,12 +407,39 @@
         }
         .hard-song-item {
             padding: 12px;
+            gap: 10px;
         }
         .section-title {
             font-size: 1.1rem;
         }
         .login-prompt {
             padding: 24px 16px;
+        }
+        /* 모바일에서 song-stats 오버플로우 방지 */
+        .song-stats {
+            flex-shrink: 0;
+            min-width: 0;
+            max-width: 90px;
+        }
+        .rate-badge {
+            padding: 3px 8px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+        .play-count {
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+        .rank-badge {
+            width: 28px;
+            height: 28px;
+            font-size: 0.85rem;
+        }
+        .song-title {
+            font-size: 0.9rem;
+        }
+        .song-artist {
+            font-size: 0.75rem;
         }
     }
 </style>
