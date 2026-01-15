@@ -1,6 +1,7 @@
 package com.kh.game.controller.client;
 
 import com.kh.game.entity.Member;
+import com.kh.game.service.GameSessionService;
 import com.kh.game.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class RankingController {
 
     private final MemberService memberService;
+    private final GameSessionService gameSessionService;
 
     // 랭킹 페이지
     @GetMapping("/ranking")
@@ -40,10 +42,10 @@ public class RankingController {
         model.addAttribute("guessBestRanking", memberService.getGuessBestScoreRanking(20));
         model.addAttribute("multiBestRanking", memberService.getMultiBestScoreRanking(20));
 
-        // 30곡 최고점 랭킹
-        model.addAttribute("weeklyBest30Ranking", memberService.getWeeklyBest30Ranking(50));
-        model.addAttribute("monthlyBest30Ranking", memberService.getMonthlyBest30Ranking(50));
-        model.addAttribute("allTimeBest30Ranking", memberService.getAllTimeBest30Ranking(50));
+        // 30곡 최고점 랭킹 (점수 → 소요시간 순)
+        model.addAttribute("weeklyBest30Ranking", gameSessionService.getWeeklyBest30RankingByDuration(50));
+        model.addAttribute("monthlyBest30Ranking", gameSessionService.getMonthlyBest30RankingByDuration(50));
+        model.addAttribute("allTimeBest30Ranking", gameSessionService.getAllTimeBest30RankingByDuration(50));
 
         return "client/ranking";
     }
@@ -243,85 +245,31 @@ public class RankingController {
         memberInfo.put("multiLp", member.getMultiLp() != null ? member.getMultiLp() : 0);
     }
 
-    // 30곡 최고점 랭킹 API
+    // 30곡 최고점 랭킹 API (점수 → 소요시간 순)
     @GetMapping("/api/ranking/best30")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getBest30Ranking(
             @RequestParam(defaultValue = "weekly") String period,
             @RequestParam(defaultValue = "50") int limit) {
 
-        List<Member> members;
+        List<Map<String, Object>> ranking;
         switch (period) {
             case "monthly":
-                members = memberService.getMonthlyBest30Ranking(limit);
+                ranking = gameSessionService.getMonthlyBest30RankingByDuration(limit);
                 break;
             case "alltime":
-                members = memberService.getAllTimeBest30Ranking(limit);
+                ranking = gameSessionService.getAllTimeBest30RankingByDuration(limit);
                 break;
             case "weekly":
             default:
-                members = memberService.getWeeklyBest30Ranking(limit);
+                ranking = gameSessionService.getWeeklyBest30RankingByDuration(limit);
                 break;
         }
 
-        return ResponseEntity.ok(toBest30RankingResponse(members, period));
+        return ResponseEntity.ok(ranking);
     }
 
-    // 30곡 랭킹 응답 변환 (동점자 처리 포함)
-    private List<Map<String, Object>> toBest30RankingResponse(List<Member> members, String period) {
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        int currentRank = 0;
-        int previousScore = -1;
-        int sameRankCount = 0;
-
-        for (int i = 0; i < members.size(); i++) {
-            Member member = members.get(i);
-            Map<String, Object> memberInfo = new HashMap<>();
-
-            // 점수 가져오기
-            Integer score;
-            java.time.LocalDateTime achievedAt;
-            switch (period) {
-                case "monthly":
-                    score = member.getMonthlyBest30Score();
-                    achievedAt = member.getMonthlyBest30At();
-                    break;
-                case "alltime":
-                    score = member.getAllTimeBest30Score();
-                    achievedAt = member.getAllTimeBest30At();
-                    break;
-                case "weekly":
-                default:
-                    score = member.getWeeklyBest30Score();
-                    achievedAt = member.getWeeklyBest30At();
-                    break;
-            }
-
-            int currentScore = score != null ? score : 0;
-
-            // 동점자 처리 (dense rank: 같은 점수면 같은 순위, 다음은 바로 다음 순위)
-            if (currentScore != previousScore) {
-                currentRank++;
-                previousScore = currentScore;
-            }
-
-            memberInfo.put("rank", currentRank);
-            memberInfo.put("id", member.getId());
-            memberInfo.put("nickname", member.getNickname());
-            memberInfo.put("score", currentScore);
-            memberInfo.put("achievedAt", achievedAt);
-
-            // 뱃지 정보 추가
-            addBadgeInfo(memberInfo, member);
-
-            result.add(memberInfo);
-        }
-
-        return result;
-    }
-
-    // 내 30곡 순위 API
+    // 내 30곡 순위 API (점수 → 소요시간 순)
     @GetMapping("/api/ranking/best30/my")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getMyBest30Ranking(
@@ -343,43 +291,48 @@ public class RankingController {
         result.put("loggedIn", true);
         result.put("nickname", member.getNickname());
 
-        // 주간 30곡 순위
-        Integer weeklyScore = member.getWeeklyBest30Score();
-        if (weeklyScore != null && weeklyScore > 0) {
-            long weeklyRank = memberService.getMyWeeklyBest30Rank(weeklyScore);
-            long weeklyTotal = memberService.getWeeklyBest30ParticipantCount();
+        // 주간 30곡 순위 (GameSession 기반)
+        Map<String, Object> weeklyRecord = gameSessionService.getMemberWeeklyBest30Record(memberId);
+        if (weeklyRecord != null) {
+            Long weeklyRank = gameSessionService.getMyWeeklyBest30Rank(memberId);
+            Long weeklyTotal = gameSessionService.getWeeklyBest30ParticipantCount();
             result.put("weeklyRank", weeklyRank);
             result.put("weeklyTotal", weeklyTotal);
-            result.put("weeklyScore", weeklyScore);
-            result.put("weeklyAt", member.getWeeklyBest30At());
+            result.put("weeklyScore", weeklyRecord.get("score"));
+            result.put("weeklyDuration", weeklyRecord.get("durationFormatted"));
+            result.put("weeklyDurationSeconds", weeklyRecord.get("durationSeconds"));
+            result.put("weeklyAt", weeklyRecord.get("achievedAt"));
         } else {
             result.put("weeklyRank", 0);
             result.put("weeklyScore", 0);
         }
 
         // 월간 30곡 순위
-        Integer monthlyScore = member.getMonthlyBest30Score();
-        if (monthlyScore != null && monthlyScore > 0) {
-            long monthlyRank = memberService.getMyMonthlyBest30Rank(monthlyScore);
-            long monthlyTotal = memberService.getMonthlyBest30ParticipantCount();
+        Map<String, Object> monthlyRecord = gameSessionService.getMemberMonthlyBest30Record(memberId);
+        if (monthlyRecord != null) {
+            Long monthlyRank = gameSessionService.getMyMonthlyBest30Rank(memberId);
+            Long monthlyTotal = gameSessionService.getMonthlyBest30ParticipantCount();
             result.put("monthlyRank", monthlyRank);
             result.put("monthlyTotal", monthlyTotal);
-            result.put("monthlyScore", monthlyScore);
-            result.put("monthlyAt", member.getMonthlyBest30At());
+            result.put("monthlyScore", monthlyRecord.get("score"));
+            result.put("monthlyDuration", monthlyRecord.get("durationFormatted"));
+            result.put("monthlyDurationSeconds", monthlyRecord.get("durationSeconds"));
+            result.put("monthlyAt", monthlyRecord.get("achievedAt"));
         } else {
             result.put("monthlyRank", 0);
             result.put("monthlyScore", 0);
         }
 
         // 역대 30곡 순위
-        Integer allTimeScore = member.getAllTimeBest30Score();
-        if (allTimeScore != null && allTimeScore > 0) {
-            long allTimeRank = memberService.getMyAllTimeBest30Rank(allTimeScore);
-            long allTimeTotal = memberService.getAllTimeBest30ParticipantCount();
-            result.put("allTimeRank", allTimeRank);
+        Map<String, Object> allTimeRecord = gameSessionService.getMemberAllTimeBest30Record(memberId);
+        if (allTimeRecord != null) {
+            // 역대는 순위 쿼리가 없으므로 전체 랭킹에서 계산
+            Long allTimeTotal = gameSessionService.getAllTimeBest30ParticipantCount();
             result.put("allTimeTotal", allTimeTotal);
-            result.put("allTimeScore", allTimeScore);
-            result.put("allTimeAt", member.getAllTimeBest30At());
+            result.put("allTimeScore", allTimeRecord.get("score"));
+            result.put("allTimeDuration", allTimeRecord.get("durationFormatted"));
+            result.put("allTimeDurationSeconds", allTimeRecord.get("durationSeconds"));
+            result.put("allTimeAt", allTimeRecord.get("achievedAt"));
         } else {
             result.put("allTimeRank", 0);
             result.put("allTimeScore", 0);

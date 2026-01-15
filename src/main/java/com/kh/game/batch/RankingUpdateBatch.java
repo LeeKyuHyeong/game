@@ -13,6 +13,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * @deprecated 이 배치는 RankingSnapshotBatch로 대체되었습니다.
+ * Top 100을 조회만 하고 저장하지 않는 무의미한 배치였습니다.
+ * 실제 랭킹 스냅샷 저장은 {@link RankingSnapshotBatch}를 사용하세요.
+ *
+ * DB에서 batch_config.enabled = false로 비활성화되어 있어야 합니다.
+ * 향후 버전에서 완전히 제거될 예정입니다.
+ *
+ * @see RankingSnapshotBatch
+ */
+@Deprecated(since = "2026-01-15", forRemoval = true)
 @Slf4j
 @Component
 @RequiredArgsConstructor

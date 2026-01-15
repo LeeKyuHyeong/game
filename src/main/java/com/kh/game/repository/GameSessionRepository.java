@@ -64,4 +64,218 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
     @Query("DELETE FROM GameSession gs WHERE gs.status = :status AND gs.endedAt < :threshold")
     int deleteOldSessionsByStatus(@Param("status") GameSession.GameStatus status,
                                   @Param("threshold") LocalDateTime threshold);
+
+    // ========== 30곡 챌린지 랭킹 (점수 → 소요시간 순) ==========
+
+    /**
+     * 주간 30곡 최고 기록 랭킹
+     * - 각 회원의 최고 기록만 선택 (점수 높고, 소요시간 짧은 것)
+     * - 점수 내림차순, 소요시간 오름차순 정렬
+     */
+    @Query(value = """
+        WITH ranked AS (
+            SELECT
+                gs.member_id,
+                m.nickname,
+                gs.total_score,
+                TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) as duration_seconds,
+                gs.ended_at,
+                ROW_NUMBER() OVER (
+                    PARTITION BY gs.member_id
+                    ORDER BY gs.total_score DESC,
+                             TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) ASC
+                ) as rn
+            FROM game_session gs
+            JOIN member m ON gs.member_id = m.id
+            WHERE gs.total_rounds = 30
+              AND gs.status = 'COMPLETED'
+              AND gs.member_id IS NOT NULL
+              AND m.status = 'ACTIVE'
+              AND gs.started_at >= :periodStart
+        )
+        SELECT member_id, nickname, total_score, duration_seconds, ended_at
+        FROM ranked
+        WHERE rn = 1
+        ORDER BY total_score DESC, duration_seconds ASC
+        LIMIT :limit
+        """, nativeQuery = true)
+    List<Object[]> findWeeklyBest30RankingByDuration(
+            @Param("periodStart") LocalDateTime periodStart,
+            @Param("limit") int limit);
+
+    /**
+     * 월간 30곡 최고 기록 랭킹
+     */
+    @Query(value = """
+        WITH ranked AS (
+            SELECT
+                gs.member_id,
+                m.nickname,
+                gs.total_score,
+                TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) as duration_seconds,
+                gs.ended_at,
+                ROW_NUMBER() OVER (
+                    PARTITION BY gs.member_id
+                    ORDER BY gs.total_score DESC,
+                             TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) ASC
+                ) as rn
+            FROM game_session gs
+            JOIN member m ON gs.member_id = m.id
+            WHERE gs.total_rounds = 30
+              AND gs.status = 'COMPLETED'
+              AND gs.member_id IS NOT NULL
+              AND m.status = 'ACTIVE'
+              AND gs.started_at >= :periodStart
+        )
+        SELECT member_id, nickname, total_score, duration_seconds, ended_at
+        FROM ranked
+        WHERE rn = 1
+        ORDER BY total_score DESC, duration_seconds ASC
+        LIMIT :limit
+        """, nativeQuery = true)
+    List<Object[]> findMonthlyBest30RankingByDuration(
+            @Param("periodStart") LocalDateTime periodStart,
+            @Param("limit") int limit);
+
+    /**
+     * 역대 30곡 최고 기록 랭킹 (명예의 전당)
+     */
+    @Query(value = """
+        WITH ranked AS (
+            SELECT
+                gs.member_id,
+                m.nickname,
+                gs.total_score,
+                TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) as duration_seconds,
+                gs.ended_at,
+                ROW_NUMBER() OVER (
+                    PARTITION BY gs.member_id
+                    ORDER BY gs.total_score DESC,
+                             TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) ASC
+                ) as rn
+            FROM game_session gs
+            JOIN member m ON gs.member_id = m.id
+            WHERE gs.total_rounds = 30
+              AND gs.status = 'COMPLETED'
+              AND gs.member_id IS NOT NULL
+              AND m.status = 'ACTIVE'
+        )
+        SELECT member_id, nickname, total_score, duration_seconds, ended_at
+        FROM ranked
+        WHERE rn = 1
+        ORDER BY total_score DESC, duration_seconds ASC
+        LIMIT :limit
+        """, nativeQuery = true)
+    List<Object[]> findAllTimeBest30RankingByDuration(@Param("limit") int limit);
+
+    /**
+     * 특정 회원의 30곡 최고 기록 조회 (주간)
+     */
+    @Query(value = """
+        SELECT
+            gs.total_score,
+            TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) as duration_seconds,
+            gs.ended_at
+        FROM game_session gs
+        WHERE gs.member_id = :memberId
+          AND gs.total_rounds = 30
+          AND gs.status = 'COMPLETED'
+          AND gs.started_at >= :periodStart
+        ORDER BY gs.total_score DESC, duration_seconds ASC
+        LIMIT 1
+        """, nativeQuery = true)
+    List<Object[]> findMemberBest30Record(
+            @Param("memberId") Long memberId,
+            @Param("periodStart") LocalDateTime periodStart);
+
+    /**
+     * 특정 회원의 역대 30곡 최고 기록 조회
+     */
+    @Query(value = """
+        SELECT
+            gs.total_score,
+            TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) as duration_seconds,
+            gs.ended_at
+        FROM game_session gs
+        WHERE gs.member_id = :memberId
+          AND gs.total_rounds = 30
+          AND gs.status = 'COMPLETED'
+        ORDER BY gs.total_score DESC, duration_seconds ASC
+        LIMIT 1
+        """, nativeQuery = true)
+    List<Object[]> findMemberAllTimeBest30Record(@Param("memberId") Long memberId);
+
+    /**
+     * 내 주간 30곡 순위 조회 (나보다 높은 점수 또는 같은 점수+빠른 시간 가진 사람 수)
+     */
+    @Query(value = """
+        WITH my_best AS (
+            SELECT
+                gs.total_score,
+                TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) as duration_seconds
+            FROM game_session gs
+            WHERE gs.member_id = :memberId
+              AND gs.total_rounds = 30
+              AND gs.status = 'COMPLETED'
+              AND gs.started_at >= :periodStart
+            ORDER BY gs.total_score DESC, duration_seconds ASC
+            LIMIT 1
+        ),
+        others_best AS (
+            SELECT
+                gs.member_id,
+                gs.total_score,
+                TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) as duration_seconds,
+                ROW_NUMBER() OVER (
+                    PARTITION BY gs.member_id
+                    ORDER BY gs.total_score DESC,
+                             TIMESTAMPDIFF(SECOND, gs.started_at, gs.ended_at) ASC
+                ) as rn
+            FROM game_session gs
+            JOIN member m ON gs.member_id = m.id
+            WHERE gs.total_rounds = 30
+              AND gs.status = 'COMPLETED'
+              AND gs.member_id IS NOT NULL
+              AND gs.member_id != :memberId
+              AND m.status = 'ACTIVE'
+              AND gs.started_at >= :periodStart
+        )
+        SELECT COUNT(*)
+        FROM others_best ob, my_best mb
+        WHERE ob.rn = 1
+          AND (ob.total_score > mb.total_score
+               OR (ob.total_score = mb.total_score AND ob.duration_seconds < mb.duration_seconds))
+        """, nativeQuery = true)
+    Long countHigherRankedMembers(
+            @Param("memberId") Long memberId,
+            @Param("periodStart") LocalDateTime periodStart);
+
+    /**
+     * 주간 30곡 참여자 수
+     */
+    @Query(value = """
+        SELECT COUNT(DISTINCT gs.member_id)
+        FROM game_session gs
+        JOIN member m ON gs.member_id = m.id
+        WHERE gs.total_rounds = 30
+          AND gs.status = 'COMPLETED'
+          AND gs.member_id IS NOT NULL
+          AND m.status = 'ACTIVE'
+          AND gs.started_at >= :periodStart
+        """, nativeQuery = true)
+    Long countBest30Participants(@Param("periodStart") LocalDateTime periodStart);
+
+    /**
+     * 역대 30곡 참여자 수
+     */
+    @Query(value = """
+        SELECT COUNT(DISTINCT gs.member_id)
+        FROM game_session gs
+        JOIN member m ON gs.member_id = m.id
+        WHERE gs.total_rounds = 30
+          AND gs.status = 'COMPLETED'
+          AND gs.member_id IS NOT NULL
+          AND m.status = 'ACTIVE'
+        """, nativeQuery = true)
+    Long countAllTimeBest30Participants();
 }

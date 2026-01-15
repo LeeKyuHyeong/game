@@ -45,6 +45,7 @@ public class BatchScheduler {
     private final SongReportCleanupBatch songReportCleanupBatch;
     private final BadgeAwardBatch badgeAwardBatch;
     private final FanChallengePerfectCheckBatch fanChallengePerfectCheckBatch;
+    private final RankingSnapshotBatch rankingSnapshotBatch;
 
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
@@ -276,6 +277,14 @@ public class BatchScheduler {
                         log.error("배치 실행 중 오류: {}", batchId, e);
                     }
                 };
+            case RankingSnapshotBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        rankingSnapshotBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
             default:
                 return null;
         }
@@ -347,6 +356,9 @@ public class BatchScheduler {
                 break;
             case FanChallengePerfectCheckBatch.BATCH_ID:
                 fanChallengePerfectCheckBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case RankingSnapshotBatch.BATCH_ID:
+                rankingSnapshotBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
                 break;
             default:
                 throw new IllegalArgumentException("실행할 수 없는 배치입니다: " + batchId);
