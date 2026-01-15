@@ -26,6 +26,9 @@ public class FanChallengeService {
     private final ObjectMapper objectMapper;
     private final BadgeService badgeService;
 
+    // 챌린지 곡 수 (30곡 고정)
+    public static final int CHALLENGE_SONG_COUNT = 30;
+
     // 한글 초성 배열
     private static final char[] CHOSUNG = {
             'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
@@ -46,11 +49,18 @@ public class FanChallengeService {
     @Transactional
     public GameSession startChallenge(Member member, String nickname, String artist, FanChallengeDifficulty difficulty) {
         // 아티스트의 모든 곡 가져오기 (YouTube 검증 포함)
-        List<Song> songs = songService.getAllValidatedSongsByArtist(artist);
+        List<Song> allSongs = songService.getAllValidatedSongsByArtist(artist);
 
-        if (songs.isEmpty()) {
-            throw new IllegalArgumentException("해당 아티스트의 유효한 곡이 없습니다: " + artist);
+        if (allSongs.size() < CHALLENGE_SONG_COUNT) {
+            throw new IllegalArgumentException(
+                String.format("아티스트 챌린지는 %d곡 이상의 아티스트만 가능합니다. (현재 %d곡)",
+                    CHALLENGE_SONG_COUNT, allSongs.size()));
         }
+
+        // 30곡 랜덤 선택
+        List<Song> songs = new ArrayList<>(allSongs);
+        Collections.shuffle(songs);
+        songs = songs.subList(0, CHALLENGE_SONG_COUNT);
 
         // 게임 세션 생성
         GameSession session = new GameSession();
@@ -59,7 +69,7 @@ public class FanChallengeService {
         session.setNickname(nickname);
         session.setGameType(GameSession.GameType.FAN_CHALLENGE);
         session.setGameMode(GameSession.GameMode.FIXED_ARTIST);
-        session.setTotalRounds(songs.size());
+        session.setTotalRounds(CHALLENGE_SONG_COUNT);
         session.setCompletedRounds(0);
         session.setTotalScore(0);
         session.setCorrectCount(0);

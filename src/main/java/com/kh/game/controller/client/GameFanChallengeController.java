@@ -46,14 +46,14 @@ public class GameFanChallengeController {
     }
 
     /**
-     * 아티스트 목록 조회 (곡 수 포함)
+     * 아티스트 목록 조회 (곡 수 포함) - 30곡 이상 아티스트만
      */
     @GetMapping("/artists")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getArtistsWithCount() {
         List<Map<String, Object>> artists = songService.getArtistsWithCount();
-        // 최소 1곡 이상인 아티스트만 필터링
-        artists.removeIf(artist -> ((Number) artist.get("count")).intValue() < 1);
+        // 최소 30곡 이상인 아티스트만 필터링
+        artists.removeIf(artist -> ((Number) artist.get("count")).intValue() < FanChallengeService.CHALLENGE_SONG_COUNT);
         return ResponseEntity.ok(artists);
     }
 
@@ -98,11 +98,12 @@ public class GameFanChallengeController {
                 return ResponseEntity.badRequest().body(result);
             }
 
-            // 곡 수 확인
+            // 곡 수 확인 (최소 30곡 필요)
             int songCount = songService.getSongCountByArtist(artist);
-            if (songCount < 1) {
+            if (songCount < FanChallengeService.CHALLENGE_SONG_COUNT) {
                 result.put("success", false);
-                result.put("message", "해당 아티스트의 곡이 없습니다");
+                result.put("message", String.format("아티스트 챌린지는 %d곡 이상의 아티스트만 가능합니다 (현재 %d곡)",
+                    FanChallengeService.CHALLENGE_SONG_COUNT, songCount));
                 return ResponseEntity.badRequest().body(result);
             }
 

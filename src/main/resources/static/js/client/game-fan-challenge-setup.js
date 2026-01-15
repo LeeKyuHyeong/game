@@ -7,10 +7,12 @@ let selectedDifficulty = 'NORMAL';
 
 // 난이도별 설정
 const DIFFICULTY_CONFIG = {
-    BEGINNER: { playTime: 7, answerTime: 5, lives: 5, hint: true, ranked: false, icon: '🌱' },
     NORMAL: { playTime: 5, answerTime: 5, lives: 3, hint: false, ranked: false, icon: '⭐' },
     HARDCORE: { playTime: 3, answerTime: 5, lives: 3, hint: false, ranked: true, icon: '🔥' }
 };
+
+// 챌린지 곡 수 (서버와 동일하게 30곡 고정)
+const CHALLENGE_SONG_COUNT = 30;
 
 document.addEventListener('DOMContentLoaded', function() {
     // 닉네임 초기값 설정
@@ -122,7 +124,7 @@ function selectArtist(name, count) {
 
     // 선택된 아티스트 정보 표시
     document.getElementById('selectedArtistName').textContent = name;
-    document.getElementById('selectedArtistCount').textContent = count + '곡 도전';
+    document.getElementById('selectedArtistCount').textContent = `${CHALLENGE_SONG_COUNT}곡 도전 (보유 ${count}곡)`;
 
     // 선택 영역 숨기고 선택 완료 영역 표시
     document.getElementById('artistSelectArea').style.display = 'none';
@@ -153,7 +155,7 @@ function updateStartButton() {
         startBtn.disabled = false;
         const config = DIFFICULTY_CONFIG[selectedDifficulty];
         const modeText = config.ranked ? '🏆 공식' : '📝 연습';
-        startBtn.textContent = `${selectedArtist.name} 도전 시작! (${selectedArtist.count}곡) ${modeText}`;
+        startBtn.textContent = `${selectedArtist.name} 도전 시작! (${CHALLENGE_SONG_COUNT}곡) ${modeText}`;
     } else {
         startBtn.disabled = true;
         startBtn.textContent = '도전 시작!';
@@ -183,15 +185,11 @@ function updateRulesDisplay() {
     const rulesList = document.getElementById('rulesList');
 
     let rulesHtml = `
+        <li><span class="rule-icon">🎵</span> 해당 아티스트의 <strong>랜덤 ${CHALLENGE_SONG_COUNT}곡</strong> 출제</li>
         <li><span class="rule-icon">⏱</span> <strong>${config.playTime}초</strong> 듣기 + <strong>${config.answerTime}초</strong> 입력</li>
         <li><span class="rule-icon">❤</span> 라이프 <strong>${config.lives}개</strong> (오답/시간초과 시 -1)</li>
-        <li><span class="rule-icon">🎵</span> 해당 아티스트의 <strong>모든 곡</strong> 출제</li>
         <li><span class="rule-icon">🚫</span> 스킵 <strong>불가능</strong></li>
     `;
-
-    if (config.hint) {
-        rulesHtml += `<li><span class="rule-icon">💡</span> <strong>초성 힌트</strong> 제공</li>`;
-    }
 
     if (config.ranked) {
         rulesHtml += `<li><span class="rule-icon">🏆</span> <strong>공식 랭킹</strong> 반영</li>`;

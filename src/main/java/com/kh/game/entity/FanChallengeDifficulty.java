@@ -4,8 +4,7 @@ package com.kh.game.entity;
  * Fan Challenge (아티스트 챌린지) 난이도 설정
  */
 public enum FanChallengeDifficulty {
-    BEGINNER("입문", 7000, 5000, 5, true, "🌱"),
-    NORMAL("일반", 5000, 5000, 3, false, "⭐"),
+    NORMAL("노말", 5000, 5000, 3, false, "⭐"),
     HARDCORE("하드코어", 3000, 5000, 3, false, "🔥");
 
     private final String displayName;

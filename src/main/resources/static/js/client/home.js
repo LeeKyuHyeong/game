@@ -3,7 +3,8 @@ let isUserLoggedIn = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
-    loadArtistChallengeRanking();
+    // 아티스트 챌린지 준비 중 - 30곡 이상 아티스트 확보 후 활성화
+    // loadArtistChallengeRanking();
 });
 
 async function checkLoginStatus() {
