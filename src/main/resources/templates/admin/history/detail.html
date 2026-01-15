@@ -8,7 +8,7 @@
     <main class="main-content">
         <header class="content-header">
             <div class="header-left">
-                <a href="/admin/history" class="back-btn">← 목록</a>
+                <a href="/admin/history" class="btn btn-secondary">← 목록</a>
                 <h1>게임 상세</h1>
             </div>
         </header>
@@ -104,15 +104,6 @@
                         <span th:text="${settings.hintEnabled} ? '가능' : '불가'"></span>
                     </div>
                     <div class="setting-item">
-                        <label>힌트 타입</label>
-                        <span th:switch="${settings.hintType}">
-                                <span th:case="'INITIAL'">초성</span>
-                                <span th:case="'YEAR'">연도</span>
-                                <span th:case="'ARTIST'">아티스트</span>
-                                <span th:case="*" th:text="${settings.hintType}"></span>
-                            </span>
-                    </div>
-                    <div class="setting-item">
                         <label>스킵 허용</label>
                         <span th:text="${settings.skipAllowed} ? '가능 (' + ${settings.maxSkips} + '회)' : '불가'"></span>
                     </div>
@@ -150,7 +141,6 @@
                             <th>사용자 답변</th>
                             <th>정답</th>
                             <th>응답시간</th>
-                            <th>힌트</th>
                             <th>점수</th>
                             <th>상태</th>
                         </tr>
@@ -169,7 +159,6 @@
                                 <span th:if="${round.isCorrect == null}">-</span>
                             </td>
                             <td th:text="${round.answerTimeFormatted}"></td>
-                            <td th:text="${round.hintUsed} ? ${round.hintType} : '-'"></td>
                             <td th:text="${round.score}"></td>
                             <td>
                                         <span class="round-status" th:classappend="${round.status.name()}"
@@ -183,7 +172,7 @@
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(rounds)}">
-                            <td colspan="10" class="empty-row">라운드 정보가 없습니다.</td>
+                            <td colspan="9" class="empty-row">라운드 정보가 없습니다.</td>
                         </tr>
                         </tbody>
                     </table>
