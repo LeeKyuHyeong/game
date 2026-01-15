@@ -5,6 +5,7 @@ import com.kh.game.repository.GameSessionRepository;
 import com.kh.game.repository.GenreRepository;
 import com.kh.game.repository.SongAnswerRepository;
 import com.kh.game.repository.SongRepository;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -628,6 +629,142 @@ class FanChallengeServiceTest {
 
             // Then
             assertThat(result.isCorrect()).isTrue();
+        }
+    }
+
+    // =====================================================
+    // Edge Case 11: 배치 후 유효 곡 수 감소 시나리오
+    // =====================================================
+    @Nested
+    @DisplayName("배치 후 유효 곡 수 감소 시나리오")
+    class SongDeactivationScenarios {
+
+        @Test
+        @DisplayName("32곡 아티스트에서 3곡 비활성화 → 29곡 → 시작 불가")
+        void artistDropsBelowThreshold_afterDeactivation() {
+            // Given: 32곡 생성
+            for (int i = 1; i <= 32; i++) {
+                createSong("Song " + i, "Deactivation Artist");
+            }
+
+            // 배치 시뮬레이션: 3곡 비활성화 (YouTube 검증 실패 등)
+            List<Song> songs = songRepository.findAll().stream()
+                    .filter(s -> s.getArtist().equals("Deactivation Artist"))
+                    .limit(3)
+                    .toList();
+            for (Song song : songs) {
+                song.setUseYn("N");
+                songRepository.save(song);
+            }
+
+            // When & Then: 29곡만 남아 시작 불가
+            assertThatThrownBy(() -> fanChallengeService.startChallenge(
+                    null, "테스터", "Deactivation Artist", FanChallengeDifficulty.HARDCORE))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("30곡 이상");
+        }
+
+        @Test
+        @DisplayName("정확히 30곡에서 1곡 비활성화 → 29곡 → 시작 불가")
+        void exactly30Songs_oneDeactivated_cannotStart() {
+            // Given: 정확히 30곡 생성
+            for (int i = 1; i <= 30; i++) {
+                createSong("Song " + i, "Exact30 Artist");
+            }
+
+            // 1곡 비활성화
+            Song songToDeactivate = songRepository.findAll().stream()
+                    .filter(s -> s.getArtist().equals("Exact30 Artist"))
+                    .findFirst()
+                    .orElseThrow();
+            songToDeactivate.setUseYn("N");
+            songRepository.save(songToDeactivate);
+
+            // When & Then: 29곡만 남아 시작 불가
+            assertThatThrownBy(() -> fanChallengeService.startChallenge(
+                    null, "테스터", "Exact30 Artist", FanChallengeDifficulty.HARDCORE))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("30곡 이상");
+        }
+
+        @Test
+        @DisplayName("35곡에서 5곡 비활성화 → 30곡 → 시작 가능")
+        void artistStaysAtThreshold_afterDeactivation() {
+            // Given: 35곡 생성
+            for (int i = 1; i <= 35; i++) {
+                createSong("Song " + i, "Threshold Artist");
+            }
+
+            // 5곡 비활성화
+            List<Song> songsToDeactivate = songRepository.findAll().stream()
+                    .filter(s -> s.getArtist().equals("Threshold Artist"))
+                    .limit(5)
+                    .toList();
+            for (Song song : songsToDeactivate) {
+                song.setUseYn("N");
+                songRepository.save(song);
+            }
+
+            // When: 정확히 30곡 남음 → 시작 가능
+            GameSession session = fanChallengeService.startChallenge(
+                    null, "테스터", "Threshold Artist", FanChallengeDifficulty.HARDCORE);
+
+            // Then
+            assertThat(session).isNotNull();
+            assertThat(session.getTotalRounds()).isEqualTo(30);
+        }
+
+        @Test
+        @DisplayName("게임 시작 후 곡 비활성화 → 진행 중인 게임에 영향 없음")
+        void deactivationDuringGame_noEffect() {
+            // Given: 30곡 생성 및 게임 시작
+            for (int i = 1; i <= 30; i++) {
+                createSong("Song " + i, "MidGame Artist");
+            }
+            GameSession session = fanChallengeService.startChallenge(
+                    null, "테스터", "MidGame Artist", FanChallengeDifficulty.HARDCORE);
+
+            // 게임 도중 10곡 비활성화 (배치 실행 시뮬레이션)
+            List<Song> songsToDeactivate = songRepository.findAll().stream()
+                    .filter(s -> s.getArtist().equals("MidGame Artist"))
+                    .limit(10)
+                    .toList();
+            for (Song song : songsToDeactivate) {
+                song.setUseYn("N");
+                songRepository.save(song);
+            }
+
+            // When: 진행 중인 게임에서 정답 제출
+            FanChallengeService.AnswerResult result = fanChallengeService.processAnswer(
+                    session.getId(), 1, "Song 1", 5000);
+
+            // Then: 게임은 정상 진행 (이미 시작된 세션은 영향 없음)
+            assertThat(result.isGameOver()).isFalse();
+            assertThat(session.getTotalRounds()).isEqualTo(30);
+        }
+
+        @Test
+        @DisplayName("Soft Delete된 곡은 유효 곡 수에서 제외")
+        void softDeletedSongs_excludedFromCount() {
+            // Given: 32곡 생성
+            for (int i = 1; i <= 32; i++) {
+                createSong("Song " + i, "SoftDelete Artist");
+            }
+
+            // 3곡 Soft Delete (songService.softDeleteSong 사용)
+            List<Song> songsToDelete = songRepository.findAll().stream()
+                    .filter(s -> s.getArtist().equals("SoftDelete Artist"))
+                    .limit(3)
+                    .toList();
+            for (Song song : songsToDelete) {
+                songService.softDeleteSong(song.getId());
+            }
+
+            // When & Then: 29곡만 남아 시작 불가
+            assertThatThrownBy(() -> fanChallengeService.startChallenge(
+                    null, "테스터", "SoftDelete Artist", FanChallengeDifficulty.HARDCORE))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("30곡 이상");
         }
     }
 }
