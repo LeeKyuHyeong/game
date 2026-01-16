@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('레트로 게임 - 플레이')}" />
+<body class="client-page">
+<div class="client-container">
+    <header class="client-header compact game-header">
+        <div class="game-progress">
+            <span>레트로 게임</span>
+            <span id="progressDisplay"></span>
+        </div>
+    </header>
+
+    <main class="game-main">
+        <div class="game-area">
+            <div id="questionArea" class="question-area">
+                <div id="roundInfo" class="round-info"></div>
+                <div id="audioPlayer" class="audio-player"></div>
+                <div id="answerInput" class="answer-input-area">
+                    <input type="text" id="answer" placeholder="정답을 입력하세요" autocomplete="off">
+                    <button type="button" id="submitBtn" class="btn-submit">제출</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="score-display">
+            <span id="scoreDisplay">0점</span>
+        </div>
+    </main>
+</div>
+
+<script th:inline="javascript">
+    const totalRounds = [[${totalRounds}]];
+    const nickname = [[${nickname}]];
+</script>
+</body>
+</html>

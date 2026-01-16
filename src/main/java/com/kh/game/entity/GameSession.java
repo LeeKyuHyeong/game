@@ -89,7 +89,8 @@ public class GameSession {
     public enum GameType {
         SOLO_HOST,
         SOLO_GUESS,
-        FAN_CHALLENGE
+        FAN_CHALLENGE,
+        RETRO_GUESS      // 레트로 게임 (2000년 이전 + RETRO 장르)
     }
 
     public enum GameMode {

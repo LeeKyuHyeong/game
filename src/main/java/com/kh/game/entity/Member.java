@@ -74,6 +74,23 @@ public class Member {
     @Column(name = "multi_rounds")
     private Integer multiRounds = 0;
 
+    // ========== 레트로 게임 통계 ==========
+
+    @Column(name = "retro_games")
+    private Integer retroGames = 0;
+
+    @Column(name = "retro_score")
+    private Integer retroScore = 0;
+
+    @Column(name = "retro_correct")
+    private Integer retroCorrect = 0;
+
+    @Column(name = "retro_rounds")
+    private Integer retroRounds = 0;
+
+    @Column(name = "retro_skip")
+    private Integer retroSkip = 0;
+
     // ========== 주간 통계 (Weekly) ==========
 
     // 주간 통계 (내가맞추기)
@@ -104,6 +121,19 @@ public class Member {
 
     @Column(name = "weekly_reset_at")
     private LocalDateTime weeklyResetAt;
+
+    // 주간 통계 (레트로 게임)
+    @Column(name = "weekly_retro_games")
+    private Integer weeklyRetroGames = 0;
+
+    @Column(name = "weekly_retro_score")
+    private Integer weeklyRetroScore = 0;
+
+    @Column(name = "weekly_retro_correct")
+    private Integer weeklyRetroCorrect = 0;
+
+    @Column(name = "weekly_retro_rounds")
+    private Integer weeklyRetroRounds = 0;
 
     // ========== 최고 기록 (Best Record) ==========
 
@@ -155,6 +185,26 @@ public class Member {
 
     @Column(name = "all_time_best_30_at")
     private LocalDateTime allTimeBest30At;
+
+    // ========== 레트로 30곡 최고점 ==========
+
+    @Column(name = "retro_best_30_score")
+    private Integer retroBest30Score;
+
+    @Column(name = "retro_best_30_at")
+    private LocalDateTime retroBest30At;
+
+    @Column(name = "weekly_retro_best_30_score")
+    private Integer weeklyRetroBest30Score;
+
+    @Column(name = "weekly_retro_best_30_at")
+    private LocalDateTime weeklyRetroBest30At;
+
+    @Column(name = "monthly_retro_best_30_score")
+    private Integer monthlyRetroBest30Score;
+
+    @Column(name = "monthly_retro_best_30_at")
+    private LocalDateTime monthlyRetroBest30At;
 
     // ========== 멀티게임 전용 LP 티어 시스템 ==========
 
@@ -343,6 +393,63 @@ public class Member {
         addGameResult(score, correct, rounds, 0);
     }
 
+    // 레트로 게임 결과 반영
+    public void addRetroGameResult(int score, int correct, int rounds, int skip, boolean isEligibleForBestScore) {
+        // 레트로 모드별 통계
+        this.retroGames = (this.retroGames == null ? 0 : this.retroGames) + 1;
+        this.retroScore = (this.retroScore == null ? 0 : this.retroScore) + score;
+        this.retroCorrect = (this.retroCorrect == null ? 0 : this.retroCorrect) + correct;
+        this.retroRounds = (this.retroRounds == null ? 0 : this.retroRounds) + rounds;
+        this.retroSkip = (this.retroSkip == null ? 0 : this.retroSkip) + skip;
+
+        // 주간 레트로 통계 업데이트
+        this.weeklyRetroGames = (this.weeklyRetroGames == null ? 0 : this.weeklyRetroGames) + 1;
+        this.weeklyRetroScore = (this.weeklyRetroScore == null ? 0 : this.weeklyRetroScore) + score;
+        this.weeklyRetroCorrect = (this.weeklyRetroCorrect == null ? 0 : this.weeklyRetroCorrect) + correct;
+        this.weeklyRetroRounds = (this.weeklyRetroRounds == null ? 0 : this.weeklyRetroRounds) + rounds;
+
+        // 30곡 게임일 경우 레트로 30곡 최고점 갱신 체크
+        if (isEligibleForBestScore && rounds == RANKING_ROUNDS) {
+            updateRetro30SongBestScore(score);
+        }
+
+        // 전체 통계도 업데이트
+        addGameResult(score, correct, rounds, skip);
+    }
+
+    /**
+     * 레트로 30곡 게임 완료 시 최고점 갱신 체크
+     * @param score 30곡 게임에서 획득한 점수
+     * @return true면 어느 하나라도 최고점 갱신됨
+     */
+    public boolean updateRetro30SongBestScore(int score) {
+        boolean updated = false;
+        LocalDateTime now = LocalDateTime.now();
+
+        // 주간 레트로 최고점 갱신
+        if (this.weeklyRetroBest30Score == null || score > this.weeklyRetroBest30Score) {
+            this.weeklyRetroBest30Score = score;
+            this.weeklyRetroBest30At = now;
+            updated = true;
+        }
+
+        // 월간 레트로 최고점 갱신
+        if (this.monthlyRetroBest30Score == null || score > this.monthlyRetroBest30Score) {
+            this.monthlyRetroBest30Score = score;
+            this.monthlyRetroBest30At = now;
+            updated = true;
+        }
+
+        // 역대 레트로 최고점 갱신
+        if (this.retroBest30Score == null || score > this.retroBest30Score) {
+            this.retroBest30Score = score;
+            this.retroBest30At = now;
+            updated = true;
+        }
+
+        return updated;
+    }
+
     // 주간 통계 리셋
     public void resetWeeklyStats() {
         this.weeklyGuessGames = 0;
@@ -356,6 +463,13 @@ public class Member {
         // 주간 30곡 최고점도 리셋
         this.weeklyBest30Score = null;
         this.weeklyBest30At = null;
+        // 주간 레트로 통계도 리셋
+        this.weeklyRetroGames = 0;
+        this.weeklyRetroScore = 0;
+        this.weeklyRetroCorrect = 0;
+        this.weeklyRetroRounds = 0;
+        this.weeklyRetroBest30Score = null;
+        this.weeklyRetroBest30At = null;
         this.weeklyResetAt = LocalDateTime.now();
     }
 
@@ -409,6 +523,23 @@ public class Member {
     public double getWeeklyMultiAccuracyRate() {
         if (weeklyMultiRounds == null || weeklyMultiRounds == 0) return 0;
         return (double) weeklyMultiCorrect / weeklyMultiRounds * 100;
+    }
+
+    // ========== 레트로 게임 통계 메서드 ==========
+
+    public double getRetroAccuracyRate() {
+        if (retroRounds == null || retroRounds == 0) return 0;
+        return (double) retroCorrect / retroRounds * 100;
+    }
+
+    public double getRetroAverageScore() {
+        if (retroGames == null || retroGames == 0) return 0;
+        return (double) retroScore / retroGames;
+    }
+
+    public double getWeeklyRetroAccuracyRate() {
+        if (weeklyRetroRounds == null || weeklyRetroRounds == 0) return 0;
+        return (double) weeklyRetroCorrect / weeklyRetroRounds * 100;
     }
 
     // ========== 멀티게임 LP 티어 메서드 ==========

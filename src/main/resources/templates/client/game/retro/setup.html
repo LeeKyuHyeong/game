@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('레트로 게임 - Song Quiz')}"></head>
+<body class="client-page">
+<div class="client-container">
+    <header class="client-header compact">
+        <nav class="header-nav">
+            <a href="/" class="btn-home">홈</a>
+        </nav>
+        <h1>레트로 게임</h1>
+        <p>90년대 이전 명곡을 맞춰보세요!</p>
+    </header>
+
+    <main class="setup-main">
+        <div class="setup-card">
+            <!-- 30곡 챌린지 바로가기 -->
+            <div class="challenge-shortcut" id="challengeShortcut">
+                <div class="challenge-shortcut-content" th:if="${isLoggedIn}">
+                    <div class="challenge-icon">Target</div>
+                    <div class="challenge-info">
+                        <strong>30곡 챌린지</strong>
+                        <span>전체 랜덤 30곡, 랭킹 도전!</span>
+                    </div>
+                    <button type="button" class="btn-challenge" onclick="openChallengeModal()">바로 시작</button>
+                </div>
+                <div class="challenge-shortcut-content locked" th:if="${!isLoggedIn}">
+                    <div class="challenge-icon">Lock</div>
+                    <div class="challenge-info">
+                        <strong>30곡 챌린지</strong>
+                        <span>로그인 후 랭킹에 도전하세요!</span>
+                    </div>
+                    <a th:href="@{/auth/login}" class="btn-challenge-login">로그인</a>
+                </div>
+            </div>
+
+            <div class="setup-divider">
+                <span>또는 직접 설정</span>
+            </div>
+
+            <div class="setup-step" id="step1">
+                <h2>게임 설정</h2>
+
+                <div class="form-group">
+                    <label>닉네임</label>
+                    <input type="text" id="nickname" placeholder="별명을 입력하세요" maxlength="20" class="nickname-input">
+                </div>
+
+                <div class="form-group">
+                    <label>진행 라운드 <span id="songCountInfo" class="song-count-info"></span></label>
+                    <div class="round-input-group">
+                        <button type="button" class="btn-round-preset" data-rounds="5">5곡</button>
+                        <button type="button" class="btn-round-preset" data-rounds="10">10곡</button>
+                        <button type="button" class="btn-round-preset" data-rounds="20">20곡</button>
+                        <input type="number" id="totalRounds" min="1" max="100" value="10" class="round-input">
+                    </div>
+                </div>
+
+                <button type="button" class="btn-start" id="startBtn">게임 시작</button>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

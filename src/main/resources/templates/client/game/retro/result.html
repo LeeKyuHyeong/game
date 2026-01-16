@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('레트로 게임 - 결과')}" />
+<body class="client-page">
+<div class="client-container">
+    <header class="client-header compact">
+        <h1>게임 결과</h1>
+    </header>
+
+    <main class="result-main">
+        <div class="result-card">
+            <div class="result-summary">
+                <div class="nickname" th:text="${nickname}"></div>
+                <div class="score">
+                    <span th:text="${score}">0</span>점
+                </div>
+                <div class="stats">
+                    <span><strong th:text="${correct}">0</strong> / <span th:text="${totalRounds}">0</span> 정답</span>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <a th:href="@{/game/retro}" class="btn-retry">다시 하기</a>
+                <a href="/" class="btn-home">홈으로</a>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

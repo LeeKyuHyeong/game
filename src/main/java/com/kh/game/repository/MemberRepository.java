@@ -72,6 +72,50 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.guessGames >= 10 AND m.guessRounds > 0 ORDER BY (m.guessCorrect * 1.0 / m.guessRounds) DESC")
     List<Member> findTopGuessRankingByAccuracyMin10(Pageable pageable);
 
+    // ========== Retro Game (레트로) 랭킹 조회 ==========
+
+    // 1. 누적 총점 기준
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.retroGames > 0 ORDER BY m.retroScore DESC")
+    List<Member> findTopRetroRankingByScore(Pageable pageable);
+
+    // 2. 평균 정답률 기준
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.retroRounds > 0 ORDER BY (m.retroCorrect * 1.0 / m.retroRounds) DESC")
+    List<Member> findTopRetroRankingByAccuracy(Pageable pageable);
+
+    // 3. 게임 수 기준
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.retroGames > 0 ORDER BY m.retroGames DESC")
+    List<Member> findTopRetroRankingByGames(Pageable pageable);
+
+    // 4. 주간 레트로 총점
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.weeklyRetroGames > 0 ORDER BY m.weeklyRetroScore DESC")
+    List<Member> findTopWeeklyRetroRankingByScore(Pageable pageable);
+
+    // 5. 레트로 30곡 최고점 (역대)
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.retroBest30Score IS NOT NULL " +
+           "ORDER BY m.retroBest30Score DESC, m.retroBest30At ASC")
+    List<Member> findRetroBest30Ranking(Pageable pageable);
+
+    // 6. 레트로 30곡 주간 최고점
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.weeklyRetroBest30Score IS NOT NULL " +
+           "ORDER BY m.weeklyRetroBest30Score DESC")
+    List<Member> findWeeklyRetroBest30Ranking(Pageable pageable);
+
+    // 내 레트로 총점 순위
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.retroGames > 0 AND m.retroScore > :score")
+    long countMembersWithHigherRetroScore(int score);
+
+    // 레트로 총 참여자 수
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.retroGames > 0")
+    long countRetroParticipants();
+
+    // 내 레트로 30곡 순위
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.retroBest30Score > :score")
+    long countMembersWithHigherRetroBest30Score(int score);
+
+    // 레트로 30곡 참여자 수
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.retroBest30Score IS NOT NULL")
+    long countRetroBest30Participants();
+
     // ========== Multiplayer (멀티게임) 랭킹 조회 ==========
 
     // 총점 기준

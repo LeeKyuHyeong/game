@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -185,4 +186,56 @@ public interface SongRepository extends JpaRepository<Song, Long> {
            "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
            "AND (s.genre IS NULL OR s.genre.code <> 'RETRO')")
     int countActiveSongsByArtist(@Param("artist") String artist);
+
+    // ========== 레트로 게임용 쿼리 ==========
+
+    /**
+     * 레트로 게임용 곡 조회 (releaseYear < 2000 OR genre = RETRO)
+     * 매니악 곡 포함
+     */
+    @Query("SELECT s FROM Song s WHERE s.useYn = :useYn " +
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
+           "AND ((s.releaseYear IS NOT NULL AND s.releaseYear < 2000) OR (s.genre IS NOT NULL AND s.genre.code = 'RETRO'))")
+    List<Song> findRetroSongsForGame(@Param("useYn") String useYn);
+
+    /**
+     * 레트로 게임용 대중곡만 조회 (매니악 곡 제외)
+     */
+    @Query("SELECT s FROM Song s WHERE s.useYn = :useYn " +
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
+           "AND (s.isPopular IS NULL OR s.isPopular = true) " +
+           "AND ((s.releaseYear IS NOT NULL AND s.releaseYear < 2000) OR (s.genre IS NOT NULL AND s.genre.code = 'RETRO'))")
+    List<Song> findPopularRetroSongsForGame(@Param("useYn") String useYn);
+
+    /**
+     * 레트로 게임용 곡 조회 (제외 목록 지원)
+     */
+    @Query("SELECT s FROM Song s WHERE s.useYn = :useYn " +
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
+           "AND (s.isPopular IS NULL OR s.isPopular = true) " +
+           "AND ((s.releaseYear IS NOT NULL AND s.releaseYear < 2000) OR (s.genre IS NOT NULL AND s.genre.code = 'RETRO')) " +
+           "AND (:excludeIds IS NULL OR s.id NOT IN :excludeIds)")
+    List<Song> findRetroSongsExcluding(@Param("useYn") String useYn, @Param("excludeIds") Set<Long> excludeIds);
+
+    /**
+     * 레트로 게임용 곡 개수 조회
+     */
+    @Query("SELECT COUNT(s) FROM Song s WHERE s.useYn = :useYn " +
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
+           "AND (s.isPopular IS NULL OR s.isPopular = true) " +
+           "AND ((s.releaseYear IS NOT NULL AND s.releaseYear < 2000) OR (s.genre IS NOT NULL AND s.genre.code = 'RETRO'))")
+    long countRetroSongsForGame(@Param("useYn") String useYn);
+
+    // ========== 중복 체크 메서드 ==========
+
+    /**
+     * 아티스트 + 제목으로 중복 여부 확인
+     */
+    boolean existsByArtistAndTitle(String artist, String title);
+
+    /**
+     * 아티스트 + 제목으로 곡 조회 (대소문자 무시)
+     */
+    @Query("SELECT s FROM Song s WHERE LOWER(s.artist) = LOWER(:artist) AND LOWER(s.title) = LOWER(:title)")
+    Optional<Song> findByArtistAndTitleIgnoreCase(@Param("artist") String artist, @Param("title") String title);
 }

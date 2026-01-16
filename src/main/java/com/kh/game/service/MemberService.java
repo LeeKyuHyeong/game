@@ -408,6 +408,75 @@ public class MemberService {
         member.resetMonthlyStats();
     }
 
+    // ========== Retro Game (레트로) 랭킹 ==========
+
+    // 레트로 게임 결과 반영
+    @Transactional
+    public void addRetroGameResult(Long memberId, int score, int correct, int rounds, int skip, boolean isEligibleForBestScore) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.addRetroGameResult(score, correct, rounds, skip, isEligibleForBestScore);
+        memberRepository.save(member);
+    }
+
+    // 레트로 30곡 최고점 갱신
+    @Transactional
+    public boolean updateRetro30SongBestScore(Long memberId, int score) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        boolean updated = member.updateRetro30SongBestScore(score);
+        if (updated) {
+            memberRepository.save(member);
+        }
+        return updated;
+    }
+
+    // 1. 누적 총점
+    public List<Member> getRetroRankingByScore(int limit) {
+        return memberRepository.findTopRetroRankingByScore(PageRequest.of(0, limit));
+    }
+
+    // 2. 정답률
+    public List<Member> getRetroRankingByAccuracy(int limit) {
+        return memberRepository.findTopRetroRankingByAccuracy(PageRequest.of(0, limit));
+    }
+
+    // 3. 게임 수
+    public List<Member> getRetroRankingByGames(int limit) {
+        return memberRepository.findTopRetroRankingByGames(PageRequest.of(0, limit));
+    }
+
+    // 4. 주간 레트로 총점
+    public List<Member> getWeeklyRetroRankingByScore(int limit) {
+        return memberRepository.findTopWeeklyRetroRankingByScore(PageRequest.of(0, limit));
+    }
+
+    // 5. 레트로 30곡 최고점 (역대)
+    public List<Member> getRetroBest30Ranking(int limit) {
+        return memberRepository.findRetroBest30Ranking(PageRequest.of(0, limit));
+    }
+
+    // 6. 레트로 30곡 주간 최고점
+    public List<Member> getWeeklyRetroBest30Ranking(int limit) {
+        return memberRepository.findWeeklyRetroBest30Ranking(PageRequest.of(0, limit));
+    }
+
+    // 내 레트로 순위 조회
+    public long getMyRetroRank(int score) {
+        return memberRepository.countMembersWithHigherRetroScore(score) + 1;
+    }
+
+    public long getRetroParticipantCount() {
+        return memberRepository.countRetroParticipants();
+    }
+
+    // 내 레트로 30곡 순위
+    public long getMyRetroBest30Rank(int score) {
+        return memberRepository.countMembersWithHigherRetroBest30Score(score) + 1;
+    }
+
+    public long getRetroBest30ParticipantCount() {
+        return memberRepository.countRetroBest30Participants();
+    }
+
     // ========== 멀티게임 LP 티어 랭킹 ==========
 
     public List<Member> getMultiTierRanking(int limit) {

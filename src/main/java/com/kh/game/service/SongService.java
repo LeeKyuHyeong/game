@@ -55,6 +55,20 @@ public class SongService {
         return songRepository.findByUseYnAndHasAudioSourceExcludingGenre("Y", GenreService.EXCLUDED_GENRE_CODE);
     }
 
+    /**
+     * 레트로 게임용 노래 목록 조회 (releaseYear < 2000 OR genre.code = 'RETRO', 대중곡만)
+     */
+    public List<Song> findRetroSongsForGame() {
+        return songRepository.findPopularRetroSongsForGame("Y");
+    }
+
+    /**
+     * 레트로 게임용 모든 노래 조회 (매니악 곡 포함)
+     */
+    public List<Song> findAllRetroSongsForGame() {
+        return songRepository.findRetroSongsForGame("Y");
+    }
+
     public Page<Song> findAll(Pageable pageable) {
         return songRepository.findAll(pageable);
     }
@@ -98,6 +112,40 @@ public class SongService {
     @Transactional
     public Song save(Song song) {
         return songRepository.save(song);
+    }
+
+    /**
+     * 중복 체크 후 저장 (아티스트 + 제목 기준)
+     * @throws IllegalArgumentException 중복된 곡이 이미 존재하는 경우
+     */
+    @Transactional
+    public Song saveWithDuplicateCheck(Song song) {
+        if (isDuplicate(song.getArtist(), song.getTitle())) {
+            throw new IllegalArgumentException(
+                String.format("이미 등록된 곡입니다: %s - %s", song.getArtist(), song.getTitle()));
+        }
+        return songRepository.save(song);
+    }
+
+    /**
+     * 중복 여부 확인 (대소문자 무시)
+     */
+    public boolean isDuplicate(String artist, String title) {
+        return songRepository.findByArtistAndTitleIgnoreCase(artist, title).isPresent();
+    }
+
+    /**
+     * 정확한 아티스트 + 제목으로 중복 여부 확인
+     */
+    public boolean isDuplicateExact(String artist, String title) {
+        return songRepository.existsByArtistAndTitle(artist, title);
+    }
+
+    /**
+     * 중복 곡 조회 (대소문자 무시)
+     */
+    public Optional<Song> findDuplicate(String artist, String title) {
+        return songRepository.findByArtistAndTitleIgnoreCase(artist, title);
     }
 
     @Transactional
@@ -219,6 +267,111 @@ public class SongService {
         }
 
         return count;
+    }
+
+    // ========== 레트로 게임용 메서드 ==========
+
+    /**
+     * 레트로 게임용 랜덤 노래 목록 가져오기
+     */
+    public List<Song> getRandomRetroSongs(int count, GameSettings settings) {
+        List<Song> allSongs = findRetroSongsForGame();
+
+        // 필터링
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            if (!matchesRetroSettings(song, settings)) continue;
+            filtered.add(song);
+        }
+
+        // 셔플 후 필요한 만큼 반환
+        Collections.shuffle(filtered);
+        return filtered.subList(0, Math.min(count, filtered.size()));
+    }
+
+    /**
+     * 레트로 게임용 노래 수 조회
+     */
+    public int getAvailableRetroSongCount(GameSettings settings) {
+        List<Song> allSongs = findRetroSongsForGame();
+
+        int count = 0;
+        for (Song song : allSongs) {
+            if (!matchesRetroSettings(song, settings)) continue;
+            count++;
+        }
+
+        return count;
+    }
+
+    /**
+     * 레트로 게임용 검증된 랜덤 노래 목록 가져오기
+     */
+    public ValidatedSongsResult getRandomRetroSongsWithValidation(int count, GameSettings settings) {
+        List<Song> allSongs = findRetroSongsForGame();
+
+        // 필터링
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            if (!matchesRetroSettings(song, settings)) continue;
+            filtered.add(song);
+        }
+
+        Collections.shuffle(filtered);
+
+        List<Song> validSongs = new ArrayList<>();
+        Set<Long> usedSongIds = new HashSet<>();
+        int replacedCount = 0;
+        int validationFailCount = 0;
+
+        for (Song song : filtered) {
+            if (validSongs.size() >= count) break;
+            if (usedSongIds.contains(song.getId())) continue;
+
+            // YouTube 검증
+            if (song.getYoutubeVideoId() != null && !song.getYoutubeVideoId().isEmpty()) {
+                YouTubeValidationService.ValidationResult result =
+                        youTubeValidationService.validateVideo(song.getYoutubeVideoId());
+
+                if (!result.isValid()) {
+                    validationFailCount++;
+                    continue;
+                }
+            }
+
+            validSongs.add(song);
+            usedSongIds.add(song.getId());
+        }
+
+        replacedCount = Math.min(validationFailCount, count);
+        return new ValidatedSongsResult(validSongs, replacedCount);
+    }
+
+    /**
+     * 레트로 노래가 설정 조건에 맞는지 확인
+     */
+    private boolean matchesRetroSettings(Song song, GameSettings settings) {
+        // 레트로 게임은 연도/장르 필터가 이미 쿼리에서 처리됨
+        // 여기서는 솔로/그룹 필터만 적용
+
+        // 솔로/그룹 필터
+        if (settings != null) {
+            if (settings.getSoloOnly() != null && settings.getSoloOnly()) {
+                if (song.getIsSolo() == null || !song.getIsSolo()) return false;
+            }
+            if (settings.getGroupOnly() != null && settings.getGroupOnly()) {
+                if (song.getIsSolo() != null && song.getIsSolo()) return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 레트로 게임용 총 곡 수 조회
+     */
+    public long countRetroSongs() {
+        return songRepository.countRetroSongsForGame("Y");
     }
 
     // 아티스트 목록 조회 (곡 수 포함) - 게임용 (레트로 제외)
