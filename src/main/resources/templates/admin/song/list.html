@@ -199,6 +199,11 @@
                     <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
                         <button class="btn btn-sm btn-edit" th:data-id="${song.id}" onclick="editSong(this.dataset.id)">수정</button>
                         <button class="btn btn-sm btn-toggle" th:data-id="${song.id}" onclick="toggleStatus(this.dataset.id)">상태변경</button>
+                        <button class="btn btn-sm btn-popular"
+                                th:data-id="${song.id}"
+                                th:classappend="${song.isPopular != false} ? 'popular' : 'maniac'"
+                                onclick="togglePopular(this.dataset.id)"
+                                th:text="${song.isPopular != false} ? '대중곡' : '매니악'"></button>
                         <button class="btn btn-sm btn-delete" th:data-id="${song.id}" onclick="deleteSong(this.dataset.id)">삭제</button>
                     </td>
                 </tr>
@@ -239,6 +244,11 @@
                     <div class="card-actions">
                         <button class="btn btn-sm btn-edit" th:data-id="${song.id}" onclick="editSong(this.dataset.id)">수정</button>
                         <button class="btn btn-sm btn-toggle" th:data-id="${song.id}" onclick="toggleStatus(this.dataset.id)">상태</button>
+                        <button class="btn btn-sm btn-popular"
+                                th:data-id="${song.id}"
+                                th:classappend="${song.isPopular != false} ? 'popular' : 'maniac'"
+                                onclick="togglePopular(this.dataset.id)"
+                                th:text="${song.isPopular != false} ? '대중' : '매니악'"></button>
                         <button class="btn btn-sm btn-delete" th:data-id="${song.id}" onclick="deleteSong(this.dataset.id)">삭제</button>
                     </div>
                 </div>

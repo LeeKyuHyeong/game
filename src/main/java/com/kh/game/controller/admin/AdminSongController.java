@@ -219,4 +219,21 @@ public class AdminSongController {
         }
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping("/togglePopular/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> togglePopular(@PathVariable Long id) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            songService.togglePopular(id);
+            Song song = songService.findById(id).orElse(null);
+            result.put("success", true);
+            result.put("isPopular", song != null ? song.getIsPopular() : null);
+            result.put("message", song != null && Boolean.TRUE.equals(song.getIsPopular()) ? "대중곡으로 변경되었습니다." : "매니악으로 변경되었습니다.");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "상태 변경 중 오류가 발생했습니다.");
+        }
+        return ResponseEntity.ok(result);
+    }
 }

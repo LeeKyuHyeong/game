@@ -90,6 +90,29 @@ async function toggleStatus(id) {
     }
 }
 
+async function togglePopular(id) {
+    try {
+        const response = await fetch(`/admin/song/togglePopular/${id}`, { method: 'POST' });
+        const result = await response.json();
+
+        if (result.success) {
+            // 버튼 텍스트와 클래스 업데이트
+            const buttons = document.querySelectorAll(`button.btn-popular[data-id="${id}"]`);
+            buttons.forEach(btn => {
+                const isPopular = result.isPopular;
+                btn.classList.remove('popular', 'maniac');
+                btn.classList.add(isPopular ? 'popular' : 'maniac');
+                // 테이블 뷰와 그리드 뷰의 버튼 텍스트가 다름
+                btn.textContent = isPopular ? (btn.closest('.card-actions') ? '대중' : '대중곡') : '매니악';
+            });
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        alert('상태 변경 중 오류가 발생했습니다.');
+    }
+}
+
 songForm.addEventListener('submit', async function(e) {
     e.preventDefault();
 

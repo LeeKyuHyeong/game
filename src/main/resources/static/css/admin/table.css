@@ -99,6 +99,30 @@
     background: var(--warning-light);
 }
 
+/* Popular Button */
+.btn-popular {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-popular:hover {
+    background: #2563eb;
+}
+
+.btn-popular.popular {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-popular.maniac {
+    background: #8b5cf6;
+    color: white;
+}
+
+.btn-popular.maniac:hover {
+    background: #7c3aed;
+}
+
 /* View Button */
 .btn-view {
     background: var(--info-color);

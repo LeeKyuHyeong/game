@@ -169,6 +169,14 @@ public class SongService {
         });
     }
 
+    @Transactional
+    public void togglePopular(Long id) {
+        songRepository.findById(id).ifPresent(song -> {
+            song.setIsPopular(!Boolean.TRUE.equals(song.getIsPopular()));
+            songRepository.save(song);
+        });
+    }
+
     public String saveFile(MultipartFile file) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
