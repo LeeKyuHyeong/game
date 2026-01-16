@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('메뉴 관리')}"></head>
+<body class="admin-page">
+<link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+    <main class="main-content">
+        <header class="content-header">
+            <h1>홈 메뉴 관리</h1>
+            <p class="header-desc">홈 화면에 표시되는 게임 메뉴의 활성화/비활성화를 관리합니다.</p>
+        </header>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th class="col-no">No</th>
+                    <th>아이콘</th>
+                    <th>메뉴명</th>
+                    <th>설명</th>
+                    <th>카테고리</th>
+                    <th>URL</th>
+                    <th>상태</th>
+                    <th>관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="menu, iterStat : ${menus}" onclick="toggleRowExpand(this)">
+                    <td data-label="No" th:text="${iterStat.index + 1}"></td>
+                    <td data-label="아이콘" th:text="${menu.icon}"></td>
+                    <td data-label="메뉴명" th:text="${menu.name}"></td>
+                    <td data-label="설명" th:text="${menu.description}"></td>
+                    <td data-label="카테고리">
+                        <span class="badge" th:classappend="${menu.category == 'SOLO'} ? 'badge-solo' : 'badge-multi'"
+                              th:text="${menu.category}"></span>
+                    </td>
+                    <td data-label="URL"><code th:text="${menu.url}"></code></td>
+                    <td data-label="상태">
+                        <span class="status" th:classappend="${menu.enabled} ? 'active' : 'inactive'"
+                              th:text="${menu.enabled} ? '활성' : '비활성'"></span>
+                    </td>
+                    <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                        <button class="btn btn-sm"
+                                th:classappend="${menu.enabled} ? 'btn-toggle-off' : 'btn-toggle-on'"
+                                th:data-id="${menu.menuId}"
+                                th:data-enabled="${menu.enabled}"
+                                onclick="toggleMenu(this.dataset.id)">
+                            <span th:text="${menu.enabled} ? '비활성화' : '활성화'"></span>
+                        </button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(menus)}">
+                    <td colspan="8" class="empty-row">등록된 메뉴가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="info-box">
+            <h3>안내</h3>
+            <ul>
+                <li>메뉴를 <strong>비활성화</strong>하면 홈 화면에서 해당 버튼이 비활성 상태로 표시됩니다.</li>
+                <li><strong>준비 중</strong> 배지가 표시되며 클릭할 수 없게 됩니다.</li>
+                <li>메뉴 설정은 즉시 반영됩니다.</li>
+            </ul>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script>
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+
+async function toggleMenu(menuId) {
+    try {
+        const response = await fetch(`/admin/menu/toggle/${menuId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showToast(result.message);
+            // 페이지 새로고침으로 상태 반영
+            location.reload();
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('메뉴 상태 변경 오류:', error);
+        showToast('메뉴 상태 변경 중 오류가 발생했습니다.', 'error');
+    }
+}
+</script>
+
+<style>
+.header-desc {
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-solo {
+    background: #e8f4fd;
+    color: #1976d2;
+}
+
+.badge-multi {
+    background: #fce8e8;
+    color: #d32f2f;
+}
+
+[data-theme="dark"] .badge-solo {
+    background: rgba(25, 118, 210, 0.2);
+    color: #64b5f6;
+}
+
+[data-theme="dark"] .badge-multi {
+    background: rgba(211, 47, 47, 0.2);
+    color: #ef9a9a;
+}
+
+.btn-toggle-on {
+    background: #4caf50 !important;
+    color: white !important;
+}
+
+.btn-toggle-off {
+    background: #ff9800 !important;
+    color: white !important;
+}
+
+.info-box {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.info-box h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.info-box ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.info-box li {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.info-box li:last-child {
+    margin-bottom: 0;
+}
+</style>
+</body>
+</html>

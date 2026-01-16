@@ -26,23 +26,57 @@
                     <h2>솔로 게임</h2>
                     <p>혼자서 노래 맞추기에 도전!</p>
                     <div class="mode-grid">
-                        <a href="/game/solo/host" class="grid-item">
+                        <!-- 게임 진행용 -->
+                        <a th:if="${menuStatus == null or menuStatus['SOLO_HOST'] == null or menuStatus['SOLO_HOST']}"
+                           href="/game/solo/host" class="grid-item">
                             <span class="grid-icon">📺</span>
                             <span class="grid-label">게임 진행용</span>
                         </a>
-                        <button type="button" class="grid-item primary" onclick="handleGuessClick()">
+                        <div th:if="${menuStatus != null and menuStatus['SOLO_HOST'] != null and !menuStatus['SOLO_HOST']}"
+                             class="grid-item disabled" title="준비 중입니다">
+                            <span class="grid-icon">📺</span>
+                            <span class="grid-label">게임 진행용</span>
+                            <span class="coming-soon-badge">준비 중</span>
+                        </div>
+
+                        <!-- 내가 맞추기 -->
+                        <button th:if="${menuStatus == null or menuStatus['SOLO_GUESS'] == null or menuStatus['SOLO_GUESS']}"
+                                type="button" class="grid-item primary" onclick="handleGuessClick()">
                             <span class="grid-icon">🎯</span>
                             <span class="grid-label">내가 맞추기</span>
                         </button>
-                        <div class="grid-item disabled" title="30곡 이상 보유한 아티스트만 도전 가능">
+                        <div th:if="${menuStatus != null and menuStatus['SOLO_GUESS'] != null and !menuStatus['SOLO_GUESS']}"
+                             class="grid-item disabled" title="준비 중입니다">
+                            <span class="grid-icon">🎯</span>
+                            <span class="grid-label">내가 맞추기</span>
+                            <span class="coming-soon-badge">준비 중</span>
+                        </div>
+
+                        <!-- 아티스트 챌린지 -->
+                        <a th:if="${menuStatus == null or menuStatus['FAN_CHALLENGE'] == null or menuStatus['FAN_CHALLENGE']}"
+                           href="/game/fan-challenge" class="grid-item">
+                            <span class="grid-icon">🏆</span>
+                            <span class="grid-label">아티스트 챌린지</span>
+                        </a>
+                        <div th:if="${menuStatus != null and menuStatus['FAN_CHALLENGE'] != null and !menuStatus['FAN_CHALLENGE']}"
+                             class="grid-item disabled" title="20곡 이상 보유한 아티스트만 도전 가능">
                             <span class="grid-icon">🏆</span>
                             <span class="grid-label">아티스트 챌린지</span>
                             <span class="coming-soon-badge">준비 중</span>
                         </div>
-                        <a href="/game/retro" class="grid-item">
+
+                        <!-- 레트로 챌린지 -->
+                        <a th:if="${menuStatus == null or menuStatus['RETRO'] == null or menuStatus['RETRO']}"
+                           href="/game/retro" class="grid-item">
                             <span class="grid-icon">📻</span>
                             <span class="grid-label">레트로 챌린지</span>
                         </a>
+                        <div th:if="${menuStatus != null and menuStatus['RETRO'] != null and !menuStatus['RETRO']}"
+                             class="grid-item disabled" title="준비 중입니다">
+                            <span class="grid-icon">📻</span>
+                            <span class="grid-label">레트로 챌린지</span>
+                            <span class="coming-soon-badge">준비 중</span>
+                        </div>
                     </div>
                 </div>
 
@@ -51,16 +85,24 @@
                     <h2>멀티 게임</h2>
                     <p>친구들과 함께 대결!</p>
                     <div class="mode-grid">
-                        <a href="/game/multi" class="grid-item primary">
+                        <!-- 로비 입장 -->
+                        <a th:if="${menuStatus == null or menuStatus['MULTI_LOBBY'] == null or menuStatus['MULTI_LOBBY']}"
+                           href="/game/multi" class="grid-item primary">
                             <span class="grid-icon">🚪</span>
                             <span class="grid-label">로비 입장</span>
                         </a>
+                        <div th:if="${menuStatus != null and menuStatus['MULTI_LOBBY'] != null and !menuStatus['MULTI_LOBBY']}"
+                             class="grid-item disabled" title="준비 중입니다">
+                            <span class="grid-icon">🚪</span>
+                            <span class="grid-label">로비 입장</span>
+                            <span class="coming-soon-badge">준비 중</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- 내 순위 섹션 (로그인 사용자용) -->
-            <div class="my-rank-section" id="myRankSection" style="display:none;">
+            <div class="my-rank-section hidden" id="myRankSection">
                 <div class="my-rank-content" id="myRankContent">
                     <!-- JS에서 로딩 -->
                 </div>
@@ -68,7 +110,7 @@
             </div>
 
             <!-- 아티스트 챌린지 랭킹 섹션 -->
-            <div class="artist-ranking-section" id="artistRankingSection" style="display:none;">
+            <div class="artist-ranking-section hidden" id="artistRankingSection">
                 <div class="artist-ranking-header">
                     <h3>아티스트 챌린지 TOP</h3>
                 </div>

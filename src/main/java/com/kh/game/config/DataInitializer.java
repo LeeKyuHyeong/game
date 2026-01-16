@@ -10,6 +10,7 @@ import com.kh.game.repository.BadWordRepository;
 import com.kh.game.repository.FanChallengeRecordRepository;
 import com.kh.game.repository.MemberRepository;
 import com.kh.game.service.BadWordService;
+import com.kh.game.service.MenuConfigService;
 import com.kh.game.service.SongService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +34,23 @@ public class DataInitializer implements CommandLineRunner {
     private final BadgeRepository badgeRepository;
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
     private final SongService songService;
+    private final MenuConfigService menuConfigService;
 
     @Override
     public void run(String... args) {
         initAdminAccount();
         initBadWords();
         initBadges();
+        initMenuConfig();
         initFanChallengeTestData();
+    }
+
+    /**
+     * 홈 메뉴 설정 초기화
+     */
+    private void initMenuConfig() {
+        menuConfigService.initializeDefaultMenus();
+        log.info("홈 메뉴 설정 초기화 완료");
     }
 
     /**
