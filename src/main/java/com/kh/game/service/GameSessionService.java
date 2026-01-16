@@ -51,6 +51,10 @@ public class GameSessionService {
         return gameSessionRepository.findById(id);
     }
 
+    public Optional<GameSession> findByIdWithRounds(Long id) {
+        return gameSessionRepository.findByIdWithRounds(id);
+    }
+
     public List<GameSession> findBySessionUuid(String sessionUuid) {
         return gameSessionRepository.findBySessionUuidOrderByCreatedAtDesc(sessionUuid);
     }

@@ -11,9 +11,13 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GameSessionRepository extends JpaRepository<GameSession, Long> {
+
+    @Query("SELECT gs FROM GameSession gs LEFT JOIN FETCH gs.rounds WHERE gs.id = :id")
+    Optional<GameSession> findByIdWithRounds(@Param("id") Long id);
 
     List<GameSession> findBySessionUuidOrderByCreatedAtDesc(String sessionUuid);
 

@@ -315,7 +315,7 @@ public class GameGuessController {
             Long genreId = Long.valueOf(request.get("genreId").toString());
             int roundNumber = (int) request.get("roundNumber");
 
-            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
             if (session == null) {
                 result.put("success", false);
                 result.put("message", "게임을 찾을 수 없습니다.");
@@ -384,7 +384,7 @@ public class GameGuessController {
             String artist = (String) request.get("artist");
             int roundNumber = (int) request.get("roundNumber");
 
-            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
             if (session == null) {
                 result.put("success", false);
                 result.put("message", "게임을 찾을 수 없습니다.");
@@ -453,7 +453,7 @@ public class GameGuessController {
             Integer year = (Integer) request.get("year");
             int roundNumber = (int) request.get("roundNumber");
 
-            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
             if (session == null) {
                 result.put("success", false);
                 result.put("message", "게임을 찾을 수 없습니다.");
@@ -518,7 +518,7 @@ public class GameGuessController {
             return ResponseEntity.ok(result);
         }
 
-        GameSession session = gameSessionService.findById(sessionId).orElse(null);
+        GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
         if (session == null) {
             result.put("success", false);
             result.put("message", "게임을 찾을 수 없습니다.");
@@ -576,7 +576,7 @@ public class GameGuessController {
             String userAnswer = (String) request.get("answer");
             boolean isSkip = request.get("isSkip") != null && (boolean) request.get("isSkip");
 
-            GameSession session = gameSessionService.findById(sessionId).orElse(null);
+            GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
             if (session == null) {
                 result.put("success", false);
                 result.put("message", "게임을 찾을 수 없습니다.");
