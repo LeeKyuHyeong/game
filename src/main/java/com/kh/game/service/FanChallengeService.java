@@ -26,8 +26,8 @@ public class FanChallengeService {
     private final ObjectMapper objectMapper;
     private final BadgeService badgeService;
 
-    // 챌린지 곡 수 (30곡 고정)
-    public static final int CHALLENGE_SONG_COUNT = 30;
+    // 챌린지 곡 수 (20곡 고정)
+    public static final int CHALLENGE_SONG_COUNT = 20;
 
     // 한글 초성 배열
     private static final char[] CHOSUNG = {
@@ -57,7 +57,7 @@ public class FanChallengeService {
                     CHALLENGE_SONG_COUNT, allSongs.size()));
         }
 
-        // 30곡 랜덤 선택
+        // 20곡 랜덤 선택
         List<Song> songs = new ArrayList<>(allSongs);
         Collections.shuffle(songs);
         songs = songs.subList(0, CHALLENGE_SONG_COUNT);

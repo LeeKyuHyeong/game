@@ -4,8 +4,8 @@ package com.kh.game.entity;
  * Fan Challenge (아티스트 챌린지) 난이도 설정
  */
 public enum FanChallengeDifficulty {
-    NORMAL("노말", 5000, 5000, 3, false, "⭐"),
-    HARDCORE("하드코어", 3000, 5000, 3, false, "🔥");
+    NORMAL("노말", 7000, 6000, 3, false, "⭐"),
+    HARDCORE("하드코어", 5000, 5000, 3, false, "🔥");
 
     private final String displayName;
     private final int playTimeMs;      // 듣기 시간 (ms)
