@@ -18,6 +18,10 @@
         <div class="room-settings-info">
             <span class="setting-item">🎯 <span th:text="${room.totalRounds}">10</span> 라운드</span>
             <span class="setting-item">👥 최대 <span th:text="${room.maxPlayers}">8</span>명</span>
+            <span class="setting-item">🎵 <span th:text="${gameModeDisplay}">전체 랜덤</span>
+                <span th:if="${filterInfo}" class="filter-detail">(<span th:text="${filterInfo}"></span>)</span>
+            </span>
+            <span th:if="${artistType}" class="setting-item">🎤 <span th:text="${artistType}">전체</span></span>
         </div>
     </header>
 

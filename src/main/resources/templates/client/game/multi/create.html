@@ -43,7 +43,7 @@
             </div>
 
             <div class="form-group">
-                <label>게임 모드</label>
+                <label>게임 모드 <span id="songCountInfo" class="song-count-info"></span></label>
                 <div class="mode-options">
                     <label class="mode-option">
                         <input type="radio" name="gameMode" value="RANDOM" checked>
@@ -59,15 +59,66 @@
                             <small>선택한 장르에서만 출제</small>
                         </span>
                     </label>
+                    <label class="mode-option">
+                        <input type="radio" name="gameMode" value="FIXED_ARTIST">
+                        <span class="mode-label">
+                            <strong>아티스트 고정</strong>
+                            <small>선택한 아티스트 노래만 출제</small>
+                        </span>
+                    </label>
+                    <label class="mode-option">
+                        <input type="radio" name="gameMode" value="FIXED_YEAR">
+                        <span class="mode-label">
+                            <strong>연도 고정</strong>
+                            <small>선택한 연도 노래만 출제</small>
+                        </span>
+                    </label>
                 </div>
             </div>
 
-            <div class="form-group genre-select" id="genreSelect" style="display:none;">
+            <!-- 장르 선택 (FIXED_GENRE) -->
+            <div class="form-group mode-selection-area" id="genreSelectArea" style="display:none;">
                 <label>장르 선택</label>
-                <select id="fixedGenreId">
+                <select id="fixedGenreId" class="mode-select">
                     <option value="">선택하세요</option>
                     <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}"></option>
                 </select>
+            </div>
+
+            <!-- 아티스트 선택 (FIXED_ARTIST) -->
+            <div class="form-group mode-selection-area" id="artistSelectArea" style="display:none;">
+                <label>아티스트 선택 <span id="artistSelectCountInfo" class="filter-count-info"></span></label>
+                <input type="text" id="artistSearchInput" placeholder="아티스트명 검색..." class="filter-search-input" autocomplete="off">
+                <div class="multi-select-chips" id="artistSelectChips">
+                    <div class="chips-loading">로딩 중...</div>
+                </div>
+            </div>
+
+            <!-- 연도 선택 (FIXED_YEAR) -->
+            <div class="form-group mode-selection-area" id="yearSelectArea" style="display:none;">
+                <label>연도 선택 <span id="yearSelectCountInfo" class="filter-count-info"></span></label>
+                <div class="multi-select-chips" id="yearSelectChips">
+                    <div class="chips-loading">로딩 중...</div>
+                </div>
+            </div>
+
+            <!-- 아티스트 유형 (전체/솔로/그룹) -->
+            <div class="form-group" id="artistTypeArea">
+                <label>아티스트 유형</label>
+                <div class="artist-type-options">
+                    <label class="type-option">
+                        <input type="radio" name="artistType" value="all" checked>
+                        <span>전체</span>
+                    </label>
+                    <label class="type-option">
+                        <input type="radio" name="artistType" value="solo">
+                        <span>솔로만</span>
+                    </label>
+                    <label class="type-option">
+                        <input type="radio" name="artistType" value="group">
+                        <span>그룹만</span>
+                    </label>
+                </div>
             </div>
 
             <div class="form-group">

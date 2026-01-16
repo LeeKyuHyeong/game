@@ -239,6 +239,59 @@ public class MultiGameController {
         model.addAttribute("participants", participants);
         model.addAttribute("myParticipant", participant);
 
+        // 게임 설정 정보 파싱
+        String gameModeDisplay = "전체 랜덤";
+        String filterInfo = null;
+        try {
+            if (room.getSettings() != null) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> settings = objectMapper.readValue(room.getSettings(), Map.class);
+                String gameMode = (String) settings.getOrDefault("gameMode", "RANDOM");
+
+                switch (gameMode) {
+                    case "FIXED_GENRE":
+                        gameModeDisplay = "장르 고정";
+                        Object genreId = settings.get("fixedGenreId");
+                        if (genreId != null) {
+                            genreService.findById(((Number) genreId).longValue())
+                                    .ifPresent(g -> model.addAttribute("filterInfo", g.getName()));
+                        }
+                        break;
+                    case "FIXED_ARTIST":
+                        gameModeDisplay = "아티스트 고정";
+                        @SuppressWarnings("unchecked")
+                        List<String> artists = (List<String>) settings.get("selectedArtists");
+                        if (artists != null && !artists.isEmpty()) {
+                            filterInfo = artists.size() == 1 ? artists.get(0) : artists.get(0) + " 외 " + (artists.size() - 1) + "명";
+                        }
+                        break;
+                    case "FIXED_YEAR":
+                        gameModeDisplay = "연도 고정";
+                        @SuppressWarnings("unchecked")
+                        List<Integer> years = (List<Integer>) settings.get("selectedYears");
+                        if (years != null && !years.isEmpty()) {
+                            filterInfo = years.size() == 1 ? years.get(0) + "년" : years.get(0) + "년 외 " + (years.size() - 1) + "개";
+                        }
+                        break;
+                }
+
+                // 솔로/그룹 필터
+                Boolean soloOnly = (Boolean) settings.get("soloOnly");
+                Boolean groupOnly = (Boolean) settings.get("groupOnly");
+                if (Boolean.TRUE.equals(soloOnly)) {
+                    model.addAttribute("artistType", "솔로만");
+                } else if (Boolean.TRUE.equals(groupOnly)) {
+                    model.addAttribute("artistType", "그룹만");
+                }
+            }
+        } catch (Exception e) {
+            // 파싱 실패 시 기본값 사용
+        }
+        model.addAttribute("gameModeDisplay", gameModeDisplay);
+        if (filterInfo != null) {
+            model.addAttribute("filterInfo", filterInfo);
+        }
+
         return "client/game/multi/waiting";
     }
 
@@ -307,8 +360,76 @@ public class MultiGameController {
         model.addAttribute("room", room);
         model.addAttribute("member", member);
         model.addAttribute("results", finalResult);
+        model.addAttribute("isHost", room.isHost(member));
 
         return "client/game/multi/result";
+    }
+
+    // ========== 필터링 데이터 API ==========
+
+    /**
+     * 연도 목록 조회 API
+     */
+    @GetMapping("/years")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getYears() {
+        List<Map<String, Object>> years = songService.getYearsWithCount();
+        return ResponseEntity.ok(years);
+    }
+
+    /**
+     * 아티스트 목록 조회 API
+     */
+    @GetMapping("/artists")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getArtists() {
+        List<Map<String, Object>> artists = songService.getArtistsWithCount();
+        return ResponseEntity.ok(artists);
+    }
+
+    /**
+     * 노래 개수 조회 API (필터링 조건에 따라)
+     */
+    @PostMapping("/song-count")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getSongCount(
+            @RequestBody Map<String, Object> request) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        GameSettings settings = new GameSettings();
+
+        // 장르 필터
+        if (request.get("genreId") != null) {
+            settings.setFixedGenreId(Long.valueOf(request.get("genreId").toString()));
+        }
+
+        // 솔로/그룹 필터
+        if (request.get("soloOnly") != null) {
+            settings.setSoloOnly((Boolean) request.get("soloOnly"));
+        }
+        if (request.get("groupOnly") != null) {
+            settings.setGroupOnly((Boolean) request.get("groupOnly"));
+        }
+
+        // 복수 연도 선택
+        if (request.get("years") != null) {
+            @SuppressWarnings("unchecked")
+            List<Integer> years = (List<Integer>) request.get("years");
+            settings.setSelectedYears(years);
+        }
+
+        // 복수 아티스트 선택
+        if (request.get("artists") != null) {
+            @SuppressWarnings("unchecked")
+            List<String> artists = (List<String>) request.get("artists");
+            settings.setSelectedArtists(artists);
+        }
+
+        int count = songService.getAvailableSongCount(settings);
+        result.put("count", count);
+
+        return ResponseEntity.ok(result);
     }
 
     // ========== 방 관리 API ==========
@@ -435,11 +556,53 @@ public class MultiGameController {
         }
 
         try {
-            gameRoomService.leaveRoom(room, member);
+            // 종료된 게임에서는 나가기 무시 (sendBeacon으로 인한 자동 호출 방지)
+            // 참가자 상태를 LEFT로 바꾸면 결과 화면에 안 나오고, 재시작도 불가능해짐
+            // 실제 나가기는 cleanupStaleParticipations()에서 자동 처리됨
+            if (room.getStatus() != GameRoom.RoomStatus.FINISHED) {
+                gameRoomService.leaveRoom(room, member);
+            }
             result.put("success", true);
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 결과 화면에서 명시적 로비 이동 API
+     * "로비로 돌아가기" 버튼 전용 - 재시작 대상에서 제외하기 위해 LEFT 처리
+     */
+    @PostMapping("/room/{roomCode}/leave-to-lobby")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> leaveToLobby(
+            @PathVariable String roomCode,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            result.put("success", true);  // 로그인 안 되어있어도 로비 이동은 허용
+            return ResponseEntity.ok(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+
+        if (member == null || room == null) {
+            result.put("success", true);  // 방 정보 없어도 로비 이동은 허용
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            // 명시적 로비 이동 - FINISHED 상태에서도 LEFT 처리
+            gameRoomService.leaveFinishedRoom(room, member);
+            result.put("success", true);
+        } catch (Exception e) {
+            result.put("success", true);  // 오류가 나도 로비 이동은 허용
         }
 
         return ResponseEntity.ok(result);
@@ -585,6 +748,45 @@ public class MultiGameController {
         // 모두 준비 완료 여부
         boolean allReady = gameRoomService.isAllReady(room);
         result.put("allReady", allReady);
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 게임 재시작 API (한번 더 하기) - 방장만
+     */
+    @PostMapping("/room/{roomCode}/restart")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> restartGame(
+            @PathVariable String roomCode,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
+
+        if (member == null || room == null) {
+            result.put("success", false);
+            result.put("message", "정보를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            gameRoomService.restartRoom(room, member);
+            result.put("success", true);
+            result.put("roomCode", roomCode);
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
 
         return ResponseEntity.ok(result);
     }

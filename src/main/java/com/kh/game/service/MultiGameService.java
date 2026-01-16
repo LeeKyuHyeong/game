@@ -1,5 +1,6 @@
 package com.kh.game.service;
 
+import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.*;
 import com.kh.game.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -657,11 +658,30 @@ public class MultiGameService {
 
     /**
      * 최종 결과 조회 (LP 정보 포함)
+     * 모든 참가자를 표시 (LEFT 상태도 포함 - 결과 화면에서 탈퇴한 경우에도 표시)
      */
     public List<Map<String, Object>> getFinalResult(GameRoom room) {
-        List<GameRoomParticipant> participants = participantRepository.findByGameRoomOrderByScoreDesc(room);
+        // 모든 참가자 조회 (status 필터 없이)
+        List<GameRoomParticipant> allParticipants = participantRepository.findAllByGameRoomOrderByScoreDesc(room);
+
+        // 게임에 참여한 참가자 필터링:
+        // - PLAYING 상태 (게임 중이었음)
+        // - JOINED 상태 (재시작 대기 중)
+        // - 또는 점수/정답이 있는 경우 (확실히 참여함)
+        // - LEFT 상태이고 점수도 없으면 제외 (게임 시작 전에 나간 사람)
+        List<GameRoomParticipant> participants = allParticipants.stream()
+                .filter(p -> p.getStatus() == GameRoomParticipant.ParticipantStatus.PLAYING
+                        || p.getStatus() == GameRoomParticipant.ParticipantStatus.JOINED
+                        || p.getScore() > 0
+                        || p.getCorrectCount() > 0)
+                .toList();
+
         int totalPlayers = participants.size();
         List<Map<String, Object>> result = new ArrayList<>();
+
+        // 게임에서 누군가 점수를 얻었는지 확인 (전원 0점이면 LP 미지급)
+        int totalScore = participants.stream().mapToInt(GameRoomParticipant::getScore).sum();
+        boolean hasValidGame = totalScore > 0;
 
         int rank = 1;
         for (GameRoomParticipant p : participants) {
@@ -680,8 +700,8 @@ public class MultiGameService {
             pInfo.put("multiTierColor", member.getMultiTierColor());
             pInfo.put("multiLp", member.getMultiLp() != null ? member.getMultiLp() : 0);
 
-            // LP 변화량 계산 (표시용)
-            int lpChange = multiTierService.calculateLpChange(totalPlayers, rank);
+            // LP 변화량 계산 (표시용) - 전원 0점이면 LP 미지급
+            int lpChange = hasValidGame ? multiTierService.calculateLpChange(totalPlayers, rank) : 0;
             pInfo.put("lpChange", lpChange);
 
             result.add(pInfo);
@@ -698,42 +718,69 @@ public class MultiGameService {
      */
     private Song selectSong(GameRoom room) {
         Set<Long> usedSongs = usedSongsByRoom.getOrDefault(room.getId(), new HashSet<>());
-        String gameMode = getGameMode(room);
 
-        Long targetGenreId = null;
-        if ("FIXED_GENRE".equals(gameMode)) {
-            targetGenreId = getFixedGenreId(room);
-        }
+        // GameSettings 파싱
+        GameSettings settings = parseGameSettings(room);
 
         // YouTube 검증 포함된 메서드 사용
-        return songService.getValidatedRandomSongExcluding(targetGenreId, usedSongs);
+        return songService.getValidatedRandomSongWithSettings(settings, usedSongs);
     }
 
-    private String getGameMode(GameRoom room) {
-        try {
-            if (room.getSettings() != null) {
-                Map<String, Object> settings = objectMapper.readValue(room.getSettings(), Map.class);
-                return (String) settings.getOrDefault("gameMode", "RANDOM");
-            }
-        } catch (Exception e) {
-            log.error("설정 파싱 오류", e);
-        }
-        return "RANDOM";
-    }
+    /**
+     * 방 설정에서 GameSettings 파싱
+     */
+    @SuppressWarnings("unchecked")
+    private GameSettings parseGameSettings(GameRoom room) {
+        GameSettings settings = new GameSettings();
 
-    private Long getFixedGenreId(GameRoom room) {
         try {
             if (room.getSettings() != null) {
-                Map<String, Object> settings = objectMapper.readValue(room.getSettings(), Map.class);
-                Object genreId = settings.get("fixedGenreId");
-                if (genreId != null) {
-                    return ((Number) genreId).longValue();
+                Map<String, Object> settingsMap = objectMapper.readValue(room.getSettings(), Map.class);
+
+                // 게임 모드
+                String gameMode = (String) settingsMap.getOrDefault("gameMode", "RANDOM");
+                settings.setGameMode(gameMode);
+
+                // 장르 필터
+                if ("FIXED_GENRE".equals(gameMode)) {
+                    Object genreId = settingsMap.get("fixedGenreId");
+                    if (genreId != null) {
+                        settings.setFixedGenreId(((Number) genreId).longValue());
+                    }
+                }
+
+                // 아티스트 필터 (복수 선택)
+                if ("FIXED_ARTIST".equals(gameMode)) {
+                    Object artists = settingsMap.get("selectedArtists");
+                    if (artists instanceof List) {
+                        settings.setSelectedArtists((List<String>) artists);
+                    }
+                }
+
+                // 연도 필터 (복수 선택)
+                if ("FIXED_YEAR".equals(gameMode)) {
+                    Object years = settingsMap.get("selectedYears");
+                    if (years instanceof List) {
+                        settings.setSelectedYears((List<Integer>) years);
+                    }
+                }
+
+                // 솔로/그룹 필터
+                Object soloOnly = settingsMap.get("soloOnly");
+                if (soloOnly instanceof Boolean) {
+                    settings.setSoloOnly((Boolean) soloOnly);
+                }
+
+                Object groupOnly = settingsMap.get("groupOnly");
+                if (groupOnly instanceof Boolean) {
+                    settings.setGroupOnly((Boolean) groupOnly);
                 }
             }
         } catch (Exception e) {
             log.error("설정 파싱 오류", e);
         }
-        return null;
+
+        return settings;
     }
 
     /**
@@ -747,6 +794,7 @@ public class MultiGameService {
 
     /**
      * 게임 종료 처리 - Member 통계 업데이트 및 LP 적용 (ELO 기반)
+     * 전원 0점인 경우 LP를 적용하지 않음 (실제 게임이 진행되지 않은 것으로 간주)
      */
     @Transactional
     public List<MultiTierService.LpChangeResult> finishGame(GameRoom room) {
@@ -757,6 +805,10 @@ public class MultiGameService {
         List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
         int totalRounds = room.getCurrentRound();  // 실제 진행된 라운드 수
         int totalPlayers = participants.size();
+
+        // 전원 0점 여부 확인 (게임이 실제로 진행되었는지)
+        int totalScore = participants.stream().mapToInt(GameRoomParticipant::getScore).sum();
+        boolean hasValidGame = totalScore > 0;
 
         // 참가자들의 현재 레이팅 수집 (LP 적용 전 스냅샷)
         Map<Long, Integer> participantRatings = new HashMap<>();
@@ -782,7 +834,7 @@ public class MultiGameService {
             int rank = i + 1;
 
             if (member != null) {
-                // 기존 통계 업데이트
+                // 기존 통계 업데이트 (게임 진행 여부와 관계없이 기록)
                 memberService.addMultiGameResult(
                         member.getId(),
                         participant.getScore(),
@@ -790,33 +842,35 @@ public class MultiGameService {
                         totalRounds
                 );
 
-                // LP 적용 및 티어 변동 처리 (ELO 기반, 상대 티어 반영)
-                MultiTierService.LpChangeResult lpResult = multiTierService.applyGameResult(
-                        member.getId(),
-                        totalPlayers,
-                        rank,
-                        participant.getScore(),
-                        participantRatings
-                );
-                lpResults.add(lpResult);
-
-                // 뱃지 체크 및 획득 (통계 업데이트 후)
-                Member updatedMember = memberService.findById(member.getId()).orElse(null);
-                if (updatedMember != null) {
-                    List<Badge> newBadges = badgeService.checkBadgesAfterMultiGame(
-                            updatedMember,
+                // LP 적용 및 티어 변동 처리 - 전원 0점이면 LP 미적용
+                if (hasValidGame) {
+                    MultiTierService.LpChangeResult lpResult = multiTierService.applyGameResult(
+                            member.getId(),
+                            totalPlayers,
                             rank,
-                            totalPlayers
+                            participant.getScore(),
+                            participantRatings
                     );
-                    if (!newBadges.isEmpty()) {
-                        lpResult.setNewBadges(newBadges);
+                    lpResults.add(lpResult);
+
+                    // 뱃지 체크 및 획득 (통계 업데이트 후)
+                    Member updatedMember = memberService.findById(member.getId()).orElse(null);
+                    if (updatedMember != null) {
+                        List<Badge> newBadges = badgeService.checkBadgesAfterMultiGame(
+                                updatedMember,
+                                rank,
+                                totalPlayers
+                        );
+                        if (!newBadges.isEmpty()) {
+                            lpResult.setNewBadges(newBadges);
+                        }
                     }
                 }
             }
         }
 
-        log.info("멀티게임 종료 - 방: {}, 참가자: {}명, 라운드: {}",
-                room.getId(), totalPlayers, totalRounds);
+        log.info("멀티게임 종료 - 방: {}, 참가자: {}명, 라운드: {}, LP적용: {}",
+                room.getId(), totalPlayers, totalRounds, hasValidGame);
 
         return lpResults;
     }

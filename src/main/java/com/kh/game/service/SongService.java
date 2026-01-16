@@ -712,6 +712,40 @@ public class SongService {
         return null;
     }
 
+    /**
+     * GameSettings 기반 랜덤 노래 가져오기 (YouTube 검증 포함, excludeSongIds 제외)
+     * 멀티플레이어용 - 게임용 (레트로 제외)
+     */
+    public Song getValidatedRandomSongWithSettings(GameSettings settings, Set<Long> excludeSongIds) {
+        List<Song> allSongs = findSongsForGame();
+
+        List<Song> filtered = new ArrayList<>();
+        for (Song song : allSongs) {
+            // GameSettings 기반 필터링
+            if (!matchesSettings(song, settings)) continue;
+            // 제외 목록 체크
+            if (excludeSongIds != null && excludeSongIds.contains(song.getId())) continue;
+            filtered.add(song);
+        }
+
+        Collections.shuffle(filtered);
+
+        // YouTube 검증하면서 유효한 곡 반환
+        for (Song song : filtered) {
+            if (song.getYoutubeVideoId() != null && !song.getYoutubeVideoId().isEmpty()) {
+                YouTubeValidationService.ValidationResult result =
+                        youTubeValidationService.validateVideo(song.getYoutubeVideoId());
+
+                if (!result.isValid()) {
+                    continue; // 다음 곡 시도
+                }
+            }
+            return song;
+        }
+
+        return null;
+    }
+
     // ========== YouTube 사전 검증 메서드 ==========
 
     /**
