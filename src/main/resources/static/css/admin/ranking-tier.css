@@ -1,111 +1,269 @@
-/* Tier Dashboard Styles */
+/**
+ * Tier Dashboard Styles
+ * 테마 변수 사용 리팩토링 완료 (2026-01-17)
+ */
+
+/* Tier Dashboard */
 .tier-dashboard {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: var(--gradient-game);
     border-radius: 16px;
     padding: 24px;
     margin-bottom: 24px;
 }
+
 .tier-dashboard h2 {
-    color: #fff;
+    color: var(--text-inverse);
     font-size: 1.4rem;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 10px;
 }
+
 .tier-cards {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 12px;
     margin-bottom: 24px;
 }
+
 .tier-card {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--overlay-subtle);
     border-radius: 12px;
     padding: 16px;
     text-align: center;
     transition: transform 0.2s, box-shadow 0.2s;
     border: 2px solid transparent;
 }
+
 .tier-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-lg);
 }
-.tier-card.CHALLENGER { border-color: #00BFFF; background: linear-gradient(135deg, #00BFFF 0%, #1E90FF 100%); }
-.tier-card.MASTER { border-color: #ff4757; background: linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%); }
-.tier-card.DIAMOND { border-color: #00d2d3; background: linear-gradient(135deg, #B9F2FF 0%, #87CEEB 100%); }
-.tier-card.PLATINUM { border-color: #a29bfe; background: linear-gradient(135deg, #E5E4E2 0%, #C0C0C0 100%); }
-.tier-card.GOLD { border-color: #feca57; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); }
-.tier-card.SILVER { border-color: #c8d6e5; background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%); }
-.tier-card.BRONZE { border-color: #cd6133; background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%); }
+
+/* 티어 카드 색상 - common.css 변수 사용 */
+.tier-card.CHALLENGER { border-color: var(--tier-challenger); background: var(--tier-challenger-gradient); }
+.tier-card.MASTER { border-color: var(--tier-master); background: var(--tier-master-gradient); }
+.tier-card.DIAMOND { border-color: var(--tier-diamond); background: var(--tier-diamond-gradient); }
+.tier-card.PLATINUM { border-color: var(--tier-platinum); background: var(--tier-platinum-gradient); }
+.tier-card.GOLD { border-color: var(--tier-gold); background: var(--tier-gold-gradient); }
+.tier-card.SILVER { border-color: var(--tier-silver); background: var(--tier-silver-gradient); }
+.tier-card.BRONZE { border-color: var(--tier-bronze); background: var(--tier-bronze-gradient); }
+
 .tier-icon { font-size: 2rem; margin-bottom: 8px; }
 .tier-name { font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; }
-.tier-card.CHALLENGER .tier-name { color: #fff; }
-.tier-card.MASTER .tier-name { color: #fff; }
-.tier-card.DIAMOND .tier-name { color: #1a1a2e; }
-.tier-card.PLATINUM .tier-name { color: #1a1a2e; }
-.tier-card.GOLD .tier-name { color: #1a1a2e; }
-.tier-card.SILVER .tier-name { color: #1a1a2e; }
-.tier-card.BRONZE .tier-name { color: #fff; }
-.tier-count { font-size: 1.5rem; font-weight: 700; color: #fff; }
-.tier-percent { font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 4px; }
-.tier-chart { background: rgba(255, 255, 255, 0.03); border-radius: 12px; padding: 20px; }
-.tier-chart h3 { color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-bottom: 16px; }
+
+/* 밝은 배경 티어 텍스트 색상 */
+.tier-card.CHALLENGER .tier-name,
+.tier-card.MASTER .tier-name,
+.tier-card.BRONZE .tier-name { color: var(--text-inverse); }
+
+.tier-card.DIAMOND .tier-name,
+.tier-card.PLATINUM .tier-name,
+.tier-card.GOLD .tier-name,
+.tier-card.SILVER .tier-name { color: var(--gray-900); }
+
+.tier-count { font-size: 1.5rem; font-weight: 700; color: var(--text-inverse); }
+.tier-percent { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+/* 차트 영역 */
+.tier-chart {
+    background: var(--overlay-subtle);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.tier-chart h3 {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+}
+
 .chart-bars { display: flex; flex-direction: column; gap: 10px; }
 .chart-bar-row { display: flex; align-items: center; gap: 12px; }
-.chart-bar-label { width: 80px; font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); }
-.chart-bar-container { flex: 1; height: 24px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden; }
-.chart-bar { height: 100%; border-radius: 12px; transition: width 0.5s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 0.75rem; font-weight: 600; color: rgba(0, 0, 0, 0.7); min-width: fit-content; }
-.chart-bar.CHALLENGER { background: linear-gradient(90deg, #00BFFF, #1E90FF); }
-.chart-bar.MASTER { background: linear-gradient(90deg, #FF6B6B, #EE5A5A); }
-.chart-bar.DIAMOND { background: linear-gradient(90deg, #B9F2FF, #87CEEB); }
-.chart-bar.PLATINUM { background: linear-gradient(90deg, #E5E4E2, #C0C0C0); }
-.chart-bar.GOLD { background: linear-gradient(90deg, #FFD700, #FFA500); }
-.chart-bar.SILVER { background: linear-gradient(90deg, #C0C0C0, #A8A8A8); }
-.chart-bar.BRONZE { background: linear-gradient(90deg, #CD7F32, #B87333); }
+.chart-bar-label { width: 80px; font-size: 0.8rem; color: var(--text-muted); }
+.chart-bar-container {
+    flex: 1;
+    height: 24px;
+    background: var(--overlay-light);
+    border-radius: 12px;
+    overflow: hidden;
+}
 
-/* Rank Type Tabs - Fixed dark background */
+.chart-bar {
+    height: 100%;
+    border-radius: 12px;
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    min-width: fit-content;
+}
+
+.chart-bar.CHALLENGER { background: var(--tier-challenger-gradient); }
+.chart-bar.MASTER { background: var(--tier-master-gradient); }
+.chart-bar.DIAMOND { background: var(--tier-diamond-gradient); }
+.chart-bar.PLATINUM { background: var(--tier-platinum-gradient); }
+.chart-bar.GOLD { background: var(--tier-gold-gradient); }
+.chart-bar.SILVER { background: var(--tier-silver-gradient); }
+.chart-bar.BRONZE { background: var(--tier-bronze-gradient); }
+
+/* Rank Type Tabs */
 .rank-type-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
-.rank-type-tab { padding: 10px 20px; border-radius: 8px; background: #2d3748; color: #a0aec0; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; border: 1px solid #4a5568; }
-.rank-type-tab:hover { background: #4a5568; color: #fff; }
-.rank-type-tab.active { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border-color: rgba(255, 255, 255, 0.2); }
 
-/* Top Rankers - Fixed dark background */
-.top-rankers { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-.ranker-card { background: #1a1a2e; border-radius: 12px; padding: 16px; text-align: center; position: relative; border: 1px solid #2d3748; }
-.ranker-card.top-1 { background: linear-gradient(135deg, #3d3a1a, #1a1a2e); border-color: rgba(255, 215, 0, 0.5); }
-.ranker-card.top-2 { background: linear-gradient(135deg, #2a2a3a, #1a1a2e); border-color: rgba(192, 192, 192, 0.5); }
-.ranker-card.top-3 { background: linear-gradient(135deg, #2d2319, #1a1a2e); border-color: rgba(205, 127, 50, 0.5); }
-.ranker-rank { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #667eea; color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
-.ranker-card.top-1 .ranker-rank { background: linear-gradient(135deg, #ffd700, #ffb347); color: #1a1a2e; }
-.ranker-card.top-2 .ranker-rank { background: linear-gradient(135deg, #c0c0c0, #a8a8a8); color: #1a1a2e; }
-.ranker-card.top-3 .ranker-rank { background: linear-gradient(135deg, #cd7f32, #b87333); color: #fff; }
-.ranker-tier-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; margin-top: 12px; margin-bottom: 8px; }
-.ranker-tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.3); color: #00BFFF; }
-.ranker-tier-badge.MASTER { background: rgba(255, 107, 107, 0.3); color: #FF6B6B; }
+.rank-type-tab {
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    border: 1px solid var(--border-default);
+}
+
+.rank-type-tab:hover {
+    background: var(--bg-muted);
+    color: var(--text-primary);
+}
+
+.rank-type-tab.active {
+    background: var(--gradient-client);
+    color: var(--text-inverse);
+    border-color: transparent;
+}
+
+/* Top Rankers */
+.top-rankers {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.ranker-card {
+    background: var(--bg-surface);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    position: relative;
+    border: 1px solid var(--border-default);
+}
+
+.ranker-card.top-1 {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), var(--bg-surface));
+    border-color: rgba(255, 215, 0, 0.5);
+}
+
+.ranker-card.top-2 {
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), var(--bg-surface));
+    border-color: rgba(192, 192, 192, 0.5);
+}
+
+.ranker-card.top-3 {
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), var(--bg-surface));
+    border-color: rgba(205, 127, 50, 0.5);
+}
+
+.ranker-rank {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    color: var(--text-inverse);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.ranker-card.top-1 .ranker-rank {
+    background: var(--gradient-gold);
+    color: var(--gray-900);
+}
+
+.ranker-card.top-2 .ranker-rank {
+    background: var(--gradient-silver);
+    color: var(--gray-900);
+}
+
+.ranker-card.top-3 .ranker-rank {
+    background: var(--gradient-bronze);
+    color: var(--text-inverse);
+}
+
+.ranker-tier-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-top: 12px;
+    margin-bottom: 8px;
+}
+
+.ranker-tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.3); color: var(--tier-challenger); }
+.ranker-tier-badge.MASTER { background: rgba(255, 107, 107, 0.3); color: var(--tier-master); }
 .ranker-tier-badge.DIAMOND { background: rgba(185, 242, 255, 0.3); color: #87CEEB; }
-.ranker-tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.3); color: #C0C0C0; }
-.ranker-tier-badge.GOLD { background: rgba(255, 215, 0, 0.3); color: #FFD700; }
-.ranker-tier-badge.SILVER { background: rgba(192, 192, 192, 0.3); color: #C0C0C0; }
-.ranker-tier-badge.BRONZE { background: rgba(205, 127, 50, 0.3); color: #CD7F32; }
-.ranker-nickname { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 4px; }
-.ranker-score { font-size: 1.2rem; font-weight: 700; color: #667eea; }
-.ranker-stats { font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 8px; }
+.ranker-tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.3); color: var(--tier-platinum); }
+.ranker-tier-badge.GOLD { background: rgba(255, 215, 0, 0.3); color: var(--tier-gold); }
+.ranker-tier-badge.SILVER { background: rgba(192, 192, 192, 0.3); color: var(--tier-silver); }
+.ranker-tier-badge.BRONZE { background: rgba(205, 127, 50, 0.3); color: var(--tier-bronze); }
 
-/* Ranking Table - Fixed dark background */
-.ranking-table-container { background: #1a1a2e; border-radius: 12px; overflow: hidden; }
+.ranker-nickname { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.ranker-score { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+.ranker-stats { font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; }
+
+/* Ranking Table */
+.ranking-table-container {
+    background: var(--bg-surface);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
 .member-ranking-table { width: 100%; border-collapse: collapse; }
-.member-ranking-table th { background: #2d3748; padding: 14px 16px; text-align: left; font-weight: 600; color: #a0aec0; font-size: 0.85rem; }
-.member-ranking-table td { padding: 14px 16px; border-bottom: 1px solid #2d3748; color: #e2e8f0; font-size: 0.9rem; }
-.member-ranking-table tr:hover td { background: rgba(255, 255, 255, 0.05); }
-.table-tier-badge { display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
-.table-tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.3); color: #00BFFF; }
-.table-tier-badge.MASTER { background: rgba(255, 107, 107, 0.3); color: #FF6B6B; }
+
+.member-ranking-table th {
+    background: var(--table-header-bg);
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.member-ranking-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-default);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.member-ranking-table tr:hover td {
+    background: var(--table-row-hover);
+}
+
+.table-tier-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.table-tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.3); color: var(--tier-challenger); }
+.table-tier-badge.MASTER { background: rgba(255, 107, 107, 0.3); color: var(--tier-master); }
 .table-tier-badge.DIAMOND { background: rgba(185, 242, 255, 0.3); color: #87CEEB; }
-.table-tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.3); color: #C0C0C0; }
-.table-tier-badge.GOLD { background: rgba(255, 215, 0, 0.3); color: #FFD700; }
-.table-tier-badge.SILVER { background: rgba(192, 192, 192, 0.3); color: #C0C0C0; }
-.table-tier-badge.BRONZE { background: rgba(205, 127, 50, 0.3); color: #CD7F32; }
+.table-tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.3); color: var(--tier-platinum); }
+.table-tier-badge.GOLD { background: rgba(255, 215, 0, 0.3); color: var(--tier-gold); }
+.table-tier-badge.SILVER { background: rgba(192, 192, 192, 0.3); color: var(--tier-silver); }
+.table-tier-badge.BRONZE { background: rgba(205, 127, 50, 0.3); color: var(--tier-bronze); }
+
 .rank-medal { font-size: 1.2rem; }
 
 /* Mobile Tier Mini Bar - Hidden by default */
@@ -126,48 +284,53 @@
     /* Show mobile tier mini bar */
     .tier-mini-bar {
         display: block;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        background: var(--gradient-game);
         border-radius: 12px;
         padding: 12px 14px;
         margin-bottom: 16px;
     }
+
     .tier-mini-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 10px;
         font-size: 0.85rem;
-        color: #fff;
+        color: var(--text-inverse);
         font-weight: 600;
     }
+
     .tier-mini-total {
         font-size: 0.75rem;
-        color: rgba(255,255,255,0.5);
+        color: var(--text-muted);
         font-weight: 400;
     }
+
     .tier-mini-items {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
     }
+
     .tier-mini-item {
         display: flex;
         align-items: center;
         gap: 3px;
         font-size: 0.75rem;
-        color: rgba(255,255,255,0.8);
-        background: rgba(255,255,255,0.08);
+        color: var(--text-secondary);
+        background: var(--overlay-light);
         padding: 4px 8px;
         border-radius: 6px;
     }
+
     .tier-mini-item span { font-weight: 600; }
-    .tier-mini-item.chal { border-left: 2px solid #00BFFF; }
-    .tier-mini-item.mas { border-left: 2px solid #FF6B6B; }
-    .tier-mini-item.dia { border-left: 2px solid #87CEEB; }
-    .tier-mini-item.plat { border-left: 2px solid #C0C0C0; }
-    .tier-mini-item.gold { border-left: 2px solid #FFD700; }
-    .tier-mini-item.silver { border-left: 2px solid #A8A8A8; }
-    .tier-mini-item.bronze { border-left: 2px solid #CD7F32; }
+    .tier-mini-item.chal { border-left: 2px solid var(--tier-challenger); }
+    .tier-mini-item.mas { border-left: 2px solid var(--tier-master); }
+    .tier-mini-item.dia { border-left: 2px solid var(--tier-diamond); }
+    .tier-mini-item.plat { border-left: 2px solid var(--tier-platinum); }
+    .tier-mini-item.gold { border-left: 2px solid var(--tier-gold); }
+    .tier-mini-item.silver { border-left: 2px solid var(--tier-silver); }
+    .tier-mini-item.bronze { border-left: 2px solid var(--tier-bronze); }
 
     /* Rank Type Tabs - Compact */
     .rank-type-tabs {
@@ -178,6 +341,7 @@
         padding-bottom: 4px;
         -webkit-overflow-scrolling: touch;
     }
+
     .rank-type-tab {
         white-space: nowrap;
         padding: 8px 12px;
@@ -191,82 +355,95 @@
         flex-direction: column;
         gap: 8px;
     }
+
     .mobile-rank-card {
         display: flex;
         align-items: center;
-        background: #1a1a2e;
+        background: var(--bg-surface);
         border-radius: 10px;
         padding: 12px;
-        border: 1px solid #2d3748;
+        border: 1px solid var(--border-default);
         gap: 12px;
     }
+
     .mobile-rank-card.top-1 {
-        background: linear-gradient(135deg, #3d3a1a, #1a1a2e);
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), var(--bg-surface));
         border-color: rgba(255, 215, 0, 0.4);
     }
+
     .mobile-rank-card.top-2 {
-        background: linear-gradient(135deg, #2a2a3a, #1a1a2e);
+        background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), var(--bg-surface));
         border-color: rgba(192, 192, 192, 0.4);
     }
+
     .mobile-rank-card.top-3 {
-        background: linear-gradient(135deg, #2d2319, #1a1a2e);
+        background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), var(--bg-surface));
         border-color: rgba(205, 127, 50, 0.4);
     }
+
     .mobile-rank-left {
         width: 32px;
         text-align: center;
         flex-shrink: 0;
     }
+
     .mobile-rank-num {
         font-size: 1rem;
         font-weight: 700;
-        color: rgba(255,255,255,0.6);
+        color: var(--text-muted);
     }
+
     .mobile-rank-center {
         flex: 1;
         min-width: 0;
     }
+
     .mobile-rank-name {
         display: flex;
         align-items: center;
         gap: 6px;
         font-size: 0.9rem;
         font-weight: 600;
-        color: #fff;
+        color: var(--text-primary);
         margin-bottom: 4px;
     }
+
     .mobile-tier-badge {
         font-size: 0.6rem;
         padding: 2px 6px;
         border-radius: 8px;
         font-weight: 600;
-        color: #000;
         flex-shrink: 0;
     }
-    .mobile-tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.7); color: #fff; }
-    .mobile-tier-badge.MASTER { background: rgba(255, 107, 107, 0.7); color: #fff; }
-    .mobile-tier-badge.DIAMOND { background: rgba(185, 242, 255, 0.7); }
-    .mobile-tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.7); }
-    .mobile-tier-badge.GOLD { background: rgba(255, 215, 0, 0.7); }
-    .mobile-tier-badge.SILVER { background: rgba(192, 192, 192, 0.7); }
-    .mobile-tier-badge.BRONZE { background: rgba(205, 127, 50, 0.7); color: #fff; }
+
+    .mobile-tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.7); color: var(--text-inverse); }
+    .mobile-tier-badge.MASTER { background: rgba(255, 107, 107, 0.7); color: var(--text-inverse); }
+    .mobile-tier-badge.DIAMOND { background: rgba(185, 242, 255, 0.7); color: var(--gray-900); }
+    .mobile-tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.7); color: var(--gray-900); }
+    .mobile-tier-badge.GOLD { background: rgba(255, 215, 0, 0.7); color: var(--gray-900); }
+    .mobile-tier-badge.SILVER { background: rgba(192, 192, 192, 0.7); color: var(--gray-900); }
+    .mobile-tier-badge.BRONZE { background: rgba(205, 127, 50, 0.7); color: var(--text-inverse); }
+
     .mobile-rank-info {
         font-size: 0.7rem;
-        color: rgba(255,255,255,0.5);
+        color: var(--text-muted);
     }
+
     .mobile-rank-right {
         text-align: right;
         flex-shrink: 0;
     }
+
     .mobile-rank-score {
         font-size: 0.95rem;
         font-weight: 700;
-        color: #667eea;
+        color: var(--primary);
     }
+
     .mobile-empty {
         text-align: center;
         padding: 40px 20px;
-        color: rgba(255,255,255,0.5);
+        color: var(--text-muted);
         font-size: 0.9rem;
     }
 }

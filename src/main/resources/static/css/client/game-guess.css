@@ -17,7 +17,7 @@
 
 /* Guess Answer Section */
 .guess-answer-section {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1.5rem;
     padding: 2rem;
     text-align: center;
@@ -60,7 +60,7 @@
 /* Submit Button */
 .btn-submit {
     padding: 1rem 2rem;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: var(--gradient-success);
     color: white;
     border-radius: 0.75rem;
     font-size: 1rem;
@@ -77,7 +77,7 @@
 /* Skip Button */
 .btn-skip {
     padding: 0.875rem 2.5rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     color: rgba(255, 255, 255, 0.8);
     border-radius: 0.75rem;
     font-weight: 500;
@@ -85,12 +85,12 @@
 }
 
 .btn-skip:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
 }
 
 /* Statistics Sidebar */
 .stats-sidebar {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1.5rem;
     padding: 1.5rem;
     height: fit-content;
@@ -108,7 +108,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 0.5rem;
     margin-bottom: 0.5rem;
 }
@@ -132,13 +132,13 @@
     background: rgba(239, 68, 68, 0.2);
     border: 1px solid rgba(239, 68, 68, 0.5);
     border-radius: 0.75rem;
-    color: #fca5a5;
+    color: var(--danger-light);
     text-align: center;
     font-size: 1rem;
 }
 
 .attempt-feedback strong {
-    color: #fbbf24;
+    color: var(--warning);
 }
 
 .attempt-feedback.shake {
@@ -161,20 +161,20 @@
 
 /* Correct/Wrong Text */
 .correct-text {
-    color: #22c55e;
+    color: var(--success);
     font-weight: 700;
     font-size: 1.25rem;
 }
 
 .wrong-text {
-    color: #ef4444;
+    color: var(--danger);
     font-size: 0.875rem;
 }
 
 /* User Answer Info */
 .user-answer-info {
     padding: 1rem;
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-radius: 0.75rem;
     margin-bottom: 1.5rem;
 }
@@ -219,7 +219,7 @@
     align-items: center;
     justify-content: center;
     padding: 1.25rem 1rem;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: var(--bg-elevated);
     border: 2px solid var(--border-color);
     border-radius: 1rem;
     cursor: pointer;
@@ -230,15 +230,15 @@
 
 .genre-item:hover:not(.disabled):not(.hidden) {
     border-color: var(--primary-color);
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    background: var(--primary-light);
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+    box-shadow: var(--shadow-primary);
 }
 
 .genre-item.disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    background: #f3f4f6;
+    background: var(--bg-muted);
 }
 
 .genre-item.hidden {
@@ -262,8 +262,8 @@
 }
 
 .genre-item.disabled .genre-count {
-    color: #9ca3af;
-    background: #e5e7eb;
+    color: var(--gray-400);
+    background: var(--bg-muted);
 }
 
 /* Modal Search Input */
@@ -488,5 +488,95 @@
 
     :root:not([data-theme]) .genre-select-modal {
         background: var(--bg-surface);
+    }
+}
+
+/* ========================================
+   Answer Header Row (정답 입력 + 스킵 버튼)
+   ======================================== */
+.answer-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.answer-header-row h3 {
+    margin-bottom: 0 !important;
+}
+
+/* PC: 인라인 스킵 숨김, 하단 스킵 표시 */
+.btn-skip-inline {
+    display: none;
+}
+
+.btn-skip-bottom {
+    display: inline-block;
+}
+
+/* ========================================
+   모바일 컴팩트 모드 (.guess-mobile-compact)
+   - 통합 헤더: 한 줄에 모든 정보
+   ======================================== */
+@media (max-width: 768px) {
+    .guess-mobile-compact .stats-sidebar {
+        display: none !important;
+    }
+
+    .guess-mobile-compact .guess-answer-section {
+        padding: 12px;
+    }
+
+    /* 정답 입력 + 스킵 버튼 가로 배치 */
+    .guess-mobile-compact .answer-header-row {
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .guess-mobile-compact .answer-header-row h3 {
+        font-size: 14px;
+    }
+
+    /* 모바일: 인라인 스킵 표시, 하단 스킵 숨김 */
+    .guess-mobile-compact .btn-skip-inline {
+        display: inline-block;
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .guess-mobile-compact .btn-skip-bottom {
+        display: none;
+    }
+
+    /* 입력 + 제출 버튼 가로 배치 */
+    .guess-mobile-compact .answer-input-wrapper {
+        flex-direction: row;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .guess-mobile-compact .answer-input {
+        padding: 10px 12px;
+        font-size: 15px;
+        flex: 1;
+    }
+
+    .guess-mobile-compact .btn-submit {
+        padding: 10px 16px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .guess-mobile-compact .answer-hint {
+        font-size: 10px;
+        margin: 8px 0;
+        opacity: 0.8;
+    }
+
+    .guess-mobile-compact .attempt-feedback {
+        padding: 8px;
+        font-size: 12px;
+        margin-top: 8px;
     }
 }

@@ -7,7 +7,7 @@
 .header {
     text-align: center;
     padding: 4rem 2rem 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-client);
     color: white;
 }
 
@@ -71,14 +71,14 @@
     font-size: 1.125rem;
     font-weight: 600;
     border-radius: 0.75rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-client);
     color: white;
     transition: all 0.3s ease;
 }
 
 .play-btn:hover:not(:disabled) {
     transform: scale(1.02);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-lg);
 }
 
 .play-btn.coming-soon {

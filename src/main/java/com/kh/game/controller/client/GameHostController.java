@@ -54,6 +54,66 @@ public class GameHostController {
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping("/song-count")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getSongCountPost(
+            @RequestBody Map<String, Object> request) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        GameSettings settings = new GameSettings();
+
+        if (request.get("genreId") != null) {
+            settings.setFixedGenreId(Long.valueOf(request.get("genreId").toString()));
+        }
+        if (request.get("soloOnly") != null) {
+            settings.setSoloOnly((Boolean) request.get("soloOnly"));
+        }
+        if (request.get("groupOnly") != null) {
+            settings.setGroupOnly((Boolean) request.get("groupOnly"));
+        }
+
+        // 복수 연도 선택
+        if (request.get("years") != null) {
+            @SuppressWarnings("unchecked")
+            List<Integer> years = (List<Integer>) request.get("years");
+            settings.setSelectedYears(years);
+        }
+
+        // 복수 아티스트 선택
+        if (request.get("artists") != null) {
+            @SuppressWarnings("unchecked")
+            List<String> artists = (List<String>) request.get("artists");
+            settings.setSelectedArtists(artists);
+        }
+
+        int count = songService.getAvailableSongCount(settings);
+        result.put("count", count);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/years")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getYears() {
+        List<Map<String, Object>> years = songService.getYearsWithCount();
+        return ResponseEntity.ok(years);
+    }
+
+    @GetMapping("/artists")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getArtists() {
+        List<Map<String, Object>> artists = songService.getArtistsWithCount();
+        return ResponseEntity.ok(artists);
+    }
+
+    @GetMapping("/artists/search")
+    @ResponseBody
+    public ResponseEntity<List<String>> searchArtists(@RequestParam String keyword) {
+        List<String> artists = songService.searchArtists(keyword);
+        return ResponseEntity.ok(artists);
+    }
+
     @GetMapping("/genres-with-count")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getGenresWithCount(HttpSession httpSession) {
@@ -151,6 +211,18 @@ public class GameHostController {
                 }
                 if (settingsMap.get("fixedGenreId") != null) {
                     settings.setFixedGenreId(Long.valueOf(settingsMap.get("fixedGenreId").toString()));
+                }
+                // 복수 연도 선택
+                if (settingsMap.get("selectedYears") != null) {
+                    @SuppressWarnings("unchecked")
+                    List<Integer> selectedYears = (List<Integer>) settingsMap.get("selectedYears");
+                    settings.setSelectedYears(selectedYears);
+                }
+                // 복수 아티스트 선택
+                if (settingsMap.get("selectedArtists") != null) {
+                    @SuppressWarnings("unchecked")
+                    List<String> selectedArtists = (List<String>) settingsMap.get("selectedArtists");
+                    settings.setSelectedArtists(selectedArtists);
                 }
             }
             session.setSettings(gameSessionService.toSettingsJson(settings));

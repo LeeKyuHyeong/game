@@ -1,5 +1,6 @@
 /**
  * Board CSS - Community Board Styles
+ * 테마 변수 사용 리팩토링 완료 (2026-01-17)
  */
 
 /* Board Container */
@@ -18,25 +19,27 @@
 
 .category-tab {
     padding: 10px 18px;
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--overlay-medium);
     border: none;
     border-radius: 20px;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-on-gradient);
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s;
     text-decoration: none;
+    opacity: 0.85;
 }
 
 .category-tab:hover {
-    background: rgba(255, 255, 255, 0.25);
-    color: white;
+    background: var(--overlay-strong);
+    opacity: 1;
 }
 
 .category-tab.active {
-    background: white;
-    color: #667eea;
+    background: var(--bg-surface);
+    color: var(--primary);
     font-weight: 600;
+    opacity: 1;
 }
 
 .category-count {
@@ -55,51 +58,52 @@
 .board-search input {
     flex: 1;
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
     border-radius: 8px;
-    color: white;
+    color: var(--text-primary);
     font-size: 0.95rem;
 }
 
 .board-search input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--input-placeholder);
 }
 
 .board-search button {
     padding: 12px 20px;
-    background: white;
+    background: var(--primary);
     border: none;
     border-radius: 8px;
-    color: #667eea;
+    color: var(--text-inverse);
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, background 0.2s;
 }
 
 .board-search button:hover {
+    background: var(--primary-dark);
     transform: scale(1.02);
 }
 
 /* Board Table */
 .board-table {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--bg-surface);
     border-radius: 12px;
     overflow: hidden;
-    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
 }
 
 .board-row {
     display: flex;
     padding: 16px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-default);
     transition: background 0.2s;
     text-decoration: none;
-    color: white;
+    color: var(--text-primary);
 }
 
 .board-row:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
 }
 
 .board-row:last-child {
@@ -108,17 +112,17 @@
 
 .board-category-badge {
     padding: 4px 10px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
     border-radius: 12px;
     font-size: 0.75rem;
     margin-right: 12px;
     white-space: nowrap;
 }
 
-.board-category-badge.REQUEST { background: rgba(102, 126, 234, 0.4); }
-.board-category-badge.OPINION { background: rgba(118, 75, 162, 0.4); }
-.board-category-badge.QUESTION { background: rgba(255, 193, 7, 0.4); }
-.board-category-badge.FREE { background: rgba(76, 175, 80, 0.4); }
+.board-category-badge.REQUEST { background: var(--badge-indigo-bg); color: var(--badge-indigo-text); }
+.board-category-badge.OPINION { background: var(--badge-pink-bg); color: var(--badge-pink-text); }
+.board-category-badge.QUESTION { background: var(--badge-warning-bg); color: var(--badge-warning-text); }
+.board-category-badge.FREE { background: var(--badge-success-bg); color: var(--badge-success-text); }
 
 .board-info {
     flex: 1;
@@ -136,7 +140,7 @@
 
 .board-meta {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-muted);
     display: flex;
     gap: 12px;
 }
@@ -153,7 +157,7 @@
     align-items: center;
     gap: 16px;
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
 }
 
 .board-stat {
@@ -171,26 +175,27 @@
 
 .btn-write {
     padding: 12px 24px;
-    background: white;
+    background: var(--primary);
     border: none;
     border-radius: 8px;
-    color: #667eea;
+    color: var(--text-inverse);
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
 .btn-write:hover {
+    background: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
 }
 
 /* Empty State */
 .board-empty {
     text-align: center;
     padding: 60px 20px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-muted);
 }
 
 .board-empty-icon {
@@ -208,21 +213,21 @@
 
 .page-btn {
     padding: 8px 14px;
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--overlay-light);
     border: none;
     border-radius: 6px;
-    color: white;
+    color: var(--text-primary);
     text-decoration: none;
     transition: background 0.2s;
 }
 
 .page-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--overlay-medium);
 }
 
 .page-btn.active {
-    background: white;
-    color: #667eea;
+    background: var(--primary);
+    color: var(--text-inverse);
     font-weight: 600;
 }
 
@@ -233,14 +238,14 @@
 
 /* Detail Page */
 .board-detail {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--bg-surface);
     border-radius: 16px;
     padding: 24px;
-    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
 }
 
 .board-detail-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-default);
     padding-bottom: 16px;
     margin-bottom: 20px;
 }
@@ -248,7 +253,7 @@
 .board-detail-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 12px;
     word-break: break-word;
 }
@@ -257,7 +262,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     font-size: 0.9rem;
     flex-wrap: wrap;
 }
@@ -267,7 +272,7 @@
 }
 
 .board-detail-content {
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--text-primary);
     line-height: 1.8;
     min-height: 200px;
     white-space: pre-wrap;
@@ -280,7 +285,7 @@
     align-items: center;
     margin-top: 24px;
     padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--border-default);
     flex-wrap: wrap;
     gap: 12px;
 }
@@ -290,22 +295,22 @@
     align-items: center;
     gap: 8px;
     padding: 12px 24px;
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--overlay-light);
     border: none;
     border-radius: 8px;
-    color: white;
+    color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s;
     font-size: 1rem;
 }
 
 .like-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--overlay-medium);
 }
 
 .like-btn.liked {
-    background: rgba(255, 71, 87, 0.3);
-    color: #ff4757;
+    background: var(--badge-danger-bg);
+    color: var(--danger);
 }
 
 .action-btns {
@@ -313,7 +318,8 @@
     gap: 8px;
 }
 
-.btn-edit, .btn-delete {
+.board-detail .btn-edit,
+.board-detail .btn-delete {
     padding: 10px 16px;
     border: none;
     border-radius: 6px;
@@ -322,17 +328,18 @@
     transition: opacity 0.2s;
 }
 
-.btn-edit {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
+.board-detail .btn-edit {
+    background: var(--overlay-medium);
+    color: var(--text-primary);
 }
 
-.btn-delete {
-    background: rgba(255, 71, 87, 0.3);
-    color: #ff4757;
+.board-detail .btn-delete {
+    background: var(--badge-danger-bg);
+    color: var(--danger);
 }
 
-.btn-edit:hover, .btn-delete:hover {
+.board-detail .btn-edit:hover,
+.board-detail .btn-delete:hover {
     opacity: 0.8;
 }
 
@@ -344,7 +351,7 @@
 .comments-title {
     font-size: 1.1rem;
     font-weight: 600;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 16px;
     display: flex;
     align-items: center;
@@ -360,28 +367,33 @@
 .comment-form textarea {
     flex: 1;
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
     border-radius: 8px;
-    color: white;
+    color: var(--text-primary);
     font-size: 0.95rem;
     resize: none;
     min-height: 60px;
 }
 
 .comment-form textarea::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--input-placeholder);
 }
 
 .comment-form button {
     padding: 12px 20px;
-    background: white;
+    background: var(--primary);
     border: none;
     border-radius: 8px;
-    color: #667eea;
+    color: var(--text-inverse);
     font-weight: 600;
     cursor: pointer;
     align-self: flex-end;
+    transition: background 0.2s;
+}
+
+.comment-form button:hover {
+    background: var(--primary-dark);
 }
 
 .comment-list {
@@ -392,7 +404,7 @@
 
 .comment-item {
     padding: 16px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-elevated);
     border-radius: 10px;
 }
 
@@ -405,17 +417,17 @@
 
 .comment-author {
     font-weight: 500;
-    color: white;
+    color: var(--text-primary);
     font-size: 0.9rem;
 }
 
 .comment-time {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
 }
 
 .comment-content {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-secondary);
     font-size: 0.95rem;
     line-height: 1.6;
 }
@@ -423,28 +435,28 @@
 .comment-delete {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-muted);
     cursor: pointer;
     font-size: 0.8rem;
     margin-left: 12px;
 }
 
 .comment-delete:hover {
-    color: #ff4757;
+    color: var(--danger);
 }
 
 .comment-empty {
     text-align: center;
     padding: 32px;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
 }
 
 /* Write Form */
 .write-form {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--bg-surface);
     border-radius: 16px;
     padding: 24px;
-    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
 }
 
 .write-form .form-group {
@@ -453,7 +465,7 @@
 
 .write-form .form-group label {
     display: block;
-    color: white;
+    color: var(--text-primary);
     font-weight: 500;
     margin-bottom: 8px;
     font-size: 0.95rem;
@@ -464,16 +476,16 @@
 .write-form .form-group textarea {
     width: 100%;
     padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
     border-radius: 8px;
-    color: white;
+    color: var(--text-primary);
     font-size: 1rem;
 }
 
 .write-form .form-group select option {
-    background: #667eea;
-    color: white;
+    background: var(--bg-surface);
+    color: var(--text-primary);
 }
 
 .write-form .form-group textarea {
@@ -484,7 +496,7 @@
 
 .write-form .form-group input::placeholder,
 .write-form .form-group textarea::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--input-placeholder);
 }
 
 .write-form .form-actions {
@@ -496,75 +508,35 @@
 
 .write-form .btn-cancel {
     padding: 14px 28px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
     border: none;
     border-radius: 8px;
-    color: white;
+    color: var(--text-primary);
     cursor: pointer;
     text-decoration: none;
     font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.write-form .btn-cancel:hover {
+    background: var(--overlay-strong);
 }
 
 .write-form .btn-submit {
     padding: 14px 28px;
-    background: white;
+    background: var(--primary);
     border: none;
     border-radius: 8px;
-    color: #667eea;
+    color: var(--text-inverse);
     font-weight: 600;
     cursor: pointer;
     font-size: 1rem;
-    transition: transform 0.2s;
+    transition: transform 0.2s, background 0.2s;
 }
 
 .write-form .btn-submit:hover {
-    transform: translateY(-2px);
-}
-
-/* ========== 다크 모드 오버라이드 ========== */
-[data-theme="dark"] .category-tab.active,
-[data-theme="dark"] .page-btn.active {
-    background: var(--primary);
-    color: white;
-}
-
-[data-theme="dark"] .board-search button,
-[data-theme="dark"] .btn-write,
-[data-theme="dark"] .comment-form button,
-[data-theme="dark"] .write-form .btn-submit {
-    background: var(--primary);
-    color: white;
-}
-
-[data-theme="dark"] .board-search button:hover,
-[data-theme="dark"] .btn-write:hover,
-[data-theme="dark"] .comment-form button:hover,
-[data-theme="dark"] .write-form .btn-submit:hover {
     background: var(--primary-dark);
-}
-
-/* 시스템 다크모드 (저장값 없을 때) */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) .category-tab.active,
-    :root:not([data-theme]) .page-btn.active {
-        background: var(--primary);
-        color: white;
-    }
-
-    :root:not([data-theme]) .board-search button,
-    :root:not([data-theme]) .btn-write,
-    :root:not([data-theme]) .comment-form button,
-    :root:not([data-theme]) .write-form .btn-submit {
-        background: var(--primary);
-        color: white;
-    }
-
-    :root:not([data-theme]) .board-search button:hover,
-    :root:not([data-theme]) .btn-write:hover,
-    :root:not([data-theme]) .comment-form button:hover,
-    :root:not([data-theme]) .write-form .btn-submit:hover {
-        background: var(--primary-dark);
-    }
+    transform: translateY(-2px);
 }
 
 /* Responsive */
@@ -654,5 +626,29 @@
     .write-form .btn-submit {
         width: 100%;
         text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .board-search {
+        flex-direction: column;
+    }
+
+    .board-search button {
+        width: 100%;
+    }
+
+    .board-stats {
+        gap: 10px;
+        font-size: 0.8rem;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+    }
+
+    .page-btn {
+        padding: 6px 10px;
+        font-size: 0.85rem;
     }
 }

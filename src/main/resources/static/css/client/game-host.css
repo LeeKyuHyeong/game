@@ -10,7 +10,7 @@
 
 /* Answer Section for Host Mode */
 .answer-section {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1.5rem;
     padding: 2rem;
     text-align: center;
@@ -33,7 +33,7 @@
 
 .player-btn {
     padding: 1rem 2rem;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: var(--gradient-success);
     color: white;
     border-radius: 0.75rem;
     font-size: 1.125rem;
@@ -48,13 +48,13 @@
 }
 
 .player-btn.selected {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    background: var(--gradient-gold);
     box-shadow: 0 4px 10px rgba(251, 191, 36, 0.4);
 }
 
 /* Song Info Display (Host Mode) */
 .song-info-display {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, var(--overlay-light) 100%);
     border: 2px solid rgba(255, 215, 0, 0.3);
     border-radius: 1.5rem;
     padding: 1.5rem 2rem;
@@ -67,7 +67,7 @@
 
 .song-info-header {
     font-size: 0.875rem;
-    color: #fbbf24;
+    color: var(--warning);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -103,7 +103,7 @@
 
 /* Scoreboard */
 .scoreboard {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1.5rem;
     padding: 1.5rem;
     height: fit-content;
@@ -128,7 +128,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 0.5rem;
     transition: all 0.3s;
 }
@@ -139,7 +139,7 @@
 }
 
 .player-score {
-    color: #fbbf24;
+    color: var(--warning);
     font-weight: 700;
     font-size: 1.125rem;
 }

@@ -14,7 +14,7 @@
 
 /* ========== 30개 챌린지 바로가기 ========== */
 .challenge-shortcut {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-client);
     border-radius: 1rem;
     padding: 1.25rem;
     margin-bottom: 1.5rem;
@@ -54,8 +54,8 @@
 }
 
 .btn-challenge {
-    background: #ffd700;
-    color: #1a1a2e;
+    background: var(--tier-gold);
+    color: var(--gray-900);
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 2rem;
@@ -67,14 +67,14 @@
 }
 
 .btn-challenge:hover {
-    background: #ffed4a;
+    background: var(--warning-light);
     transform: scale(1.05);
 }
 
 .btn-challenge-login {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
     color: white;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    border: 2px solid var(--overlay-strong);
     padding: 0.625rem 1.25rem;
     border-radius: 2rem;
     font-weight: 600;
@@ -85,7 +85,7 @@
 }
 
 .btn-challenge-login:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--overlay-strong);
     border-color: white;
 }
 
@@ -150,7 +150,7 @@
 }
 
 .challenge-modal-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-client);
     color: white;
     padding: 1.5rem;
     text-align: center;
@@ -193,7 +193,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.625rem 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-subtle);
     font-size: 0.9rem;
     color: var(--text-primary);
 }
@@ -209,7 +209,7 @@
 }
 
 .scoring-table {
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-radius: 0.75rem;
     overflow: hidden;
 }
@@ -218,7 +218,7 @@
     display: flex;
     justify-content: space-between;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.9rem;
 }
 
@@ -227,12 +227,12 @@
 }
 
 .score-row.total {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-client);
     color: white;
 }
 
 .score-row.total strong {
-    color: #ffd700;
+    color: var(--tier-gold);
 }
 
 .challenge-modal-footer {
@@ -262,7 +262,7 @@
     padding: 0.875rem;
     border: none;
     border-radius: 0.75rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-client);
     color: white;
     font-weight: 700;
     font-size: 1rem;
@@ -272,7 +272,7 @@
 
 .challenge-modal-footer .btn-start-challenge:hover {
     transform: scale(1.02);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-primary);
 }
 
 /* Setup Main Layout */
@@ -372,13 +372,13 @@
 .round-btn.disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    background: #e5e7eb;
-    border-color: #d1d5db;
-    color: #9ca3af;
+    background: var(--bg-muted);
+    border-color: var(--gray-300);
+    color: var(--gray-400);
 }
 
 .round-btn.disabled:hover {
-    border-color: #d1d5db;
+    border-color: var(--gray-300);
     transform: none;
 }
 
@@ -468,9 +468,9 @@
 .preset-btn.disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    background: #e5e7eb;
-    border-color: #d1d5db;
-    color: #9ca3af;
+    background: var(--bg-muted);
+    border-color: var(--gray-300);
+    color: var(--gray-400);
 }
 
 /* Ranking Notice */
@@ -568,13 +568,13 @@
 }
 
 .notice-result.success {
-    background: #22c55e;
+    background: var(--success);
     color: white;
 }
 
 .notice-result.warning {
     background: rgba(239, 68, 68, 0.15);
-    color: #b91c1c;
+    color: var(--danger-dark);
 }
 
 /* Song Count Info */
@@ -775,7 +775,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 1rem;
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border: 2px solid var(--border-color);
     border-radius: 0.75rem;
     cursor: pointer;
@@ -784,7 +784,7 @@
 
 .toggle-option:hover {
     border-color: var(--primary-color);
-    background: #eff6ff;
+    background: var(--primary-light);
 }
 
 .toggle-option input[type="checkbox"] {
@@ -863,7 +863,7 @@
 
 .btn-back {
     padding: 1rem 2rem;
-    background: #f1f5f9;
+    background: var(--bg-elevated);
     color: var(--text-secondary);
     border-radius: 0.75rem;
     font-weight: 600;
@@ -898,7 +898,7 @@
     padding: 0.75rem;
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    background: #f8fafc;
+    background: var(--bg-elevated);
 }
 
 .chip {
@@ -955,8 +955,74 @@
     border-color: var(--primary-color);
 }
 
+/* Mobile Artist Type (hidden on PC) */
+.mobile-artist-type {
+    display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+    /* '게임 설정', '게임 모드' 텍스트 숨김 */
+    .setup-step > h2,
+    .setup-step .form-group:has(.mode-options) > label {
+        display: none;
+    }
+
+    /* 진행 라운드 + 아티스트 유형 가로 배치 */
+    #roundSettingArea {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 0.5rem 0.75rem;
+    }
+
+    #roundSettingArea > label {
+        margin-bottom: 0;
+    }
+
+    /* (최대 N라운드) 줄바꿈 */
+    #roundSettingArea .song-count-info {
+        display: block;
+        font-size: 0.7rem;
+        margin-top: 0.125rem;
+    }
+
+    #roundSettingArea .round-input-group {
+        justify-content: center;
+        margin-bottom: 0;
+    }
+
+    /* 프리셋 버튼 숨김 */
+    #roundSettingArea .round-presets {
+        display: none;
+    }
+
+    /* 모바일 아티스트 유형 표시 */
+    .mobile-artist-type {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .mobile-artist-type label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        margin-bottom: 0;
+    }
+
+    .mobile-artist-type select {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.8rem;
+        min-width: 70px;
+    }
+
+    /* 아티스트 유형 영역 숨김 (모바일) */
+    #artistTypeArea {
+        display: none !important;
+    }
+
     /* Challenge Shortcut Mobile */
     .challenge-shortcut {
         padding: 0.875rem;

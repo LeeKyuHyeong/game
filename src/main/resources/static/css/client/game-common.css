@@ -33,7 +33,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1rem;
 }
 
@@ -109,7 +109,7 @@ a.btn-quit:hover {
 /* 종료 버튼 - 레드 */
 button.btn-quit {
     background: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
+    color: var(--danger-light);
 }
 
 button.btn-quit:hover {
@@ -122,7 +122,7 @@ button.btn-quit:hover {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 2rem;
 }
 
@@ -148,7 +148,7 @@ button.btn-quit:hover {
     align-items: center;
     gap: 1rem;
     padding: 0.75rem 1.25rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1rem;
 }
 
@@ -161,7 +161,7 @@ button.btn-quit:hover {
     font-size: 1rem;
     flex-shrink: 0;
     transition: all 0.2s;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    box-shadow: var(--shadow-primary);
 }
 
 .music-controls-bar .control-btn:hover {
@@ -190,7 +190,7 @@ button.btn-quit:hover {
 
 /* Music Player */
 .music-player {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1.5rem;
     padding: 2.5rem;
     text-align: center;
@@ -221,7 +221,7 @@ button.btn-quit:hover {
 }
 
 .player-controls.participant-status {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     padding: 1rem 1.5rem;
     border-radius: 1rem;
     color: white;
@@ -237,7 +237,7 @@ button.btn-quit:hover {
     color: white;
     font-size: 1.5rem;
     transition: all 0.2s;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    box-shadow: var(--shadow-primary);
 }
 
 .control-btn:hover {
@@ -253,7 +253,7 @@ button.btn-quit:hover {
 /* Progress Bar */
 .progress-bar {
     height: 8px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
     border-radius: 4px;
     overflow: hidden;
     margin-bottom: 0.5rem;
@@ -406,19 +406,19 @@ button.btn-quit:hover {
 .answer-info .song-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--gray-900);
     margin-bottom: 0.25rem;
 }
 
 .answer-info .song-artist {
     font-size: 1.125rem;
-    color: #64748b;
+    color: var(--gray-500);
     margin-bottom: 0.5rem;
 }
 
 .answer-info .song-meta {
     font-size: 0.875rem;
-    color: #64748b;
+    color: var(--gray-500);
 }
 
 .winner-info {
@@ -473,7 +473,7 @@ button.btn-quit:hover {
     color: var(--text-secondary);
     margin-bottom: 0.5rem;
     padding: 0.5rem 1rem;
-    background: #fef2f2;
+    background: var(--danger-light);
     border-radius: 0.5rem;
 }
 
@@ -489,8 +489,8 @@ button.btn-quit:hover {
 }
 
 .playback-error-modal .auto-report-notice {
-    background: #ecfdf5;
-    border: 1px solid #a7f3d0;
+    background: var(--success-light);
+    border: 1px solid var(--success);
     border-radius: 0.75rem;
     padding: 1rem;
     margin-bottom: 1.5rem;
@@ -498,7 +498,7 @@ button.btn-quit:hover {
 
 .playback-error-modal .auto-report-badge {
     display: inline-block;
-    background: #10b981;
+    background: var(--success);
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 1rem;
@@ -509,7 +509,7 @@ button.btn-quit:hover {
 
 .playback-error-modal .auto-report-notice p {
     margin: 0;
-    color: #059669;
+    color: var(--success-dark);
     font-size: 0.85rem;
 }
 
@@ -529,12 +529,12 @@ button.btn-quit:hover {
 
 /* Playback Error Notice (Multiplayer Chat) */
 .playback-error-notice {
-    background: #fef2f2 !important;
-    border-left: 3px solid #ef4444;
+    background: var(--danger-light) !important;
+    border-left: 3px solid var(--danger);
 }
 
 .playback-error-notice .system-text {
-    color: #dc2626;
+    color: var(--danger-dark);
 }
 
 /* Rounds Reduced Notice (Pre-validation) */

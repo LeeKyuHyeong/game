@@ -28,6 +28,7 @@
     --text-secondary: #64748b;
     --text-muted: #94a3b8;
     --text-inverse: #ffffff;
+    --text-on-gradient: #ffffff; /* 그라디언트 배경 위 텍스트 (항상 흰색) */
 
     /* ========== 테두리 ========== */
     --border-default: #e2e8f0;
@@ -108,6 +109,14 @@
     --gradient-silver: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
     --gradient-bronze: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
 
+    /* ========== 랭킹 배경용 Light 그라디언트 ========== */
+    --gradient-gold-light: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    --gradient-silver-light: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    --gradient-bronze-light: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+
+    /* ========== Primary Shadow ========== */
+    --shadow-primary: 0 6px 20px rgba(99, 102, 241, 0.4);
+
     /* ========== 티어 색상 (브랜드 고정) ========== */
     --tier-bronze: #CD7F32;
     --tier-silver: #C0C0C0;
@@ -117,11 +126,48 @@
     --tier-master: #FF6B6B;
     --tier-challenger: #00BFFF;
 
+    /* ========== 티어 그라디언트 ========== */
+    --tier-bronze-gradient: linear-gradient(135deg, #CD7F32 0%, #B8860B 100%);
+    --tier-silver-gradient: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+    --tier-gold-gradient: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    --tier-platinum-gradient: linear-gradient(135deg, #E5E4E2 0%, #73C2FB 100%);
+    --tier-diamond-gradient: linear-gradient(135deg, #B9F2FF 0%, #87CEEB 100%);
+    --tier-master-gradient: linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%);
+    --tier-challenger-gradient: linear-gradient(135deg, #00BFFF 0%, #1E90FF 100%);
+
+    /* ========== 그레이톤 (다크 텍스트용) ========== */
+    --gray-900: #1f2937;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-400: #9ca3af;
+    --gray-300: #d1d5db;
+
     /* ========== 희귀도 색상 (브랜드 고정) ========== */
     --rarity-common: #9CA3AF;
     --rarity-rare: #3B82F6;
     --rarity-epic: #A855F7;
     --rarity-legendary: #F59E0B;
+
+    /* ========== 팬 챌린지/랭크 모드 색상 ========== */
+    --ranked-gradient: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+    --amber-bg: #fef9c3;
+    --amber-text: #92400e;
+    --amber-text-dark: #78350f;
+    --info-bg: #eff6ff;
+    --success-bg: #ecfdf5;
+    --success-text-dark: #065f46;
+    --info-text-dark: #1e40af;
+    --danger-text-dark: #991b1b;
+    --danger-bg: #fef2f2;
+
+    /* ========== 타이머/게임 색상 ========== */
+    --timer-success: linear-gradient(90deg, #2ed573, #7bed9f);
+    --timer-warning: linear-gradient(90deg, #ffa502, #ffcc00);
+    --timer-answering: linear-gradient(90deg, #8b5cf6, #a78bfa);
+    --timer-critical: linear-gradient(90deg, var(--danger), #ff6b81);
+    --success-bright: #7bed9f;
+    --violet: #8b5cf6;
+    --violet-light: #c4b5fd;
 }
 
 /* ========== 다크 모드 ========== */
@@ -500,7 +546,7 @@ button {
 .theme-label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--text-on-gradient);
 }
 
 .theme-icon.moon {
@@ -523,4 +569,9 @@ button {
     :root:not([data-theme]) .theme-icon.moon {
         display: block;
     }
+}
+
+/* ========== 유틸리티 클래스 ========== */
+.hidden {
+    display: none !important;
 }

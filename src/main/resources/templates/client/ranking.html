@@ -61,8 +61,9 @@
                     <button class="period-tab active" data-stats-type="score">
                         <span class="tab-label">최고 누적 점수</span>
                     </button>
-                    <button class="period-tab" data-stats-type="games">
+                    <button class="period-tab has-subtabs" data-stats-type="participation">
                         <span class="tab-label">최다 참여</span>
+                        <span class="subtab-arrow">▼</span>
                     </button>
                     <button class="period-tab" data-stats-type="avgScorePerRound">
                         <span class="tab-label">평균 점수</span>
@@ -70,6 +71,11 @@
                     <button class="period-tab" data-stats-type="accuracyMin10">
                         <span class="tab-label">정답률</span>
                     </button>
+                </div>
+                <!-- 최다 참여 서브탭 -->
+                <div class="sub-tabs-container" id="participationSubTabs" style="display: none;">
+                    <button class="sub-tab active" data-sub-type="games">최다 게임수</button>
+                    <button class="sub-tab" data-sub-type="rounds">최다 라운드</button>
                 </div>
                 <!-- 내가맞추기 통계 안내 -->
                 <div class="best-score-notice" id="guessOnlyNotice">
@@ -123,7 +129,8 @@
 <script>
     let currentTab = 'tier';      // tier, best30, stats
     let best30Period = 'weekly';  // weekly, monthly, alltime
-    let statsType = 'score';      // score, games, avgScorePerRound, accuracyMin10
+    let statsType = 'score';      // score, participation, avgScorePerRound, accuracyMin10
+    let participationSubType = 'games';  // games, rounds (서브탭 선택)
     let showAllBest30 = false;
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -150,8 +157,13 @@
                 // 통계 탭 초기화
                 if (currentTab === 'stats') {
                     statsType = 'score';
+                    participationSubType = 'games';
                     document.querySelectorAll('.stats-type-tabs .period-tab').forEach(t => t.classList.remove('active'));
                     document.querySelector('.stats-type-tabs .period-tab[data-stats-type="score"]').classList.add('active');
+                    // 서브탭 숨기기 및 초기화
+                    document.getElementById('participationSubTabs').style.display = 'none';
+                    document.querySelectorAll('#participationSubTabs .sub-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelector('#participationSubTabs .sub-tab[data-sub-type="games"]').classList.add('active');
                 }
 
                 updateTabsVisibility();
@@ -178,6 +190,25 @@
                 document.querySelectorAll('.stats-type-tabs .period-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 statsType = this.dataset.statsType;
+
+                // 최다 참여 서브탭 표시/숨김
+                const subTabsContainer = document.getElementById('participationSubTabs');
+                if (statsType === 'participation') {
+                    subTabsContainer.style.display = 'flex';
+                } else {
+                    subTabsContainer.style.display = 'none';
+                }
+
+                loadRanking();
+            });
+        });
+
+        // 최다 참여 서브탭
+        document.querySelectorAll('#participationSubTabs .sub-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('#participationSubTabs .sub-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                participationSubType = this.dataset.subType;
                 loadRanking();
             });
         });
@@ -221,7 +252,9 @@
                 updateBest30UI(rankings);
             } else if (currentTab === 'stats') {
                 // 통계 랭킹 (내가맞추기 전용)
-                const response = await fetch(`/api/ranking?mode=guess&type=${statsType}&period=all&limit=20`);
+                // participation 타입은 서브탭(games/rounds)으로 실제 API 호출
+                const apiType = (statsType === 'participation') ? participationSubType : statsType;
+                const response = await fetch(`/api/ranking?mode=guess&type=${apiType}&period=all&limit=20`);
                 rankings = await response.json();
                 updateStatsUI(rankings);
             }
@@ -510,9 +543,13 @@
     }
 
     function formatStatsValue(member) {
-        switch (statsType) {
+        // participation 타입은 서브탭에 따라 값 표시
+        const displayType = (statsType === 'participation') ? participationSubType : statsType;
+        switch (displayType) {
             case 'games':
                 return (member.totalGames || 0) + '게임';
+            case 'rounds':
+                return (member.totalRounds || 0) + '라운드';
             case 'score':
                 return (member.totalScore || 0).toLocaleString() + '점';
             case 'avgScorePerRound':
@@ -525,9 +562,13 @@
     }
 
     function formatStatsSubStat(member) {
-        switch (statsType) {
+        // participation 타입은 서브탭에 따라 값 표시
+        const displayType = (statsType === 'participation') ? participationSubType : statsType;
+        switch (displayType) {
             case 'games':
                 return (member.totalScore || 0).toLocaleString() + '점 · ' + (member.accuracyRate || 0).toFixed(1) + '%';
+            case 'rounds':
+                return (member.totalGames || 0) + '게임 · ' + (member.totalScore || 0).toLocaleString() + '점';
             case 'score':
                 return (member.totalGames || 0) + '게임 · ' + (member.accuracyRate || 0).toFixed(1) + '%';
             case 'avgScorePerRound':

@@ -25,7 +25,7 @@
 .game-mode-tabs {
     display: flex;
     gap: 0.75rem;
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--overlay-medium);
     padding: 0.5rem;
     border-radius: 1rem;
 }
@@ -47,7 +47,7 @@
 }
 
 .mode-tab:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
 }
 
 .mode-tab.active {
@@ -68,7 +68,7 @@
 .ranking-type-tabs {
     display: flex;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     padding: 0.5rem;
     border-radius: 1rem;
     flex-wrap: wrap;
@@ -105,7 +105,7 @@
 }
 
 .type-tab:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
 }
 
 .type-tab.active {
@@ -144,7 +144,7 @@
 
 .period-tab {
     padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--overlay-medium);
     border: 2px solid transparent;
     border-radius: 2rem;
     color: rgba(255, 255, 255, 0.8);
@@ -155,7 +155,7 @@
 }
 
 .period-tab:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--overlay-strong);
 }
 
 .period-tab.active {
@@ -209,7 +209,7 @@
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.125rem 0.5rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
     border-radius: 1rem;
 }
 
@@ -240,7 +240,7 @@
     align-items: flex-end;
     gap: 0.75rem;
     padding: 1.5rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1.5rem;
 }
 
@@ -284,17 +284,17 @@
 
 .podium-place.first .podium-stand {
     height: 80px;
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    background: var(--gradient-gold);
 }
 
 .podium-place.second .podium-stand {
     height: 60px;
-    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    background: var(--gradient-silver);
 }
 
 .podium-place.third .podium-stand {
     height: 45px;
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: var(--gradient-bronze);
 }
 
 /* Empty Podium Place - Placeholder */
@@ -316,8 +316,8 @@
 }
 
 .podium-place.empty .podium-stand {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 2px dashed rgba(255, 255, 255, 0.3);
+    background: var(--overlay-light) !important;
+    border: 2px dashed var(--overlay-strong);
 }
 
 .podium-place.empty .podium-tier {
@@ -326,7 +326,7 @@
 
 /* Ranking Table */
 .ranking-table-section {
-    background: white;
+    background: var(--bg-surface);
     border-radius: 1.5rem;
     overflow: hidden;
 }
@@ -349,19 +349,19 @@
 }
 
 .ranking-row:hover {
-    background: #f8fafc;
+    background: var(--bg-elevated);
 }
 
 .ranking-row.top-1 {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: var(--gradient-gold-light);
 }
 
 .ranking-row.top-2 {
-    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    background: var(--gradient-silver-light);
 }
 
 .ranking-row.top-3 {
-    background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+    background: var(--gradient-bronze-light);
 }
 
 .rank-cell {
@@ -409,7 +409,7 @@
     justify-content: center;
     padding: 3rem;
     text-align: center;
-    background: white;
+    background: var(--bg-surface);
     border-radius: 1.5rem;
 }
 
@@ -612,5 +612,73 @@
 
     :root:not([data-theme]) .empty-state {
         background: var(--bg-surface);
+    }
+}
+
+/* ========== 서브탭 스타일 ========== */
+
+/* 서브탭 화살표가 있는 탭 */
+.period-tab.has-subtabs {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.subtab-arrow {
+    font-size: 0.625rem;
+    transition: transform 0.2s;
+}
+
+.period-tab.has-subtabs.active .subtab-arrow {
+    transform: rotate(180deg);
+}
+
+/* 서브탭 컨테이너 */
+.sub-tabs-container {
+    display: flex;
+    gap: 0.375rem;
+    justify-content: center;
+    margin-top: -0.25rem;
+}
+
+/* 서브탭 버튼 */
+.sub-tab {
+    padding: 0.375rem 0.75rem;
+    background: var(--overlay-light);
+    border: 1px solid transparent;
+    border-radius: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sub-tab:hover {
+    background: var(--overlay-medium);
+}
+
+.sub-tab.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* 모바일 서브탭 */
+@media (max-width: 768px) {
+    .subtab-arrow {
+        font-size: 0.5rem;
+    }
+
+    .sub-tabs-container {
+        gap: 0.25rem;
+        margin-top: 0;
+    }
+
+    .sub-tab {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.65rem;
+        border-radius: 0.75rem;
     }
 }

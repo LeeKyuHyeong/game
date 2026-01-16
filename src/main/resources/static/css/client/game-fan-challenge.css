@@ -39,7 +39,7 @@
     padding: 2rem 0;
     margin-bottom: 2rem;
     border-bottom: 1px solid var(--border-color);
-    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+    background: var(--ranked-gradient);
     border-radius: 1rem;
     margin: -1.5rem -1.5rem 1.5rem -1.5rem;
     padding: 2rem 1.5rem;
@@ -53,12 +53,12 @@
 .challenge-intro h2 {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
-    color: #92400e;
+    color: var(--amber-text);
     font-weight: 700;
 }
 
 .challenge-desc {
-    color: #78350f;
+    color: var(--amber-text-dark);
     line-height: 1.6;
 }
 
@@ -92,7 +92,7 @@
 }
 
 .search-result-item:hover {
-    background: #f1f5f9;
+    background: var(--bg-elevated);
 }
 
 .no-results {
@@ -118,7 +118,7 @@
 
 /* 선택 완료 카드 */
 .selected-artist-card {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    background: linear-gradient(135deg, var(--info-bg) 0%, var(--info-light) 100%);
     border: 2px solid var(--primary-color);
     border-radius: 16px;
     padding: 1.5rem;
@@ -172,7 +172,7 @@
 }
 
 .btn-change-artist:hover {
-    background: #f1f5f9;
+    background: var(--bg-elevated);
     color: var(--text-primary);
     border-color: var(--primary-color);
 }
@@ -198,7 +198,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem;
-    background: #f8fafc;
+    background: var(--bg-base);
     border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
@@ -208,7 +208,7 @@
 
 .artist-item:hover {
     border-color: var(--primary-color);
-    background: #eff6ff;
+    background: var(--info-bg);
 }
 
 .artist-item.selected {
@@ -248,12 +248,12 @@
 
 .difficulty-btn:hover {
     border-color: var(--primary-color);
-    background: #f8fafc;
+    background: var(--bg-base);
 }
 
 .difficulty-btn.selected {
     border-color: var(--primary-color);
-    background: #eff6ff;
+    background: var(--info-bg);
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
@@ -283,13 +283,13 @@
 }
 
 .diff-badge.practice {
-    background: #f1f5f9;
-    color: #64748b;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
 }
 
 .diff-badge.ranked {
-    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
-    color: #92400e;
+    background: var(--ranked-gradient);
+    color: var(--amber-text);
 }
 
 /* 난이도 뱃지 (헤더/결과) */
@@ -304,18 +304,18 @@
 }
 
 .difficulty-badge[data-difficulty="BEGINNER"] {
-    background: #ecfdf5;
-    color: #065f46;
+    background: var(--success-bg);
+    color: var(--success-text-dark);
 }
 
 .difficulty-badge[data-difficulty="NORMAL"] {
-    background: #eff6ff;
-    color: #1e40af;
+    background: var(--info-bg);
+    color: var(--info-text-dark);
 }
 
 .difficulty-badge[data-difficulty="HARDCORE"] {
-    background: #fef2f2;
-    color: #991b1b;
+    background: var(--danger-bg);
+    color: var(--danger-text-dark);
 }
 
 /* 모드 라벨 (연습/공식) */
@@ -327,13 +327,13 @@
 }
 
 .mode-label.practice {
-    background: #f1f5f9;
-    color: #64748b;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
 }
 
 .mode-label.ranked {
-    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
-    color: #92400e;
+    background: var(--ranked-gradient);
+    color: var(--amber-text);
 }
 
 /* 준비 화면 난이도 표시 */
@@ -347,16 +347,16 @@
 
 .practice-label {
     font-size: 0.85rem;
-    color: #64748b;
-    background: #f1f5f9;
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
 }
 
 .ranked-label {
     font-size: 0.85rem;
-    color: #92400e;
-    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+    color: var(--amber-text);
+    background: var(--ranked-gradient);
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
     font-weight: 600;
@@ -364,7 +364,7 @@
 
 /* 규칙 섹션 */
 .fan-challenge-card .rules-section {
-    background: #f8fafc;
+    background: var(--bg-base);
     padding: 1.5rem;
     border-radius: 12px;
     border: 1px solid var(--border-color);
@@ -402,7 +402,7 @@
 .login-notice {
     text-align: center;
     padding: 1rem;
-    background: #eff6ff;
+    background: var(--info-bg);
     border: 2px solid var(--primary-color);
     border-radius: 8px;
     margin: 1rem 0;
@@ -420,7 +420,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-client);
 }
 
 .game-container.fan-challenge .game-header {
@@ -428,8 +428,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
-    background: rgba(255, 255, 255, 0.15);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
+    border-bottom: 1px solid var(--overlay-medium);
     backdrop-filter: blur(10px);
 }
 
@@ -460,11 +460,11 @@
 }
 
 .life.active {
-    color: #ff4757;
+    color: var(--danger);
 }
 
 .life.lost {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--overlay-strong);
     opacity: 0.5;
 }
 
@@ -475,7 +475,7 @@
 }
 
 .correct-count {
-    color: #7bed9f;
+    color: var(--success-bright);
     font-weight: bold;
 }
 
@@ -580,7 +580,7 @@
 
 .timer-bar-container {
     height: 20px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 0.5rem;
@@ -588,21 +588,21 @@
 
 .timer-bar {
     height: 100%;
-    background: linear-gradient(90deg, #2ed573, #7bed9f);
+    background: var(--timer-success);
     transition: width 0.1s linear;
     border-radius: 10px;
 }
 
 .timer-bar.warning {
-    background: linear-gradient(90deg, #ffa502, #ffcc00);
+    background: var(--timer-warning);
 }
 
 .timer-bar.answering {
-    background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+    background: var(--timer-answering);
 }
 
 .timer-bar.critical {
-    background: linear-gradient(90deg, #ff4757, #ff6b81);
+    background: var(--timer-critical);
     animation: pulse 0.5s infinite;
 }
 
@@ -619,12 +619,12 @@
 
 .phase-text.playing {
     background: rgba(34, 197, 94, 0.2);
-    color: #7bed9f;
+    color: var(--success-bright);
 }
 
 .phase-text.answering {
     background: rgba(139, 92, 246, 0.3);
-    color: #c4b5fd;
+    color: var(--violet-light);
     animation: blink 0.8s infinite;
 }
 
@@ -673,7 +673,7 @@
     justify-content: center;
     gap: 0.75rem;
     padding: 1rem 1.5rem;
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--overlay-medium);
     border-radius: 12px;
     backdrop-filter: blur(10px);
 }
@@ -703,7 +703,7 @@
     padding: 1rem;
     font-size: 1.25rem;
     background: rgba(255, 255, 255, 0.95);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid var(--overlay-strong);
     border-radius: 12px;
     color: var(--text-primary);
     text-align: center;
@@ -722,7 +722,7 @@
 .game-container.fan-challenge .btn-submit {
     padding: 1rem 2rem;
     font-size: 1.25rem;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: var(--gradient-success);
     color: white;
     border: none;
     border-radius: 12px;
@@ -769,15 +769,15 @@
 }
 
 .answer-result.correct .correct {
-    color: #22c55e;
+    color: var(--success);
 }
 
 .answer-result.wrong .wrong {
-    color: #ef4444;
+    color: var(--danger);
 }
 
 .answer-result.timeout .timeout {
-    color: #f59e0b;
+    color: var(--warning);
 }
 
 .answer-info {
@@ -845,15 +845,15 @@
 }
 
 .gameover-title.perfect {
-    color: #f59e0b;
+    color: var(--warning);
 }
 
 .gameover-title.completed {
-    color: #22c55e;
+    color: var(--success);
 }
 
 .gameover-title.failed {
-    color: #ef4444;
+    color: var(--danger);
 }
 
 .gameover-message {
@@ -897,7 +897,7 @@
 .badge-text {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #f59e0b;
+    color: var(--warning);
     animation: glow 2s infinite;
 }
 
@@ -943,7 +943,7 @@
 /* 랭킹 섹션 */
 .fan-challenge-result .ranking-section {
     margin: 2rem 0;
-    background: #f8fafc;
+    background: var(--bg-base);
     padding: 1.5rem;
     border-radius: 12px;
     border: 1px solid var(--border-color);
@@ -958,7 +958,7 @@
 .my-record {
     text-align: center;
     padding: 1rem;
-    background: #eff6ff;
+    background: var(--info-bg);
     border: 2px solid var(--primary-color);
     border-radius: 8px;
     margin-bottom: 1rem;
@@ -993,7 +993,7 @@
 
 .ranking-item.my-rank {
     border: 2px solid var(--primary-color);
-    background: #eff6ff;
+    background: var(--info-bg);
 }
 
 .ranking-item .rank {
@@ -1016,8 +1016,8 @@
 
 .perfect-badge {
     font-size: 0.75rem;
-    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
-    color: #92400e;
+    background: var(--ranked-gradient);
+    color: var(--amber-text);
     padding: 0.15rem 0.5rem;
     border-radius: 4px;
     font-weight: bold;
@@ -1040,15 +1040,15 @@
 
 /* 퍼펙트 클리어 뱃지 난이도별 */
 .perfect-clear-badge[data-difficulty="BEGINNER"] .badge-text {
-    color: #065f46;
+    color: var(--success-text-dark);
 }
 
 .perfect-clear-badge[data-difficulty="NORMAL"] .badge-text {
-    color: #f59e0b;
+    color: var(--warning);
 }
 
 .perfect-clear-badge[data-difficulty="HARDCORE"] .badge-text {
-    color: #dc2626;
+    color: var(--danger-dark);
 }
 
 /* 뱃지 컬렉션 섹션 */
@@ -1110,24 +1110,24 @@
 }
 
 .badge-item[data-difficulty="BEGINNER"] {
-    border-color: #10b981;
-    background: #ecfdf5;
+    border-color: var(--success);
+    background: var(--success-bg);
 }
 
 .badge-item[data-difficulty="NORMAL"] {
-    border-color: #3b82f6;
-    background: #eff6ff;
+    border-color: var(--info);
+    background: var(--info-bg);
 }
 
 .badge-item[data-difficulty="HARDCORE"] {
-    border-color: #ef4444;
-    background: #fef2f2;
+    border-color: var(--danger);
+    background: var(--danger-bg);
 }
 
 .badge-item.locked {
     opacity: 0.4;
-    background: #f8fafc;
-    border-color: #e2e8f0;
+    background: var(--bg-base);
+    border-color: var(--border-default);
 }
 
 .badge-item .badge-emoji {
@@ -1153,7 +1153,7 @@
 .practice-notice {
     margin: 2rem 0;
     padding: 1.5rem;
-    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+    background: var(--ranked-gradient);
     border-radius: 12px;
     text-align: center;
 }
@@ -1170,13 +1170,13 @@
 
 .practice-notice p {
     margin: 0.25rem 0;
-    color: #78350f;
+    color: var(--amber-text-dark);
 }
 
 .btn-hardcore {
     display: inline-block;
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
     color: white;
     border-radius: 30px;
     font-weight: 700;
@@ -1207,7 +1207,7 @@
 
 .round-card {
     padding: 1rem;
-    background: #f8fafc;
+    background: var(--bg-base);
     border-radius: 8px;
     text-align: center;
     border-left: 4px solid;
@@ -1215,13 +1215,13 @@
 }
 
 .round-card.correct {
-    border-left: 4px solid #22c55e;
-    background: #f0fdf4;
+    border-left: 4px solid var(--success);
+    background: var(--correct-row-bg);
 }
 
 .round-card.wrong {
-    border-left: 4px solid #ef4444;
-    background: #fef2f2;
+    border-left: 4px solid var(--danger);
+    background: var(--danger-bg);
 }
 
 .round-number {
@@ -1239,17 +1239,17 @@
 }
 
 .round-result .result-correct {
-    color: #22c55e;
+    color: var(--success);
     font-weight: bold;
 }
 
 .round-result .result-wrong {
-    color: #ef4444;
+    color: var(--danger);
     font-weight: bold;
 }
 
 .round-result .result-timeout {
-    color: #f59e0b;
+    color: var(--warning);
     font-size: 0.85rem;
 }
 
@@ -1285,14 +1285,14 @@
 
 .result-footer .btn-home,
 .result-actions .btn-home {
-    background: #f1f5f9;
+    background: var(--bg-elevated);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
 }
 
 .result-footer .btn-home:hover,
 .result-actions .btn-home:hover {
-    background: #e2e8f0;
+    background: var(--bg-muted);
 }
 
 .result-footer .btn-retry:hover,
@@ -1303,7 +1303,7 @@
 }
 
 /* 모바일 대응 */
-@media (max-width: 600px) {
+@media (max-width: 480px) {
     /* Setup 페이지 모바일 */
     .fan-challenge-card .challenge-intro {
         padding: 1rem;
@@ -1745,7 +1745,7 @@
 
 [data-theme="dark"] .badge-item[data-difficulty="HARDCORE"] {
     background: rgba(239, 68, 68, 0.15);
-    border-color: #ef4444;
+    border-color: var(--danger);
 }
 
 [data-theme="dark"] .round-card {
@@ -1911,7 +1911,7 @@
 
     :root:not([data-theme]) .badge-item[data-difficulty="HARDCORE"] {
         background: rgba(239, 68, 68, 0.15);
-        border-color: #ef4444;
+        border-color: var(--danger);
     }
 
     :root:not([data-theme]) .round-card {

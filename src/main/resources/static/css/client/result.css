@@ -13,7 +13,7 @@
 
 /* Result Page Layout */
 .result-page {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-client);
 }
 
 /* ========== Result Card (Retro Game) ========== */
@@ -34,25 +34,25 @@
 .result-summary .nickname {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--gray-500);
     margin-bottom: 1rem;
 }
 
 .result-summary .score {
     font-size: 3.5rem;
     font-weight: 700;
-    color: #6366f1;
+    color: var(--primary-color);
     margin-bottom: 0.75rem;
     line-height: 1.2;
 }
 
 .result-summary .stats {
     font-size: 1.125rem;
-    color: #475569;
+    color: var(--gray-700);
 }
 
 .result-summary .stats strong {
-    color: #22c55e;
+    color: var(--success);
     font-weight: 700;
 }
 
@@ -65,7 +65,7 @@
 .result-actions .btn-retry {
     display: block;
     padding: 1rem 2rem;
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    background: var(--gradient-primary);
     color: white;
     border-radius: 0.75rem;
     font-size: 1.125rem;
@@ -76,14 +76,14 @@
 
 .result-actions .btn-retry:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    box-shadow: var(--shadow-primary);
 }
 
 .result-actions .btn-home {
     display: block;
     padding: 0.875rem 2rem;
-    background: #f1f5f9;
-    color: #64748b;
+    background: var(--bg-elevated);
+    color: var(--gray-500);
     border-radius: 0.75rem;
     font-size: 1rem;
     font-weight: 500;
@@ -92,8 +92,8 @@
 }
 
 .result-actions .btn-home:hover {
-    background: #e2e8f0;
-    color: #475569;
+    background: var(--border-color);
+    color: var(--gray-700);
 }
 
 /* Result Card Responsive */
@@ -206,31 +206,31 @@
 
 .stats-bar .stat-label {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--gray-500);
 }
 
 .stats-bar .stat-value {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #374151;
+    color: var(--gray-700);
 }
 
 .stats-bar .stat-value.correct {
-    color: #22c55e;
+    color: var(--success);
 }
 
 .stats-bar .stat-value.skip {
-    color: #f59e0b;
+    color: var(--warning);
 }
 
 .stats-bar .stat-value.wrong {
-    color: #ef4444;
+    color: var(--danger);
 }
 
 .stat-divider {
     width: 1px;
     height: 24px;
-    background: #e5e7eb;
+    background: var(--border-color);
 }
 
 /* Stats Section - Legacy support */
@@ -260,15 +260,15 @@
 }
 
 .stats-section .stat-value.correct {
-    color: #22c55e;
+    color: var(--success);
 }
 
 .stats-section .stat-value.wrong {
-    color: #ef4444;
+    color: var(--danger);
 }
 
 .stats-section .stat-value.skip {
-    color: #f59e0b;
+    color: var(--warning);
 }
 
 /* Rounds Section */
@@ -294,10 +294,10 @@
 
 /* Round Card */
 .round-card {
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-radius: 0.75rem;
     overflow: hidden;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -308,16 +308,16 @@
 
 .round-card.answered,
 .round-card.correct {
-    border-left: 3px solid #22c55e;
+    border-left: 3px solid var(--success);
 }
 
 .round-card.skipped {
-    border-left: 3px solid #f59e0b;
+    border-left: 3px solid var(--warning);
     opacity: 0.8;
 }
 
 .round-card.wrong {
-    border-left: 3px solid #ef4444;
+    border-left: 3px solid var(--danger);
     opacity: 0.8;
 }
 
@@ -326,7 +326,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    background: #f1f5f9;
+    background: var(--bg-muted);
 }
 
 .round-num {
@@ -342,18 +342,18 @@
 }
 
 .round-status.correct {
-    background: #dcfce7;
-    color: #166534;
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
 }
 
 .round-status.skip {
-    background: #fef3c7;
-    color: #92400e;
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
 }
 
 .round-status.wrong {
-    background: #fee2e2;
-    color: #991b1b;
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger);
 }
 
 .round-body {
@@ -376,7 +376,7 @@
 .winner-info {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px dashed #e5e7eb;
+    border-top: 1px dashed var(--border-color);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -389,7 +389,7 @@
 
 .winner-name {
     font-weight: 600;
-    color: #22c55e;
+    color: var(--success);
     font-size: 0.875rem;
 }
 
@@ -402,7 +402,7 @@
 
 .score-plus {
     font-weight: 700;
-    color: #22c55e;
+    color: var(--success);
     font-size: 0.9rem;
 }
 
@@ -415,12 +415,12 @@
 .fail-info {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px dashed #e5e7eb;
+    border-top: 1px dashed var(--border-color);
 }
 
 .fail-text {
     font-size: 0.8rem;
-    color: #ef4444;
+    color: var(--danger);
     font-weight: 500;
 }
 
@@ -438,7 +438,7 @@
     align-items: center;
     gap: 1rem;
     padding: 0.75rem;
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-radius: 0.5rem;
 }
 
@@ -447,15 +447,15 @@
 }
 
 .round-item.correct {
-    border-left: 4px solid #22c55e;
+    border-left: 4px solid var(--success);
 }
 
 .round-item.wrong {
-    border-left: 4px solid #ef4444;
+    border-left: 4px solid var(--danger);
 }
 
 .round-item.skipped {
-    border-left: 4px solid #f59e0b;
+    border-left: 4px solid var(--warning);
 }
 
 .round-number {
@@ -485,8 +485,8 @@
 .winner-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    background: #dcfce7;
-    color: #166534;
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 600;
@@ -495,8 +495,8 @@
 .skip-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--bg-muted);
+    color: var(--gray-500);
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
@@ -511,18 +511,18 @@
 }
 
 .result-badge.correct {
-    background: #dcfce7;
-    color: #166534;
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
 }
 
 .result-badge.wrong {
-    background: #fee2e2;
-    color: #991b1b;
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger);
 }
 
 .result-badge.skip {
-    background: #fef3c7;
-    color: #92400e;
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
 }
 
 .round-user-answer {
@@ -539,15 +539,15 @@
 }
 
 .round-attempt-info.attempt-1 {
-    color: #22c55e;
+    color: var(--success);
 }
 
 .round-attempt-info.attempt-2 {
-    color: #eab308;
+    color: var(--warning);
 }
 
 .round-attempt-info.attempt-3 {
-    color: #f97316;
+    color: var(--danger);
 }
 
 /* Round Attempts */
@@ -559,12 +559,12 @@
 }
 
 .round-attempts .attempt-item .correct {
-    color: #22c55e;
+    color: var(--success);
     font-weight: 600;
 }
 
 .round-attempts .attempt-item .wrong {
-    color: #ef4444;
+    color: var(--danger);
     text-decoration: line-through;
 }
 
@@ -589,6 +589,7 @@
 .lp-change {
     font-weight: bold;
     margin-left: 8px;
+    color: var(--gray-900);
 }
 
 .lp-change.positive {
@@ -711,7 +712,7 @@
 /* Podium Item (Multi-player result) */
 .podium-item {
     text-align: center;
-    color: white;
+    color: var(--gray-900);
 }
 
 .podium-crown {
@@ -750,7 +751,7 @@
 .podium-score {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #fde68a;
+    color: var(--primary);
 }
 
 .podium-correct {
@@ -773,17 +774,17 @@
 
 .first-stand {
     height: 120px;
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    background: var(--gradient-gold);
 }
 
 .second-stand {
     height: 90px;
-    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+    background: var(--gradient-silver);
 }
 
 .third-stand {
     height: 60px;
-    background: linear-gradient(135deg, #cd7f32 0%, #b8860b 100%);
+    background: var(--tier-bronze-gradient);
 }
 
 /* Full Ranking */
@@ -811,8 +812,9 @@
     align-items: center;
     gap: 1rem;
     padding: 0.875rem 1rem;
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-radius: 0.75rem;
+    color: var(--gray-900);
 }
 
 .full-ranking .ranking-item.me {
@@ -835,6 +837,7 @@
 .full-ranking .ranking-item .player-name {
     flex: 1;
     font-weight: 500;
+    color: var(--gray-900);
 }
 
 .full-ranking .ranking-item .me-badge {
@@ -844,13 +847,13 @@
 }
 
 .full-ranking .ranking-item .correct-count {
-    color: var(--text-secondary);
+    color: var(--gray-500);
     font-size: 0.875rem;
 }
 
 .full-ranking .ranking-item .total-score {
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary);
     min-width: 60px;
     text-align: right;
 }
@@ -890,6 +893,25 @@
 .result-actions {
     display: flex;
     justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-restart {
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border: none;
+    border-radius: 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-restart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
 }
 
 .btn-lobby {
@@ -930,21 +952,21 @@
     display: flex;
     align-items: center;
     padding: 10px 12px;
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-radius: 8px;
     gap: 12px;
 }
 
 .ranking-row.first {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: var(--gradient-gold-light);
 }
 
 .ranking-row.second {
-    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    background: var(--gradient-silver-light);
 }
 
 .ranking-row.third {
-    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+    background: var(--gradient-bronze-light);
 }
 
 .ranking-row .rank-medal {
@@ -956,12 +978,12 @@
 .ranking-row .rank-name {
     flex: 1;
     font-weight: 600;
-    color: #1f2937;
+    color: var(--gray-900);
 }
 
 .ranking-row .rank-score {
     font-weight: 700;
-    color: #6366f1;
+    color: var(--primary-color);
 }
 
 /* Responsive - Tablet */
@@ -1111,7 +1133,8 @@
     }
 
     .result-footer .btn-lobby,
-    .result-actions .btn-lobby {
+    .result-actions .btn-lobby,
+    .result-actions .btn-restart {
         width: 100%;
         padding: 0.875rem 1.5rem;
     }
@@ -1292,7 +1315,8 @@
     .result-footer .btn-replay,
     .result-footer .btn-home,
     .result-footer .btn-lobby,
-    .result-actions .btn-lobby {
+    .result-actions .btn-lobby,
+    .result-actions .btn-restart {
         font-size: 0.9rem;
         padding: 0.75rem 1rem;
     }
@@ -1774,4 +1798,76 @@
 .client-page .result-actions .btn-home:hover {
     background: #64748b;
     color: #f1f5f9;
+}
+
+/* ========== 재시작 알림 및 대기 버튼 ========== */
+.restart-notice {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.02); opacity: 0.9; }
+}
+
+.restart-notice .notice-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: white;
+}
+
+.restart-notice .notice-icon {
+    font-size: 1.5rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.restart-notice .notice-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.btn-wait {
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    color: white;
+    border: none;
+    border-radius: 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* 모바일 대응 */
+@media (max-width: 480px) {
+    .restart-notice {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .restart-notice .notice-icon {
+        font-size: 1.25rem;
+    }
+
+    .restart-notice .notice-text {
+        font-size: 1rem;
+    }
+
+    .btn-wait {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+    }
 }
