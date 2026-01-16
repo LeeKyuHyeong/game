@@ -50,50 +50,22 @@
 - [O] 멀티게임 방 만들 때 '로비로' 버튼 -> '홈'과 동일하게 변경
 - [O] 커뮤니티 디테일에서 '목록으로' 버튼 -> '홈'과 동일하게 변경
 
+## 추가해야할 곡
 
-Congratulations
-예뻤어
-한 페이지가 될 수 있게
-HAPPY
-Welcome to the Show
-녹아내려요
-Shoot Me
-행복했던 날들이었다
-반드시 웃는다
-아 왜 (I Wait)
-어떻게 말해
-장난 아닌데
-좋은걸 뭐 어떡해
-Hi Hello
-I Loved You
-그렇더라고요
-혼자야
-좋아합니다
-Sweet Chaos
-Zombie
-You Make Me
-뚫고 지나가요 (Even of Day)
-파도가 끝나는 곳까지 (Even of Day)
-Man in a movie
-Best Part
-Love me or Leave me
-Healer
-바래
-Sing Me
-Free하게
-놀래!
-My Day
+### 데이식스
+- 대중곡 : "한 페이지가 될 수 있게, 예뻤어, Congratulations, 녹아내려요, HAPPY, Welcome to the Show, Zombie, 행복했던 날들이었다, 장난 아닌데, 좋아합니다, 반드시 웃는다, I Loved You, 놓아 놓아 놓아, 그렇더라고요, 뚫고 지나가요"
+- 매니악 : "누군가 필요해 (I Need Somebody), Afraid, Sing Me, Free하게, 놀래!, Rescue Me, Deep in Love, OUCH, 역대급, 이상하게 계속 이래, Dance Dance, Hunt"
+- 애매함 : "Shoot Me, Sweet Chaos, Love me or Leave me, Healer, 아 왜 (I Wait), You Make Me, 파도가 끝나는 곳까지, Man in a movie, Hi Hello, 좋은걸 뭐 어떡해, 바래, 어쩌다보니, Best Part, Finale, Marathon, Cover, 노력해볼게요, 혼자야, My Day, 우리 앞으로 더 사랑하자"
 
+### 한로로
+- 대중곡 : "0+0, 금개구리, 내일에서 온 티켓, 비틀거려, 사랑하게 될 거야, 생존법, 입춘, 자처, 정처, 정류장, 사랑하게 해줘 (내남결 OST)"
+- 매니악 : "거울, 귀가, 나침반, 놀이터, 도망, 먹이사슬, 방화, 석처, 용오름, 재, 파리, 평거, Do What You Like (X에게 OST)"
+- 애매함 : "고처, 그럴 수 있지, 금붕어, 꿈, 단판, 보수공사, 봄이 오면 (강매강 OST), 소음, 시간을 달리네, 용의자, 이상비행, 자유롭게, 텅 빈, 화해, 해초, Like my groove"
 
 1	당신의 밤은 나의 밤과 같습니까	싱글 (제목)	2022년
-2	입춘	데뷔 싱글	2022년
-3	거울	싱글	2022년
 4	비틀비틀 짝짜꿍	싱글	2022년
-5	Do What You Like	OST	2022년
-6	Like my groove	콜라보 싱글	2022년
-7	정류장	싱글	2023년
-8	자처	EP [차례]	2023년
-9	비틀거릴지언정	EP [차례]	2023년
+
+
 10	정처	EP [차례]	2023년
 11	화해	EP [차례]	2023년
 12	금자탑	EP [차례]	2023년
