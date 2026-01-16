@@ -3,16 +3,20 @@
 <head th:replace="~{common/fragments/head :: clientHead('게임 진행 - Song Quiz')}"></head>
 <body class="client-page game-page">
 <div class="game-container multi-mode">
-    <header class="game-header">
+    <header class="game-header multi-header-compact">
         <div class="game-info">
             <span class="round-info">
-                라운드 <span id="currentRound">0</span> / <span th:text="${room.totalRounds}">10</span>
+                라운드 <span id="currentRound">0</span>/<span th:text="${room.totalRounds}">10</span>
             </span>
-            <span class="score-info">점수: <span id="myScore">0</span>점</span>
+            <span class="score-info">점수:<span id="myScore">0</span>점</span>
+        </div>
+        <div class="header-player-status">
+            <span class="music-icon" id="headerMusicIcon">🎵</span>
+            <span class="player-status" id="headerPlayerStatus">대기중</span>
         </div>
         <div class="header-actions">
-            <a href="/" class="btn-home">🏠 홈</a>
-            <button class="btn btn-quit" onclick="quitGame()">게임 종료</button>
+            <a href="/" class="btn-header-compact">홈</a>
+            <button class="btn-header-compact btn-end-compact" onclick="quitGame()">게임 종료</button>
         </div>
     </header>
 
@@ -37,33 +41,52 @@
 
             <!-- 플레이 상태 -->
             <div class="round-playing" id="roundPlaying" style="display:none;">
-                <div class="music-player">
-                    <div class="player-display">
-                        <div class="music-icon playing" id="musicIcon">🎶</div>
-                        <div class="player-status" id="playerStatus">재생 중...</div>
-                    </div>
-
+                <!-- 컴팩트 컨트롤 바: 진행률 + 시간 + 포기 버튼 + 포기현황 -->
+                <div class="compact-controls-row">
                     <div class="progress-bar">
                         <div class="progress" id="progressBar"></div>
                     </div>
                     <div class="time-display">
-                        <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+                        <span id="currentTime">0:00</span>/<span id="totalTime">0:00</span>
+                    </div>
+                    <button class="btn btn-skip-vote-compact" id="skipVoteBtn" onclick="voteSkipRound()">
+                        <span class="skip-icon">🏳️</span> 포기
+                    </button>
+                    <div class="skip-vote-status-inline" id="skipVoteStatus">
+                        <span id="skipVoteCount">0</span>/<span id="skipVoteTotal">0</span>
                     </div>
                 </div>
 
-                <div class="play-hint">
+                <!-- 안내 문구 (컴팩트) -->
+                <div class="play-hint-compact">
+                    <p>💬 채팅창에 노래 제목을 입력하세요!</p>
+                    <span class="hint-note">💡 공백, 특수문자, 대소문자 구분 없이 정답 인정</span>
+                </div>
+
+                <!-- 기존 요소 (PC용 숨김) -->
+                <div class="music-player desktop-only">
+                    <div class="player-display">
+                        <div class="music-icon playing" id="musicIcon">🎶</div>
+                        <div class="player-status" id="playerStatus">재생 중...</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" id="progressBarDesktop"></div>
+                    </div>
+                    <div class="time-display">
+                        <span id="currentTimeDesktop">0:00</span> / <span id="totalTimeDesktop">0:00</span>
+                    </div>
+                </div>
+                <div class="play-hint desktop-only">
                     <p>💬 채팅창에 노래 제목을 입력하세요!</p>
                     <p class="hint-sub">먼저 맞추는 사람이 100점!</p>
                     <p class="hint-note">💡 공백, 특수문자, 대소문자 구분 없이 정답 인정</p>
                 </div>
-
-                <!-- 포기 버튼 및 투표 현황 -->
-                <div class="skip-vote-section">
-                    <button class="btn btn-skip-vote" id="skipVoteBtn" onclick="voteSkipRound()">
+                <div class="skip-vote-section desktop-only">
+                    <button class="btn btn-skip-vote" id="skipVoteBtnDesktop" onclick="voteSkipRound()">
                         ⏭️ 포기
                     </button>
-                    <div class="skip-vote-status" id="skipVoteStatus">
-                        <span id="skipVoteCount">0</span> / <span id="skipVoteTotal">0</span> 포기
+                    <div class="skip-vote-status" id="skipVoteStatusDesktop">
+                        <span id="skipVoteCountDesktop">0</span> / <span id="skipVoteTotalDesktop">0</span> 포기
                     </div>
                 </div>
             </div>

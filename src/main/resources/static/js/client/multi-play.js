@@ -270,9 +270,11 @@ function updatePhaseUI() {
     if (currentPhase === 'PLAYING') {
         document.getElementById('roundPlaying').style.display = 'block';
         startProgressUpdate();
+        updateHeaderPlayerStatus('playing');
     } else if (currentPhase === 'RESULT') {
         document.getElementById('roundResult').style.display = 'block';
         stopProgressUpdate();
+        updateHeaderPlayerStatus('result');
 
         // ★ 마지막 라운드면 버튼 텍스트 변경
         updateNextRoundButton();
@@ -280,6 +282,7 @@ function updatePhaseUI() {
         // 대기 상태
         document.getElementById('roundWaiting').style.display = 'block';
         stopProgressUpdate();
+        updateHeaderPlayerStatus('waiting');
 
         // 라운드 시작 버튼 상태 복원
         resetStartRoundButton();
@@ -289,6 +292,32 @@ function updatePhaseUI() {
             ? '방장이 라운드를 시작하면 노래가 재생됩니다'
             : '방장이 다음 라운드를 시작해주세요';
         document.getElementById('waitingMessage').textContent = msg;
+    }
+}
+
+// 헤더 재생 상태 업데이트 (모바일용)
+function updateHeaderPlayerStatus(status) {
+    var iconEl = document.getElementById('headerMusicIcon');
+    var statusEl = document.getElementById('headerPlayerStatus');
+    if (!iconEl || !statusEl) return;
+
+    switch (status) {
+        case 'playing':
+            iconEl.textContent = '🎶';
+            statusEl.textContent = '재생 중...';
+            iconEl.classList.add('playing');
+            break;
+        case 'result':
+            iconEl.textContent = '✅';
+            statusEl.textContent = '정답!';
+            iconEl.classList.remove('playing');
+            break;
+        case 'waiting':
+        default:
+            iconEl.textContent = '🎵';
+            statusEl.textContent = '대기중';
+            iconEl.classList.remove('playing');
+            break;
     }
 }
 
@@ -592,8 +621,9 @@ function updateScoreboard(participants) {
     var html = '';
     sorted.forEach(function(p, index) {
         var meClass = p.memberId === myMemberId ? 'me' : '';
-        var hostIcon = p.isHost ? '👑 ' : '';
-        var meBadge = p.memberId === myMemberId ? ' (나)' : '';
+        var hostIcon = p.isHost ? '👑' : '';
+        var meBadge = p.memberId === myMemberId ? '(나)' : '';
+        var displayName = hostIcon + escapeHtml(p.nickname) + meBadge;
 
         // 내 점수 헤더에 업데이트
         if (p.memberId === myMemberId) {
@@ -603,9 +633,10 @@ function updateScoreboard(participants) {
             }
         }
 
+        // 모바일: "순위 - 이름 - 점수" 형식
         html += '<div class="score-item ' + meClass + '">' +
             '<span class="rank">' + (index + 1) + '</span>' +
-            '<span class="player-name">' + hostIcon + escapeHtml(p.nickname) + meBadge + '</span>' +
+            '<span class="player-name">' + displayName + '</span>' +
             '<span class="player-score">' + p.score + '</span>' +
         '</div>';
     });
@@ -668,27 +699,58 @@ async function voteSkipRound() {
 }
 
 function updateSkipVoteButton() {
+    // 모바일/데스크톱 버튼 둘 다 업데이트
     var btn = document.getElementById('skipVoteBtn');
+    var btnDesktop = document.getElementById('skipVoteBtnDesktop');
+
     if (mySkipVoted) {
-        btn.disabled = true;
-        btn.textContent = '✓ 포기함';
-        btn.classList.add('voted');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '✓ 완료';
+            btn.classList.add('voted');
+        }
+        if (btnDesktop) {
+            btnDesktop.disabled = true;
+            btnDesktop.textContent = '✓ 포기함';
+            btnDesktop.classList.add('voted');
+        }
     }
 }
 
 function updateSkipVoteStatus(status) {
-    document.getElementById('skipVoteCount').textContent = status.votedCount;
-    document.getElementById('skipVoteTotal').textContent = status.totalCount;
+    // 모바일/데스크톱 둘 다 업데이트
+    var countEl = document.getElementById('skipVoteCount');
+    var totalEl = document.getElementById('skipVoteTotal');
+    var countDesktop = document.getElementById('skipVoteCountDesktop');
+    var totalDesktop = document.getElementById('skipVoteTotalDesktop');
+
+    if (countEl) countEl.textContent = status.votedCount;
+    if (totalEl) totalEl.textContent = status.totalCount;
+    if (countDesktop) countDesktop.textContent = status.votedCount;
+    if (totalDesktop) totalDesktop.textContent = status.totalCount;
 }
 
 function resetSkipVoteUI() {
+    // 모바일 버튼 (아이콘 span 포함)
     var btn = document.getElementById('skipVoteBtn');
     if (btn) {
         btn.disabled = false;
-        btn.textContent = '⏭️ 포기';
+        btn.innerHTML = '<span class="skip-icon">🏳️</span> 포기';
         btn.classList.remove('voted');
     }
-    document.getElementById('skipVoteCount').textContent = '0';
+    // 데스크톱 버튼
+    var btnDesktop = document.getElementById('skipVoteBtnDesktop');
+    if (btnDesktop) {
+        btnDesktop.disabled = false;
+        btnDesktop.textContent = '⏭️ 포기';
+        btnDesktop.classList.remove('voted');
+    }
+
+    // 카운트 초기화
+    var countEl = document.getElementById('skipVoteCount');
+    var countDesktop = document.getElementById('skipVoteCountDesktop');
+    if (countEl) countEl.textContent = '0';
+    if (countDesktop) countDesktop.textContent = '0';
 }
 
 // ========== 방장 컨트롤 ==========

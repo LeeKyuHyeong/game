@@ -56,7 +56,10 @@
         </div>
 
         <div class="answer-section guess-answer-section">
-            <h3>🎯 정답 입력</h3>
+            <div class="answer-header-row">
+                <h3>🎯 정답 입력</h3>
+                <button class="btn btn-skip btn-skip-inline" onclick="skipRound()">스킵 ⏭</button>
+            </div>
             <div class="answer-input-wrapper">
                 <input type="text" id="answerInput" class="answer-input" placeholder="노래 제목을 입력하세요" autocomplete="off">
                 <button class="btn btn-submit" onclick="submitAnswer()">제출</button>
@@ -81,7 +84,7 @@
                     <div class="score-segment" data-score="60">60</div>
                 </div>
             </div>
-            <button class="btn btn-skip" onclick="skipRound()">스킵 ⏭</button>
+            <button class="btn btn-skip btn-skip-bottom" onclick="skipRound()">스킵 ⏭</button>
         </div>
     </main>
 

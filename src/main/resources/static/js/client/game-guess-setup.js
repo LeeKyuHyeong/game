@@ -106,9 +106,12 @@ document.addEventListener('DOMContentLoaded', function() {
         renderArtistChips(this.value);
     });
 
-    // 아티스트 유형 변경 이벤트
+    // 아티스트 유형 변경 이벤트 (라디오 버튼)
     document.querySelectorAll('input[name="artistType"]').forEach(radio => {
         radio.addEventListener('change', function() {
+            // 모바일 SELECT도 동기화
+            const mobileSelect = document.getElementById('artistTypeSelectMobile');
+            if (mobileSelect) mobileSelect.value = this.value;
             updateSongCount();
         });
     });
@@ -120,6 +123,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// ========== 아티스트 유형 SELECT 동기화 (모바일용) ==========
+
+function syncArtistTypeFromMobileSelect() {
+    const select = document.getElementById('artistTypeSelectMobile');
+    if (!select) return;
+
+    const radio = document.querySelector(`input[name="artistType"][value="${select.value}"]`);
+    if (radio) {
+        radio.checked = true;
+        updateSongCount();
+    }
+}
 
 // ========== 게임 모드 처리 ==========
 

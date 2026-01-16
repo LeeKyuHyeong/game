@@ -172,7 +172,17 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // ========== 멀티게임 LP 티어 랭킹 조회 ==========
 
     // 멀티 티어 + LP 기준 (티어 내림차순, 같은 티어면 LP 내림차순)
-    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.multiGames > 0 ORDER BY m.multiTier DESC, m.multiLp DESC")
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.multiGames > 0 " +
+           "ORDER BY CASE m.multiTier " +
+           "WHEN com.kh.game.entity.MultiTier.CHALLENGER THEN 6 " +
+           "WHEN com.kh.game.entity.MultiTier.MASTER THEN 5 " +
+           "WHEN com.kh.game.entity.MultiTier.DIAMOND THEN 4 " +
+           "WHEN com.kh.game.entity.MultiTier.PLATINUM THEN 3 " +
+           "WHEN com.kh.game.entity.MultiTier.GOLD THEN 2 " +
+           "WHEN com.kh.game.entity.MultiTier.SILVER THEN 1 " +
+           "WHEN com.kh.game.entity.MultiTier.BRONZE THEN 0 " +
+           "ELSE -1 END DESC, " +
+           "COALESCE(m.multiLp, 0) DESC")
     List<Member> findTopMultiTierRanking(Pageable pageable);
 
     // 멀티게임 1등 횟수 기준
@@ -185,11 +195,38 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // 내 멀티 티어 순위 (나보다 높은 티어 + LP 가진 사람 수)
     @Query("SELECT COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.multiGames > 0 " +
-           "AND (m.multiTier > :tier OR (m.multiTier = :tier AND m.multiLp > :lp))")
+           "AND (CASE m.multiTier " +
+           "WHEN com.kh.game.entity.MultiTier.CHALLENGER THEN 6 " +
+           "WHEN com.kh.game.entity.MultiTier.MASTER THEN 5 " +
+           "WHEN com.kh.game.entity.MultiTier.DIAMOND THEN 4 " +
+           "WHEN com.kh.game.entity.MultiTier.PLATINUM THEN 3 " +
+           "WHEN com.kh.game.entity.MultiTier.GOLD THEN 2 " +
+           "WHEN com.kh.game.entity.MultiTier.SILVER THEN 1 " +
+           "WHEN com.kh.game.entity.MultiTier.BRONZE THEN 0 " +
+           "ELSE -1 END > CASE :tier " +
+           "WHEN com.kh.game.entity.MultiTier.CHALLENGER THEN 6 " +
+           "WHEN com.kh.game.entity.MultiTier.MASTER THEN 5 " +
+           "WHEN com.kh.game.entity.MultiTier.DIAMOND THEN 4 " +
+           "WHEN com.kh.game.entity.MultiTier.PLATINUM THEN 3 " +
+           "WHEN com.kh.game.entity.MultiTier.GOLD THEN 2 " +
+           "WHEN com.kh.game.entity.MultiTier.SILVER THEN 1 " +
+           "WHEN com.kh.game.entity.MultiTier.BRONZE THEN 0 " +
+           "ELSE -1 END " +
+           "OR (m.multiTier = :tier AND COALESCE(m.multiLp, 0) > :lp))")
     long countMembersWithHigherMultiTier(com.kh.game.entity.MultiTier tier, int lp);
 
     // 멀티 티어별 회원 수
-    @Query("SELECT m.multiTier, COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.multiGames > 0 GROUP BY m.multiTier ORDER BY m.multiTier")
+    @Query("SELECT m.multiTier, COUNT(m) FROM Member m WHERE m.status = 'ACTIVE' AND m.multiGames > 0 " +
+           "GROUP BY m.multiTier " +
+           "ORDER BY CASE m.multiTier " +
+           "WHEN com.kh.game.entity.MultiTier.BRONZE THEN 0 " +
+           "WHEN com.kh.game.entity.MultiTier.SILVER THEN 1 " +
+           "WHEN com.kh.game.entity.MultiTier.GOLD THEN 2 " +
+           "WHEN com.kh.game.entity.MultiTier.PLATINUM THEN 3 " +
+           "WHEN com.kh.game.entity.MultiTier.DIAMOND THEN 4 " +
+           "WHEN com.kh.game.entity.MultiTier.MASTER THEN 5 " +
+           "WHEN com.kh.game.entity.MultiTier.CHALLENGER THEN 6 " +
+           "ELSE -1 END")
     List<Object[]> countByMultiTier();
 
     // ========== 30곡 최고점 랭킹 조회 ==========
