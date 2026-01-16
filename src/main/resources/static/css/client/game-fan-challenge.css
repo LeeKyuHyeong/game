@@ -481,15 +481,31 @@
 
 .game-container.fan-challenge .btn-quit {
     padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.8);
     border-radius: 6px;
     cursor: pointer;
+    text-decoration: none;
+    border: none;
 }
 
-.game-container.fan-challenge .btn-quit:hover {
-    background: rgba(255, 255, 255, 0.2);
+/* 홈 버튼 - 보라색 */
+.game-container.fan-challenge a.btn-quit {
+    background: var(--primary-color);
+    color: white;
+}
+
+.game-container.fan-challenge a.btn-quit:hover {
+    background: var(--primary-hover);
+}
+
+/* 종료 버튼 - 레드 */
+.game-container.fan-challenge button.btn-quit {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.game-container.fan-challenge button.btn-quit:hover {
+    background: rgba(239, 68, 68, 0.3);
 }
 
 /* 게임 메인 */

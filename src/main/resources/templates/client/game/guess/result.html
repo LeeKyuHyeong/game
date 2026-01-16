@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: clientHead('게임 결과 - Song Quiz')}"></head>
+<link rel="stylesheet" th:href="@{/css/client/result.css}">
 <body class="client-page result-page">
 <div class="result-container">
     <!-- 챌린지 완료 배너 (JS에서 제어) -->
@@ -188,33 +189,34 @@
     }
 }
 
+/* 신고 버튼 - 다크모드 지원 */
 .btn-report-small {
     display: block;
     margin-top: 8px;
     padding: 4px 10px;
     font-size: 0.75em;
-    background: #f8f9fa;
-    color: #888;
-    border: 1px solid #e0e0e0;
+    background: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    border: 1px solid #475569;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
 }
 .btn-report-small:hover {
-    background: #fff;
-    color: #dc3545;
-    border-color: #dc3545;
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border-color: #f87171;
 }
 
-/* 시도 내역 스타일 */
+/* 시도 내역 스타일 - 다크모드 지원 */
 .attempts-section {
     margin-top: 12px;
     padding-top: 10px;
-    border-top: 1px dashed #e0e0e0;
+    border-top: 1px dashed #475569;
 }
 .attempts-label {
     font-size: 0.75em;
-    color: #666;
+    color: #94a3b8;
     margin-bottom: 6px;
     font-weight: 500;
 }
@@ -230,22 +232,22 @@
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.8em;
-    background: #f8f9fa;
+    background: rgba(255, 255, 255, 0.05);
 }
 .attempt-item.correct {
-    background: #e8f5e9;
+    background: rgba(74, 222, 128, 0.15);
 }
 .attempt-item.wrong {
-    background: #ffebee;
+    background: rgba(248, 113, 113, 0.15);
 }
 .attempt-num {
     font-weight: 600;
-    color: #666;
+    color: #94a3b8;
     min-width: 28px;
 }
 .attempt-answer {
     flex: 1;
-    color: #333;
+    color: #e2e8f0;
     word-break: break-all;
 }
 .attempt-result {
@@ -254,10 +256,10 @@
     text-align: center;
 }
 .attempt-result.correct {
-    color: #4caf50;
+    color: #4ade80;
 }
 .attempt-result.wrong {
-    color: #f44336;
+    color: #f87171;
 }
 </style>
 </body>

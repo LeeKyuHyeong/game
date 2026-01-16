@@ -1,30 +1,174 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{common/fragments/head :: clientHead('레트로 게임 - 결과')}" />
-<body class="client-page">
-<div class="client-container">
-    <header class="client-header compact">
-        <h1>게임 결과</h1>
+<head th:replace="~{common/fragments/head :: clientHead('레트로 게임 - 결과')}"></head>
+<link rel="stylesheet" th:href="@{/css/client/result.css}">
+<body class="client-page result-page">
+<div class="result-container">
+    <header class="result-header">
+        <h1>🎮 게임 결과</h1>
+        <p th:text="${nickname}"></p>
     </header>
 
     <main class="result-main">
-        <div class="result-card">
-            <div class="result-summary">
-                <div class="nickname" th:text="${nickname}"></div>
-                <div class="score">
-                    <span th:text="${score}">0</span>점
-                </div>
-                <div class="stats">
-                    <span><strong th:text="${correct}">0</strong> / <span th:text="${totalRounds}">0</span> 정답</span>
-                </div>
+        <!-- 점수 섹션 -->
+        <div class="score-section">
+            <div class="final-score">
+                <span class="score-label">최종 점수</span>
+                <span class="score-value" th:text="${gameSession.totalScore}">0</span>
             </div>
+        </div>
 
-            <div class="result-actions">
-                <a th:href="@{/game/retro}" class="btn-retry">다시 하기</a>
-                <a href="/" class="btn-home">홈으로</a>
+        <!-- 통계 바 - 한 줄 -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">정답</span>
+                <span class="stat-value correct" th:text="${gameSession.correctCount}">0</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-label">오답</span>
+                <span class="stat-value wrong" th:text="${gameSession.completedRounds - gameSession.correctCount - gameSession.skipCount}">0</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-label">스킵</span>
+                <span class="stat-value skip" th:text="${gameSession.skipCount}">0</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-label">정답률</span>
+                <span class="stat-value" th:text="${#numbers.formatDecimal(gameSession.accuracyRate, 1, 1) + '%'}">0%</span>
+            </div>
+        </div>
+
+        <!-- 라운드 기록 - 카드 그리드 -->
+        <div class="rounds-section">
+            <h3>라운드 기록</h3>
+            <div class="rounds-grid">
+                <div th:each="round : ${rounds}" class="round-card"
+                     th:classappend="${round.isCorrect ? 'correct' : (round.status.name() == 'SKIPPED' ? 'skipped' : 'wrong')}">
+                    <div class="round-header">
+                        <span class="round-num" th:text="'#' + ${round.roundNumber}"></span>
+                        <span th:if="${round.isCorrect}" class="round-status correct">정답</span>
+                        <span th:if="${round.status.name() == 'SKIPPED'}" class="round-status skip">스킵</span>
+                        <span th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="round-status wrong">오답</span>
+                    </div>
+                    <div class="round-body">
+                        <div class="song-info">
+                            <div class="song-title" th:text="${round.song.title}"></div>
+                            <div class="song-artist" th:text="${round.song.artist}"></div>
+                        </div>
+                        <div th:if="${round.isCorrect}" class="score-info">
+                            <span class="score-plus" th:text="'+' + ${round.score} + '점'"></span>
+                            <span th:if="${round.answerTimeMs != null}" class="attempt-info" th:text="'(' + ${#numbers.formatDecimal(round.answerTimeMs / 1000.0, 1, 1)} + '초)'"></span>
+                        </div>
+                        <div th:if="${!round.isCorrect && round.status.name() != 'SKIPPED'}" class="fail-info">
+                            <span class="fail-text">3회 실패</span>
+                        </div>
+                        <!-- 시도 내역 표시 (오답/정답 모두) -->
+                        <div th:if="${round.attempts != null && !round.attempts.isEmpty()}" class="attempts-section">
+                            <div class="attempts-label">내 답변:</div>
+                            <div class="attempts-list">
+                                <div th:each="attempt : ${round.attempts}" class="attempt-item"
+                                     th:classappend="${attempt.isCorrect} ? 'correct' : 'wrong'">
+                                    <span class="attempt-num" th:text="${attempt.attemptNumber} + '차'"></span>
+                                    <span class="attempt-answer" th:text="${attempt.userAnswer}"></span>
+                                    <span th:if="${attempt.isCorrect}" class="attempt-result correct">O</span>
+                                    <span th:if="${!attempt.isCorrect}" class="attempt-result wrong">X</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-report-small" th:data-song-id="${round.song.id}" onclick="openReportModal(this.dataset.songId)">신고</button>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
+
+    <footer class="result-footer">
+        <a href="/game/retro" class="btn btn-replay">다시 하기 🔄</a>
+        <a href="/" class="btn btn-home">홈으로 🏠</a>
+    </footer>
 </div>
+
+<script th:src="@{/js/common/common.js}"></script>
+
+<!-- 신고 모달 -->
+<th:block th:replace="~{common/fragments/report-modal :: reportModal}"></th:block>
+
+<style>
+/* 신고 버튼 - 다크모드 지원 */
+.btn-report-small {
+    display: block;
+    margin-top: 8px;
+    padding: 4px 10px;
+    font-size: 0.75em;
+    background: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    border: 1px solid #475569;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-report-small:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border-color: #f87171;
+}
+
+/* 시도 내역 스타일 - 다크모드 지원 */
+.attempts-section {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #475569;
+}
+.attempts-label {
+    font-size: 0.75em;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+.attempts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.attempt-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    background: rgba(255, 255, 255, 0.05);
+}
+.attempt-item.correct {
+    background: rgba(74, 222, 128, 0.15);
+}
+.attempt-item.wrong {
+    background: rgba(248, 113, 113, 0.15);
+}
+.attempt-num {
+    font-weight: 600;
+    color: #94a3b8;
+    min-width: 28px;
+}
+.attempt-answer {
+    flex: 1;
+    color: #e2e8f0;
+    word-break: break-all;
+}
+.attempt-result {
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+}
+.attempt-result.correct {
+    color: #4ade80;
+}
+.attempt-result.wrong {
+    color: #f87171;
+}
+</style>
 </body>
 </html>

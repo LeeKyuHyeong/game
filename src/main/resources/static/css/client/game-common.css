@@ -88,14 +88,31 @@
     align-items: center;
     justify-content: center;
     padding: 0.625rem 1.25rem;
-    background: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
     border-radius: 0.5rem;
     font-weight: 500;
     line-height: 1.5;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
 }
 
-.btn-quit:hover {
+/* 홈 버튼 - 보라색 */
+a.btn-quit {
+    background: var(--primary-color);
+    color: white;
+}
+
+a.btn-quit:hover {
+    background: var(--primary-hover);
+}
+
+/* 종료 버튼 - 레드 */
+button.btn-quit {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+}
+
+button.btn-quit:hover {
     background: rgba(239, 68, 68, 0.3);
 }
 
@@ -389,19 +406,19 @@
 .answer-info .song-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #1e293b;
     margin-bottom: 0.25rem;
 }
 
 .answer-info .song-artist {
     font-size: 1.125rem;
-    color: var(--text-secondary);
+    color: #64748b;
     margin-bottom: 0.5rem;
 }
 
 .answer-info .song-meta {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    color: #64748b;
 }
 
 .winner-info {

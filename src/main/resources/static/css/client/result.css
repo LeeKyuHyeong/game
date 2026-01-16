@@ -16,6 +16,117 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+/* ========== Result Card (Retro Game) ========== */
+.result-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.result-summary {
+    margin-bottom: 2rem;
+}
+
+.result-summary .nickname {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+.result-summary .score {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #6366f1;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+}
+
+.result-summary .stats {
+    font-size: 1.125rem;
+    color: #475569;
+}
+
+.result-summary .stats strong {
+    color: #22c55e;
+    font-weight: 700;
+}
+
+.result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.result-actions .btn-retry {
+    display: block;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    border-radius: 0.75rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.result-actions .btn-retry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.result-actions .btn-home {
+    display: block;
+    padding: 0.875rem 2rem;
+    background: #f1f5f9;
+    color: #64748b;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.result-actions .btn-home:hover {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+/* Result Card Responsive */
+@media (max-width: 480px) {
+    .result-card {
+        padding: 1.5rem;
+        border-radius: 1rem;
+        margin: 0 0.5rem;
+    }
+
+    .result-summary .nickname {
+        font-size: 1rem;
+    }
+
+    .result-summary .score {
+        font-size: 2.5rem;
+    }
+
+    .result-summary .stats {
+        font-size: 1rem;
+    }
+
+    .result-actions .btn-retry {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .result-actions .btn-home {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
 .result-container {
     max-width: 800px;
     margin: 0 auto;
@@ -1515,4 +1626,152 @@
         max-width: 70px;
         margin: 0 auto;
     }
+}
+
+/* ========== 다크 모드 지원 ========== */
+
+/* 결과 페이지 다크 모드 (게임 페이지와 동일한 어두운 배경) */
+.result-page {
+    --result-bg: #1e293b;
+    --result-surface: #334155;
+    --result-elevated: #475569;
+    --result-text-primary: #f1f5f9;
+    --result-text-secondary: #94a3b8;
+    --result-border: #475569;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+/* 점수 섹션 - 다크 */
+.result-page .score-section {
+    background: var(--result-surface);
+    border: 1px solid var(--result-border);
+}
+
+.result-page .final-score .score-label {
+    color: var(--result-text-secondary);
+}
+
+.result-page .final-score .score-value {
+    color: #fbbf24;
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+}
+
+/* 통계 바 - 다크 */
+.result-page .stats-bar {
+    background: var(--result-surface);
+    border: 1px solid var(--result-border);
+}
+
+.result-page .stats-bar .stat-label {
+    color: var(--result-text-secondary);
+}
+
+.result-page .stats-bar .stat-value {
+    color: var(--result-text-primary);
+}
+
+.result-page .stats-bar .stat-divider {
+    background: var(--result-border);
+}
+
+/* 라운드 섹션 - 다크 */
+.result-page .rounds-section {
+    background: var(--result-surface);
+    border: 1px solid var(--result-border);
+}
+
+.result-page .rounds-section h3 {
+    color: var(--result-text-primary);
+}
+
+/* 라운드 카드 - 다크 */
+.result-page .round-card {
+    background: var(--result-bg);
+    border-color: var(--result-border);
+}
+
+.result-page .round-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.result-page .round-header {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.result-page .round-num {
+    color: #818cf8;
+}
+
+.result-page .song-info .song-title {
+    color: var(--result-text-primary);
+}
+
+.result-page .song-info .song-artist {
+    color: var(--result-text-secondary);
+}
+
+/* 결과 푸터 버튼 - 다크 */
+.result-page .result-footer .btn-replay {
+    background: var(--result-surface);
+    color: var(--result-text-primary);
+    border: 1px solid var(--result-border);
+}
+
+.result-page .result-footer .btn-replay:hover {
+    background: var(--result-elevated);
+}
+
+.result-page .result-footer .btn-home {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--result-text-secondary);
+}
+
+.result-page .result-footer .btn-home:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--result-text-primary);
+}
+
+/* ========== Result Card 다크 모드 (레트로 게임) ========== */
+.client-page .result-card {
+    background: #334155;
+    border: 1px solid #475569;
+}
+
+.client-page .result-summary .nickname {
+    color: #94a3b8;
+}
+
+.client-page .result-summary .score {
+    color: #fbbf24;
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+}
+
+.client-page .result-summary .stats {
+    color: #cbd5e1;
+}
+
+.client-page .result-summary .stats strong {
+    color: #4ade80;
+}
+
+.client-page .result-summary .stats .accuracy {
+    color: #94a3b8;
+    font-size: 0.9em;
+    margin-left: 8px;
+}
+
+.client-page .result-actions .btn-retry {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+}
+
+.client-page .result-actions .btn-home {
+    background: #475569;
+    color: #e2e8f0;
+    border: 1px solid #64748b;
+}
+
+.client-page .result-actions .btn-home:hover {
+    background: #64748b;
+    color: #f1f5f9;
 }
