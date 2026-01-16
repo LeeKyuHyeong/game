@@ -75,6 +75,9 @@ public class GameRoom {
     @JoinColumn(name = "winner_id")
     private Member winner;
 
+    // 재시작 시각 (grace period용)
+    private LocalDateTime restartedAt;
+
     @OneToMany(mappedBy = "gameRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GameRoomParticipant> participants = new ArrayList<>();
 

@@ -111,14 +111,49 @@ public class GameRoomService {
 
     /**
      * 방 나가기
-     * 게임 진행 중(PLAYING)에는 나가기 무시 (페이지 전환 시 sendBeacon 버그 방지)
+     * 게임 진행 중(PLAYING) 또는 종료(FINISHED)에는 나가기 무시 (페이지 전환 시 sendBeacon 버그 방지)
+     * 또한 재시작 직후 5초 내에는 나가기 무시 (restart 후 sendBeacon race condition 방지)
      */
     @Transactional
     public void leaveRoom(GameRoom room, Member member) {
-        // 게임 진행 중에는 나가기 무시
-        if (room.getStatus() == GameRoom.RoomStatus.PLAYING) {
+        // 게임 진행 중 또는 종료 상태에서는 나가기 무시 (재시작 기능 지원)
+        if (room.getStatus() == GameRoom.RoomStatus.PLAYING ||
+            room.getStatus() == GameRoom.RoomStatus.FINISHED) {
             return;
         }
+
+        // 재시작 직후 grace period (5초) 동안은 나가기 무시
+        // (restart 후 대기실로 이동할 때 sendBeacon race condition 방지)
+        if (room.getRestartedAt() != null) {
+            java.time.Duration elapsed = java.time.Duration.between(room.getRestartedAt(), java.time.LocalDateTime.now());
+            if (elapsed.getSeconds() < 5) {
+                return;
+            }
+        }
+
+        doLeaveRoom(room, member);
+    }
+
+    /**
+     * 종료된 게임에서 명시적 나가기 (로비로 돌아가기)
+     */
+    @Transactional
+    public void leaveFinishedRoom(GameRoom room, Member member) {
+        if (room.getStatus() != GameRoom.RoomStatus.FINISHED) {
+            return;
+        }
+
+        GameRoomParticipant participant = participantRepository.findByGameRoomAndMember(room, member)
+                .orElse(null);
+        if (participant != null) {
+            participant.setStatus(GameRoomParticipant.ParticipantStatus.LEFT);
+        }
+    }
+
+    /**
+     * 실제 나가기 로직
+     */
+    private void doLeaveRoom(GameRoom room, Member member) {
 
         GameRoomParticipant participant = participantRepository.findByGameRoomAndMember(room, member)
                 .orElseThrow(() -> new IllegalArgumentException("참가 정보를 찾을 수 없습니다."));
@@ -306,5 +341,47 @@ public class GameRoomService {
             count++;
         }
         return count;
+    }
+
+    /**
+     * 방 재시작 (한번 더 하기) - 방장만
+     * 게임 설정은 유지하고 방 상태와 참가자 점수만 초기화
+     */
+    @Transactional
+    public void restartRoom(GameRoom room, Member host) {
+        if (!room.isHost(host)) {
+            throw new IllegalStateException("방장만 게임을 재시작할 수 있습니다.");
+        }
+
+        if (room.getStatus() != GameRoom.RoomStatus.FINISHED) {
+            throw new IllegalStateException("종료된 게임만 재시작할 수 있습니다.");
+        }
+
+        // 방 상태 초기화
+        room.setStatus(GameRoom.RoomStatus.WAITING);
+        room.setCurrentRound(0);
+        room.setRoundPhase(null);
+        room.setCurrentSong(null);
+        room.setWinner(null);
+        room.setRoundStartTime(null);
+        room.setAudioPlaying(false);
+        room.setAudioPlayedAt(null);
+        room.setRestartedAt(java.time.LocalDateTime.now());  // grace period용 재시작 시각 기록
+
+        // 참가자 상태 초기화 (현재 JOINED 또는 PLAYING인 참가자들만)
+        List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);
+        for (GameRoomParticipant p : participants) {
+            p.setStatus(GameRoomParticipant.ParticipantStatus.JOINED);
+            p.resetScore();
+            p.setRoundReady(false);
+            p.setSkipVote(false);
+
+            // 방장은 자동 준비 완료
+            if (room.isHost(p.getMember())) {
+                p.setIsReady(true);
+            } else {
+                p.setIsReady(false);
+            }
+        }
     }
 }

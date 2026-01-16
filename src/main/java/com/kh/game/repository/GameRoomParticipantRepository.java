@@ -49,9 +49,14 @@ public interface GameRoomParticipantRepository extends JpaRepository<GameRoomPar
     @Query("SELECT COUNT(p) FROM GameRoomParticipant p WHERE p.gameRoom = :room AND p.status IN ('JOINED', 'PLAYING')")
     int countActiveParticipants(@Param("room") GameRoom room);
 
-    // 점수 순 정렬 (결과용 - JOINED 또는 PLAYING)
+    // 점수 순 정렬 (게임중 - JOINED 또는 PLAYING)
     @Query("SELECT p FROM GameRoomParticipant p WHERE p.gameRoom = :room AND p.status IN ('JOINED', 'PLAYING') ORDER BY p.score DESC")
     List<GameRoomParticipant> findByGameRoomOrderByScoreDesc(@Param("room") GameRoom room);
+
+    // 점수 순 정렬 (결과용 - 모든 참가자, LEFT 제외하지 않음)
+    // 게임 종료 후 결과 화면에서 모든 참가자를 표시하기 위해 사용
+    @Query("SELECT p FROM GameRoomParticipant p WHERE p.gameRoom = :room ORDER BY p.score DESC")
+    List<GameRoomParticipant> findAllByGameRoomOrderByScoreDesc(@Param("room") GameRoom room);
 
     // 회원이 해당 방에 참가중인지
     boolean existsByGameRoomAndMemberAndStatus(GameRoom gameRoom, Member member, GameRoomParticipant.ParticipantStatus status);
