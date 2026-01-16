@@ -25,7 +25,7 @@
 /* Active Room Alert */
 .active-room-alert {
     background: rgba(251, 191, 36, 0.2);
-    border: 2px solid #fbbf24;
+    border: 2px solid var(--warning);
     border-radius: 1rem;
     padding: 1rem 1.5rem;
     margin-bottom: 1.5rem;
@@ -43,7 +43,7 @@
 }
 
 .alert-content span {
-    color: white;
+    color: var(--text-on-gradient);
 }
 
 .alert-actions {
@@ -65,8 +65,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 1rem 2rem;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: white;
+    background: var(--gradient-success);
+    color: var(--text-inverse);
     border-radius: 1rem;
     font-size: 1.125rem;
     font-weight: 600;
@@ -75,7 +75,7 @@
 
 .btn-create:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
 }
 
 /* Join Code Form */
@@ -89,10 +89,10 @@
 .code-input {
     flex: 1;
     padding: 1rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid var(--overlay-strong);
     border-radius: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: var(--overlay-light);
+    color: var(--text-on-gradient);
     font-size: 1.125rem;
     font-weight: 600;
     letter-spacing: 0.2em;
@@ -101,7 +101,7 @@
 }
 
 .code-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
     letter-spacing: normal;
     font-weight: normal;
 }
@@ -109,13 +109,13 @@
 .code-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--overlay-medium);
 }
 
 .btn-join {
     padding: 1rem 1.5rem;
     background: var(--primary-color);
-    color: white;
+    color: var(--text-inverse);
     border-radius: 0.75rem;
     font-weight: 600;
 }
@@ -129,7 +129,7 @@
    ======================================== */
 
 .room-list-section {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1.5rem;
     padding: 1.5rem;
 }
@@ -144,7 +144,7 @@
 }
 
 .section-header h2 {
-    color: white;
+    color: var(--text-on-gradient);
     font-size: 1.25rem;
     margin: 0;
 }
@@ -157,20 +157,20 @@
 
 .search-box input {
     padding: 0.625rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid var(--overlay-strong);
     border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: var(--overlay-light);
+    color: var(--text-on-gradient);
     min-width: 200px;
 }
 
 .search-box input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
 }
 
 .btn-search-icon {
     padding: 0.625rem 1rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
     border-radius: 0.5rem;
 }
 
@@ -233,7 +233,7 @@
 .btn-enter {
     padding: 0.75rem 1.5rem;
     background: var(--primary-color);
-    color: white;
+    color: var(--text-inverse);
     border-radius: 0.75rem;
     font-weight: 600;
 }
@@ -246,7 +246,8 @@
 .empty-rooms {
     text-align: center;
     padding: 3rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-on-gradient);
+    opacity: 0.8;
 }
 
 .empty-icon {
@@ -268,15 +269,15 @@
     width: 100%;
     margin-top: 1rem;
     padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: var(--overlay-light);
+    color: var(--text-on-gradient);
     border-radius: 0.75rem;
     font-weight: 500;
     transition: background-color 0.2s;
 }
 
 .btn-refresh:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
 }
 
 /* ========================================
@@ -343,8 +344,8 @@
 .btn-create-room {
     flex: 2;
     padding: 1rem;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: white;
+    background: var(--gradient-success);
+    color: var(--text-inverse);
     border-radius: 0.75rem;
     font-size: 1.125rem;
     font-weight: 600;
@@ -361,7 +362,7 @@
 .waiting-header {
     text-align: center;
     padding: 2rem;
-    color: white;
+    color: var(--text-on-gradient);
 }
 
 .room-title-section h1 {
@@ -373,7 +374,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
     padding: 0.75rem 1.5rem;
     border-radius: 1rem;
 }
@@ -391,13 +392,13 @@
 
 .btn-copy {
     padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
     border-radius: 0.5rem;
     font-size: 1rem;
 }
 
 .btn-copy:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--overlay-strong);
 }
 
 .room-settings-info {
@@ -419,14 +420,14 @@
 
 /* Participants Section */
 .participants-section {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1.5rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
 }
 
 .participants-section h2 {
-    color: white;
+    color: var(--text-on-gradient);
     font-size: 1.125rem;
     margin-bottom: 1rem;
 }
@@ -449,7 +450,7 @@
 }
 
 .participant-card.ready {
-    border-color: #22c55e;
+    border-color: var(--success);
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
 }
 
@@ -538,14 +539,14 @@
 }
 
 .btn-ready.is-ready {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: white;
+    background: var(--gradient-success);
+    color: var(--text-inverse);
 }
 
 .btn-start-game {
     padding: 1rem 2.5rem;
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-    color: white;
+    color: var(--text-inverse);
     border-radius: 1rem;
     font-size: 1.125rem;
     font-weight: 600;
@@ -564,8 +565,8 @@
 
 .btn-leave {
     padding: 1rem 2rem;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: var(--overlay-light);
+    color: var(--text-on-gradient);
     border-radius: 1rem;
     font-weight: 500;
 }
@@ -589,7 +590,7 @@
 }
 
 .room-name-badge {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
     padding: 0.25rem 0.75rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
@@ -614,7 +615,7 @@
 
 .game-area h2,
 .game-area h3 {
-    color: var(--text-primary);
+    color: var(--gray-900);
 }
 
 .game-area p {
@@ -707,20 +708,23 @@
 }
 
 .game-area .player-status {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-on-gradient);
+    opacity: 0.8;
 }
 
 .game-area .time-display {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-on-gradient);
+    opacity: 0.7;
 }
 
 .game-area .progress-bar {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--overlay-medium);
 }
 
 .game-area .player-controls.participant-status {
-    background: rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.9);
+    background: var(--overlay-medium);
+    color: var(--text-on-gradient);
+    opacity: 0.9;
 }
 
 /* Multi Game Answer Section Override */
@@ -744,11 +748,11 @@
 }
 
 .answer-status .correct {
-    color: #22c55e;
+    color: var(--success);
 }
 
 .answer-status .wrong {
-    color: #ef4444;
+    color: var(--danger);
 }
 
 /* Host Controls */
@@ -764,14 +768,14 @@
 .btn-show-result {
     padding: 1rem 2rem;
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    color: white;
+    color: var(--text-inverse);
     border-radius: 1rem;
     font-size: 1rem;
     font-weight: 600;
 }
 
 .btn-show-result.all-answered {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: var(--gradient-success);
     animation: pulse 1.5s infinite;
 }
 
@@ -783,7 +787,7 @@
 .btn-next-round {
     padding: 1rem 2.5rem;
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-    color: white;
+    color: var(--text-inverse);
     border-radius: 1rem;
     font-size: 1.125rem;
     font-weight: 600;
@@ -805,12 +809,12 @@
 .answer-info-card .song-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--gray-900);
 }
 
 .answer-info-card .song-artist {
     font-size: 1.125rem;
-    color: var(--text-secondary);
+    color: var(--gray-900);
     margin-top: 0.25rem;
 }
 
@@ -842,12 +846,12 @@
 
 .result-item.correct {
     background: #f0fdf4;
-    border-left-color: #22c55e;
+    border-left-color: var(--success);
 }
 
 .result-item.wrong {
     background: #fef2f2;
-    border-left-color: #ef4444;
+    border-left-color: var(--danger);
 }
 
 .result-player {
@@ -886,7 +890,7 @@
 }
 
 .result-score .score-plus {
-    color: #22c55e;
+    color: var(--success);
 }
 
 .result-score .score-zero {
@@ -895,7 +899,7 @@
 
 /* Multi Scoreboard */
 .multi-scoreboard {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1.5rem;
     padding: 1.5rem;
     height: fit-content;
@@ -904,7 +908,7 @@
 }
 
 .multi-scoreboard h3 {
-    color: white;
+    color: var(--text-on-gradient);
     margin-bottom: 1rem;
 }
 
@@ -922,6 +926,7 @@
     background: rgba(255, 255, 255, 0.9);
     border-radius: 0.75rem;
     transition: all 0.2s;
+    color: var(--gray-900);
 }
 
 .multi-scoreboard .score-item.me {
@@ -936,7 +941,7 @@
     align-items: center;
     justify-content: center;
     background: var(--primary-color);
-    color: white;
+    color: var(--text-inverse);
     border-radius: 50%;
     font-size: 0.75rem;
     font-weight: 600;
@@ -946,6 +951,7 @@
     flex: 1;
     font-weight: 500;
     font-size: 0.875rem;
+    color: var(--gray-900);
 }
 
 .multi-scoreboard .score-item .me-badge {
@@ -955,7 +961,7 @@
 
 .multi-scoreboard .score-item .player-score {
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 .multi-scoreboard .score-item .answer-indicator {
@@ -965,7 +971,7 @@
 }
 
 .multi-scoreboard .score-item .answer-indicator.answered {
-    color: #22c55e;
+    color: var(--success);
 }
 
 /* ========================================
@@ -1007,7 +1013,7 @@
 
 /* Mini Scoreboard */
 .mini-scoreboard {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1rem;
     padding: 1rem;
     flex-shrink: 0;
@@ -1016,7 +1022,7 @@
 }
 
 .mini-scoreboard h3 {
-    color: white;
+    color: var(--text-on-gradient);
     font-size: 0.9rem;
     margin-bottom: 0.75rem;
 }
@@ -1037,6 +1043,7 @@
     background: rgba(255, 255, 255, 0.9);
     border-radius: 0.5rem;
     font-size: 0.85rem;
+    color: var(--gray-900);
 }
 
 .mini-scoreboard .score-item.me {
@@ -1051,7 +1058,7 @@
     align-items: center;
     justify-content: center;
     background: var(--primary-color);
-    color: white;
+    color: var(--text-inverse);
     border-radius: 50%;
     font-size: 0.7rem;
     font-weight: 600;
@@ -1060,12 +1067,12 @@
 .mini-scoreboard .score-item .player-name {
     flex: 1;
     font-weight: 500;
-    color: var(--text-primary);
+    color: var(--gray-900);
 }
 
 .mini-scoreboard .score-item .player-score {
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 /* Chat Section */
@@ -1097,6 +1104,7 @@
     border-radius: 0.75rem;
     max-width: 85%;
     word-break: break-word;
+    color: var(--gray-900);
 }
 
 .chat-message.my-message {
@@ -1106,7 +1114,7 @@
 
 .chat-message.correct-answer {
     background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-    border: 2px solid #22c55e;
+    border: 2px solid var(--success);
     max-width: 100%;
 }
 
@@ -1130,7 +1138,7 @@
 
 .chat-text {
     font-size: 0.9rem;
-    color: var(--text-primary);
+    color: var(--gray-900);
 }
 
 .system-text {
@@ -1162,7 +1170,7 @@
 .btn-send {
     padding: 0.75rem 1.25rem;
     background: var(--primary-color);
-    color: white;
+    color: var(--text-inverse);
     border-radius: 0.75rem;
     font-weight: 500;
 }
@@ -1212,12 +1220,12 @@
 
 .btn-start-round {
     padding: 1rem 2.5rem;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: white;
+    background: var(--gradient-success);
+    color: var(--text-inverse);
     border-radius: 1rem;
     font-size: 1.25rem;
     font-weight: 600;
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
     transition: all 0.2s;
 }
 
@@ -1273,7 +1281,7 @@
     padding: 1rem 1.5rem;
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     border-radius: 1rem;
-    border: 2px solid #22c55e;
+    border: 2px solid var(--success);
 }
 
 .winner-label {
@@ -1288,7 +1296,7 @@
 }
 
 .winner-score {
-    color: #22c55e;
+    color: var(--success);
     font-weight: 700;
 }
 
@@ -1434,7 +1442,7 @@
 
 .join-form-card .form-group input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--primary);
 }
 
 .join-form-card #passwordGroup {
@@ -1457,10 +1465,10 @@
 }
 
 .join-info {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-light);
     border-radius: 1rem;
     padding: 1.25rem;
-    color: white;
+    color: var(--text-on-gradient);
 }
 
 .join-info h4 {
@@ -1556,7 +1564,7 @@
 }
 
 .waiting-chat .chat-nickname.me {
-    color: #667eea;
+    color: var(--primary);
 }
 
 .waiting-chat .chat-text {
@@ -1590,13 +1598,13 @@
 
 .waiting-chat .chat-input-area input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--primary);
 }
 
 .waiting-chat .btn-send {
     padding: 0.625rem 1.25rem;
-    background: #667eea;
-    color: white;
+    background: var(--primary);
+    color: var(--text-inverse);
     border: none;
     border-radius: 9999px;
     font-weight: 600;
@@ -1637,8 +1645,8 @@
 }
 
 .btn-danger {
-    background: #ef4444;
-    color: white;
+    background: var(--danger);
+    color: var(--text-inverse);
     border: none;
 }
 
@@ -1696,7 +1704,7 @@
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 480px) {
     .lobby-actions {
         flex-direction: column;
     }
@@ -1778,7 +1786,7 @@
 
     /* 재생 중 상태 */
     .round-playing {
-        padding: 1rem;
+        padding: 0.4rem;
     }
 
     .music-player {
@@ -2006,8 +2014,8 @@
     display: block;
     margin-top: 0.5rem;
     padding: 0.5rem 1rem;
-    background: #f59e0b;
-    color: white;
+    background: var(--warning);
+    color: var(--text-inverse);
     border: none;
     border-radius: 0.5rem;
     font-size: 0.85rem;
@@ -2017,7 +2025,7 @@
 }
 
 .btn-skip-song:hover {
-    background: #d97706;
+    background: var(--warning-dark);
 }
 
 /* ========================================
@@ -2088,6 +2096,10 @@
     border-color: var(--border-color);
 }
 
+[data-theme="dark"] .game-area h2{
+    color: var(--bg-secondary);
+}
+
 /* Genre Grid */
 [data-theme="dark"] .genre-grid .genre-item {
     background: var(--bg-surface);
@@ -2116,21 +2128,25 @@
     background: rgba(239, 68, 68, 0.15);
 }
 
-/* Scoreboard */
+/* Scoreboard - 항상 밝은 배경 유지 */
 [data-theme="dark"] .multi-scoreboard .score-item {
-    background: var(--bg-surface);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--gray-900);
 }
 
 [data-theme="dark"] .multi-scoreboard .score-item.me {
-    background: rgba(99, 102, 241, 0.2);
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: var(--gray-900);
 }
 
 [data-theme="dark"] .mini-scoreboard .score-item {
-    background: var(--bg-surface);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--gray-900);
 }
 
 [data-theme="dark"] .mini-scoreboard .score-item.me {
-    background: rgba(99, 102, 241, 0.2);
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: var(--gray-900);
 }
 
 /* Chat Section */
@@ -2140,22 +2156,38 @@
 
 [data-theme="dark"] .chat-message {
     background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .chat-message .chat-text {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .chat-message .chat-nickname {
+    color: #93c5fd;
 }
 
 [data-theme="dark"] .chat-message.my-message {
-    background: rgba(99, 102, 241, 0.2);
+    background: rgba(99, 102, 241, 0.3);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .chat-message.my-message .chat-nickname {
+    color: #a5b4fc;
 }
 
 [data-theme="dark"] .chat-message.correct-answer {
-    background: rgba(34, 197, 94, 0.2);
+    background: rgba(34, 197, 94, 0.25);
+    color: var(--text-primary);
 }
 
 [data-theme="dark"] .chat-message.system-message {
-    background: rgba(251, 191, 36, 0.2);
+    background: rgba(251, 191, 36, 0.25);
+    color: var(--text-primary);
 }
 
 [data-theme="dark"] .system-text {
-    color: #fbbf24;
+    color: var(--warning);
 }
 
 [data-theme="dark"] .chat-input-area {
@@ -2199,7 +2231,7 @@
 
 [data-theme="dark"] .participant-tag.host {
     background: rgba(251, 191, 36, 0.2);
-    color: #fbbf24;
+    color: var(--warning);
 }
 
 [data-theme="dark"] .badge-status.waiting {
@@ -2209,7 +2241,7 @@
 
 [data-theme="dark"] .badge-status.playing {
     background: rgba(251, 191, 36, 0.2);
-    color: #fbbf24;
+    color: var(--warning);
 }
 
 [data-theme="dark"] .badge-status.finished {
@@ -2404,7 +2436,7 @@
     }
 
     :root:not([data-theme]) .system-text {
-        color: #fbbf24;
+        color: var(--warning);
     }
 
     :root:not([data-theme]) .chat-input-area {
@@ -2441,7 +2473,7 @@
 
     :root:not([data-theme]) .participant-tag.host {
         background: rgba(251, 191, 36, 0.2);
-        color: #fbbf24;
+        color: var(--warning);
     }
 
     :root:not([data-theme]) .badge-status.waiting {
@@ -2451,7 +2483,7 @@
 
     :root:not([data-theme]) .badge-status.playing {
         background: rgba(251, 191, 36, 0.2);
-        color: #fbbf24;
+        color: var(--warning);
     }
 
     :root:not([data-theme]) .join-form-card {
@@ -2518,5 +2550,718 @@
 
     :root:not([data-theme]) .user-answer-info {
         background: var(--bg-elevated);
+    }
+}
+
+/* ========================================
+   Mobile Multi Game Compact Layout (450px 이하)
+   요청 사항:
+   1. 상단 텍스트 크기 2단계 줄이기
+   2. 홈/게임종료 버튼 동일 크기로 축소
+   3. 재생상태 상단바 중앙 이동
+   4. 재생률바 + 시간 + 포기버튼 한줄
+   5. 안내 문구 컴팩트
+   6. 점수 카드 참가자 가로 2열
+   7. 채팅창 세로 최대화
+   ======================================== */
+
+@media (max-width: 480px) {
+    /* === 1 & 2 & 3. 컴팩트 헤더 === */
+    .multi-header-compact {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 10px !important;
+        gap: 6px;
+        flex-wrap: nowrap;
+    }
+
+    .multi-header-compact .game-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .multi-header-compact .round-info {
+        font-size: 0.7rem !important;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .multi-header-compact .score-info {
+        font-size: 0.7rem !important;
+        white-space: nowrap;
+        opacity: 0.9;
+    }
+
+    /* 재생 상태 - 중앙 배치 */
+    .header-player-status {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        flex: 1;
+        justify-content: center;
+        max-width: 100px;
+    }
+
+    .header-player-status .music-icon {
+        font-size: 0.75rem;
+    }
+
+    .header-player-status .music-icon.playing {
+        animation: pulse-icon 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse-icon {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+    }
+
+    .header-player-status .player-status {
+        font-size: 0.65rem;
+        white-space: nowrap;
+        color: var(--text-on-gradient);
+    }
+
+    /* 버튼 - 동일 크기 */
+    .multi-header-compact .header-actions {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .btn-header-compact {
+        padding: 4px 8px !important;
+        font-size: 0.65rem !important;
+        font-weight: 600;
+        border-radius: 4px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        min-width: 40px;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .btn-header-compact:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-end-compact {
+        background: rgba(239, 68, 68, 0.4) !important;
+    }
+
+    .btn-end-compact:hover {
+        background: rgba(239, 68, 68, 0.6) !important;
+    }
+
+    /* PC용 요소 숨김 */
+    .desktop-only {
+        display: none !important;
+    }
+
+    /* === 4. 컴팩트 컨트롤 바 (진행률 + 시간 + 포기 + 현황) - 다크모드 === */
+    .compact-controls-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 8px;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border: 1px solid rgba(78, 205, 196, 0.3);
+        border-radius: 8px;
+        margin-bottom: 6px;
+    }
+
+    .compact-controls-row .progress-bar {
+        flex: 1;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 3px;
+        overflow: hidden;
+        min-width: 50px;
+    }
+
+    .compact-controls-row .progress {
+        height: 100%;
+        background: linear-gradient(90deg, #4ecdc4, #44a08d);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+        box-shadow: 0 0 5px rgba(78, 205, 196, 0.5);
+    }
+
+    .compact-controls-row .time-display {
+        font-size: 0.6rem;
+        color: #4ecdc4;
+        font-weight: 600;
+        white-space: nowrap;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .btn-skip-vote-compact {
+        padding: 3px 8px;
+        font-size: 0.6rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: #f0f0f0;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+
+    /* 모바일에서 포기 아이콘 숨김 */
+    .btn-skip-vote-compact .skip-icon {
+        display: none;
+    }
+
+    .btn-skip-vote-compact:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-skip-vote-compact:disabled,
+    .btn-skip-vote-compact.voted {
+        background: rgba(251, 191, 36, 0.25);
+        color: #ffd700;
+        border-color: rgba(251, 191, 36, 0.5);
+    }
+
+    /* 포기 현황 인라인 */
+    .skip-vote-status-inline {
+        font-size: 0.55rem;
+        color: rgba(255, 255, 255, 0.5);
+        white-space: nowrap;
+    }
+
+    /* === 5. 안내 문구 컴팩트 - 다크모드 === */
+    .play-hint-compact {
+        text-align: center;
+        padding: 8px 10px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.2) 100%);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 8px;
+        margin-bottom: 6px;
+    }
+
+    .play-hint-compact p {
+        margin: 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #e0e0ff;
+    }
+
+    .play-hint-compact .hint-note {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 3px;
+    }
+
+    /* 포기 현황 - 모바일에서는 인라인으로 이동했으므로 기존 영역 숨김 */
+    .round-playing > .skip-vote-status {
+        display: none;
+    }
+
+    /* === 6. 점수 카드 - 참가자 가로 2열 (순위 - 별명 - 점수) === */
+    .mini-scoreboard {
+        padding: 8px 10px !important;
+        max-height: none !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .mini-scoreboard h3 {
+        font-size: 0.75rem !important;
+        margin-bottom: 8px !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .mini-scoreboard .score-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        flex-direction: unset !important;
+        flex-wrap: unset !important;
+        overflow-x: unset !important;
+        max-height: none !important;
+    }
+
+    .mini-scoreboard .score-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 10px !important;
+        font-size: 0.75rem !important;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.95);
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .mini-scoreboard .score-item.me {
+        background: linear-gradient(135deg, #dbeafe 0%, #c7d2fe 100%) !important;
+        border: 1px solid rgba(99, 102, 241, 0.5);
+    }
+
+    /* 순위 숫자 */
+    .mini-scoreboard .score-item .rank {
+        width: auto !important;
+        height: auto !important;
+        min-width: 12px;
+        background: none !important;
+        color: #6366f1 !important;
+        font-size: 0.75rem !important;
+        font-weight: 700;
+        flex-shrink: 0;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0 !important;
+    }
+
+    /* 구분자 스타일 */
+    .mini-scoreboard .score-item .separator {
+        color: #9ca3af;
+        font-weight: 400;
+        flex-shrink: 0;
+    }
+
+    .mini-scoreboard .score-item .player-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #1f2937;
+    }
+
+    .mini-scoreboard .score-item .player-score {
+        font-weight: 700;
+        font-size: 0.8rem;
+        color: #6366f1;
+        flex-shrink: 0;
+    }
+
+    /* === 7. 채팅창 세로 최대화 === */
+    .chat-scoreboard-area {
+        display: flex;
+        flex-direction: column;
+        gap: 6px !important;
+        height: auto;
+        flex: 1;
+        min-height: 0;
+        max-height: none !important;
+    }
+
+    .chat-section {
+        flex: 1 !important;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-messages {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 6px !important;
+        gap: 3px !important;
+    }
+
+    .chat-message {
+        padding: 4px 8px !important;
+        font-size: 0.8rem !important;
+        max-width: 88% !important;
+    }
+
+    .chat-nickname {
+        font-size: 0.65rem !important;
+    }
+
+    .chat-text {
+        font-size: 0.8rem !important;
+    }
+
+    .chat-input-area {
+        padding: 6px !important;
+        gap: 4px !important;
+        flex-shrink: 0;
+    }
+
+    .chat-input {
+        padding: 8px 10px !important;
+        font-size: 14px !important; /* iOS 확대 방지 */
+    }
+
+    .btn-send {
+        padding: 8px 12px !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* 게임 영역 축소 + 다크모드 */
+    .multi-main .game-area {
+        padding: 3px !important;
+        max-height: 28vh !important;
+        min-height: 125px !important;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .multi-main .game-area h2,
+    .multi-main .game-area p {
+        color: #e2e8f0 !important;
+    }
+
+    /* 라운드 대기 압축 + 다크모드 */
+    .waiting-content {
+        padding: 10px !important;
+    }
+
+    .waiting-icon {
+        font-size: 2rem !important;
+        margin-bottom: 4px !important;
+    }
+
+    .waiting-content h2 {
+        font-size: 1rem !important;
+        margin-bottom: 4px !important;
+        color: #f1f5f9 !important;
+    }
+
+    .waiting-content p {
+        font-size: 0.8rem !important;
+        margin-bottom: 8px !important;
+        color: #94a3b8 !important;
+    }
+
+    .btn-start-round {
+        padding: 8px 16px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* 결과 화면 압축 + 다크모드 */
+    .round-result {
+        padding: 3px !important;
+    }
+
+    .answer-reveal h2 {
+        font-size: 1rem !important;
+        color: #fbbf24 !important;
+    }
+
+    .answer-info-card {
+        padding: 10px !important;
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.15) 100%) !important;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .answer-info-card .song-title {
+        font-size: 1rem !important;
+        color: #fef3c7 !important;
+    }
+
+    .answer-info-card .song-artist {
+        font-size: 0.85rem !important;
+        color: #fde68a !important;
+    }
+
+    .answer-info-card .song-meta {
+        font-size: 0.7rem !important;
+        color: #d97706 !important;
+    }
+
+    .winner-info {
+        padding: 6px 10px !important;
+        margin-top: 8px !important;
+        gap: 4px !important;
+        background: rgba(34, 197, 94, 0.15) !important;
+        border: 1px solid rgba(34, 197, 94, 0.3) !important;
+    }
+
+    .winner-info span {
+        font-size: 0.8rem !important;
+    }
+
+    .winner-label {
+        color: #86efac !important;
+    }
+
+    .winner-name {
+        color: #f0fdf4 !important;
+    }
+
+    .winner-score {
+        color: #4ade80 !important;
+    }
+
+    .btn-next-round {
+        padding: 8px 16px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .host-controls {
+        margin-top: 10px !important;
+        padding-top: 10px !important;
+        border-top-color: rgba(255, 255, 255, 0.1) !important;
+    }
+}
+
+/* PC에서 모바일 전용 요소 숨김 */
+@media (min-width: 481px) {
+    .header-player-status {
+        display: none;
+    }
+
+    .compact-controls-row {
+        display: none;
+    }
+
+    .play-hint-compact {
+        display: none;
+    }
+
+    .round-playing > .skip-vote-status {
+        display: none;
+    }
+
+    .btn-header-compact {
+        display: none;
+    }
+
+    .btn-skip-vote-compact {
+        display: none;
+    }
+}
+
+/* ========================================
+   Toast Notifications
+   ======================================== */
+
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.toast-notification.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast-info {
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    color: white;
+}
+
+.toast-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.toast-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+@media (max-width: 480px) {
+    .toast-notification {
+        width: calc(100% - 2rem);
+        left: 1rem;
+        right: 1rem;
+        transform: translateX(0) translateY(-100px);
+        text-align: center;
+    }
+
+    .toast-notification.show {
+        transform: translateX(0) translateY(0);
+    }
+}
+
+/* ========================================
+   Mobile Waiting Room Compact Layout
+   ======================================== */
+
+@media (max-width: 480px) {
+    /* 헤더 압축 */
+    .waiting-header {
+        padding: 1rem 0.75rem;
+    }
+
+    /* 방제목 + 참가코드 한줄 배치 */
+    .room-title-section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .room-title-section h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+    }
+
+    .room-code-display {
+        padding: 0.5rem 0.75rem;
+        gap: 0.5rem;
+    }
+
+    .code-label {
+        font-size: 0.7rem;
+    }
+
+    .code-value {
+        font-size: 1rem;
+        letter-spacing: 0.1em;
+    }
+
+    .btn-copy {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.875rem;
+    }
+
+    /* 게임 설정 정보 압축 */
+    .room-settings-info {
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    /* 참가자 목록 2열 그리드 */
+    .participants-section {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .participants-section h2 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .participants-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem;
+    }
+
+    .participant-card {
+        padding: 0.5rem 0.625rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .participant-info {
+        gap: 0.25rem;
+    }
+
+    .participant-icon {
+        font-size: 0.875rem;
+    }
+
+    .participant-name {
+        font-size: 0.8rem;
+    }
+
+    .status-badge {
+        font-size: 0.65rem;
+        padding: 0.125rem 0.375rem;
+    }
+
+    .btn-kick {
+        font-size: 0.65rem;
+        padding: 0.125rem 0.375rem;
+    }
+
+    /* 버튼 한줄 배치 */
+    .waiting-actions {
+        flex-direction: row !important;
+        gap: 0.5rem;
+    }
+
+    .waiting-actions .btn {
+        min-width: 0;
+        flex: 1;
+        padding: 0.625rem 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .waiting-actions .btn-start-game,
+    .waiting-actions .btn-ready {
+        min-width: 0;
+    }
+
+    .btn-ready,
+    .btn-start-game {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .btn-leave {
+        padding: 0.625rem 0.75rem;
+    }
+
+    /* 채팅 영역 최대화 */
+    .waiting-left {
+        gap: 0.75rem;
+    }
+
+    .waiting-chat {
+        height: auto;
+        min-height: 250px;
+        flex: 1;
+    }
+
+    .waiting-main.with-chat {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: calc(100dvh - 140px);
+        padding: 0 0.5rem;
+    }
+
+    .waiting-chat .chat-header {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .waiting-chat .chat-header h3 {
+        font-size: 0.875rem;
+    }
+
+    .waiting-chat .chat-messages {
+        padding: 0.5rem;
+        min-height: 120px;
+    }
+
+    .waiting-chat .chat-input-area {
+        padding: 0.5rem;
+    }
+
+    .waiting-chat .chat-input-area input {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .waiting-chat .btn-send {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
     }
 }
