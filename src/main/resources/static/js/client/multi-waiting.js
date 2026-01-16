@@ -2,6 +2,8 @@ let pollingInterval;
 let chatPollingInterval;
 let lastStatus = null;
 let lastChatId = 0;
+let lastHostId = null;  // 방장 변경 감지용
+let isReloading = false;  // 새로고침 중 플래그 (leave 방지)
 
 // 페이지 로드 시 폴링 시작
 document.addEventListener('DOMContentLoaded', function() {
@@ -13,15 +15,19 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('beforeunload', function() {
     stopPolling();
     stopChatPolling();
-    // sendBeacon으로 방 나가기 요청 (페이지 언로드되어도 전송 보장)
-    navigator.sendBeacon(`/game/multi/room/${roomCode}/leave`);
+    // 새로고침 중이면 leave 요청 안 보냄 (방장 위임 후 새로고침 시)
+    if (!isReloading) {
+        navigator.sendBeacon(`/game/multi/room/${roomCode}/leave`);
+    }
 });
 
 // 뒤로가기/앞으로가기 시에도 나가기 처리
 window.addEventListener('pagehide', function() {
     stopPolling();
     stopChatPolling();
-    navigator.sendBeacon(`/game/multi/room/${roomCode}/leave`);
+    if (!isReloading) {
+        navigator.sendBeacon(`/game/multi/room/${roomCode}/leave`);
+    }
 });
 
 // 폴링 시작
@@ -79,6 +85,26 @@ async function fetchRoomStatus() {
             window.location.href = `/game/multi/room/${roomCode}/play`;
             return;
         }
+
+        // 방장 변경 감지
+        if (lastHostId !== null && lastHostId !== result.hostId) {
+            const newHost = result.participants.find(p => p.memberId === result.hostId);
+            const newHostName = newHost ? newHost.nickname : '알 수 없음';
+
+            if (result.hostId === myMemberId) {
+                // 내가 새 방장이 됨 → 페이지 새로고침으로 UI 갱신
+                showToast(`🎉 ${newHostName}님이 새 방장이 되었습니다!`, 'success');
+                isReloading = true;  // leave 요청 방지
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+                return;
+            } else {
+                // 다른 사람이 새 방장이 됨
+                showToast(`👑 ${newHostName}님이 새 방장이 되었습니다`, 'info');
+            }
+        }
+        lastHostId = result.hostId;
 
         updateParticipantsList(result.participants, result.hostId);
 
@@ -357,4 +383,29 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// 토스트 알림 표시
+function showToast(message, type = 'info') {
+    // 기존 토스트 제거
+    const existingToast = document.querySelector('.toast-notification');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // 애니메이션을 위해 약간의 딜레이 후 show 클래스 추가
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+
+    // 3초 후 자동 제거
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
