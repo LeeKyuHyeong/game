@@ -94,7 +94,9 @@
 /* Header Top with User Info */
 .header-top {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
+    gap: 1rem;
     margin-bottom: 1rem;
 }
 
@@ -109,7 +111,7 @@
     font-size: 0.875rem;
 }
 
-.btn-login, .btn-register, .btn-logout, .btn-mypage {
+.btn-login, .btn-register, .btn-logout, .btn-mypage, .btn-theme {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
@@ -126,12 +128,12 @@
     background: rgba(255, 255, 255, 0.3);
 }
 
-.btn-register {
+.btn-register, .btn-theme {
     background: var(--bg-surface);
     color: var(--primary-color);
 }
 
-.btn-register:hover {
+.btn-register:hover, .btn-theme:hover {
     background: var(--bg-elevated);
 }
 
@@ -574,7 +576,7 @@
         font-size: 0.75rem;
     }
 
-    .btn-login, .btn-register, .btn-logout, .btn-mypage {
+    .btn-login, .btn-register, .btn-logout, .btn-mypage, .btn-theme {
         padding: 0.375rem 0.75rem;
         font-size: 0.75rem;
     }
