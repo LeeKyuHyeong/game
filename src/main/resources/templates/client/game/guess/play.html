@@ -1,34 +1,34 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: clientHead('게임 진행 - Song Quiz')}"></head>
-<link rel="stylesheet" href="/css/client/game-guess-mobile.css">
 <body class="client-page game-page">
 <div class="game-container guess-mode guess-mobile-compact">
-    <!-- 챌린지 모드 표시 (JS에서 제어) -->
-    <div class="challenge-mode-banner" id="challengeBanner" style="display: none;">
+    <!-- 통합 헤더 (챌린지 모드용) -->
+    <header class="unified-header" id="challengeBanner" style="display: none;">
         <span class="challenge-badge">🎯 30개 챌린지</span>
-        <span class="challenge-progress" id="challengeProgress">0/30</span>
-    </div>
-
-    <header class="game-header game-header-with-status">
-        <div class="game-info">
-            <span class="round-info">
-                라운드 <span id="currentRound">1</span> / <span th:text="${gameSession.totalRounds}"></span>
-            </span>
-            <span class="score-info">
-                점수: <span id="currentScore">0</span>점
-            </span>
-        </div>
-
-        <!-- 헤더 내 상태 표시만 -->
+        <span class="round-info">라운드 <span id="currentRound">1</span>/<span th:text="${gameSession.totalRounds}"></span></span>
+        <span class="score-info">점수:<span id="currentScore">0</span>점</span>
         <div class="header-status">
-            <div class="music-icon" id="musicIcon">🎵</div>
-            <div class="player-status" id="playerStatus">재생 대기중</div>
+            <span class="music-icon" id="musicIcon">🎵</span>
+            <span class="player-status" id="playerStatus">재생 대기중</span>
         </div>
+        <div class="header-actions">
+            <a href="/" class="btn-header">홈</a>
+            <button class="btn-header btn-end" onclick="quitGame()">종료</button>
+        </div>
+    </header>
 
-        <div style="display: flex; gap: 6px; align-items: center;">
-            <a href="/" class="btn btn-quit">홈</a>
-            <button class="btn btn-quit" onclick="quitGame()">종료</button>
+    <!-- 일반 모드용 헤더 (챌린지 아닐 때) -->
+    <header class="unified-header unified-header-normal" id="normalHeader">
+        <span class="round-info">라운드 <span id="currentRoundNormal">1</span>/<span th:text="${gameSession.totalRounds}"></span></span>
+        <span class="score-info">점수:<span id="currentScoreNormal">0</span>점</span>
+        <div class="header-status">
+            <span class="music-icon" id="musicIconNormal">🎵</span>
+            <span class="player-status" id="playerStatusNormal">재생 대기중</span>
+        </div>
+        <div class="header-actions">
+            <a href="/" class="btn-header">홈</a>
+            <button class="btn-header btn-end" onclick="quitGame()">종료</button>
         </div>
     </header>
 
@@ -173,42 +173,134 @@
 <th:block th:replace="~{common/fragments/report-modal :: reportModal}"></th:block>
 
 <style>
-/* 챌린지 모드 배너 */
-.challenge-mode-banner {
+/* 통합 헤더 - 한 줄에 모든 정보 */
+.unified-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 10px 16px;
+    padding: 8px 12px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
     border-radius: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    flex-wrap: nowrap;
 }
 
-.challenge-badge {
+.unified-header-normal {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.unified-header .challenge-badge {
     font-weight: 700;
-    font-size: 0.95rem;
-}
-
-.challenge-progress {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-weight: 600;
     font-size: 0.85rem;
+    white-space: nowrap;
 }
 
+.unified-header .round-info {
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.unified-header .score-info {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0.9;
+}
+
+.unified-header .header-status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    margin-left: auto;
+}
+
+.unified-header .music-icon {
+    font-size: 0.8rem;
+}
+
+.unified-header .player-status {
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+
+.unified-header .header-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.unified-header .btn-header {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.unified-header .btn-header:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.unified-header .btn-end {
+    background: rgba(239, 68, 68, 0.4);
+}
+
+.unified-header .btn-end:hover {
+    background: rgba(239, 68, 68, 0.6);
+}
+
+/* 모바일 - 더 컴팩트하게 */
 @media (max-width: 480px) {
-    .challenge-mode-banner {
-        padding: 8px 12px;
-        margin-bottom: 8px;
+    .unified-header {
+        padding: 6px 8px;
+        gap: 6px;
+        margin-bottom: 6px;
     }
-    .challenge-badge {
-        font-size: 0.85rem;
-    }
-    .challenge-progress {
-        padding: 3px 10px;
+    .unified-header .challenge-badge {
         font-size: 0.75rem;
+    }
+    .unified-header .round-info,
+    .unified-header .score-info {
+        font-size: 0.7rem;
+    }
+    .unified-header .header-status {
+        padding: 2px 6px;
+        gap: 3px;
+    }
+    .unified-header .music-icon {
+        font-size: 0.7rem;
+    }
+    .unified-header .player-status {
+        font-size: 0.6rem;
+    }
+    .unified-header .btn-header {
+        padding: 3px 6px;
+        font-size: 0.65rem;
+    }
+}
+
+/* 초소형 화면 - 점수 숨기고 더 압축 */
+@media (max-width: 360px) {
+    .unified-header {
+        padding: 5px 6px;
+        gap: 4px;
+    }
+    .unified-header .score-info {
+        display: none;
+    }
+    .unified-header .challenge-badge {
+        font-size: 0.7rem;
+    }
+    .unified-header .round-info {
+        font-size: 0.65rem;
     }
 }
 

@@ -77,16 +77,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     initChallengeBanner();
 });
 
-// 챌린지 모드 배너 초기화
-function initChallengeBanner() {
-    const isChallengeMode = sessionStorage.getItem('challengeMode') === 'true';
-    const banner = document.getElementById('challengeBanner');
-
-    if (isChallengeMode && totalRounds === 30) {
-        banner.style.display = 'flex';
-        updateChallengeProgress(1);
-    }
-}
 
 // 챌린지 진행 상황 업데이트
 function updateChallengeProgress(round) {
@@ -98,6 +88,18 @@ function updateChallengeProgress(round) {
         progressEl.textContent = `${round - 1}/30 완료`;
     }
 }
+
+// 챌린지 모드 배너 초기화
+function initChallengeBanner() {
+    const isChallengeMode = sessionStorage.getItem('challengeMode') === 'true';
+    const banner = document.getElementById('challengeBanner');
+
+    if (isChallengeMode && totalRounds === 30) {
+        banner.style.display = 'flex';
+        updateChallengeProgress(1);
+    }
+}
+
 
 // 라운드 축소 알림 표시
 function showReplacedSongsNotice() {

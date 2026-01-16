@@ -7,12 +7,12 @@ let selectedDifficulty = 'NORMAL';
 
 // 난이도별 설정
 const DIFFICULTY_CONFIG = {
-    NORMAL: { playTime: 5, answerTime: 5, lives: 3, hint: false, ranked: false, icon: '⭐' },
-    HARDCORE: { playTime: 3, answerTime: 5, lives: 3, hint: false, ranked: true, icon: '🔥' }
+    NORMAL: { playTime: 7, answerTime: 6, lives: 3, hint: false, ranked: false, icon: '⭐' },
+    HARDCORE: { playTime: 5, answerTime: 5, lives: 3, hint: false, ranked: true, icon: '🔥' }
 };
 
-// 챌린지 곡 수 (서버와 동일하게 30곡 고정)
-const CHALLENGE_SONG_COUNT = 30;
+// 챌린지 곡 수 (서버와 동일하게 20곡 고정)
+const CHALLENGE_SONG_COUNT = 20;
 
 document.addEventListener('DOMContentLoaded', function() {
     // 닉네임 초기값 설정
@@ -48,6 +48,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 초기 난이도 규칙 표시
     updateRulesDisplay();
+
+    // 초기 버튼 상태 설정 (닉네임 자동입력 시에도 버튼 상태 갱신)
+    updateStartButton();
 });
 
 async function loadArtists() {
@@ -148,16 +151,13 @@ function clearSelectedArtist() {
 }
 
 function updateStartButton() {
-    const nickname = document.getElementById('nickname').value.trim();
     const startBtn = document.getElementById('startBtn');
 
-    if (nickname && selectedArtist) {
-        startBtn.disabled = false;
+    if (selectedArtist) {
         const config = DIFFICULTY_CONFIG[selectedDifficulty];
         const modeText = config.ranked ? '🏆 공식' : '📝 연습';
         startBtn.textContent = `${selectedArtist.name} 도전 시작! (${CHALLENGE_SONG_COUNT}곡) ${modeText}`;
     } else {
-        startBtn.disabled = true;
         startBtn.textContent = '도전 시작!';
     }
 }
@@ -200,19 +200,19 @@ function updateRulesDisplay() {
     rulesList.innerHTML = rulesHtml;
 }
 
-// 닉네임 입력 시 버튼 상태 업데이트
-document.getElementById('nickname').addEventListener('input', updateStartButton);
-
 async function startGame() {
-    const nickname = document.getElementById('nickname').value.trim();
+    const nicknameInput = document.getElementById('nickname');
+    const nickname = nicknameInput.value.trim();
 
     if (!nickname) {
         alert('닉네임을 입력해주세요');
+        nicknameInput.focus();
         return;
     }
 
     if (!selectedArtist) {
         alert('아티스트를 선택해주세요');
+        document.getElementById('artistSearch').focus();
         return;
     }
 

@@ -95,25 +95,54 @@ document.addEventListener('DOMContentLoaded', async function() {
     initChallengeBanner();
 });
 
+// 챌린지 모드 여부
+let isChallengeMode = false;
+
 // 챌린지 모드 배너 초기화
 function initChallengeBanner() {
-    const isChallengeMode = sessionStorage.getItem('challengeMode') === 'true';
-    const banner = document.getElementById('challengeBanner');
+    isChallengeMode = sessionStorage.getItem('challengeMode') === 'true'
+                      && totalRounds === 30 && gameMode === 'RANDOM';
 
-    if (isChallengeMode && totalRounds === 30 && gameMode === 'RANDOM') {
-        banner.style.display = 'flex';
-        updateChallengeProgress(1);
+    const challengeBanner = document.getElementById('challengeBanner');
+    const normalHeader = document.getElementById('normalHeader');
+
+    if (isChallengeMode) {
+        challengeBanner.style.display = 'flex';
+        normalHeader.style.display = 'none';
+    } else {
+        challengeBanner.style.display = 'none';
+        normalHeader.style.display = 'flex';
     }
 }
 
 // 챌린지 진행 상황 업데이트
-function updateChallengeProgress(round) {
-    const isChallengeMode = sessionStorage.getItem('challengeMode') === 'true';
+function updateChallengeProgress(roundNumber) {
     if (!isChallengeMode) return;
 
-    const progressEl = document.getElementById('challengeProgress');
-    if (progressEl) {
-        progressEl.textContent = `${round - 1}/30 완료`;
+    // 챌린지 배지에 진행률 표시 (선택적)
+    const badge = document.querySelector('.challenge-badge');
+    if (badge) {
+        const progress = Math.round((roundNumber / actualTotalRounds) * 100);
+        badge.title = `진행률: ${progress}%`;
+    }
+}
+
+// 양쪽 헤더 동기화 헬퍼
+function updateHeaderElement(baseId, value, isClass = false, addClass = false) {
+    const el1 = document.getElementById(baseId);
+    const el2 = document.getElementById(baseId + 'Normal');
+
+    if (isClass) {
+        [el1, el2].forEach(el => {
+            if (el) {
+                if (addClass) el.classList.add(value);
+                else el.classList.remove(value);
+            }
+        });
+    } else {
+        [el1, el2].forEach(el => {
+            if (el) el.textContent = value;
+        });
     }
 }
 
@@ -402,7 +431,7 @@ async function loadRound(roundNumber) {
             actualTotalRounds = result.totalRounds;
         }
 
-        document.getElementById('currentRound').textContent = roundNumber;
+        updateHeaderElement('currentRound', roundNumber);
 
         // UI 리셋 (오디오 소스 로드 전에 먼저 실행)
         resetUI();
@@ -434,9 +463,9 @@ function loadAudioSource() {
             YouTubePlayerManager.loadAndPlay(currentSong.youtubeVideoId, currentSong.startTime || 0);
             isPlaying = true;
             document.getElementById('playBtn').innerHTML = '<span class="pause-icon">❚❚</span>';
-            document.getElementById('musicIcon').textContent = '🎶';
-            document.getElementById('musicIcon').classList.add('playing');
-            document.getElementById('playerStatus').textContent = '재생 중...';
+            updateHeaderElement('musicIcon', '🎶');
+            updateHeaderElement('musicIcon', 'playing', true, true);
+            updateHeaderElement('playerStatus', '재생 중...');
             playStartTime = Date.now();
             progressInterval = setInterval(updateProgress, 100);
         } else {
@@ -482,9 +511,9 @@ function playAudio() {
     playStartTime = Date.now();
 
     document.getElementById('playBtn').innerHTML = '<span class="pause-icon">❚❚</span>';
-    document.getElementById('musicIcon').textContent = '🎶';
-    document.getElementById('musicIcon').classList.add('playing');
-    document.getElementById('playerStatus').textContent = '재생 중...';
+    updateHeaderElement('musicIcon', '🎶');
+    updateHeaderElement('musicIcon', 'playing', true, true);
+    updateHeaderElement('playerStatus', '재생 중...');
 
     progressInterval = setInterval(updateProgress, 100);
 }
@@ -504,9 +533,9 @@ function pauseAudio() {
     }
 
     document.getElementById('playBtn').innerHTML = '<span class="play-icon">▶</span>';
-    document.getElementById('musicIcon').textContent = '🎵';
-    document.getElementById('musicIcon').classList.remove('playing');
-    document.getElementById('playerStatus').textContent = '일시정지';
+    updateHeaderElement('musicIcon', '🎵');
+    updateHeaderElement('musicIcon', 'playing', true, false);
+    updateHeaderElement('playerStatus', '일시정지');
 
     clearInterval(progressInterval);
 }
@@ -527,9 +556,9 @@ function stopAudio() {
     }
 
     document.getElementById('playBtn').innerHTML = '<span class="play-icon">▶</span>';
-    document.getElementById('musicIcon').textContent = '🎵';
-    document.getElementById('musicIcon').classList.remove('playing');
-    document.getElementById('playerStatus').textContent = '재생 대기중';
+    updateHeaderElement('musicIcon', '🎵');
+    updateHeaderElement('musicIcon', 'playing', true, false);
+    updateHeaderElement('playerStatus', '재생 대기중');
     document.getElementById('progressBar').style.width = '0%';
 
     clearInterval(progressInterval);
@@ -571,7 +600,7 @@ function disablePlayButton() {
         playBtn.disabled = true;
         playBtn.innerHTML = '<span class="play-icon">▶</span>';
     }
-    document.getElementById('playerStatus').textContent = '재생 완료';
+    updateHeaderElement('playerStatus', '재생 완료');
 }
 
 function updateTimeDisplay() {
@@ -722,7 +751,7 @@ async function submitAnswer() {
                 if (result.isCorrect) {
                     score = result.totalScore;
                     correctCount++;
-                    document.getElementById('currentScore').textContent = score;
+                    updateHeaderElement('currentScore', score);
                     document.getElementById('correctCount').textContent = correctCount;
                 } else {
                     wrongCount++;

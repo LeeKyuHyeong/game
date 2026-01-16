@@ -19,7 +19,7 @@
                 <div class="challenge-icon">&#127942;</div>
                 <h2>진정한 팬이라면 8초 안에!</h2>
                 <p class="challenge-desc">
-                    선택한 아티스트의 <strong>랜덤 30곡</strong>을 듣고 맞춰라!<br>
+                    선택한 아티스트의 <strong>랜덤 20곡</strong>을 듣고 맞춰라!<br>
                     3번 틀리면 게임 오버!
                 </p>
             </div>
@@ -69,13 +69,13 @@
                     <button type="button" class="difficulty-btn selected" data-difficulty="NORMAL" onclick="selectDifficulty('NORMAL')">
                         <span class="diff-icon">&#11088;</span>
                         <span class="diff-name">노말</span>
-                        <span class="diff-desc">듣기 5초 + 입력 5초 | 라이프 3개</span>
+                        <span class="diff-desc">듣기 7초 + 입력 6초 | 라이프 3개</span>
                         <span class="diff-badge practice">연습 모드</span>
                     </button>
                     <button type="button" class="difficulty-btn" data-difficulty="HARDCORE" onclick="selectDifficulty('HARDCORE')">
                         <span class="diff-icon">&#128293;</span>
                         <span class="diff-name">하드코어</span>
-                        <span class="diff-desc">듣기 3초 + 입력 5초 | 라이프 3개</span>
+                        <span class="diff-desc">듣기 5초 + 입력 5초 | 라이프 3개</span>
                         <span class="diff-badge ranked">공식 랭킹</span>
                     </button>
                 </div>
@@ -84,8 +84,8 @@
             <div class="setup-step rules-section">
                 <h3>게임 규칙</h3>
                 <ul class="rules-list" id="rulesList">
-                    <li><span class="rule-icon">&#127925;</span> 해당 아티스트의 <strong>랜덤 30곡</strong> 출제</li>
-                    <li><span class="rule-icon">&#9200;</span> 노말: <strong>5초</strong> 듣기 | 하드코어: <strong>3초</strong> 듣기</li>
+                    <li><span class="rule-icon">&#127925;</span> 해당 아티스트의 <strong>랜덤 20곡</strong> 출제</li>
+                    <li><span class="rule-icon">&#9200;</span> 노말: <strong>7초</strong> 듣기 | 하드코어: <strong>5초</strong> 듣기</li>
                     <li><span class="rule-icon">&#10084;</span> 라이프 <strong>3개</strong> (오답/시간초과 시 -1)</li>
                     <li><span class="rule-icon">&#128683;</span> 스킵 <strong>불가능</strong></li>
                     <li><span class="rule-icon">&#128221;</span> <strong>하드코어</strong>만 공식 랭킹 반영</li>
@@ -97,7 +97,7 @@
                 <a th:href="@{/auth/login}" class="btn-login-link">로그인하기</a>
             </div>
 
-            <button type="button" id="startBtn" class="btn-start" onclick="startGame()" disabled>
+            <button type="button" id="startBtn" class="btn-start" onclick="startGame()">
                 도전 시작!
             </button>
         </div>

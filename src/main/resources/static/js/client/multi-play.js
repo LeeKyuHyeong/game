@@ -742,6 +742,9 @@ async function nextRound() {
         if (result.success) {
             if (result.isGameOver) {
                 window.location.href = '/game/multi/room/' + roomCode + '/result';
+            } else {
+                // ★ 다음 라운드 시작 성공 시 채팅 입력창에 자동 포커스 (방장 UX 개선)
+                document.getElementById('chatInput').focus();
             }
             // ★ 성공해도 폴링에서 PLAYING으로 바뀌면 roundResult가 숨겨지므로
             // 다음 RESULT 때를 대비해 버튼 복원은 updatePhaseUI()에서 처리
