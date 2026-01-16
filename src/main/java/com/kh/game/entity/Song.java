@@ -48,6 +48,9 @@ public class Song {
     @Column(name = "is_solo")
     private Boolean isSolo;
 
+    @Column(name = "is_popular")
+    private Boolean isPopular = true;
+
     @Column(name = "use_yn")
     private String useYn = "Y";
 

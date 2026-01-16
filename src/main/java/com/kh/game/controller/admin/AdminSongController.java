@@ -89,6 +89,7 @@ public class AdminSongController {
                     result.put("genreId", song.getGenre() != null ? song.getGenre().getId() : null);
                     result.put("releaseYear", song.getReleaseYear());
                     result.put("isSolo", song.getIsSolo());
+                    result.put("isPopular", song.getIsPopular());
                     result.put("useYn", song.getUseYn());
                     return ResponseEntity.ok(result);
                 })
@@ -107,6 +108,7 @@ public class AdminSongController {
             @RequestParam(required = false) Long genreId,
             @RequestParam(required = false) Integer releaseYear,
             @RequestParam(required = false) Boolean isSolo,
+            @RequestParam(required = false) Boolean isPopular,
             @RequestParam String useYn) {
 
         Map<String, Object> result = new HashMap<>();
@@ -124,6 +126,7 @@ public class AdminSongController {
             song.setPlayDuration(playDuration != null ? playDuration : 10);
             song.setReleaseYear(releaseYear);
             song.setIsSolo(isSolo);
+            song.setIsPopular(isPopular != null ? isPopular : true);
             song.setUseYn(useYn);
 
             if (genreId != null) {

@@ -40,9 +40,18 @@ public class SongService {
     private String uploadDir;
 
     /**
-     * 게임용 노래 목록 조회 (레트로 장르 제외)
+     * 일반 게임용 노래 목록 조회 (레트로 장르 제외, 대중곡만)
+     * - 랜덤 게임, 멀티플레이어, 호스트 모드, 내가 맞추기에서 사용
      */
     private List<Song> findSongsForGame() {
+        return songRepository.findPopularSongsForGame("Y", GenreService.EXCLUDED_GENRE_CODE);
+    }
+
+    /**
+     * 아티스트 챌린지용 노래 목록 조회 (레트로 장르 제외, 매니악 곡 포함)
+     * - 팬 챌린지에서 사용 (팬이라면 매니악 곡도 알아야 함)
+     */
+    private List<Song> findAllSongsForArtistChallenge() {
         return songRepository.findByUseYnAndHasAudioSourceExcludingGenre("Y", GenreService.EXCLUDED_GENRE_CODE);
     }
 
@@ -627,10 +636,10 @@ public class SongService {
 
     /**
      * 아티스트의 모든 곡을 YouTube 검증 후 반환 (팬 챌린지용)
-     * 무효한 곡은 제외됨 - 게임용 (레트로 제외)
+     * 무효한 곡은 제외됨 - 매니악 곡 포함 (팬이라면 알아야 함)
      */
     public List<Song> getAllValidatedSongsByArtist(String artist) {
-        List<Song> allSongs = findSongsForGame();
+        List<Song> allSongs = findAllSongsForArtistChallenge();
 
         List<Song> filtered = new ArrayList<>();
         for (Song song : allSongs) {

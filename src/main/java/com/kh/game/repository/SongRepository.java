@@ -31,6 +31,10 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     @Query("SELECT s FROM Song s WHERE s.useYn = :useYn AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) AND (s.genre IS NULL OR s.genre.code <> :excludeGenreCode)")
     List<Song> findByUseYnAndHasAudioSourceExcludingGenre(@Param("useYn") String useYn, @Param("excludeGenreCode") String excludeGenreCode);
 
+    // YouTube 또는 MP3 파일이 있는 대중곡 조회 (특정 장르 제외, 매니악 곡 제외 - 일반 게임용)
+    @Query("SELECT s FROM Song s WHERE s.useYn = :useYn AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) AND (s.genre IS NULL OR s.genre.code <> :excludeGenreCode) AND (s.isPopular IS NULL OR s.isPopular = true)")
+    List<Song> findPopularSongsForGame(@Param("useYn") String useYn, @Param("excludeGenreCode") String excludeGenreCode);
+
     Page<Song> findByTitleContainingOrArtistContaining(String title, String artist, Pageable pageable);
 
     Page<Song> findByTitleContainingOrArtistContainingAndUseYn(String title, String artist, String useYn, Pageable pageable);

@@ -9,6 +9,7 @@ function openModal() {
     document.getElementById('currentYoutubeId').textContent = '';
     document.querySelector('input[name="useYn"][value="Y"]').checked = true;
     document.querySelector('input[name="isSolo"][value="false"]').checked = true;
+    document.querySelector('input[name="isPopular"][value="true"]').checked = true;
     modal.classList.add('show');
 }
 
@@ -36,6 +37,9 @@ async function editSong(id) {
 
         const isSoloRadio = document.querySelector(`input[name="isSolo"][value="${song.isSolo}"]`);
         if (isSoloRadio) isSoloRadio.checked = true;
+
+        const isPopularRadio = document.querySelector(`input[name="isPopular"][value="${song.isPopular !== false}"]`);
+        if (isPopularRadio) isPopularRadio.checked = true;
 
         const useYnRadio = document.querySelector(`input[name="useYn"][value="${song.useYn || 'Y'}"]`);
         if (useYnRadio) useYnRadio.checked = true;
@@ -106,6 +110,7 @@ songForm.addEventListener('submit', async function(e) {
     if (releaseYear) formData.append('releaseYear', releaseYear);
 
     formData.append('isSolo', document.querySelector('input[name="isSolo"]:checked').value);
+    formData.append('isPopular', document.querySelector('input[name="isPopular"]:checked').value);
     formData.append('useYn', document.querySelector('input[name="useYn"]:checked').value);
 
     const youtubeUrl = document.getElementById('youtubeUrl').value;
