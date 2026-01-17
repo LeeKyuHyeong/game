@@ -197,11 +197,10 @@ async function showGenreSelectModal(roundNumber) {
 
         genres.forEach(genre => {
             const item = document.createElement('div');
-            item.className = 'genre-item';
+            item.className = 'chip';
 
             if (genre.availableCount === 0) {
                 item.classList.add('disabled');
-                // hideEmptyOptions 설정에 따라 숨김 처리
                 if (hideEmptyOptions) {
                     item.classList.add('hidden');
                 }
@@ -209,10 +208,7 @@ async function showGenreSelectModal(roundNumber) {
 
             item.dataset.genreId = genre.id;
             item.dataset.genreName = genre.name;
-            item.innerHTML = `
-                <span class="genre-name">${genre.name}</span>
-                <span class="genre-count">${genre.availableCount}곡</span>
-            `;
+            item.innerHTML = `${genre.name}<span class="chip-count">(${genre.availableCount})</span>`;
 
             if (genre.availableCount > 0) {
                 item.addEventListener('click', () => selectGenre(genre.id, roundNumber));
@@ -294,7 +290,7 @@ function renderArtistList(filterKeyword = '') {
 
     artistsToShow.forEach(artist => {
         const item = document.createElement('div');
-        item.className = 'genre-item';
+        item.className = 'chip';
 
         if (artist.count === 0) {
             item.classList.add('disabled');
@@ -303,10 +299,7 @@ function renderArtistList(filterKeyword = '') {
             }
         }
 
-        item.innerHTML = `
-            <span class="genre-name">${artist.name}</span>
-            <span class="genre-count">${artist.count}곡</span>
-        `;
+        item.innerHTML = `${artist.name}<span class="chip-count">(${artist.count})</span>`;
 
         if (artist.count > 0) {
             item.addEventListener('click', () => selectArtist(artist.name, currentArtistRound));
@@ -357,7 +350,7 @@ async function showYearSelectModal(roundNumber) {
 
         years.forEach(year => {
             const item = document.createElement('div');
-            item.className = 'genre-item';
+            item.className = 'chip';
 
             if (year.count === 0) {
                 item.classList.add('disabled');
@@ -366,10 +359,7 @@ async function showYearSelectModal(roundNumber) {
                 }
             }
 
-            item.innerHTML = `
-                <span class="genre-name">${year.year}년</span>
-                <span class="genre-count">${year.count}곡</span>
-            `;
+            item.innerHTML = `${year.year}<span class="chip-count">(${year.count})</span>`;
 
             if (year.count > 0) {
                 item.addEventListener('click', () => selectYear(year.year, roundNumber));
@@ -753,9 +743,11 @@ async function submitAnswer() {
                     correctCount++;
                     updateHeaderElement('currentScore', score);
                     document.getElementById('correctCount').textContent = correctCount;
+                    updateStatsInline();
                 } else {
                     wrongCount++;
                     document.getElementById('wrongCount').textContent = wrongCount;
+                    updateStatsInline();
                 }
 
                 showAnswerModal(result.isCorrect, userAnswer, result.answer, result.isGameOver, false, result.earnedScore, result.answerTime);
@@ -811,6 +803,7 @@ async function skipRound() {
         if (result.success) {
             skipCount++;
             document.getElementById('skipCount').textContent = skipCount;
+            updateStatsInline();
             showAnswerModal(false, null, result.answer, result.isGameOver, true);
         } else {
             isRoundEnded = false; // 실패 시 플래그 복원
@@ -1034,6 +1027,7 @@ async function skipUnplayableRound() {
         if (result.success) {
             skipCount++;
             document.getElementById('skipCount').textContent = skipCount;
+            updateStatsInline();
 
             // 정답 모달 없이 바로 다음 라운드로
             if (result.isGameOver) {
@@ -1161,4 +1155,25 @@ function resetLiveScoreIndicator() {
             seg.classList.add('active');
         }
     });
+}
+
+/**
+ * PC 컴팩트 모드: 사이드바 아코디언 토글
+ */
+function toggleStats() {
+    const sidebar = document.getElementById('statsSidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('collapsed');
+        updateStatsInline();
+    }
+}
+
+/**
+ * PC 컴팩트 모드: 접힌 상태에서 인라인 통계 표시
+ */
+function updateStatsInline() {
+    const inlineEl = document.getElementById('statsInline');
+    if (inlineEl) {
+        inlineEl.textContent = `✓${correctCount} ✗${wrongCount} ⏭${skipCount}`;
+    }
 }

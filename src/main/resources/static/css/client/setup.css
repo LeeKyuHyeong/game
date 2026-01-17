@@ -670,6 +670,58 @@
     color: var(--text-secondary);
 }
 
+/* Per-Round Selection Options (Radio Box Style) */
+.per-round-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.per-round-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.per-round-option:hover {
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+}
+
+.per-round-option input {
+    display: none;
+}
+
+.per-round-option input:checked + .per-round-label {
+    color: white;
+}
+
+.per-round-option:has(input:checked) {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.per-round-label {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    transition: color 0.2s;
+}
+
+.per-round-desc {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+}
+
 /* Artist Type Options */
 .artist-type-options {
     display: flex;
@@ -908,9 +960,11 @@
     border: 2px solid var(--border-color);
     border-radius: 1rem;
     font-size: 0.8125rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    background: white;
+    background: var(--bg-surface);
+    color: #111827;
     user-select: none;
 }
 
@@ -922,6 +976,20 @@
     background: var(--primary-color);
     border-color: var(--primary-color);
     color: white;
+}
+
+.chip.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--bg-muted);
+}
+
+.chip.disabled:hover {
+    border-color: var(--border-color);
+}
+
+.chip.hidden {
+    display: none;
 }
 
 .chip .chip-count {
@@ -955,9 +1023,9 @@
     border-color: var(--primary-color);
 }
 
-/* Mobile Artist Type (hidden on PC) */
+/* Mobile Artist Type (모바일에서만 표시) */
 .mobile-artist-type {
-    display: none;
+    display: none !important;
 }
 
 /* Responsive */
@@ -968,38 +1036,51 @@
         display: none;
     }
 
-    /* 진행 라운드 + 아티스트 유형 가로 배치 */
-    #roundSettingArea {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
+    /* 호스트 설정: 인원 + 라운드 + 아티스트유형 한 줄 배치 */
+    .host-settings-row {
+        display: flex;
         align-items: center;
-        gap: 0.5rem 0.75rem;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
     }
 
-    #roundSettingArea > label {
+    .host-settings-row .form-group {
         margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-    /* (최대 N라운드) 줄바꿈 */
-    #roundSettingArea .song-count-info {
-        display: block;
-        font-size: 0.7rem;
+    .host-settings-row .form-group > label {
+        font-size: 0.8rem;
+        margin-bottom: 0;
+        white-space: nowrap;
+        position: relative;
+    }
+
+    /* (최대 N라운드) - 라벨 아래 작게 표시 */
+    .host-settings-row .song-count-info {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        font-size: 0.6rem;
+        white-space: nowrap;
+        opacity: 0.8;
         margin-top: 0.125rem;
     }
 
-    #roundSettingArea .round-input-group {
-        justify-content: center;
+    .host-settings-row .round-input-group {
         margin-bottom: 0;
     }
 
     /* 프리셋 버튼 숨김 */
-    #roundSettingArea .round-presets {
+    .host-settings-row .round-presets {
         display: none;
     }
 
     /* 모바일 아티스트 유형 표시 */
     .mobile-artist-type {
-        display: flex;
+        display: flex !important;
         align-items: center;
         gap: 0.5rem;
     }
@@ -1021,6 +1102,33 @@
     /* 아티스트 유형 영역 숨김 (모바일) */
     #artistTypeArea {
         display: none !important;
+    }
+
+    /* 내가맞추기 페이지용 기존 스타일 유지 */
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 0.5rem 0.75rem;
+    }
+
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) > label {
+        margin-bottom: 0;
+    }
+
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) .song-count-info {
+        display: block;
+        font-size: 0.7rem;
+        margin-top: 0.125rem;
+    }
+
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) .round-input-group {
+        justify-content: center;
+        margin-bottom: 0;
+    }
+
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) .round-presets {
+        display: none;
     }
 
     /* Challenge Shortcut Mobile */
@@ -1200,6 +1308,25 @@
     .mode-label small {
         font-size: 0.65rem;
         line-height: 1.2;
+    }
+
+    /* Per-Round Options Mobile */
+    .per-round-options {
+        gap: 0.375rem;
+    }
+
+    .per-round-option {
+        padding: 0.5rem 0.5rem;
+        border-radius: 0.5rem;
+    }
+
+    .per-round-label {
+        font-size: 0.8rem;
+    }
+
+    .per-round-desc {
+        font-size: 0.7rem;
+        margin-top: 0.25rem;
     }
 
     /* Artist Type Options Mobile - horizontal compact */
@@ -1409,6 +1536,18 @@
     color: var(--text-primary);
 }
 
+[data-theme="dark"] .per-round-option {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .per-round-option:hover {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .per-round-option:has(input:checked) {
+    background: var(--primary-color);
+}
+
 [data-theme="dark"] .multi-select-chips {
     background: var(--bg-elevated);
 }
@@ -1561,6 +1700,18 @@
     :root:not([data-theme]) .chip {
         background: var(--bg-surface);
         color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .per-round-option {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .per-round-option:hover {
+        background: var(--bg-muted);
+    }
+
+    :root:not([data-theme]) .per-round-option:has(input:checked) {
+        background: var(--primary-color);
     }
 
     :root:not([data-theme]) .multi-select-chips {

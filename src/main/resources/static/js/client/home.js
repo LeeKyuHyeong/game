@@ -93,7 +93,7 @@ async function loadMyRanking() {
             return;
         }
 
-        section.style.display = '';
+        section.classList.remove('hidden');
 
         if (data.guessGames > 0) {
             content.innerHTML = `
@@ -128,7 +128,7 @@ async function loadArtistChallengeRanking() {
             return;
         }
 
-        section.style.display = '';
+        section.classList.remove('hidden');
 
         let html = '';
         data.forEach(item => {

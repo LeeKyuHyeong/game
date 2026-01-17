@@ -38,45 +38,88 @@ async function loadArtists() {
 }
 
 // 연도 chips 렌더링
+//function renderYearChips() {
+//    const container = document.getElementById('yearSelectChips');
+//    if (!container) return;
+//
+//    container.innerHTML = allYears.map(item => {
+//        const isSelected = selectedYears.includes(item.year);
+//        return `<button type="button" class="select-chip ${isSelected ? 'selected' : ''}"
+//                        onclick="toggleYear(${item.year})">
+//                    ${item.year} <span class="chip-count">(${item.count})</span>
+//                </button>`;
+//    }).join('');
+//
+//    updateYearCountInfo();
+//}
+
 function renderYearChips() {
     const container = document.getElementById('yearSelectChips');
-    if (!container) return;
+    if (allYears.length === 0) {
+        container.innerHTML = '<span class="chips-loading">등록된 연도가 없습니다</span>';
+        return;
+    }
 
-    container.innerHTML = allYears.map(item => {
-        const isSelected = selectedYears.includes(item.year);
-        return `<button type="button" class="select-chip ${isSelected ? 'selected' : ''}"
-                        onclick="toggleYear(${item.year})">
-                    ${item.year} <span class="chip-count">(${item.count})</span>
-                </button>`;
+    container.innerHTML = allYears.map(y => {
+        const isSelected = selectedYears.includes(y.year);
+        return `<div class="chip ${isSelected ? 'selected' : ''}" onclick="toggleYear(${y.year})">
+            ${y.year}<span class="chip-count">(${y.count})</span>
+        </div>`;
     }).join('');
 
     updateYearCountInfo();
 }
 
 // 아티스트 chips 렌더링
+//function renderArtistChips(filterKeyword = '') {
+//    const container = document.getElementById('artistSelectChips');
+//    if (!container) return;
+//
+//    let filteredArtists = allArtists;
+//    if (filterKeyword) {
+//        const keyword = filterKeyword.toLowerCase();
+//        filteredArtists = allArtists.filter(item =>
+//            item.name.toLowerCase().includes(keyword)
+//        );
+//    }
+//
+//    if (filteredArtists.length === 0) {
+//        container.innerHTML = '<div class="chips-empty">검색 결과가 없습니다</div>';
+//        return;
+//    }
+//
+//    container.innerHTML = filteredArtists.map(item => {
+//        const isSelected = selectedArtists.includes(item.name);
+//        return `<button type="button" class="select-chip ${isSelected ? 'selected' : ''}"
+//                        onclick="toggleArtist('${item.name.replace(/'/g, "\\'")}')">
+//                    ${item.name} <span class="chip-count">(${item.count})</span>
+//                </button>`;
+//    }).join('');
+//
+//    updateArtistCountInfo();
+//}
+
 function renderArtistChips(filterKeyword = '') {
     const container = document.getElementById('artistSelectChips');
-    if (!container) return;
+    let artistsToShow = allArtists;
 
-    let filteredArtists = allArtists;
     if (filterKeyword) {
-        const keyword = filterKeyword.toLowerCase();
-        filteredArtists = allArtists.filter(item =>
-            item.name.toLowerCase().includes(keyword)
+        artistsToShow = allArtists.filter(a =>
+            a.name.toLowerCase().includes(filterKeyword.toLowerCase())
         );
     }
 
-    if (filteredArtists.length === 0) {
-        container.innerHTML = '<div class="chips-empty">검색 결과가 없습니다</div>';
+    if (artistsToShow.length === 0) {
+        container.innerHTML = '<span class="chips-loading">검색 결과가 없습니다</span>';
         return;
     }
 
-    container.innerHTML = filteredArtists.map(item => {
-        const isSelected = selectedArtists.includes(item.name);
-        return `<button type="button" class="select-chip ${isSelected ? 'selected' : ''}"
-                        onclick="toggleArtist('${item.name.replace(/'/g, "\\'")}')">
-                    ${item.name} <span class="chip-count">(${item.count})</span>
-                </button>`;
+    container.innerHTML = artistsToShow.map(a => {
+        const isSelected = selectedArtists.includes(a.name);
+        const escapedName = a.name.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        return `<div class="chip ${isSelected ? 'selected' : ''}" onclick="toggleArtist('${escapedName}')">
+            ${a.name}<span class="chip-count">(${a.count})</span>
+        </div>`;
     }).join('');
 
     updateArtistCountInfo();
@@ -132,31 +175,79 @@ function updateArtistCountInfo() {
     }
 }
 
-// 라운드 버튼 이벤트
-document.querySelectorAll('.round-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const value = parseInt(this.dataset.value);
-        if (value > maxAvailableSongs) {
+// 라운드 입력 이벤트
+const roundInput = document.getElementById('totalRoundsInput');
+if (roundInput) {
+    roundInput.addEventListener('change', function() {
+        let value = parseInt(this.value) || 1;
+        value = Math.max(1, Math.min(50, value));
+
+        if (value > maxAvailableSongs && maxAvailableSongs > 0) {
             alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
-            return;
+            value = maxAvailableSongs;
         }
-        document.querySelectorAll('.round-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+
+        this.value = value;
         totalRounds = value;
+        updatePresetButtons();
     });
-});
+}
+
+// 라운드 조절 함수
+function adjustRounds(delta) {
+    const input = document.getElementById('totalRoundsInput');
+    let value = parseInt(input.value) || 10;
+    value = Math.max(1, Math.min(50, value + delta));
+
+    if (value > maxAvailableSongs && maxAvailableSongs > 0) {
+        value = maxAvailableSongs;
+    }
+
+    input.value = value;
+    totalRounds = value;
+    updatePresetButtons();
+}
+
+// 라운드 프리셋 설정 함수
+function setRounds(value) {
+    if (value > maxAvailableSongs && maxAvailableSongs > 0) {
+        alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+        return;
+    }
+
+    const input = document.getElementById('totalRoundsInput');
+    input.value = value;
+    totalRounds = value;
+    updatePresetButtons();
+}
+
+// 프리셋 버튼 상태 업데이트
+function updatePresetButtons() {
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+        const btnValue = parseInt(btn.textContent);
+        btn.classList.toggle('active', btnValue === totalRounds);
+
+        if (btnValue > maxAvailableSongs && maxAvailableSongs > 0) {
+            btn.classList.add('disabled');
+            btn.disabled = true;
+        } else {
+            btn.classList.remove('disabled');
+            btn.disabled = false;
+        }
+    });
+}
 
 // 게임 모드 변경 이벤트
 document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
     radio.addEventListener('change', function() {
         const genreSelect = document.getElementById('genreSelect');
-        const genreRoundSetting = document.getElementById('genreRoundSetting');
+        const perRoundOptions = document.getElementById('perRoundOptions');
         const artistSelectArea = document.getElementById('artistSelectArea');
         const yearSelectArea = document.getElementById('yearSelectArea');
 
         // 모든 선택 영역 숨기기
         genreSelect.style.display = 'none';
-        genreRoundSetting.style.display = 'none';
+        if (perRoundOptions) perRoundOptions.style.display = 'none';
         if (artistSelectArea) artistSelectArea.style.display = 'none';
         if (yearSelectArea) yearSelectArea.style.display = 'none';
 
@@ -173,8 +264,9 @@ document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
         // 해당 모드의 선택 영역만 표시
         if (this.value === 'FIXED_GENRE') {
             genreSelect.style.display = 'block';
-        } else if (this.value === 'GENRE_PER_ROUND') {
-            genreRoundSetting.style.display = 'block';
+        } else if (this.value === 'GENRE_PER_ROUND' || this.value === 'YEAR_PER_ROUND' || this.value === 'ARTIST_PER_ROUND') {
+            // 매 라운드 선택 모드는 모두 hideEmptyGenres 옵션 사용 가능
+            if (perRoundOptions) perRoundOptions.style.display = 'block';
         } else if (this.value === 'FIXED_ARTIST') {
             if (artistSelectArea) artistSelectArea.style.display = 'block';
         } else if (this.value === 'FIXED_YEAR') {
@@ -198,10 +290,6 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('fixedGenreId').addEventListener('change', function() {
     updateSongCount();
 });
-
-// 연도 범위 변경 이벤트
-document.getElementById('yearFrom').addEventListener('change', updateSongCount);
-document.getElementById('yearTo').addEventListener('change', updateSongCount);
 
 // 아티스트 유형 변경 이벤트
 document.querySelectorAll('input[name="artistType"]').forEach(radio => {
@@ -254,28 +342,15 @@ async function updateSongCount() {
             infoEl.style.color = '#22c55e';
         }
 
-        // 라운드 버튼 활성화/비활성화
-        document.querySelectorAll('.round-btn').forEach(btn => {
-            const value = parseInt(btn.dataset.value);
-            if (value > maxAvailableSongs) {
-                btn.classList.add('disabled');
-                btn.disabled = true;
-            } else {
-                btn.classList.remove('disabled');
-                btn.disabled = false;
-            }
-        });
-
         // 현재 선택된 라운드가 최대치를 초과하면 조정
         if (totalRounds > maxAvailableSongs && maxAvailableSongs > 0) {
-            const availableButtons = document.querySelectorAll('.round-btn:not(.disabled)');
-            if (availableButtons.length > 0) {
-                document.querySelectorAll('.round-btn').forEach(b => b.classList.remove('active'));
-                const lastAvailable = availableButtons[availableButtons.length - 1];
-                lastAvailable.classList.add('active');
-                totalRounds = parseInt(lastAvailable.dataset.value);
-            }
+            totalRounds = maxAvailableSongs;
+            const input = document.getElementById('totalRoundsInput');
+            if (input) input.value = totalRounds;
         }
+
+        // 프리셋 버튼 상태 업데이트
+        updatePresetButtons();
 
     } catch (error) {
         console.error('노래 개수 조회 오류:', error);
@@ -283,8 +358,22 @@ async function updateSongCount() {
 }
 
 function changePlayerCount(delta) {
-    playerCount = Math.max(2, Math.min(10, playerCount + delta));
-    document.getElementById('playerCount').textContent = playerCount;
+    const input = document.getElementById('playerCountInput');
+    let value = parseInt(input.value) || 2;
+    value = Math.max(2, Math.min(10, value + delta));
+    input.value = value;
+    playerCount = value;
+}
+
+// 진행 인원 입력 이벤트
+const playerCountInput = document.getElementById('playerCountInput');
+if (playerCountInput) {
+    playerCountInput.addEventListener('change', function() {
+        let value = parseInt(this.value) || 2;
+        value = Math.max(2, Math.min(10, value));
+        this.value = value;
+        playerCount = value;
+    });
 }
 
 function goToStep1() {
@@ -329,13 +418,7 @@ function goToStep2() {
     }
 
     document.getElementById('step1').style.display = 'none';
-    document.getElementById('step3').style.display = 'none';
     document.getElementById('step2').style.display = 'block';
-}
-
-function goToStep3() {
-    document.getElementById('step2').style.display = 'none';
-    document.getElementById('step3').style.display = 'block';
 
     // 플레이어 입력 필드 생성
     const container = document.getElementById('playersInput');
@@ -353,6 +436,19 @@ function goToStep3() {
 
     // 첫번째 입력에 포커스
     container.querySelector('input').focus();
+}
+
+// 모바일 아티스트 유형 선택 동기화
+function syncArtistTypeFromMobileSelect() {
+    const mobileSelect = document.getElementById('artistTypeSelectMobile');
+    if (mobileSelect) {
+        const value = mobileSelect.value;
+        const radioBtn = document.querySelector(`input[name="artistType"][value="${value}"]`);
+        if (radioBtn) {
+            radioBtn.checked = true;
+            updateSongCount();
+        }
+    }
 }
 
 async function startGame() {
@@ -396,11 +492,6 @@ async function startGame() {
     // 설정 수집
     const settings = {};
 
-    const yearFrom = document.getElementById('yearFrom').value;
-    const yearTo = document.getElementById('yearTo').value;
-    if (yearFrom) settings.yearFrom = parseInt(yearFrom);
-    if (yearTo) settings.yearTo = parseInt(yearTo);
-
     const artistType = document.querySelector('input[name="artistType"]:checked').value;
     if (artistType === 'solo') settings.soloOnly = true;
     if (artistType === 'group') settings.groupOnly = true;
@@ -417,7 +508,7 @@ async function startGame() {
         settings.selectedYears = selectedYears;
     }
 
-    if (gameMode === 'GENRE_PER_ROUND') {
+    if (gameMode === 'GENRE_PER_ROUND' || gameMode === 'YEAR_PER_ROUND' || gameMode === 'ARTIST_PER_ROUND') {
         settings.hideEmptyGenres = document.getElementById('hideEmptyGenres').checked;
     }
 

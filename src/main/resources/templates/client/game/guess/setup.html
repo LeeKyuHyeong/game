@@ -72,65 +72,54 @@
                 <div class="form-group">
                     <label>게임 모드</label>
                     <div class="mode-options">
-                        <!-- 고정 모드 -->
-                        <div class="mode-group">
-                            <div class="mode-group-label">고정 모드</div>
-                            <label class="mode-option">
-                                <input type="radio" name="gameMode" value="RANDOM" checked>
-                                <span class="mode-label">
-                                    <strong>전체 랜덤</strong>
-                                    <small>모든 노래 중 랜덤 출제</small>
-                                </span>
-                            </label>
-                            <label class="mode-option">
-                                <input type="radio" name="gameMode" value="FIXED_GENRE">
-                                <span class="mode-label">
-                                    <strong>장르 고정</strong>
-                                    <small>선택한 장르에서만 출제</small>
-                                </span>
-                            </label>
-                            <label class="mode-option">
-                                <input type="radio" name="gameMode" value="FIXED_ARTIST">
-                                <span class="mode-label">
-                                    <strong>아티스트 고정</strong>
-                                    <small>선택한 아티스트 노래만 출제</small>
-                                </span>
-                            </label>
-                            <label class="mode-option">
-                                <input type="radio" name="gameMode" value="FIXED_YEAR">
-                                <span class="mode-label">
-                                    <strong>연도 고정</strong>
-                                    <small>선택한 연도 노래만 출제</small>
-                                </span>
-                            </label>
-                        </div>
-
-                        <!-- 매 라운드 선택 모드 -->
-                        <div class="mode-group">
-                            <div class="mode-group-label">매 라운드 선택</div>
-                            <label class="mode-option">
-                                <input type="radio" name="gameMode" value="GENRE_PER_ROUND">
-                                <span class="mode-label">
-                                    <strong>장르 선택</strong>
-                                    <small>매 라운드마다 장르 선택</small>
-                                </span>
-                            </label>
-                            <label class="mode-option">
-                                <input type="radio" name="gameMode" value="ARTIST_PER_ROUND">
-                                <span class="mode-label">
-                                    <strong>아티스트 선택</strong>
-                                    <small>매 라운드마다 아티스트 선택</small>
-                                </span>
-                            </label>
-                            <label class="mode-option">
-                                <input type="radio" name="gameMode" value="YEAR_PER_ROUND">
-                                <span class="mode-label">
-                                    <strong>연도 선택</strong>
-                                    <small>매 라운드마다 연도 선택</small>
-                                </span>
-                            </label>
-                        </div>
+                        <label class="mode-option">
+                            <input type="radio" name="gameMode" value="RANDOM" checked>
+                            <span class="mode-label">
+                                <strong>전체 랜덤</strong>
+                                <small>모든 노래 중 랜덤 출제</small>
+                            </span>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="gameMode" value="FIXED_GENRE">
+                            <span class="mode-label">
+                                <strong>장르 고정</strong>
+                                <small>선택한 장르에서만 출제</small>
+                            </span>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="gameMode" value="FIXED_ARTIST">
+                            <span class="mode-label">
+                                <strong>아티스트 고정</strong>
+                                <small>선택한 아티스트 노래만 출제</small>
+                            </span>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="gameMode" value="FIXED_YEAR">
+                            <span class="mode-label">
+                                <strong>연도 고정</strong>
+                                <small>선택한 연도 노래만 출제</small>
+                            </span>
+                        </label>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label>매 라운드 선택 모드</label>
+                    <div class="per-round-options">
+                        <label class="per-round-option">
+                            <input type="radio" name="gameMode" value="GENRE_PER_ROUND">
+                            <span class="per-round-label">장르</span>
+                        </label>
+                        <label class="per-round-option">
+                            <input type="radio" name="gameMode" value="YEAR_PER_ROUND">
+                            <span class="per-round-label">연도</span>
+                        </label>
+                        <label class="per-round-option">
+                            <input type="radio" name="gameMode" value="ARTIST_PER_ROUND">
+                            <span class="per-round-label">아티스트</span>
+                        </label>
+                    </div>
+                    <small class="per-round-desc">매 라운드마다 직접 선택하여 출제</small>
                 </div>
 
                 <!-- 장르 선택 (FIXED_GENRE) -->

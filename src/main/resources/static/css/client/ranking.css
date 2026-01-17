@@ -256,7 +256,7 @@
 }
 
 .podium-name {
-    color: white;
+    color: var(--gray-900);
     font-weight: 700;
     font-size: 1rem;
     max-width: 100px;
@@ -267,8 +267,9 @@
 }
 
 .podium-value {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--gray-900);
     font-size: 0.875rem;
+    opacity: 0.8;
 }
 
 .podium-stand {
@@ -278,7 +279,7 @@
     justify-content: center;
     font-size: 1.5rem;
     font-weight: 700;
-    color: white;
+    color: var(--gray-900);
     border-radius: 0.5rem 0.5rem 0 0;
 }
 
@@ -580,6 +581,19 @@
     background: rgba(249, 115, 22, 0.15);
 }
 
+[data-theme="dark"] .rank-cell {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .name-cell,
+[data-theme="dark"] .member-name {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .sub-stat {
+    color: var(--text-secondary);
+}
+
 [data-theme="dark"] .empty-state {
     background: var(--bg-surface);
 }
@@ -608,6 +622,19 @@
 
     :root:not([data-theme]) .ranking-row.top-3 {
         background: rgba(249, 115, 22, 0.15);
+    }
+
+    :root:not([data-theme]) .rank-cell {
+        color: var(--text-secondary);
+    }
+
+    :root:not([data-theme]) .name-cell,
+    :root:not([data-theme]) .member-name {
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .sub-stat {
+        color: var(--text-secondary);
     }
 
     :root:not([data-theme]) .empty-state {

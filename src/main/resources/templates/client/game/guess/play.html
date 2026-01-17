@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/fragments/head :: clientHead('게임 진행 - Song Quiz')}"></head>
 <body class="client-page game-page">
-<div class="game-container guess-mode guess-mobile-compact">
+<div class="game-container guess-mode guess-mobile-compact pc-compact">
     <!-- 통합 헤더 (챌린지 모드용) -->
     <header class="unified-header" id="challengeBanner" style="display: none;">
         <span class="challenge-badge">🎯 30개 챌린지</span>
@@ -55,6 +55,24 @@
             </div>
         </div>
 
+        <aside class="stats-sidebar" id="statsSidebar">
+            <h3 onclick="toggleStats()">📊 현재 기록<span class="stats-inline" id="statsInline"></span></h3>
+            <div class="stat-item-wrap">
+                <div class="stat-item">
+                    <span class="stat-label">정답</span>
+                    <span class="stat-value" id="correctCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">오답</span>
+                    <span class="stat-value" id="wrongCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">스킵</span>
+                    <span class="stat-value" id="skipCount">0</span>
+                </div>
+            </div>
+        </aside>
+
         <div class="answer-section guess-answer-section">
             <div class="answer-header-row">
                 <h3>🎯 정답 입력</h3>
@@ -88,21 +106,7 @@
         </div>
     </main>
 
-    <aside class="stats-sidebar">
-        <h3>📊 현재 기록</h3>
-        <div class="stat-item">
-            <span class="stat-label">정답</span>
-            <span class="stat-value" id="correctCount">0</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">오답</span>
-            <span class="stat-value" id="wrongCount">0</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">스킵</span>
-            <span class="stat-value" id="skipCount">0</span>
-        </div>
-    </aside>
+
 </div>
 
 <!-- 결과 모달 -->

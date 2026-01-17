@@ -236,9 +236,12 @@ public class GameHostController {
             httpSession.setAttribute("playedSongIds", new ArrayList<Long>());
             httpSession.setAttribute("gameMode", gameMode);
 
-            // GENRE_PER_ROUND 모드가 아닌 경우에만 미리 라운드 생성
+            // 매 라운드 선택 모드가 아닌 경우에만 미리 라운드 생성
             int replacedCount = 0;
-            if (!"GENRE_PER_ROUND".equals(gameMode)) {
+            boolean isPerRoundMode = "GENRE_PER_ROUND".equals(gameMode)
+                    || "YEAR_PER_ROUND".equals(gameMode)
+                    || "ARTIST_PER_ROUND".equals(gameMode);
+            if (!isPerRoundMode) {
                 // YouTube 사전 검증 포함된 노래 목록 가져오기
                 SongService.ValidatedSongsResult validatedResult =
                         songService.getRandomSongsWithValidation(totalRounds, settings);
