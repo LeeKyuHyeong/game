@@ -492,7 +492,9 @@
     .game-container.guess-mode.pc-compact {
         gap: 1rem;
         padding: 1.5rem;
-        max-width: 700px;
+        /* 줌에 관계없이 화면의 일정 비율 유지 (최소 400px, 최대 700px, 기본 45vw) */
+        width: clamp(585px, 45vw, 700px);
+        max-width: none;
         display: flex;
         flex-direction: column;
     }
@@ -525,6 +527,7 @@
     .game-container.guess-mode.pc-compact .guess-answer-section {
         padding: 1.25rem 1.5rem;
         border-radius: 1rem;
+        height: clamp(435px, 45vh, 700px);
     }
 
     .game-container.guess-mode.pc-compact .guess-answer-section h3 {
@@ -562,7 +565,7 @@
     .game-container.guess-mode.pc-compact .live-score-indicator {
         padding: 1rem 1.25rem;
         margin: 0.5rem 0;
-        height: 15vh;
+        height: clamp(105px, 22vh, 400px);
     }
 
     .game-container.guess-mode.pc-compact .score-display {

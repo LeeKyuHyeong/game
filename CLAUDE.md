@@ -246,6 +246,11 @@ common.css
 
 ### 단위 & 값 규칙
 
+- **Width/Height:** 반응형 단위 우선 사용
+  - 우선순위: `%` → `vw/vh` → `rem` → `px` (최후의 수단)
+  - 컨테이너 기준: `%` 사용 (예: `width: 100%`)
+  - 뷰포트 기준: `vw/vh` 사용 (예: `max-height: 80vh`)
+  - 고정 크기 필요 시: `rem` 사용 (예: `min-width: 20rem`)
 - **길이:** `rem` 사용 (px 금지, 예외: `1px` 보더)
 - **Border-radius:** `rem` 단위만 사용
   - 작음: `0.25rem` / 중간: `0.5rem` / 큼: `0.75rem` / 매우 큼: `1rem` / 원형: `50%`
@@ -254,12 +259,15 @@ common.css
 
 ```css
 /* ❌ 잘못된 예 */
+width: 350px;            /* 고정 px */
+height: 500px;           /* 고정 px */
 border-radius: 6px;      /* px 사용 */
-border-radius: 0.375rem; /* 비표준 값 */
 padding: 13px;           /* px 사용 */
 
 /* ✅ 올바른 예 */
-border-radius: 0.25rem;  /* 표준 값 */
+width: 100%;             /* 부모 기준 반응형 */
+max-width: 24rem;        /* 최대값 제한 */
+height: 80vh;            /* 뷰포트 기준 */
 border-radius: 0.5rem;   /* 표준 값 */
 padding: 0.75rem;        /* rem 사용 */
 ```

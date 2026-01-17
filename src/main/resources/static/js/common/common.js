@@ -1,3 +1,28 @@
+// 토스트 알림 표시 (전역 함수)
+function showToast(message, type = 'info') {
+    // 기존 토스트 제거
+    const existingToast = document.querySelector('.toast-notification');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // 애니메이션을 위해 약간의 딜레이 후 show 클래스 추가
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+
+    // 3초 후 자동 제거
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
 // Common utilities
 const Utils = {
     formatDate(dateStr) {
