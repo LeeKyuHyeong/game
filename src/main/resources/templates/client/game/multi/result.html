@@ -14,7 +14,15 @@
     </header>
 
     <main class="result-main">
-        <div class="podium-section">
+        <!-- 전원 동점일 때: 포디움 대신 공동 1등 메시지 -->
+        <div class="all-tied-section" th:if="${results[0].allTied}">
+            <div class="tied-trophy">🏆</div>
+            <div class="tied-message">모두 공동 1등!</div>
+            <div class="tied-sub">점수가 동일하여 순위를 가릴 수 없습니다</div>
+        </div>
+
+        <!-- 전원 동점이 아닐 때만 포디움 표시 -->
+        <div class="podium-section" th:unless="${results[0].allTied}">
             <!-- 2등 -->
             <div class="podium-item second" th:if="${#lists.size(results) > 1}">
                 <div class="podium-rank">🥈</div>

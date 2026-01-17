@@ -995,7 +995,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    min-height: calc(100vh - 23rem);
     overflow: hidden;
 }
 
@@ -1100,7 +1100,7 @@
     flex-direction: column;
     gap: 0.15rem;
     padding: 0.5rem 0.75rem;
-    background: #f1f5f9;
+    background: var(--border-strong);
     border-radius: 0.75rem;
     max-width: 85%;
     word-break: break-word;
@@ -2863,7 +2863,7 @@
 
     .chat-section {
         flex: 1 !important;
-        min-height: 180px;
+        min-height: 180px !important;
         display: flex;
         flex-direction: column;
     }
@@ -2880,6 +2880,7 @@
         padding: 4px 8px !important;
         font-size: 0.8rem !important;
         max-width: 88% !important;
+        align-self: flex-start;
     }
 
     .chat-nickname {
@@ -3200,7 +3201,7 @@
         min-width: 0;
         flex: 1;
         padding: 0.625rem 0.5rem;
-        font-size: 0.875rem;
+        font-size: 0.675rem;
     }
 
     .waiting-actions .btn-start-game,

@@ -737,7 +737,7 @@
 }
 
 .podium-player.first-name {
-    color: #1e3a5f;
+    color: var(;
 }
 
 .podium-player.second-name {
@@ -1655,7 +1655,7 @@
 /* ========== 다크 모드 지원 ========== */
 
 /* 결과 페이지 다크 모드 (게임 페이지와 동일한 어두운 배경) */
-.result-page {
+[data-theme="dark"] .result-page {
     --result-bg: #1e293b;
     --result-surface: #334155;
     --result-elevated: #475569;
@@ -1666,136 +1666,136 @@
 }
 
 /* 점수 섹션 - 다크 */
-.result-page .score-section {
+[data-theme="dark"] .result-page .score-section {
     background: var(--result-surface);
     border: 1px solid var(--result-border);
 }
 
-.result-page .final-score .score-label {
+[data-theme="dark"] .result-page .final-score .score-label {
     color: var(--result-text-secondary);
 }
 
-.result-page .final-score .score-value {
+[data-theme="dark"] .result-page .final-score .score-value {
     color: #fbbf24;
     text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
 }
 
 /* 통계 바 - 다크 */
-.result-page .stats-bar {
+[data-theme="dark"] .result-page .stats-bar {
     background: var(--result-surface);
     border: 1px solid var(--result-border);
 }
 
-.result-page .stats-bar .stat-label {
+[data-theme="dark"] .result-page .stats-bar .stat-label {
     color: var(--result-text-secondary);
 }
 
-.result-page .stats-bar .stat-value {
+[data-theme="dark"] .result-page .stats-bar .stat-value {
     color: var(--result-text-primary);
 }
 
-.result-page .stats-bar .stat-divider {
+[data-theme="dark"] .result-page .stats-bar .stat-divider {
     background: var(--result-border);
 }
 
 /* 라운드 섹션 - 다크 */
-.result-page .rounds-section {
+[data-theme="dark"] .result-page .rounds-section {
     background: var(--result-surface);
     border: 1px solid var(--result-border);
 }
 
-.result-page .rounds-section h3 {
+[data-theme="dark"] .result-page .rounds-section h3 {
     color: var(--result-text-primary);
 }
 
 /* 라운드 카드 - 다크 */
-.result-page .round-card {
+[data-theme="dark"] .result-page .round-card {
     background: var(--result-bg);
     border-color: var(--result-border);
 }
 
-.result-page .round-card:hover {
+[data-theme="dark"] .result-page .round-card:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.result-page .round-header {
+[data-theme="dark"] .result-page .round-header {
     background: rgba(0, 0, 0, 0.2);
 }
 
-.result-page .round-num {
+[data-theme="dark"] .result-page .round-num {
     color: #818cf8;
 }
 
-.result-page .song-info .song-title {
+[data-theme="dark"] .result-page .song-info .song-title {
     color: var(--result-text-primary);
 }
 
-.result-page .song-info .song-artist {
+[data-theme="dark"] .result-page .song-info .song-artist {
     color: var(--result-text-secondary);
 }
 
 /* 결과 푸터 버튼 - 다크 */
-.result-page .result-footer .btn-replay {
+[data-theme="dark"] .result-page .result-footer .btn-replay {
     background: var(--result-surface);
     color: var(--result-text-primary);
     border: 1px solid var(--result-border);
 }
 
-.result-page .result-footer .btn-replay:hover {
+[data-theme="dark"] .result-page .result-footer .btn-replay:hover {
     background: var(--result-elevated);
 }
 
-.result-page .result-footer .btn-home {
+[data-theme="dark"] .result-page .result-footer .btn-home {
     background: rgba(255, 255, 255, 0.1);
     color: var(--result-text-secondary);
 }
 
-.result-page .result-footer .btn-home:hover {
+[data-theme="dark"] .result-page .result-footer .btn-home:hover {
     background: rgba(255, 255, 255, 0.15);
     color: var(--result-text-primary);
 }
 
 /* ========== Result Card 다크 모드 (레트로 게임) ========== */
-.client-page .result-card {
+[data-theme="dark"] .client-page .result-card {
     background: #334155;
     border: 1px solid #475569;
 }
 
-.client-page .result-summary .nickname {
+[data-theme="dark"] .client-page .result-summary .nickname {
     color: #94a3b8;
 }
 
-.client-page .result-summary .score {
+[data-theme="dark"] .client-page .result-summary .score {
     color: #fbbf24;
     text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
 }
 
-.client-page .result-summary .stats {
+[data-theme="dark"] .client-page .result-summary .stats {
     color: #cbd5e1;
 }
 
-.client-page .result-summary .stats strong {
+[data-theme="dark"] .client-page .result-summary .stats strong {
     color: #4ade80;
 }
 
-.client-page .result-summary .stats .accuracy {
+[data-theme="dark"] .client-page .result-summary .stats .accuracy {
     color: #94a3b8;
     font-size: 0.9em;
     margin-left: 8px;
 }
 
-.client-page .result-actions .btn-retry {
+[data-theme="dark"] .client-page .result-actions .btn-retry {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
     color: white;
 }
 
-.client-page .result-actions .btn-home {
+[data-theme="dark"] .client-page .result-actions .btn-home {
     background: #475569;
     color: #e2e8f0;
     border: 1px solid #64748b;
 }
 
-.client-page .result-actions .btn-home:hover {
+[data-theme="dark"] .client-page .result-actions .btn-home:hover {
     background: #64748b;
     color: #f1f5f9;
 }
@@ -1869,5 +1869,85 @@
         width: 100%;
         padding: 0.875rem 1.5rem;
         font-size: 1rem;
+    }
+}
+
+/* ========== 전원 동점 표시 ========== */
+.all-tied-section {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.all-tied-section .tied-trophy {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.all-tied-section .tied-message {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 0.5rem;
+}
+
+.all-tied-section .tied-sub {
+    font-size: 1rem;
+    color: var(--gray-500);
+}
+
+/* 다크 모드 */
+[data-theme="dark"] .all-tied-section {
+    background: var(--result-surface, #334155);
+    border: 1px solid var(--result-border, #475569);
+}
+
+[data-theme="dark"] .all-tied-section .tied-message {
+    color: var(--result-text-primary, #f1f5f9);
+}
+
+[data-theme="dark"] .all-tied-section .tied-sub {
+    color: var(--result-text-secondary, #94a3b8);
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .all-tied-section {
+        padding: 2rem 1.5rem;
+        border-radius: 1rem;
+    }
+
+    .all-tied-section .tied-trophy {
+        font-size: 3rem;
+    }
+
+    .all-tied-section .tied-message {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .all-tied-section {
+        padding: 1.5rem 1rem;
+    }
+
+    .all-tied-section .tied-trophy {
+        font-size: 2.5rem;
+    }
+
+    .all-tied-section .tied-message {
+        font-size: 1.25rem;
+    }
+
+    .all-tied-section .tied-sub {
+        font-size: 0.875rem;
     }
 }

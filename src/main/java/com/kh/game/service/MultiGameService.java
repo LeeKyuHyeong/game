@@ -683,16 +683,35 @@ public class MultiGameService {
         int totalScore = participants.stream().mapToInt(GameRoomParticipant::getScore).sum();
         boolean hasValidGame = totalScore > 0;
 
-        int rank = 1;
-        for (GameRoomParticipant p : participants) {
+        // 전원 동점 여부 확인 (2명 이상이고 모든 점수가 같으면 전원 동점)
+        boolean allTied = participants.size() > 1 &&
+                participants.stream().mapToInt(GameRoomParticipant::getScore).distinct().count() == 1;
+
+        // 동점자 공동 순위 계산
+        int prevScore = -1;
+        int displayRank = 1;
+
+        for (int i = 0; i < participants.size(); i++) {
+            GameRoomParticipant p = participants.get(i);
             Member member = p.getMember();
+
+            // 공동 순위 계산: 점수가 같으면 같은 순위, 다르면 현재 위치+1
+            if (i == 0) {
+                displayRank = 1;
+            } else if (p.getScore() != prevScore) {
+                displayRank = i + 1;
+            }
+            // 동점이면 displayRank 유지
+            prevScore = p.getScore();
+
             Map<String, Object> pInfo = new HashMap<>();
-            pInfo.put("rank", rank);
+            pInfo.put("rank", displayRank);
             pInfo.put("memberId", member.getId());
             pInfo.put("nickname", member.getNickname());
             pInfo.put("score", p.getScore());
             pInfo.put("correctCount", p.getCorrectCount());
             pInfo.put("isHost", room.isHost(member));
+            pInfo.put("allTied", allTied);  // 각 결과에 전원 동점 여부 추가
 
             // 멀티 티어 정보 추가
             pInfo.put("multiTier", member.getMultiTier() != null ? member.getMultiTier().name() : "BRONZE");
@@ -700,12 +719,11 @@ public class MultiGameService {
             pInfo.put("multiTierColor", member.getMultiTierColor());
             pInfo.put("multiLp", member.getMultiLp() != null ? member.getMultiLp() : 0);
 
-            // LP 변화량 계산 (표시용) - 전원 0점이면 LP 미지급
-            int lpChange = hasValidGame ? multiTierService.calculateLpChange(totalPlayers, rank) : 0;
+            // LP 변화량 계산 (표시용) - 전원 0점이면 LP 미지급, 공동 순위 기준
+            int lpChange = hasValidGame ? multiTierService.calculateLpChange(totalPlayers, displayRank) : 0;
             pInfo.put("lpChange", lpChange);
 
             result.add(pInfo);
-            rank++;
         }
 
         return result;
