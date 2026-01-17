@@ -1987,8 +1987,8 @@
     }
 }
 
-/* 아주 작은 화면 (SE 등) */
-@media (max-width: 375px) {
+/* 소형 모바일 화면 */
+@media (max-width: 480px) {
     .multi-main.chat-layout {
         padding: 0.5rem;
         gap: 0.5rem;
@@ -3078,6 +3078,11 @@
 
 .toast-warning {
     background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.toast-error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
     color: white;
 }
 

@@ -241,9 +241,9 @@
 }
 
 /* ========================================
-   초소형 화면 (450px 이하) - 헤더 줄바꿈 방지
+   소형 모바일 화면 (480px 이하) - 헤더 줄바꿈 방지
    ======================================== */
-@media (max-width: 450px) {
+@media (max-width: 480px) {
     .host-mobile-compact .game-header {
         flex-wrap: nowrap;
         padding: 6px 8px;
