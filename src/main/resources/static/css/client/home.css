@@ -315,25 +315,25 @@
 }
 
 .btn-admin {
-    background: rgba(255, 193, 7, 0.2);
-    border: 1px solid rgba(255, 193, 7, 0.5);
+    background: var(--status-warning-bg);
+    border: 1px solid var(--status-warning-bg-hover);
     color: var(--warning);
 }
 
 .btn-admin:hover {
-    background: rgba(255, 193, 7, 0.3);
+    background: var(--status-warning-bg-hover);
     color: var(--warning-light);
 }
 
 .btn-mypage {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: var(--overlay-white-medium);
+    border: 1px solid var(--overlay-white-strong);
     color: white;
 }
 
 .btn-mypage:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
+    background: var(--overlay-white-strong);
+    border-color: var(--overlay-white-text);
 }
 
 /* My Rank Section */
@@ -374,7 +374,7 @@
 }
 
 .score-text {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--overlay-white-text);
     font-size: 0.875rem;
 }
 
@@ -439,7 +439,7 @@
 
 .mode-grid .grid-item.primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px var(--status-primary-bg-hover);
 }
 
 .mode-grid .grid-item .grid-icon {
@@ -565,7 +565,7 @@
 
 .artist-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px var(--overlay-black-light);
 }
 
 .artist-card-icon {
@@ -634,7 +634,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--overlay-heavy);
     backdrop-filter: blur(4px);
 }
 

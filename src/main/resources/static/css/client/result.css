@@ -303,7 +303,7 @@
 
 .round-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--overlay-black-light);
 }
 
 .round-card.answered,
@@ -342,17 +342,17 @@
 }
 
 .round-status.correct {
-    background: rgba(34, 197, 94, 0.15);
+    background: var(--status-success-bg);
     color: var(--success);
 }
 
 .round-status.skip {
-    background: rgba(245, 158, 11, 0.15);
+    background: var(--status-warning-bg);
     color: var(--warning);
 }
 
 .round-status.wrong {
-    background: rgba(239, 68, 68, 0.15);
+    background: var(--status-danger-bg);
     color: var(--danger);
 }
 
@@ -485,7 +485,7 @@
 .winner-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    background: rgba(34, 197, 94, 0.15);
+    background: var(--status-success-bg);
     color: var(--success);
     border-radius: 9999px;
     font-size: 0.75rem;
@@ -511,17 +511,17 @@
 }
 
 .result-badge.correct {
-    background: rgba(34, 197, 94, 0.15);
+    background: var(--status-success-bg);
     color: var(--success);
 }
 
 .result-badge.wrong {
-    background: rgba(239, 68, 68, 0.15);
+    background: var(--status-danger-bg);
     color: var(--danger);
 }
 
 .result-badge.skip {
-    background: rgba(245, 158, 11, 0.15);
+    background: var(--status-warning-bg);
     color: var(--warning);
 }
 
@@ -578,13 +578,13 @@
     margin-right: 6px;
 }
 
-.tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.7); color: #fff; }
-.tier-badge.MASTER { background: rgba(255, 107, 107, 0.7); color: #fff; }
-.tier-badge.DIAMOND { background: rgba(185, 242, 255, 0.7); color: #000; }
-.tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.7); color: #000; }
-.tier-badge.GOLD { background: rgba(255, 215, 0, 0.7); color: #000; }
-.tier-badge.SILVER { background: rgba(192, 192, 192, 0.7); color: #000; }
-.tier-badge.BRONZE { background: rgba(205, 127, 50, 0.7); color: #fff; }
+.tier-badge.CHALLENGER { background: var(--tier-challenger-bg-strong); color: var(--text-inverse); }
+.tier-badge.MASTER { background: var(--tier-master-bg-strong); color: var(--text-inverse); }
+.tier-badge.DIAMOND { background: var(--tier-diamond-bg-strong); color: var(--gray-900); }
+.tier-badge.PLATINUM { background: var(--tier-platinum-bg-strong); color: var(--gray-900); }
+.tier-badge.GOLD { background: var(--tier-gold-bg-strong); color: var(--gray-900); }
+.tier-badge.SILVER { background: var(--tier-silver-bg-strong); color: var(--gray-900); }
+.tier-badge.BRONZE { background: var(--tier-bronze-bg-strong); color: var(--text-inverse); }
 
 .lp-change {
     font-weight: bold;
@@ -630,8 +630,8 @@
 }
 
 .ranking-item.me {
-    background: rgba(99, 102, 241, 0.2);
-    border: 1px solid rgba(99, 102, 241, 0.4);
+    background: var(--status-primary-bg);
+    border: 1px solid var(--primary);
 }
 
 .player-info {
@@ -674,16 +674,16 @@
 }
 
 .podium-place.first {
-    background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+    background: var(--podium-gold-bg);
     transform: scale(1.1);
 }
 
 .podium-place.second {
-    background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+    background: var(--podium-silver-bg);
 }
 
 .podium-place.third {
-    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+    background: var(--podium-bronze-bg);
 }
 
 .place-medal {
@@ -768,7 +768,7 @@
     justify-content: center;
     font-size: 2rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--overlay-white-strong);
     border-radius: 0.5rem 0.5rem 0 0;
 }
 
@@ -911,7 +911,7 @@
 
 .btn-restart:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 8px 20px var(--game-correct-glow);
 }
 
 .btn-lobby {
@@ -1656,13 +1656,13 @@
 
 /* 결과 페이지 다크 모드 (게임 페이지와 동일한 어두운 배경) */
 [data-theme="dark"] .result-page {
-    --result-bg: #1e293b;
-    --result-surface: #334155;
-    --result-elevated: #475569;
-    --result-text-primary: #f1f5f9;
-    --result-text-secondary: #94a3b8;
-    --result-border: #475569;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --result-bg: var(--bg-surface);
+    --result-surface: var(--bg-elevated);
+    --result-elevated: var(--slate-600);
+    --result-text-primary: var(--text-primary);
+    --result-text-secondary: var(--text-muted);
+    --result-border: var(--slate-600);
+    background: var(--gradient-game);
 }
 
 /* 점수 섹션 - 다크 */
@@ -1676,8 +1676,8 @@
 }
 
 [data-theme="dark"] .result-page .final-score .score-value {
-    color: #fbbf24;
-    text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+    color: var(--tier-gold);
+    text-shadow: 0 0 20px var(--tier-gold-bg-hover);
 }
 
 /* 통계 바 - 다크 */
@@ -1715,15 +1715,15 @@
 }
 
 [data-theme="dark"] .result-page .round-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px var(--overlay-strong);
 }
 
 [data-theme="dark"] .result-page .round-header {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--overlay-medium);
 }
 
 [data-theme="dark"] .result-page .round-num {
-    color: #818cf8;
+    color: var(--primary-bright);
 }
 
 [data-theme="dark"] .result-page .song-info .song-title {
@@ -1746,58 +1746,58 @@
 }
 
 [data-theme="dark"] .result-page .result-footer .btn-home {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-white-light);
     color: var(--result-text-secondary);
 }
 
 [data-theme="dark"] .result-page .result-footer .btn-home:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--overlay-white-medium);
     color: var(--result-text-primary);
 }
 
 /* ========== Result Card 다크 모드 (레트로 게임) ========== */
 [data-theme="dark"] .client-page .result-card {
-    background: #334155;
-    border: 1px solid #475569;
+    background: var(--slate-700);
+    border: 1px solid var(--slate-600);
 }
 
 [data-theme="dark"] .client-page .result-summary .nickname {
-    color: #94a3b8;
+    color: var(--slate-400);
 }
 
 [data-theme="dark"] .client-page .result-summary .score {
-    color: #fbbf24;
-    text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+    color: var(--tier-gold);
+    text-shadow: 0 0 20px var(--tier-gold-bg-hover);
 }
 
 [data-theme="dark"] .client-page .result-summary .stats {
-    color: #cbd5e1;
+    color: var(--slate-300);
 }
 
 [data-theme="dark"] .client-page .result-summary .stats strong {
-    color: #4ade80;
+    color: var(--success-bright);
 }
 
 [data-theme="dark"] .client-page .result-summary .stats .accuracy {
-    color: #94a3b8;
+    color: var(--slate-400);
     font-size: 0.9em;
     margin-left: 8px;
 }
 
 [data-theme="dark"] .client-page .result-actions .btn-retry {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    background: var(--gradient-primary);
     color: white;
 }
 
 [data-theme="dark"] .client-page .result-actions .btn-home {
-    background: #475569;
-    color: #e2e8f0;
-    border: 1px solid #64748b;
+    background: var(--slate-600);
+    color: var(--slate-200);
+    border: 1px solid var(--slate-500);
 }
 
 [data-theme="dark"] .client-page .result-actions .btn-home:hover {
-    background: #64748b;
-    color: #f1f5f9;
+    background: var(--slate-500);
+    color: var(--slate-100);
 }
 
 /* ========== 재시작 알림 및 대기 버튼 ========== */
@@ -1906,97 +1906,97 @@
 
 /* 다크 모드 */
 [data-theme="dark"] .all-tied-section {
-    background: var(--result-surface, #334155);
-    border: 1px solid var(--result-border, #475569);
+    background: var(--result-surface, var(--slate-700));
+    border: 1px solid var(--result-border, var(--slate-600));
 }
 
 [data-theme="dark"] .all-tied-section .tied-message {
-    color: var(--result-text-primary, #f1f5f9);
+    color: var(--result-text-primary, var(--slate-100));
 }
 
 [data-theme="dark"] .all-tied-section .tied-sub {
-    color: var(--result-text-secondary, #94a3b8);
+    color: var(--result-text-secondary, var(--slate-400));
 }
 
 /* ========== 다크 모드 - 랭킹 목록 (항상 다크 배경) ========== */
 
 /* 모바일 랭킹 리스트 섹션 */
 [data-theme="dark"] .ranking-list-section {
-    background: var(--result-surface, #334155);
-    border: 1px solid var(--result-border, #475569);
+    background: var(--result-surface, var(--slate-700));
+    border: 1px solid var(--result-border, var(--slate-600));
 }
 
 /* 모바일 랭킹 행 - 기본 스타일 (항상 다크) */
 [data-theme="dark"] .ranking-row {
-    background: var(--result-bg, #1e293b);
-    border: 1px solid var(--result-border, #475569);
+    background: var(--result-bg, var(--bg-surface));
+    border: 1px solid var(--result-border, var(--slate-600));
 }
 
 /* 모바일 랭킹 행 - 1/2/3위 (어두운 그라데이션) */
 [data-theme="dark"] .ranking-row.first {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.15) 100%);
-    border-color: rgba(251, 191, 36, 0.3);
+    background: var(--ranking-gold-gradient);
+    border-color: var(--ranking-gold-border);
 }
 
 [data-theme="dark"] .ranking-row.second {
-    background: linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(100, 116, 139, 0.15) 100%);
-    border-color: rgba(148, 163, 184, 0.3);
+    background: var(--ranking-silver-gradient);
+    border-color: var(--ranking-silver-border);
 }
 
 [data-theme="dark"] .ranking-row.third {
-    background: linear-gradient(135deg, rgba(217, 119, 6, 0.2) 0%, rgba(180, 83, 9, 0.15) 100%);
-    border-color: rgba(217, 119, 6, 0.3);
+    background: var(--ranking-bronze-gradient);
+    border-color: var(--ranking-bronze-border);
 }
 
 /* 모바일 랭킹 행 - hover/active 효과 제거 (다크모드) */
 [data-theme="dark"] .ranking-row:hover,
 [data-theme="dark"] .ranking-row:active,
 [data-theme="dark"] .ranking-row:focus {
-    background: var(--result-bg, #1e293b);
-    border-color: var(--result-border, #475569);
+    background: var(--result-bg, var(--bg-surface));
+    border-color: var(--result-border, var(--slate-600));
     transform: none;
 }
 
 [data-theme="dark"] .ranking-row.first:hover,
 [data-theme="dark"] .ranking-row.first:active,
 [data-theme="dark"] .ranking-row.first:focus {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.15) 100%);
-    border-color: rgba(251, 191, 36, 0.3);
+    background: var(--ranking-gold-gradient);
+    border-color: var(--ranking-gold-border);
 }
 
 [data-theme="dark"] .ranking-row.second:hover,
 [data-theme="dark"] .ranking-row.second:active,
 [data-theme="dark"] .ranking-row.second:focus {
-    background: linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(100, 116, 139, 0.15) 100%);
-    border-color: rgba(148, 163, 184, 0.3);
+    background: var(--ranking-silver-gradient);
+    border-color: var(--ranking-silver-border);
 }
 
 [data-theme="dark"] .ranking-row.third:hover,
 [data-theme="dark"] .ranking-row.third:active,
 [data-theme="dark"] .ranking-row.third:focus {
-    background: linear-gradient(135deg, rgba(217, 119, 6, 0.2) 0%, rgba(180, 83, 9, 0.15) 100%);
-    border-color: rgba(217, 119, 6, 0.3);
+    background: var(--ranking-bronze-gradient);
+    border-color: var(--ranking-bronze-border);
 }
 
 /* 모바일 랭킹 텍스트 색상 */
 [data-theme="dark"] .ranking-row .rank-name {
-    color: var(--result-text-primary, #f1f5f9);
+    color: var(--result-text-primary, var(--slate-100));
 }
 
 [data-theme="dark"] .ranking-row .rank-score {
-    color: #818cf8;
+    color: var(--primary-bright);
 }
 
 /* PC 전체 순위 섹션 */
 [data-theme="dark"] .all-scores {
-    background: var(--result-surface, #334155);
-    border: 1px solid var(--result-border, #475569);
+    background: var(--result-surface, var(--slate-700));
+    border: 1px solid var(--result-border, var(--slate-600));
     border-radius: 1rem;
     padding: 1.5rem;
 }
 
 [data-theme="dark"] .all-scores h3 {
-    color: var(--result-text-primary, #f1f5f9);
+    color: var(--result-text-primary, var(--slate-100));
     margin-bottom: 1rem;
 }
 
@@ -2005,8 +2005,8 @@
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
-    background: var(--result-bg, #1e293b);
-    border: 1px solid var(--result-border, #475569);
+    background: var(--result-bg, var(--bg-surface));
+    border: 1px solid var(--result-border, var(--slate-600));
     border-radius: 0.5rem;
     margin-bottom: 0.5rem;
 }
@@ -2015,25 +2015,25 @@
 [data-theme="dark"] .score-table .score-row:hover,
 [data-theme="dark"] .score-table .score-row:active,
 [data-theme="dark"] .score-table .score-row:focus {
-    background: var(--result-bg, #1e293b);
-    border-color: var(--result-border, #475569);
+    background: var(--result-bg, var(--bg-surface));
+    border-color: var(--result-border, var(--slate-600));
     transform: none;
 }
 
 /* PC 점수 테이블 텍스트 색상 */
 [data-theme="dark"] .score-row .rank {
-    color: #818cf8;
+    color: var(--primary-bright);
     font-weight: 600;
     min-width: 3rem;
 }
 
 [data-theme="dark"] .score-row .name {
     flex: 1;
-    color: var(--result-text-primary, #f1f5f9);
+    color: var(--result-text-primary, var(--slate-100));
 }
 
 [data-theme="dark"] .score-row .score {
-    color: #fbbf24;
+    color: var(--warning-bright);
     font-weight: 700;
 }
 

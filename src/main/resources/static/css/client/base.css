@@ -55,7 +55,7 @@
 .back-home {
     display: inline-block;
     margin-bottom: 1rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--overlay-white-text-strong);
     font-size: 0.875rem;
 }
 
@@ -72,7 +72,7 @@
 }
 
 .back-link {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--overlay-white-text-strong);
     font-size: 0.875rem;
     transition: color 0.2s;
 }
@@ -119,7 +119,7 @@
 }
 
 .admin-link {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--overlay-white-text);
     font-size: 0.875rem;
     transition: color 0.2s;
 }
@@ -184,7 +184,7 @@
 }
 
 .footer-link {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--overlay-white-text-strong);
     text-decoration: none;
     font-size: 0.9rem;
     transition: color 0.2s;

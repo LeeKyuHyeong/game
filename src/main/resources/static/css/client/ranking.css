@@ -40,7 +40,7 @@
     background: transparent;
     border: none;
     border-radius: 0.75rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--overlay-white-text);
     cursor: pointer;
     transition: all 0.2s;
     font-size: 1rem;
@@ -98,7 +98,7 @@
     background: transparent;
     border: none;
     border-radius: 0.75rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--overlay-white-text);
     cursor: pointer;
     transition: all 0.2s;
     min-width: 0;
@@ -147,7 +147,7 @@
     background: var(--overlay-medium);
     border: 2px solid transparent;
     border-radius: 2rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--overlay-white-text-strong);
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
@@ -171,8 +171,8 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem 1rem;
-    background: rgba(255, 193, 7, 0.2);
-    border: 1px solid rgba(255, 193, 7, 0.4);
+    background: var(--status-warning-bg);
+    border: 1px solid var(--status-warning-bg-hover);
     border-radius: 0.75rem;
     color: var(--text-on-gradient);
     font-size: 0.8125rem;
@@ -193,16 +193,16 @@
     font-size: 0.625rem;
     font-weight: 700;
     border-radius: 0.25rem;
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--overlay-black-light);
     margin-right: 0.375rem;
 }
 
-.tier-bronze { color: var(--tier-bronze) !important; background: rgba(205, 127, 50, 0.15); }
-.tier-silver { color: var(--tier-silver) !important; background: rgba(192, 192, 192, 0.2); }
-.tier-gold { color: var(--tier-gold) !important; background: rgba(255, 215, 0, 0.2); }
-.tier-platinum { color: var(--tier-platinum) !important; background: rgba(229, 228, 226, 0.3); }
-.tier-diamond { color: var(--tier-diamond) !important; background: rgba(185, 242, 255, 0.3); }
-.tier-master { color: var(--tier-master) !important; background: rgba(255, 107, 107, 0.2); }
+.tier-bronze { color: var(--tier-bronze) !important; background: var(--tier-bronze-bg); }
+.tier-silver { color: var(--tier-silver) !important; background: var(--tier-silver-bg); }
+.tier-gold { color: var(--tier-gold) !important; background: var(--tier-gold-bg); }
+.tier-platinum { color: var(--tier-platinum) !important; background: var(--tier-platinum-bg); }
+.tier-diamond { color: var(--tier-diamond) !important; background: var(--tier-diamond-bg); }
+.tier-master { color: var(--tier-master) !important; background: var(--tier-master-bg); }
 
 /* Podium Tier */
 .podium-tier {
@@ -249,6 +249,20 @@
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
+    padding: 1rem 0.75rem 0;
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.podium-place.first {
+    background: var(--podium-gold-bg) !important;
+}
+
+.podium-place.second {
+    background: var(--podium-silver-bg) !important;
+}
+
+.podium-place.third {
+    background: var(--podium-bronze-bg) !important;
 }
 
 .podium-avatar {
@@ -285,17 +299,17 @@
 
 .podium-place.first .podium-stand {
     height: 80px;
-    background: var(--gradient-gold);
+    background: var(--podium-gold-stand);
 }
 
 .podium-place.second .podium-stand {
     height: 60px;
-    background: var(--gradient-silver);
+    background: var(--podium-silver-stand);
 }
 
 .podium-place.third .podium-stand {
     height: 45px;
-    background: var(--gradient-bronze);
+    background: var(--podium-bronze-stand);
 }
 
 /* Empty Podium Place - Placeholder */
@@ -308,12 +322,12 @@
 }
 
 .podium-place.empty .podium-name {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--overlay-white-text);
     font-style: italic;
 }
 
 .podium-place.empty .podium-value {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--overlay-white-strong);
 }
 
 .podium-place.empty .podium-stand {
@@ -665,15 +679,15 @@
 }
 
 [data-theme="dark"] .ranking-row.top-1 {
-    background: rgba(251, 191, 36, 0.15);
+    background: var(--tier-gold-bg);
 }
 
 [data-theme="dark"] .ranking-row.top-2 {
-    background: rgba(148, 163, 184, 0.15);
+    background: var(--tier-silver-bg);
 }
 
 [data-theme="dark"] .ranking-row.top-3 {
-    background: rgba(249, 115, 22, 0.15);
+    background: var(--tier-bronze-bg);
 }
 
 [data-theme="dark"] .rank-cell {
@@ -708,15 +722,15 @@
     }
 
     :root:not([data-theme]) .ranking-row.top-1 {
-        background: rgba(251, 191, 36, 0.15);
+        background: var(--tier-gold-bg);
     }
 
     :root:not([data-theme]) .ranking-row.top-2 {
-        background: rgba(148, 163, 184, 0.15);
+        background: var(--tier-silver-bg);
     }
 
     :root:not([data-theme]) .ranking-row.top-3 {
-        background: rgba(249, 115, 22, 0.15);
+        background: var(--tier-bronze-bg);
     }
 
     :root:not([data-theme]) .rank-cell {
@@ -770,7 +784,7 @@
     background: var(--overlay-light);
     border: 1px solid transparent;
     border-radius: 1rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--overlay-white-text);
     font-size: 0.75rem;
     font-weight: 500;
     cursor: pointer;

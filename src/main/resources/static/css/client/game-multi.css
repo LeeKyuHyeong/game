@@ -24,7 +24,7 @@
 
 /* Active Room Alert */
 .active-room-alert {
-    background: rgba(251, 191, 36, 0.2);
+    background: var(--status-warning-bg);
     border: 2px solid var(--warning);
     border-radius: 1rem;
     padding: 1rem 1.5rem;
@@ -75,7 +75,7 @@
 
 .btn-create:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 8px 20px var(--game-correct-glow);
 }
 
 /* Join Code Form */
@@ -195,7 +195,7 @@
 
 .room-card:hover {
     transform: translateX(4px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px var(--overlay-black-light);
 }
 
 .room-info {
@@ -451,7 +451,7 @@
 
 .participant-card.ready {
     border-color: var(--success);
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    background: var(--gradient-success-light);
 }
 
 .participant-info {
@@ -545,7 +545,7 @@
 
 .btn-start-game {
     padding: 1rem 2.5rem;
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    background: var(--gradient-primary);
     color: var(--text-inverse);
     border-radius: 1rem;
     font-size: 1.125rem;
@@ -555,7 +555,7 @@
 
 .btn-start-game:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 8px 20px var(--shadow-primary);
 }
 
 .btn-start-game:disabled {
@@ -572,7 +572,7 @@
 }
 
 .btn-leave:hover {
-    background: rgba(239, 68, 68, 0.3);
+    background: var(--status-danger-bg-hover);
 }
 
 /* ========================================
@@ -767,7 +767,7 @@
 
 .btn-show-result {
     padding: 1rem 2rem;
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: var(--gradient-warning);
     color: var(--text-inverse);
     border-radius: 1rem;
     font-size: 1rem;
@@ -786,7 +786,7 @@
 
 .btn-next-round {
     padding: 1rem 2.5rem;
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    background: var(--gradient-primary);
     color: var(--text-inverse);
     border-radius: 1rem;
     font-size: 1.125rem;
@@ -1225,13 +1225,13 @@
     border-radius: 1rem;
     font-size: 1.25rem;
     font-weight: 600;
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 4px 15px var(--game-correct-glow);
     transition: all 0.2s;
 }
 
 .btn-start-round:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+    box-shadow: 0 6px 20px var(--status-success-bg-hover);
 }
 
 .btn-start-round:disabled {
@@ -1279,7 +1279,7 @@
     gap: 0.75rem;
     margin-top: 1.5rem;
     padding: 1rem 1.5rem;
-    background: rgba(34, 197, 94, 0.15);
+    background: var(--status-success-bg);
     border-radius: 1rem;
 }
 
@@ -2037,7 +2037,7 @@
 }
 
 [data-theme="dark"] .room-card:hover {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 15px var(--overlay-black-strong);
 }
 
 /* Create Room Card */
@@ -2067,7 +2067,7 @@
 }
 
 [data-theme="dark"] .participant-card.ready {
-    background: rgba(34, 197, 94, 0.15);
+    background: var(--status-success-bg);
 }
 
 [data-theme="dark"] .status-badge.waiting {
@@ -2120,11 +2120,11 @@
 }
 
 [data-theme="dark"] .result-item.correct {
-    background: rgba(34, 197, 94, 0.15);
+    background: var(--status-success-bg);
 }
 
 [data-theme="dark"] .result-item.wrong {
-    background: rgba(239, 68, 68, 0.15);
+    background: var(--status-danger-bg);
 }
 
 /* Scoreboard - 다크모드에서도 읽기 쉬운 스타일 */
@@ -2134,7 +2134,7 @@
 }
 
 [data-theme="dark"] .multi-scoreboard .score-item.me {
-    background: rgba(99, 102, 241, 0.2);
+    background: var(--status-primary-bg);
     color: var(--text-primary);
 }
 
@@ -2144,7 +2144,7 @@
 }
 
 [data-theme="dark"] .mini-scoreboard .score-item.me {
-    background: rgba(99, 102, 241, 0.2);
+    background: var(--status-primary-bg);
     color: var(--text-primary);
 }
 
@@ -2167,7 +2167,7 @@
 }
 
 [data-theme="dark"] .chat-message.my-message {
-    background: rgba(99, 102, 241, 0.3);
+    background: var(--status-primary-bg-hover);
     color: var(--text-primary);
 }
 
@@ -2176,12 +2176,12 @@
 }
 
 [data-theme="dark"] .chat-message.correct-answer {
-    background: rgba(34, 197, 94, 0.25);
+    background: var(--status-success-bg-hover);
     color: var(--text-primary);
 }
 
 [data-theme="dark"] .chat-message.system-message {
-    background: rgba(251, 191, 36, 0.25);
+    background: var(--status-warning-bg-hover);
     color: var(--text-primary);
 }
 
@@ -2202,12 +2202,12 @@
 
 /* Play Hint */
 [data-theme="dark"] .play-hint {
-    background: rgba(99, 102, 241, 0.15);
+    background: var(--status-primary-bg);
 }
 
 /* Winner Info */
 [data-theme="dark"] .winner-info {
-    background: rgba(34, 197, 94, 0.15);
+    background: var(--status-success-bg);
 }
 
 /* Join Page */
@@ -2229,17 +2229,17 @@
 }
 
 [data-theme="dark"] .participant-tag.host {
-    background: rgba(251, 191, 36, 0.2);
+    background: var(--status-warning-bg);
     color: var(--warning);
 }
 
 [data-theme="dark"] .badge-status.waiting {
-    background: rgba(34, 197, 94, 0.2);
+    background: var(--status-success-bg);
     color: var(--success-light);
 }
 
 [data-theme="dark"] .badge-status.playing {
-    background: rgba(251, 191, 36, 0.2);
+    background: var(--status-warning-bg);
     color: var(--warning);
 }
 
@@ -2297,7 +2297,7 @@
 }
 
 [data-theme="dark"] .waiting-chat .chat-message.mine {
-    background: rgba(99, 102, 241, 0.15);
+    background: var(--status-primary-bg);
 }
 
 [data-theme="dark"] .waiting-chat .chat-input-area {
@@ -2335,7 +2335,7 @@
     }
 
     :root:not([data-theme]) .room-card:hover {
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 15px var(--overlay-black-strong);
     }
 
     :root:not([data-theme]) .create-card {
@@ -2359,7 +2359,7 @@
     }
 
     :root:not([data-theme]) .participant-card.ready {
-        background: rgba(34, 197, 94, 0.15);
+        background: var(--status-success-bg);
     }
 
     :root:not([data-theme]) .status-badge.waiting {
@@ -2397,11 +2397,11 @@
     }
 
     :root:not([data-theme]) .result-item.correct {
-        background: rgba(34, 197, 94, 0.15);
+        background: var(--status-success-bg);
     }
 
     :root:not([data-theme]) .result-item.wrong {
-        background: rgba(239, 68, 68, 0.15);
+        background: var(--status-danger-bg);
     }
 
     :root:not([data-theme]) .multi-scoreboard .score-item,
@@ -2411,7 +2411,7 @@
 
     :root:not([data-theme]) .multi-scoreboard .score-item.me,
     :root:not([data-theme]) .mini-scoreboard .score-item.me {
-        background: rgba(99, 102, 241, 0.2);
+        background: var(--status-primary-bg);
     }
 
     :root:not([data-theme]) .chat-section {
@@ -2423,15 +2423,15 @@
     }
 
     :root:not([data-theme]) .chat-message.my-message {
-        background: rgba(99, 102, 241, 0.2);
+        background: var(--status-primary-bg);
     }
 
     :root:not([data-theme]) .chat-message.correct-answer {
-        background: rgba(34, 197, 94, 0.2);
+        background: var(--status-success-bg);
     }
 
     :root:not([data-theme]) .chat-message.system-message {
-        background: rgba(251, 191, 36, 0.2);
+        background: var(--status-warning-bg);
     }
 
     :root:not([data-theme]) .system-text {
@@ -2450,11 +2450,11 @@
     }
 
     :root:not([data-theme]) .play-hint {
-        background: rgba(99, 102, 241, 0.15);
+        background: var(--status-primary-bg);
     }
 
     :root:not([data-theme]) .winner-info {
-        background: rgba(34, 197, 94, 0.15);
+        background: var(--status-success-bg);
     }
 
     :root:not([data-theme]) .room-info-card {
@@ -2471,17 +2471,17 @@
     }
 
     :root:not([data-theme]) .participant-tag.host {
-        background: rgba(251, 191, 36, 0.2);
+        background: var(--status-warning-bg);
         color: var(--warning);
     }
 
     :root:not([data-theme]) .badge-status.waiting {
-        background: rgba(34, 197, 94, 0.2);
+        background: var(--status-success-bg);
         color: var(--success-light);
     }
 
     :root:not([data-theme]) .badge-status.playing {
-        background: rgba(251, 191, 36, 0.2);
+        background: var(--status-warning-bg);
         color: var(--warning);
     }
 
@@ -2526,7 +2526,7 @@
     }
 
     :root:not([data-theme]) .waiting-chat .chat-message.mine {
-        background: rgba(99, 102, 241, 0.15);
+        background: var(--status-primary-bg);
     }
 
     :root:not([data-theme]) .waiting-chat .chat-input-area {
@@ -2600,7 +2600,7 @@
         align-items: center;
         gap: 4px;
         padding: 3px 8px;
-        background: rgba(0, 0, 0, 0.2);
+        background: var(--overlay-black-medium);
         border-radius: 10px;
         flex: 1;
         justify-content: center;
@@ -2641,7 +2641,7 @@
         text-decoration: none;
         border: none;
         cursor: pointer;
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--overlay-white-medium);
         color: white;
         min-width: 40px;
         text-align: center;
@@ -2649,15 +2649,15 @@
     }
 
     .btn-header-compact:hover {
-        background: rgba(255, 255, 255, 0.3);
+        background: var(--overlay-white-strong);
     }
 
     .btn-end-compact {
-        background: rgba(239, 68, 68, 0.4) !important;
+        background: var(--overlay-black-heavy) !important;
     }
 
     .btn-end-compact:hover {
-        background: rgba(239, 68, 68, 0.6) !important;
+        background: var(--overlay-heavy) !important;
     }
 
     /* PC용 요소 숨김 */
@@ -2671,8 +2671,8 @@
         align-items: center;
         gap: 6px;
         padding: 6px 8px;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border: 1px solid rgba(78, 205, 196, 0.3);
+        background: var(--gradient-game);
+        border: 1px solid var(--compact-teal-border);
         border-radius: 8px;
         margin-bottom: 6px;
     }
@@ -2680,7 +2680,7 @@
     .compact-controls-row .progress-bar {
         flex: 1;
         height: 5px;
-        background: rgba(255, 255, 255, 0.15);
+        background: var(--overlay-white-light-medium);
         border-radius: 3px;
         overflow: hidden;
         min-width: 50px;
@@ -2688,15 +2688,15 @@
 
     .compact-controls-row .progress {
         height: 100%;
-        background: linear-gradient(90deg, #4ecdc4, #44a08d);
+        background: var(--compact-progress-gradient);
         border-radius: 3px;
         transition: width 0.3s ease;
-        box-shadow: 0 0 5px rgba(78, 205, 196, 0.5);
+        box-shadow: 0 0 5px var(--compact-teal-glow);
     }
 
     .compact-controls-row .time-display {
         font-size: 0.6rem;
-        color: #4ecdc4;
+        color: var(--compact-teal);
         font-weight: 600;
         white-space: nowrap;
         min-width: 40px;
@@ -2706,9 +2706,9 @@
     .btn-skip-vote-compact {
         padding: 3px 8px;
         font-size: 0.6rem;
-        background: rgba(255, 255, 255, 0.1);
-        color: #f0f0f0;
-        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: var(--overlay-white-light);
+        color: var(--compact-text-light);
+        border: 1px solid var(--overlay-white-medium);
         border-radius: 4px;
         cursor: pointer;
         white-space: nowrap;
@@ -2721,21 +2721,21 @@
     }
 
     .btn-skip-vote-compact:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.4);
+        background: var(--overlay-white-medium);
+        border-color: var(--overlay-white-strong);
     }
 
     .btn-skip-vote-compact:disabled,
     .btn-skip-vote-compact.voted {
-        background: rgba(251, 191, 36, 0.25);
-        color: #ffd700;
-        border-color: rgba(251, 191, 36, 0.5);
+        background: var(--tier-gold-bg-hover);
+        color: var(--compact-gold);
+        border-color: var(--tier-gold-bg-hover);
     }
 
     /* 포기 현황 인라인 */
     .skip-vote-status-inline {
         font-size: 0.55rem;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--overlay-white-text-muted);
         white-space: nowrap;
     }
 
@@ -2743,8 +2743,8 @@
     .play-hint-compact {
         text-align: center;
         padding: 8px 10px;
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.2) 100%);
-        border: 1px solid rgba(139, 92, 246, 0.3);
+        background: var(--compact-hint-gradient);
+        border: 1px solid var(--compact-hint-border);
         border-radius: 8px;
         margin-bottom: 6px;
     }
@@ -2753,14 +2753,14 @@
         margin: 0;
         font-size: 0.85rem;
         font-weight: 600;
-        color: #e0e0ff;
+        color: var(--compact-hint-text);
     }
 
     .play-hint-compact .hint-note {
         display: block;
         font-size: 0.65rem;
         font-weight: 400;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--overlay-white-text);
         margin-top: 3px;
     }
 
@@ -2773,13 +2773,13 @@
     .mini-scoreboard {
         padding: 8px 10px !important;
         max-height: none !important;
-        background: rgba(255, 255, 255, 0.08) !important;
+        background: var(--overlay-white-subtle) !important;
     }
 
     .mini-scoreboard h3 {
         font-size: 0.75rem !important;
         margin-bottom: 8px !important;
-        color: rgba(255, 255, 255, 0.9) !important;
+        color: var(--overlay-white-text-strong) !important;
     }
 
     .mini-scoreboard .score-list {
@@ -2800,14 +2800,14 @@
         padding: 6px 10px !important;
         font-size: 0.75rem !important;
         border-radius: 6px;
-        background: rgba(255, 255, 255, 0.95);
+        background: var(--bg-surface);
         white-space: nowrap;
         overflow: hidden;
     }
 
     .mini-scoreboard .score-item.me {
-        background: linear-gradient(135deg, #dbeafe 0%, #c7d2fe 100%) !important;
-        border: 1px solid rgba(99, 102, 241, 0.5);
+        background: var(--gradient-blue-light) !important;
+        border: 1px solid var(--status-primary-bg-hover);
     }
 
     /* 순위 숫자 */
@@ -2816,7 +2816,7 @@
         height: auto !important;
         min-width: 12px;
         background: none !important;
-        color: #6366f1 !important;
+        color: var(--primary-color) !important;
         font-size: 0.75rem !important;
         font-weight: 700;
         flex-shrink: 0;
@@ -2828,7 +2828,7 @@
 
     /* 구분자 스타일 */
     .mini-scoreboard .score-item .separator {
-        color: #9ca3af;
+        color: var(--gray-400);
         font-weight: 400;
         flex-shrink: 0;
     }
@@ -2839,13 +2839,13 @@
         text-overflow: ellipsis;
         font-size: 0.75rem;
         font-weight: 500;
-        color: #1f2937;
+        color: var(--gray-900);
     }
 
     .mini-scoreboard .score-item .player-score {
         font-weight: 700;
         font-size: 0.8rem;
-        color: #6366f1;
+        color: var(--primary-color);
         flex-shrink: 0;
     }
 
@@ -2911,13 +2911,13 @@
         padding: 3px !important;
         max-height: 28vh !important;
         min-height: 125px !important;
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--gradient-game) !important;
+        border: 1px solid var(--overlay-white-light);
     }
 
     .multi-main .game-area h2,
     .multi-main .game-area p {
-        color: #e2e8f0 !important;
+        color: var(--slate-200) !important;
     }
 
     /* 라운드 대기 압축 + 다크모드 */
@@ -2933,13 +2933,13 @@
     .waiting-content h2 {
         font-size: 1rem !important;
         margin-bottom: 4px !important;
-        color: #f1f5f9 !important;
+        color: var(--slate-100) !important;
     }
 
     .waiting-content p {
         font-size: 0.8rem !important;
         margin-bottom: 8px !important;
-        color: #94a3b8 !important;
+        color: var(--slate-400) !important;
     }
 
     .btn-start-round {
@@ -2954,35 +2954,35 @@
 
     .answer-reveal h2 {
         font-size: 1rem !important;
-        color: #fbbf24 !important;
+        color: var(--warning-bright) !important;
     }
 
     .answer-info-card {
         padding: 10px !important;
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.15) 100%) !important;
-        border: 1px solid rgba(251, 191, 36, 0.3);
+        background: var(--ranking-gold-gradient) !important;
+        border: 1px solid var(--ranking-gold-border);
     }
 
     .answer-info-card .song-title {
         font-size: 1rem !important;
-        color: #fef3c7 !important;
+        color: var(--warning-light) !important;
     }
 
     .answer-info-card .song-artist {
         font-size: 0.85rem !important;
-        color: #fde68a !important;
+        color: var(--checker-alt-hover) !important;
     }
 
     .answer-info-card .song-meta {
         font-size: 0.7rem !important;
-        color: #d97706 !important;
+        color: var(--warning-dark) !important;
     }
 
     .winner-info {
         padding: 6px 10px !important;
         margin-top: 8px !important;
         gap: 4px !important;
-        border: 1px solid rgba(34, 197, 94, 0.3) !important;
+        border: 1px solid var(--game-correct-glow) !important;
     }
 
     .winner-info span {
@@ -2990,15 +2990,15 @@
     }
 
     .winner-label {
-        color: #86efac !important;
+        color: var(--success-light-bright) !important;
     }
 
     .winner-name {
-        color: #f0fdf4 !important;
+        color: var(--correct-row-bg) !important;
     }
 
     .winner-score {
-        color: #4ade80 !important;
+        color: var(--success-bright) !important;
     }
 
     .btn-next-round {
@@ -3009,7 +3009,7 @@
     .host-controls {
         margin-top: 10px !important;
         padding-top: 10px !important;
-        border-top-color: rgba(255, 255, 255, 0.1) !important;
+        border-top-color: var(--overlay-white-light) !important;
     }
 }
 
@@ -3056,7 +3056,7 @@
     z-index: 9999;
     opacity: 0;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px var(--overlay-black-strong);
 }
 
 .toast-notification.show {

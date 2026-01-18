@@ -155,18 +155,18 @@
 }
 
 .ranker-card.top-1 {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), var(--bg-surface));
-    border-color: rgba(255, 215, 0, 0.5);
+    background: linear-gradient(135deg, var(--tier-gold-bg), var(--bg-surface));
+    border-color: var(--tier-gold);
 }
 
 .ranker-card.top-2 {
-    background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), var(--bg-surface));
-    border-color: rgba(192, 192, 192, 0.5);
+    background: linear-gradient(135deg, var(--tier-silver-bg), var(--bg-surface));
+    border-color: var(--tier-silver);
 }
 
 .ranker-card.top-3 {
-    background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), var(--bg-surface));
-    border-color: rgba(205, 127, 50, 0.5);
+    background: linear-gradient(135deg, var(--tier-bronze-bg), var(--bg-surface));
+    border-color: var(--tier-bronze);
 }
 
 .ranker-rank {
@@ -207,13 +207,13 @@
     margin-bottom: 8px;
 }
 
-.ranker-tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.3); color: var(--tier-challenger); }
-.ranker-tier-badge.MASTER { background: rgba(255, 107, 107, 0.3); color: var(--tier-master); }
-.ranker-tier-badge.DIAMOND { background: rgba(185, 242, 255, 0.3); color: #87CEEB; }
-.ranker-tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.3); color: var(--tier-platinum); }
-.ranker-tier-badge.GOLD { background: rgba(255, 215, 0, 0.3); color: var(--tier-gold); }
-.ranker-tier-badge.SILVER { background: rgba(192, 192, 192, 0.3); color: var(--tier-silver); }
-.ranker-tier-badge.BRONZE { background: rgba(205, 127, 50, 0.3); color: var(--tier-bronze); }
+.ranker-tier-badge.CHALLENGER { background: var(--tier-challenger-bg-hover); color: var(--tier-challenger); }
+.ranker-tier-badge.MASTER { background: var(--tier-master-bg-hover); color: var(--tier-master); }
+.ranker-tier-badge.DIAMOND { background: var(--tier-diamond-bg-hover); color: var(--tier-diamond); }
+.ranker-tier-badge.PLATINUM { background: var(--tier-platinum-bg-hover); color: var(--tier-platinum); }
+.ranker-tier-badge.GOLD { background: var(--tier-gold-bg-hover); color: var(--tier-gold); }
+.ranker-tier-badge.SILVER { background: var(--tier-silver-bg-hover); color: var(--tier-silver); }
+.ranker-tier-badge.BRONZE { background: var(--tier-bronze-bg-hover); color: var(--tier-bronze); }
 
 .ranker-nickname { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
 .ranker-score { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
@@ -256,13 +256,13 @@
     font-weight: 600;
 }
 
-.table-tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.3); color: var(--tier-challenger); }
-.table-tier-badge.MASTER { background: rgba(255, 107, 107, 0.3); color: var(--tier-master); }
-.table-tier-badge.DIAMOND { background: rgba(185, 242, 255, 0.3); color: #87CEEB; }
-.table-tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.3); color: var(--tier-platinum); }
-.table-tier-badge.GOLD { background: rgba(255, 215, 0, 0.3); color: var(--tier-gold); }
-.table-tier-badge.SILVER { background: rgba(192, 192, 192, 0.3); color: var(--tier-silver); }
-.table-tier-badge.BRONZE { background: rgba(205, 127, 50, 0.3); color: var(--tier-bronze); }
+.table-tier-badge.CHALLENGER { background: var(--tier-challenger-bg-hover); color: var(--tier-challenger); }
+.table-tier-badge.MASTER { background: var(--tier-master-bg-hover); color: var(--tier-master); }
+.table-tier-badge.DIAMOND { background: var(--tier-diamond-bg-hover); color: var(--tier-diamond); }
+.table-tier-badge.PLATINUM { background: var(--tier-platinum-bg-hover); color: var(--tier-platinum); }
+.table-tier-badge.GOLD { background: var(--tier-gold-bg-hover); color: var(--tier-gold); }
+.table-tier-badge.SILVER { background: var(--tier-silver-bg-hover); color: var(--tier-silver); }
+.table-tier-badge.BRONZE { background: var(--tier-bronze-bg-hover); color: var(--tier-bronze); }
 
 .rank-medal { font-size: 1.2rem; }
 
@@ -367,18 +367,18 @@
     }
 
     .mobile-rank-card.top-1 {
-        background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), var(--bg-surface));
-        border-color: rgba(255, 215, 0, 0.4);
+        background: linear-gradient(135deg, var(--tier-gold-bg), var(--bg-surface));
+        border-color: var(--tier-gold);
     }
 
     .mobile-rank-card.top-2 {
-        background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), var(--bg-surface));
-        border-color: rgba(192, 192, 192, 0.4);
+        background: linear-gradient(135deg, var(--tier-silver-bg), var(--bg-surface));
+        border-color: var(--tier-silver);
     }
 
     .mobile-rank-card.top-3 {
-        background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), var(--bg-surface));
-        border-color: rgba(205, 127, 50, 0.4);
+        background: linear-gradient(135deg, var(--tier-bronze-bg), var(--bg-surface));
+        border-color: var(--tier-bronze);
     }
 
     .mobile-rank-left {
@@ -416,13 +416,13 @@
         flex-shrink: 0;
     }
 
-    .mobile-tier-badge.CHALLENGER { background: rgba(0, 191, 255, 0.7); color: var(--text-inverse); }
-    .mobile-tier-badge.MASTER { background: rgba(255, 107, 107, 0.7); color: var(--text-inverse); }
-    .mobile-tier-badge.DIAMOND { background: rgba(185, 242, 255, 0.7); color: var(--gray-900); }
-    .mobile-tier-badge.PLATINUM { background: rgba(229, 228, 226, 0.7); color: var(--gray-900); }
-    .mobile-tier-badge.GOLD { background: rgba(255, 215, 0, 0.7); color: var(--gray-900); }
-    .mobile-tier-badge.SILVER { background: rgba(192, 192, 192, 0.7); color: var(--gray-900); }
-    .mobile-tier-badge.BRONZE { background: rgba(205, 127, 50, 0.7); color: var(--text-inverse); }
+    .mobile-tier-badge.CHALLENGER { background: var(--tier-challenger-bg-strong); color: var(--text-inverse); }
+    .mobile-tier-badge.MASTER { background: var(--tier-master-bg-strong); color: var(--text-inverse); }
+    .mobile-tier-badge.DIAMOND { background: var(--tier-diamond-bg-strong); color: var(--gray-900); }
+    .mobile-tier-badge.PLATINUM { background: var(--tier-platinum-bg-strong); color: var(--gray-900); }
+    .mobile-tier-badge.GOLD { background: var(--tier-gold-bg-strong); color: var(--gray-900); }
+    .mobile-tier-badge.SILVER { background: var(--tier-silver-bg-strong); color: var(--gray-900); }
+    .mobile-tier-badge.BRONZE { background: var(--tier-bronze-bg-strong); color: var(--text-inverse); }
 
     .mobile-rank-info {
         font-size: 0.7rem;

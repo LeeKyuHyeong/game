@@ -29,6 +29,7 @@
     --text-muted: #94a3b8;
     --text-inverse: #ffffff;
     --text-on-gradient: #ffffff; /* 그라디언트 배경 위 텍스트 (항상 흰색) */
+    --text-on-gold: #ffffff; /* 금/은/동 그라디언트 배경 위 텍스트 (항상 흰색) */
 
     /* ========== 테두리 ========== */
     --border-default: #e2e8f0;
@@ -52,6 +53,7 @@
 
     /* ========== 상태 색상 (고정) ========== */
     --primary: #6366f1;
+    --primary-bright: #818cf8;
     --primary-light: #e0e7ff;
     --primary-dark: #4f46e5;
     --success: #22c55e;
@@ -61,6 +63,7 @@
     --danger-light: #fee2e2;
     --danger-dark: #dc2626;
     --warning: #f59e0b;
+    --warning-bright: #fbbf24;
     --warning-light: #fef3c7;
     --warning-dark: #d97706;
     --info: #3b82f6;
@@ -113,6 +116,23 @@
     --gradient-gold-light: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     --gradient-silver-light: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
     --gradient-bronze-light: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+    --gradient-success-light: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+
+    /* ========== 포디움 카드 배경 ========== */
+    --podium-gold-bg: var(--gradient-gold-light);
+    --podium-silver-bg: var(--gradient-silver-light);
+    --podium-bronze-bg: var(--gradient-bronze-light);
+    --podium-gold-stand: var(--gradient-gold);
+    --podium-silver-stand: var(--gradient-silver);
+    --podium-bronze-stand: var(--gradient-bronze);
+
+    /* ========== 포디움 다크모드용 색상 ========== */
+    --podium-gold-bg-dark: rgba(146, 112, 12, 0.25);
+    --podium-silver-bg-dark: rgba(75, 85, 99, 0.3);
+    --podium-bronze-bg-dark: rgba(146, 64, 14, 0.25);
+    --podium-gold-stand-dark: linear-gradient(135deg, #92700c 0%, #6b5209 100%);
+    --podium-silver-stand-dark: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+    --podium-bronze-stand-dark: linear-gradient(135deg, #92400e 0%, #78350f 100%);
 
     /* ========== Primary Shadow ========== */
     --shadow-primary: 0 6px 20px rgba(99, 102, 241, 0.4);
@@ -141,6 +161,16 @@
     --gray-500: #6b7280;
     --gray-400: #9ca3af;
     --gray-300: #d1d5db;
+
+    /* ========== 슬레이트 (라이트 텍스트용) ========== */
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
 
     /* ========== 희귀도 색상 (브랜드 고정) ========== */
     --rarity-common: #9CA3AF;
@@ -174,6 +204,97 @@
     --success-bright: #7bed9f;
     --violet: #8b5cf6;
     --violet-light: #c4b5fd;
+
+    /* ========== 티어 배경 (투명도 포함) ========== */
+    --tier-bronze-bg: rgba(205, 127, 50, 0.15);
+    --tier-bronze-bg-hover: rgba(205, 127, 50, 0.25);
+    --tier-silver-bg: rgba(192, 192, 192, 0.2);
+    --tier-silver-bg-hover: rgba(192, 192, 192, 0.3);
+    --tier-gold-bg: rgba(255, 215, 0, 0.2);
+    --tier-gold-bg-hover: rgba(255, 215, 0, 0.3);
+    --tier-platinum-bg: rgba(229, 228, 226, 0.3);
+    --tier-platinum-bg-hover: rgba(229, 228, 226, 0.4);
+    --tier-diamond-bg: rgba(185, 242, 255, 0.3);
+    --tier-diamond-bg-hover: rgba(185, 242, 255, 0.4);
+    --tier-master-bg: rgba(255, 107, 107, 0.2);
+    --tier-master-bg-hover: rgba(255, 107, 107, 0.3);
+    --tier-challenger-bg: rgba(0, 191, 255, 0.2);
+    --tier-challenger-bg-hover: rgba(0, 191, 255, 0.3);
+
+    /* ========== 티어 배경 강조 (뱃지용, 0.7 opacity) ========== */
+    --tier-bronze-bg-strong: rgba(205, 127, 50, 0.7);
+    --tier-silver-bg-strong: rgba(192, 192, 192, 0.7);
+    --tier-gold-bg-strong: rgba(255, 215, 0, 0.7);
+    --tier-platinum-bg-strong: rgba(229, 228, 226, 0.7);
+    --tier-diamond-bg-strong: rgba(185, 242, 255, 0.7);
+    --tier-master-bg-strong: rgba(255, 107, 107, 0.7);
+    --tier-challenger-bg-strong: rgba(0, 191, 255, 0.7);
+
+    /* ========== 상태 표시 배경 (Admin/UI용) ========== */
+    --status-primary-bg: rgba(99, 102, 241, 0.2);
+    --status-primary-bg-hover: rgba(99, 102, 241, 0.3);
+    --status-danger-bg: rgba(239, 68, 68, 0.2);
+    --status-danger-bg-hover: rgba(239, 68, 68, 0.3);
+    --status-warning-bg: rgba(251, 191, 36, 0.2);
+    --status-warning-bg-hover: rgba(251, 191, 36, 0.3);
+    --status-success-bg: rgba(34, 197, 94, 0.2);
+    --status-success-bg-hover: rgba(34, 197, 94, 0.3);
+    --status-info-bg: rgba(59, 130, 246, 0.2);
+    --status-info-bg-hover: rgba(59, 130, 246, 0.3);
+
+    /* ========== 게임 상태/효과 색상 ========== */
+    --game-correct-glow: rgba(34, 197, 94, 0.3);
+    --game-incorrect-glow: rgba(239, 68, 68, 0.3);
+    --game-incorrect-border: rgba(239, 68, 68, 0.5);
+    --game-focus-outline: rgba(99, 102, 241, 0.3);
+    --game-focus-outline-light: rgba(99, 102, 241, 0.1);
+    --shadow-purple: rgba(139, 92, 246, 0.4);
+
+    /* ========== 흰색 오버레이 (게임 페이지용) ========== */
+    --overlay-white-subtle: rgba(255, 255, 255, 0.04);
+    --overlay-white-light: rgba(255, 255, 255, 0.1);
+    --overlay-white-light-medium: rgba(255, 255, 255, 0.15);
+    --overlay-white-medium: rgba(255, 255, 255, 0.2);
+    --overlay-white-strong: rgba(255, 255, 255, 0.3);
+    --overlay-white-text: rgba(255, 255, 255, 0.7);
+    --overlay-white-text-strong: rgba(255, 255, 255, 0.8);
+
+    /* ========== 검정 오버레이 (라이트 모드용) ========== */
+    --overlay-black-subtle: rgba(0, 0, 0, 0.04);
+    --overlay-black-light: rgba(0, 0, 0, 0.1);
+    --overlay-black-medium: rgba(0, 0, 0, 0.2);
+    --overlay-black-strong: rgba(0, 0, 0, 0.3);
+    --overlay-black-heavy: rgba(0, 0, 0, 0.4);
+
+    /* ========== 흰색 텍스트 중간 투명도 ========== */
+    --overlay-white-text-muted: rgba(255, 255, 255, 0.5);
+
+    /* ========== 랭킹 로우 그라데이션 (다크모드 포디움용) ========== */
+    --ranking-gold-gradient: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.15) 100%);
+    --ranking-gold-border: rgba(251, 191, 36, 0.3);
+    --ranking-silver-gradient: linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(100, 116, 139, 0.15) 100%);
+    --ranking-silver-border: rgba(148, 163, 184, 0.3);
+    --ranking-bronze-gradient: linear-gradient(135deg, rgba(217, 119, 6, 0.2) 0%, rgba(180, 83, 9, 0.15) 100%);
+    --ranking-bronze-border: rgba(217, 119, 6, 0.3);
+
+    /* ========== 모바일 컴팩트 레이아웃 색상 ========== */
+    --compact-teal-border: rgba(78, 205, 196, 0.3);
+    --compact-teal-glow: rgba(78, 205, 196, 0.5);
+    --compact-hint-gradient: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.2) 100%);
+    --compact-hint-border: rgba(139, 92, 246, 0.3);
+    --compact-teal: #4ecdc4;
+    --compact-teal-dark: #44a08d;
+    --compact-progress-gradient: linear-gradient(90deg, #4ecdc4, #44a08d);
+    --compact-text-light: #f0f0f0;
+    --compact-hint-text: #e0e0ff;
+    --compact-gold: #ffd700;
+
+    /* ========== 블루 라이트 그라디언트 (준비 완료 배경) ========== */
+    --gradient-blue-light: linear-gradient(135deg, #dbeafe 0%, #c7d2fe 100%);
+
+    /* ========== 성공 색상 추가 ========== */
+    --success-bright: #4ade80;
+    --success-light-bright: #86efac;
 }
 
 /* ========== 다크 모드 ========== */
@@ -247,6 +368,14 @@
     --table-header-bg: #1e293b;
     --table-row-hover: #334155;
     --table-border: #475569;
+
+    /* 포디움 카드 배경 (다크) */
+    --podium-gold-bg: var(--podium-gold-bg-dark);
+    --podium-silver-bg: var(--podium-silver-bg-dark);
+    --podium-bronze-bg: var(--podium-bronze-bg-dark);
+    --podium-gold-stand: var(--podium-gold-stand-dark);
+    --podium-silver-stand: var(--podium-silver-stand-dark);
+    --podium-bronze-stand: var(--podium-bronze-stand-dark);
 
     /* 정보 박스 (info-box) */
     --info: #1d4ed8;
@@ -326,6 +455,14 @@
         --table-header-bg: #1e293b;
         --table-row-hover: #334155;
         --table-border: #475569;
+
+        /* 포디움 카드 배경 (다크) */
+        --podium-gold-bg: var(--podium-gold-bg-dark);
+        --podium-silver-bg: var(--podium-silver-bg-dark);
+        --podium-bronze-bg: var(--podium-bronze-bg-dark);
+        --podium-gold-stand: var(--podium-gold-stand-dark);
+        --podium-silver-stand: var(--podium-silver-stand-dark);
+        --podium-bronze-stand: var(--podium-bronze-stand-dark);
 
         /* 정보 박스 (info-box) */
         --info: #1d4ed8;

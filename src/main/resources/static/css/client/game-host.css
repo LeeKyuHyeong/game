@@ -39,28 +39,28 @@
     font-size: 1.125rem;
     font-weight: 600;
     transition: all 0.2s;
-    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 4px 10px var(--game-correct-glow);
 }
 
 .player-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 6px 15px var(--status-success-bg-hover);
 }
 
 .player-btn.selected {
     background: var(--gradient-gold);
-    box-shadow: 0 4px 10px rgba(251, 191, 36, 0.4);
+    box-shadow: 0 4px 10px var(--status-warning-bg-hover);
 }
 
 /* Song Info Display (Host Mode) */
 .song-info-display {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, var(--overlay-light) 100%);
-    border: 2px solid rgba(255, 215, 0, 0.3);
+    background: linear-gradient(135deg, var(--tier-gold-bg) 0%, var(--overlay-light) 100%);
+    border: 2px solid var(--tier-gold-bg-hover);
     border-radius: 1.5rem;
     padding: 1.5rem 2rem;
     margin-bottom: 1.5rem;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1);
+    box-shadow: 0 4px 15px var(--tier-gold-bg);
     min-height: 120px;
     transition: opacity 0.3s ease-in;
 }
@@ -92,12 +92,12 @@
 .song-info-artist {
     font-size: 1.25rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--overlay-white-text-strong);
 }
 
 .song-info-meta {
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--overlay-white-text);
     margin-top: 0.25rem;
 }
 
@@ -299,7 +299,7 @@
 
     /* 종료 버튼 - 레드 */
     .host-mobile-compact .game-header button.btn-quit {
-        background: rgba(239, 68, 68, 0.2);;
+        background: var(--status-danger-bg);
         color: var(--danger-light);
     }
 }

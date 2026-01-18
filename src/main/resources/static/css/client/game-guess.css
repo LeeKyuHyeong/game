@@ -39,9 +39,9 @@
 .answer-input {
     flex: 1;
     padding: 1rem 1.5rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid var(--overlay-white-strong);
     border-radius: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--overlay-white-light);
     color: white;
     font-size: 1.125rem;
     transition: all 0.2s;
@@ -50,11 +50,11 @@
 .answer-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--overlay-white-medium);
 }
 
 .answer-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
 }
 
 /* Submit Button */
@@ -66,19 +66,19 @@
     font-size: 1rem;
     font-weight: 600;
     transition: all 0.2s;
-    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 4px 10px var(--game-correct-glow);
 }
 
 .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 6px 15px var(--status-success-bg-hover);
 }
 
 /* Skip Button */
 .btn-skip {
     padding: 0.875rem 2.5rem;
     background: var(--overlay-light);
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--overlay-white-text-strong);
     border-radius: 0.75rem;
     font-weight: 500;
     transition: all 0.2s;
@@ -114,7 +114,7 @@
 }
 
 .stats-sidebar .stat-item .stat-label {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--overlay-white-text-strong);
     font-size: 0.875rem;
 }
 
@@ -129,8 +129,8 @@
     display: none;
     margin-top: 1rem;
     padding: 1rem;
-    background: rgba(239, 68, 68, 0.2);
-    border: 1px solid rgba(239, 68, 68, 0.5);
+    background: var(--status-danger-bg);
+    border: 1px solid var(--game-incorrect-border);
     border-radius: 0.75rem;
     color: var(--danger-light);
     text-align: center;
@@ -280,7 +280,7 @@
 .modal-search-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px var(--game-focus-outline-light);
 }
 
 /* Scrollable List */
@@ -680,7 +680,7 @@
     .game-container.guess-mode.pc-compact .stats-sidebar .stats-inline {
         display: none;
         font-size: 1rem;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--overlay-white-text-strong);
     }
 
     .game-container.guess-mode.pc-compact .stats-sidebar.collapsed .stats-inline {

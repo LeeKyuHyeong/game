@@ -293,7 +293,7 @@
 }
 
 .artist-item.selected .song-count {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--overlay-white-text-strong);
 }
 
 /* ========== 난이도 선택 ========== */
@@ -324,7 +324,7 @@
 .difficulty-btn.selected {
     border-color: var(--primary-color);
     background: var(--info-bg);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px var(--game-focus-outline-light);
 }
 
 .difficulty-btn .diff-icon {
@@ -510,7 +510,7 @@
 }
 
 .game-container.fan-challenge .round-info {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--overlay-white-text-strong);
 }
 
 /* 라이프 표시 */
@@ -598,10 +598,10 @@
 }
 
 .ready-content {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--bg-surface);
     padding: 3rem;
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 32px var(--overlay-black-medium);
 }
 
 .ready-icon {
@@ -692,12 +692,12 @@
 }
 
 .phase-text.playing {
-    background: rgba(34, 197, 94, 0.2);
+    background: var(--status-success-bg);
     color: var(--success-bright);
 }
 
 .phase-text.answering {
-    background: rgba(139, 92, 246, 0.3);
+    background: var(--status-primary-bg-hover);
     color: var(--violet-light);
     animation: blink 0.8s infinite;
 }
@@ -716,7 +716,7 @@
     font-size: 2.5rem;
     font-weight: bold;
     color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 4px var(--overlay-black-medium);
 }
 
 /* 플레이어 섹션 */
@@ -736,7 +736,7 @@
 }
 
 .now-playing {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--overlay-white-text-strong);
     margin-top: 0.5rem;
 }
 
@@ -753,7 +753,7 @@
 }
 
 .chosung-hint .hint-label {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--overlay-white-text);
     font-size: 0.9rem;
 }
 
@@ -776,7 +776,7 @@
     flex: 1;
     padding: 1rem;
     font-size: 1.25rem;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--bg-surface);
     border: 2px solid var(--overlay-strong);
     border-radius: 12px;
     color: var(--text-primary);
@@ -785,7 +785,7 @@
 
 /* .game-page가 --text-primary를 흰색으로 오버라이드하므로, 흰색 배경 input에 명시적 지정 */
 .game-page .game-container.fan-challenge .answer-input {
-    color: #1e293b;
+    color: var(--slate-800);
 }
 
 .game-container.fan-challenge .answer-input::placeholder {
@@ -793,13 +793,13 @@
 }
 
 .game-page .game-container.fan-challenge .answer-input::placeholder {
-    color: #94a3b8;
+    color: var(--slate-400);
 }
 
 .game-container.fan-challenge .answer-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 0 0 3px var(--game-focus-outline);
 }
 
 .game-container.fan-challenge .btn-submit {
@@ -811,12 +811,12 @@
     border-radius: 12px;
     cursor: pointer;
     font-weight: bold;
-    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 4px 10px var(--game-correct-glow);
 }
 
 .game-container.fan-challenge .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 6px 15px var(--status-success-bg-hover);
 }
 
 /* 모달 */
@@ -826,7 +826,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--overlay-heavy);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -846,7 +846,7 @@
 
 /* .game-page가 --text-primary를 흰색으로 오버라이드하므로, 흰색 배경 모달에 명시적 지정 */
 .game-page .game-container.fan-challenge .modal-content {
-    color: #1e293b;
+    color: var(--slate-800);
 }
 
 /* 정답 모달 */
@@ -878,7 +878,7 @@
 }
 
 .game-page .correct-answer-label {
-    color: #64748b;
+    color: var(--slate-500);
 }
 
 .correct-answer {
@@ -906,7 +906,7 @@
 }
 
 .game-page .game-container.fan-challenge .modal .stat-label {
-    color: #64748b;
+    color: var(--slate-500);
 }
 
 .game-container.fan-challenge .modal .stat-value {
@@ -1024,8 +1024,8 @@
 }
 
 @keyframes glow {
-    0%, 100% { text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
-    50% { text-shadow: 0 0 20px rgba(245, 158, 11, 0.7), 0 0 30px rgba(245, 158, 11, 0.5); }
+    0%, 100% { text-shadow: 0 0 10px var(--status-warning-bg-hover); }
+    50% { text-shadow: 0 0 20px var(--tier-gold-bg-hover), 0 0 30px var(--status-warning-bg-hover); }
 }
 
 .result-summary {
@@ -1227,7 +1227,7 @@
 }
 
 .badges-collection::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--overlay-black-light);
     border-radius: 2px;
 }
 
@@ -1312,7 +1312,7 @@
 .btn-hardcore {
     display: inline-block;
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+    background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
     color: white;
     border-radius: 30px;
     font-weight: 700;
@@ -2136,11 +2136,11 @@
 }
 
 [data-theme="dark"] .ranking-item.my-rank {
-    background: rgba(99, 102, 241, 0.15);
+    background: var(--status-primary-bg);
 }
 
 [data-theme="dark"] .my-record {
-    background: rgba(99, 102, 241, 0.15);
+    background: var(--status-primary-bg);
 }
 
 [data-theme="dark"] .badge-item {
@@ -2154,12 +2154,12 @@
 }
 
 [data-theme="dark"] .badge-item[data-difficulty="NORMAL"] {
-    background: rgba(59, 130, 246, 0.15);
-    border-color: #3b82f6;
+    background: var(--status-info-bg);
+    border-color: var(--info);
 }
 
 [data-theme="dark"] .badge-item[data-difficulty="HARDCORE"] {
-    background: rgba(239, 68, 68, 0.15);
+    background: var(--status-danger-bg);
     border-color: var(--danger);
 }
 
@@ -2176,12 +2176,12 @@
 }
 
 [data-theme="dark"] .round-card.correct {
-    background: rgba(34, 197, 94, 0.1);
+    background: var(--status-success-bg);
     border-color: var(--success);
 }
 
 [data-theme="dark"] .round-card.wrong {
-    background: rgba(239, 68, 68, 0.1);
+    background: var(--status-danger-bg);
     border-color: var(--danger);
 }
 
@@ -2190,8 +2190,8 @@
 }
 
 [data-theme="dark"] .practice-notice {
-    background: rgba(245, 158, 11, 0.15);
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    background: var(--status-warning-bg);
+    border: 1px solid var(--warning);
 }
 
 [data-theme="dark"] .practice-notice p {
@@ -2220,7 +2220,7 @@
 }
 
 [data-theme="dark"] .selected-artist-card {
-    background: rgba(99, 102, 241, 0.15);
+    background: var(--status-primary-bg);
 }
 
 [data-theme="dark"] .artist-record-info {
@@ -2229,7 +2229,7 @@
 }
 
 [data-theme="dark"] .login-notice {
-    background: rgba(99, 102, 241, 0.15);
+    background: var(--status-primary-bg);
     color: var(--text-primary);
 }
 
@@ -2352,11 +2352,11 @@
     }
 
     :root:not([data-theme]) .ranking-item.my-rank {
-        background: rgba(99, 102, 241, 0.15);
+        background: var(--status-primary-bg);
     }
 
     :root:not([data-theme]) .my-record {
-        background: rgba(99, 102, 241, 0.15);
+        background: var(--status-primary-bg);
     }
 
     :root:not([data-theme]) .badge-item {
@@ -2370,12 +2370,12 @@
     }
 
     :root:not([data-theme]) .badge-item[data-difficulty="NORMAL"] {
-        background: rgba(59, 130, 246, 0.15);
-        border-color: #3b82f6;
+        background: var(--status-info-bg);
+        border-color: var(--info);
     }
 
     :root:not([data-theme]) .badge-item[data-difficulty="HARDCORE"] {
-        background: rgba(239, 68, 68, 0.15);
+        background: var(--status-danger-bg);
         border-color: var(--danger);
     }
 
@@ -2385,11 +2385,11 @@
     }
 
     :root:not([data-theme]) .round-card.correct {
-        background: rgba(34, 197, 94, 0.15);
+        background: var(--status-success-bg);
     }
 
     :root:not([data-theme]) .round-card.wrong {
-        background: rgba(239, 68, 68, 0.15);
+        background: var(--status-danger-bg);
     }
 
     :root:not([data-theme]) .btn-change-artist {
@@ -2403,7 +2403,7 @@
     }
 
     :root:not([data-theme]) .selected-artist-card {
-        background: rgba(99, 102, 241, 0.15);
+        background: var(--status-primary-bg);
     }
 
     :root:not([data-theme]) .artist-record-info {
@@ -2412,7 +2412,7 @@
     }
 
     :root:not([data-theme]) .login-notice {
-        background: rgba(99, 102, 241, 0.15);
+        background: var(--status-primary-bg);
         color: var(--text-primary);
     }
 
