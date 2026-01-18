@@ -2,29 +2,28 @@
 
 ## 2026-01-19 변경 내역
 
-### 백엔드
+### 기능 구현
 - [O] 아티스트 챌린지 정보 API 추가 (설정 화면용 - 1위 기록, 내 기록)
 - [O] Fan Challenge 기록 저장 로직 개선 (모든 점수에 시간 기록, 동점 시간 갱신)
 - [O] 세션 조회 Lazy Loading 문제 해결 (rounds/song JOIN FETCH)
 - [O] 관리자용 FanChallengeRecord 쿼리 메서드 추가
 - [O] WeeklyPerfectRefreshBatch 배치 등록 (주간 퍼펙트 상태 갱신)
+- [O] 팬 챌린지 관리자 페이지 추가 (AdminFanChallengeController)
 
-### 프론트엔드
+### UI/UX 개선
 - [O] 홈 화면 모바일 햄버거 메뉴 추가 (슬라이드 네비게이션)
 - [O] 그리드 체커보드 패턴 자동 적용 (열 수 자동 감지)
 - [O] 게임 화면 모바일 플로팅 버튼 추가 (홈/포기)
 - [O] 모바일 아티스트 유형 선택 버튼화 (select → buttons)
 - [O] 정답 모달 스킵 시 메시지 표시
-
-### CSS
 - [O] Admin/Client CSS 테마 변수화 (다크모드 대응)
 - [O] 모바일 반응형 레이아웃 개선 (setup, result, play 화면)
 - [O] rem 단위 및 CSS 변수 표준화
 
-### 관리자
-- [O] 팬 챌린지 관리 메뉴 및 페이지 추가
-- [O] AdminFanChallengeController 생성
-- [O] FanChallengeServiceTest, AdminFanChallengeControllerTest 추가
+### 테스트
+- [O] FanChallengeServiceTest 추가
+- [O] AdminFanChallengeControllerTest 추가
+- [O] WeeklyPerfectRefreshBatchTest 추가
 
 ---
 
@@ -96,3 +95,6 @@
 ### 오마이걸
 ### 백예린
 ### 
+
+다크모드 전체랭킹 포디움 내부 별명 color
+통계 가시성 Up
