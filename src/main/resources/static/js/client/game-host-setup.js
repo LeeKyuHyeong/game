@@ -334,11 +334,12 @@ async function updateSongCount() {
         maxAvailableSongs = result.count;
 
         const infoEl = document.getElementById('songCountInfo');
+        const isMobile = window.innerWidth <= 768;
         if (maxAvailableSongs === 0) {
-            infoEl.textContent = '(사용 가능한 노래 없음)';
+            infoEl.textContent = isMobile ? '(없음)' : '(사용 가능한 노래 없음)';
             infoEl.style.color = '#ef4444';
         } else {
-            infoEl.textContent = `(최대 ${maxAvailableSongs}라운드)`;
+            infoEl.textContent = isMobile ? `(최대 ${maxAvailableSongs})` : `(최대 ${maxAvailableSongs}라운드)`;
             infoEl.style.color = '#22c55e';
         }
 
@@ -438,16 +439,19 @@ function goToStep2() {
     container.querySelector('input').focus();
 }
 
-// 모바일 아티스트 유형 선택 동기화
-function syncArtistTypeFromMobileSelect() {
-    const mobileSelect = document.getElementById('artistTypeSelectMobile');
-    if (mobileSelect) {
-        const value = mobileSelect.value;
-        const radioBtn = document.querySelector(`input[name="artistType"][value="${value}"]`);
-        if (radioBtn) {
-            radioBtn.checked = true;
-            updateSongCount();
-        }
+// 모바일 아티스트 유형 버튼 선택
+function setMobileArtistType(btn, value) {
+    // 버튼 active 상태 변경
+    document.querySelectorAll('.mobile-artist-type-buttons .type-btn').forEach(b => {
+        b.classList.remove('active');
+    });
+    btn.classList.add('active');
+
+    // PC 라디오 버튼과 동기화
+    const radioBtn = document.querySelector(`input[name="artistType"][value="${value}"]`);
+    if (radioBtn) {
+        radioBtn.checked = true;
+        updateSongCount();
     }
 }
 

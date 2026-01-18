@@ -149,13 +149,9 @@
                     <span class="badge-name" th:text="${badge.difficultyName}">일반</span>
                 </div>
                 <!-- 미획득 뱃지 표시 (회색) -->
-                <div th:if="${!hasBadgeBeginner}" class="badge-item locked" data-difficulty="BEGINNER">
-                    <span class="badge-emoji">🌱</span>
-                    <span class="badge-name">입문</span>
-                </div>
                 <div th:if="${!hasBadgeNormal}" class="badge-item locked" data-difficulty="NORMAL">
                     <span class="badge-emoji">⭐</span>
-                    <span class="badge-name">일반</span>
+                    <span class="badge-name">노말</span>
                 </div>
                 <div th:if="${!hasBadgeHardcore}" class="badge-item locked" data-difficulty="HARDCORE">
                     <span class="badge-emoji">🔥</span>
@@ -166,15 +162,20 @@
 
         <!-- 아티스트 랭킹 (하드코어만 표시) -->
         <div th:if="${isRanked}" class="ranking-section">
-            <h2>
-                <span class="ranking-icon">🏆</span>
-                <span th:text="${artist}">아티스트</span> 공식 랭킹
-            </h2>
+            <div class="ranking-header">
+                <h2>
+                    <span class="ranking-icon">🏆</span>
+                    <span th:text="${artist}">아티스트</span> 공식 랭킹
+                </h2>
+                <p class="ranking-subtitle">정답 수가 같으면 클리어 시간이 빠른 순</p>
+            </div>
 
             <div th:if="${myRecord != null}" class="my-record">
                 <div class="my-record-label">내 최고 기록</div>
                 <div class="my-record-value">
                     <span th:text="${myRecord.correctCount + '/' + myRecord.totalSongs + '곡'}">0/0곡</span>
+                    <span th:if="${myRecord.bestTimeMs != null}" class="record-time"
+                          th:text="${#numbers.formatDecimal(myRecord.bestTimeMs / 1000.0, 0, 1) + '초'}">0.0초</span>
                     <span th:if="${myRecord.isPerfectClear}" class="perfect-badge">PERFECT</span>
                 </div>
             </div>
@@ -190,6 +191,8 @@
                     <span class="nickname" th:text="${record.member.nickname}">닉네임</span>
                     <span class="record-value">
                         <span th:text="${record.correctCount + '/' + record.totalSongs}">0/0</span>
+                        <span th:if="${record.bestTimeMs != null}" class="record-time"
+                              th:text="${#numbers.formatDecimal(record.bestTimeMs / 1000.0, 0, 1) + '초'}">0.0초</span>
                         <span th:if="${record.isPerfectClear}" class="perfect-badge">PERFECT</span>
                     </span>
                 </div>
@@ -208,20 +211,40 @@
             </a>
         </div>
 
-        <!-- 라운드별 기록 -->
-        <div class="rounds-section">
+        <!-- 라운드별 기록 (진행한 라운드만) -->
+        <div th:if="${rounds != null && !rounds.isEmpty()}" class="rounds-section">
             <h2>라운드별 기록</h2>
             <div class="rounds-grid">
-                <div th:each="round : ${session.rounds}" class="round-card"
-                     th:classappend="${round.isCorrect()} ? 'correct' : 'wrong'">
-                    <div class="round-number" th:text="'#' + ${round.roundNumber}">1</div>
-                    <div class="round-song" th:text="${round.song.title}">노래 제목</div>
-                    <div class="round-result">
-                        <span th:if="${round.isCorrect()}" class="result-correct">O</span>
-                        <span th:if="${!round.isCorrect() && round.status.name() == 'TIMEOUT'}" class="result-timeout">시간초과</span>
-                        <span th:if="${!round.isCorrect() && round.status.name() != 'TIMEOUT'}" class="result-wrong">X</span>
+                <th:block th:each="round : ${rounds}">
+                    <!-- WAITING 상태가 아닌 라운드만 표시 -->
+                    <div th:if="${round.status.name() != 'WAITING'}" class="round-card"
+                         th:classappend="${round.isCorrect()} ? 'correct' : 'wrong'">
+                        <!-- 결과 뱃지 (모바일: 좌측, PC: 우상단) -->
+                        <div class="round-badge">
+                            <span th:if="${round.isCorrect()}" class="badge-icon correct">✓</span>
+                            <span th:if="${!round.isCorrect() && round.status.name() == 'TIMEOUT'}" class="badge-icon timeout">⏱</span>
+                            <span th:if="${!round.isCorrect() && round.status.name() != 'TIMEOUT'}" class="badge-icon wrong">✗</span>
+                            <span class="round-number" th:text="'#' + ${round.roundNumber}">#1</span>
+                        </div>
+                        <!-- 2컬럼 비교 영역 -->
+                        <div class="round-compare">
+                            <div class="compare-column correct-col">
+                                <span class="column-label">정답</span>
+                                <span class="column-value" th:text="${round.song != null ? round.song.title : '알 수 없음'}">정답</span>
+                            </div>
+                            <div th:if="${!round.isCorrect() && round.userAnswer != null && !round.userAnswer.isEmpty()}" class="compare-column user-col">
+                                <span class="column-label">내 답</span>
+                                <span class="column-value" th:text="${round.userAnswer}">입력한 답</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </th:block>
+            </div>
+        </div>
+        <div th:if="${rounds == null || rounds.isEmpty()}" class="rounds-section">
+            <h2>라운드별 기록</h2>
+            <div class="no-rounds">
+                <p>라운드 기록이 없습니다.</p>
             </div>
         </div>
     </main>

@@ -55,6 +55,25 @@
                             <span id="selectedArtistName" class="selected-artist-name"></span>
                             <span id="selectedArtistCount" class="selected-artist-count"></span>
                         </div>
+
+                        <!-- 랭킹 정보 (하드코어 기준) -->
+                        <div id="artistRecordInfo" class="artist-record-info" style="display: none;">
+                            <!-- 내 기록 (로그인 시) -->
+                            <div id="myRecordInfo" class="record-info-item my-record-info" style="display: none;">
+                                <span class="record-label">내 기록</span>
+                                <span id="myRecordValue" class="record-value"></span>
+                            </div>
+                            <!-- 1위 기록 -->
+                            <div id="topRecordInfo" class="record-info-item top-record-info" style="display: none;">
+                                <span class="record-label">🏆 1위</span>
+                                <span id="topRecordValue" class="record-value"></span>
+                            </div>
+                            <!-- 기록 없을 때 -->
+                            <div id="noRecordInfo" class="record-info-item no-record-info" style="display: none;">
+                                <span class="no-record-text">아직 도전자가 없습니다. 첫 번째 1위가 되어보세요!</span>
+                            </div>
+                        </div>
+
                         <button type="button" class="btn-change-artist" onclick="clearSelectedArtist()">
                             다른 아티스트 선택
                         </button>

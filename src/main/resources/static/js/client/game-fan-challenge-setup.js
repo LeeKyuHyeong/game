@@ -137,7 +137,63 @@ function selectArtist(name, count) {
     document.getElementById('artistSearchResults').style.display = 'none';
     document.getElementById('artistSearch').value = '';
 
+    // 아티스트 챌린지 정보 로드 (내 기록 + 1위 기록)
+    loadArtistChallengeInfo(name);
+
     updateStartButton();
+}
+
+// 아티스트 챌린지 정보 로드 (하드코어 기준)
+async function loadArtistChallengeInfo(artist) {
+    const infoContainer = document.getElementById('artistRecordInfo');
+    const myRecordInfo = document.getElementById('myRecordInfo');
+    const topRecordInfo = document.getElementById('topRecordInfo');
+    const noRecordInfo = document.getElementById('noRecordInfo');
+
+    // 초기화
+    myRecordInfo.style.display = 'none';
+    topRecordInfo.style.display = 'none';
+    noRecordInfo.style.display = 'none';
+
+    try {
+        const response = await fetch(`/game/fan-challenge/info/${encodeURIComponent(artist)}`);
+        if (!response.ok) throw new Error('정보 로드 실패');
+
+        const data = await response.json();
+
+        // 내 기록 표시
+        if (data.myRecord) {
+            const myRecord = data.myRecord;
+            const timeText = myRecord.bestTimeMs ? ` ${(myRecord.bestTimeMs / 1000).toFixed(1)}초` : '';
+            const perfectText = myRecord.isPerfectClear ? ' PERFECT' : '';
+            document.getElementById('myRecordValue').innerHTML =
+                `<span class="score">${myRecord.correctCount}/${myRecord.totalSongs}</span>` +
+                `<span class="time">${timeText}</span>` +
+                (perfectText ? `<span class="perfect-badge">${perfectText}</span>` : '');
+            myRecordInfo.style.display = 'flex';
+        }
+
+        // 1위 기록 표시
+        if (data.topRecord) {
+            const top = data.topRecord;
+            const timeText = top.bestTimeMs ? ` ${(top.bestTimeMs / 1000).toFixed(1)}초` : '';
+            const perfectText = top.isPerfectClear ? ' PERFECT' : '';
+            document.getElementById('topRecordValue').innerHTML =
+                `<span class="nickname">${top.nickname}</span>` +
+                `<span class="score">${top.correctCount}/${top.totalSongs}</span>` +
+                `<span class="time">${timeText}</span>` +
+                (perfectText ? `<span class="perfect-badge">${perfectText}</span>` : '');
+            topRecordInfo.style.display = 'flex';
+        } else {
+            // 기록이 없을 때
+            noRecordInfo.style.display = 'block';
+        }
+
+        infoContainer.style.display = 'block';
+
+    } catch (error) {
+        console.error('아티스트 챌린지 정보 로드 오류:', error);
+    }
 }
 
 function clearSelectedArtist() {

@@ -32,20 +32,20 @@
     .data-table td:nth-child(2) {
         position: sticky;
         left: 0;
-        background: #f8fafc;
+        background: var(--table-header-bg);
         z-index: 10;
         min-width: 120px;
         max-width: 150px;
-        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 2px 0 4px var(--shadow-color);
     }
 
     .data-table tbody td:nth-child(2) {
-        background: white;
+        background: var(--card-bg);
         font-weight: 600;
     }
 
     .data-table tbody tr:hover td:nth-child(2) {
-        background: #f8fafc;
+        background: var(--table-row-hover);
     }
 
     /* 셀 패딩 축소 */
@@ -74,7 +74,7 @@
         top: 0;
         bottom: 0;
         width: 30px;
-        background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
+        background: linear-gradient(to left, var(--card-bg), transparent);
         pointer-events: none;
         opacity: 1;
         transition: opacity 0.3s;
@@ -127,7 +127,7 @@
         font-size: 0.75rem;
         color: var(--text-secondary);
         padding: 0.5rem;
-        background: #f8fafc;
+        background: var(--bg-elevated);
         border-radius: 0.5rem;
         margin-bottom: 0.5rem;
     }

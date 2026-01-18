@@ -55,7 +55,7 @@
 
 .btn-challenge {
     background: var(--tier-gold);
-    color: var(--gray-900);
+    color: var(--text-on-gold);
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 2rem;
@@ -130,7 +130,7 @@
 }
 
 .challenge-modal {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1.5rem;
     max-width: 420px;
     width: 100%;
@@ -246,7 +246,7 @@
     padding: 0.875rem;
     border: 2px solid var(--border-color);
     border-radius: 0.75rem;
-    background: white;
+    background: var(--bg-surface);
     color: var(--text-secondary);
     font-weight: 600;
     cursor: pointer;
@@ -284,7 +284,7 @@
 }
 
 .setup-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1.5rem;
     padding: 2.5rem;
     width: 100%;
@@ -355,7 +355,7 @@
     border-radius: 0.75rem;
     font-size: 1.25rem;
     font-weight: 600;
-    background: white;
+    background: var(--bg-surface);
     transition: all 0.2s;
 }
 
@@ -373,12 +373,12 @@
     opacity: 0.4;
     cursor: not-allowed;
     background: var(--bg-muted);
-    border-color: var(--gray-300);
-    color: var(--gray-400);
+    border-color: var(--border-color);
+    color: var(--text-muted);
 }
 
 .round-btn.disabled:hover {
-    border-color: var(--gray-300);
+    border-color: var(--border-color);
     transform: none;
 }
 
@@ -449,7 +449,7 @@
     border-radius: 0.5rem;
     font-size: 0.875rem;
     font-weight: 600;
-    background: white;
+    background: var(--bg-surface);
     color: var(--text-secondary);
     transition: all 0.2s;
 }
@@ -469,8 +469,8 @@
     opacity: 0.4;
     cursor: not-allowed;
     background: var(--bg-muted);
-    border-color: var(--gray-300);
-    color: var(--gray-400);
+    border-color: var(--border-color);
+    color: var(--text-muted);
 }
 
 /* Ranking Notice */
@@ -687,7 +687,7 @@
     border-radius: 0.75rem;
     cursor: pointer;
     transition: all 0.2s;
-    background: white;
+    background: var(--bg-surface);
 }
 
 .per-round-option:hover {
@@ -803,7 +803,7 @@
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
     font-size: 0.875rem;
-    background: white;
+    background: var(--bg-surface);
 }
 
 .artist-list-select option {
@@ -964,7 +964,7 @@
     cursor: pointer;
     transition: all 0.2s;
     background: var(--bg-surface);
-    color: #111827;
+    color: var(--text-primary);
     user-select: none;
 }
 
@@ -1028,6 +1028,11 @@
     display: none !important;
 }
 
+/* Mobile Artist Type Section (모바일에서만 표시) */
+.mobile-artist-type-section {
+    display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     /* '게임 설정', '게임 모드' 텍스트 숨김 */
@@ -1039,6 +1044,7 @@
     /* 호스트 설정: 인원 + 라운드 + 아티스트유형 한 줄 배치 */
     .host-settings-row {
         display: flex;
+        justify-content: center;
         align-items: center;
         gap: 0.75rem;
         margin-bottom: 0.75rem;
@@ -1058,19 +1064,36 @@
         position: relative;
     }
 
-    /* (최대 N라운드) - 라벨 아래 작게 표시 */
+    /* (최대 N) - 라벨 아래 중앙 표시 */
+    .host-settings-row .form-group > label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
     .host-settings-row .song-count-info {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        font-size: 0.6rem;
+        position: static;
+        display: block;
+        font-size: 0.625rem;
         white-space: nowrap;
         opacity: 0.8;
         margin-top: 0.125rem;
+        text-align: center;
     }
 
     .host-settings-row .round-input-group {
         margin-bottom: 0;
+    }
+
+    /* 모바일: +/- 버튼 숨김 */
+    .host-settings-row .round-adjust-btn {
+        display: none;
+    }
+
+    /* 모바일: 인풋 필드 스타일 조정 */
+    .host-settings-row .round-input {
+        width: 3rem;
+        text-align: center;
     }
 
     /* 프리셋 버튼 숨김 */
@@ -1078,57 +1101,117 @@
         display: none;
     }
 
-    /* 모바일 아티스트 유형 표시 */
-    .mobile-artist-type {
-        display: flex !important;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .mobile-artist-type label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-        white-space: nowrap;
-        margin-bottom: 0;
-    }
-
-    .mobile-artist-type select {
-        padding: 0.375rem 0.5rem;
-        font-size: 0.8rem;
-        min-width: 70px;
-    }
-
-    /* 아티스트 유형 영역 숨김 (모바일) */
+    /* 아티스트 유형 영역 숨김 (모바일) - 기존 select 및 PC용 radio */
+    .mobile-artist-type,
     #artistTypeArea {
         display: none !important;
     }
 
-    /* 내가맞추기 페이지용 기존 스타일 유지 */
-    #roundSettingArea:not(.host-settings-row #roundSettingArea) {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        align-items: center;
-        gap: 0.5rem 0.75rem;
+    /* 모바일 아티스트 유형 - 매 라운드 선택 아래 표시 */
+    .mobile-artist-type-section {
+        display: block !important;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
     }
 
+    .mobile-artist-type-section label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .mobile-artist-type-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .mobile-artist-type-buttons .type-btn {
+        flex: 1;
+        padding: 0.625rem 0.75rem;
+        border: 2px solid var(--border-color);
+        border-radius: 0.5rem;
+        background: var(--bg-surface);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+
+    .mobile-artist-type-buttons .type-btn.active {
+        border-color: var(--primary-color);
+        background: var(--primary-light);
+        color: var(--primary-color);
+    }
+
+    /* 내가맞추기 페이지용 모바일 스타일 - 라운드 + 아티스트 유형 한 줄 배치 */
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    /* 라운드 설정 컨테이너 */
     #roundSettingArea:not(.host-settings-row #roundSettingArea) > label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         margin-bottom: 0;
+        font-size: 0.8rem;
     }
 
     #roundSettingArea:not(.host-settings-row #roundSettingArea) .song-count-info {
         display: block;
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         margin-top: 0.125rem;
+        margin-left: 0;
+        text-align: center;
     }
 
     #roundSettingArea:not(.host-settings-row #roundSettingArea) .round-input-group {
-        justify-content: center;
         margin-bottom: 0;
+    }
+
+    /* +/- 버튼 숨기기 */
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) .round-adjust-btn {
+        display: none;
+    }
+
+    /* 라운드 입력 크기 줄이기 */
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) .round-input {
+        width: 2.75rem;
+        padding: 0.25rem;
+        font-size: 1rem;
     }
 
     #roundSettingArea:not(.host-settings-row #roundSettingArea) .round-presets {
         display: none;
+    }
+
+    /* 모바일 아티스트 유형 select 표시 */
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) .mobile-artist-type {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) .mobile-artist-type label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    #roundSettingArea:not(.host-settings-row #roundSettingArea) .mobile-artist-type .mode-select {
+        width: auto;
+        min-width: 4.5rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
     }
 
     /* Challenge Shortcut Mobile */
@@ -1308,6 +1391,13 @@
     .mode-label small {
         font-size: 0.65rem;
         line-height: 1.2;
+    }
+
+    /* 게임 모드 2x2 그리드 */
+    .mode-options {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
     }
 
     /* Per-Round Options Mobile */
@@ -1786,5 +1876,60 @@
     :root:not([data-theme]) .condition.unmet {
         background: rgba(0, 0, 0, 0.2);
         color: #fef3c7;
+    }
+}
+
+/* 480px 이하 - 플레이어 입력 화면 한눈에 보이게 */
+@media (max-width: 480px) {
+    .setup-main {
+        padding: 0;
+    }
+
+    .setup-card {
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+    }
+
+    /* Step 2 플레이어 입력 더 컴팩트하게 */
+    .setup-step h2 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .players-input {
+        gap: 0.5rem;
+        max-height: none;
+    }
+
+    .player-input-item {
+        gap: 0.5rem;
+    }
+
+    .player-input-item label {
+        min-width: 60px;
+        font-size: 0.8rem;
+    }
+
+    .player-input-item input {
+        padding: 0.5rem 0.625rem;
+        font-size: 0.85rem;
+        border-radius: 0.5rem;
+    }
+
+    .step-buttons {
+        margin-top: 0.75rem;
+        gap: 0.5rem;
+    }
+
+    .btn-back {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        border-radius: 0.5rem;
+    }
+
+    .btn-next, .btn-start {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.8rem;
+        border-radius: 0.5rem;
     }
 }

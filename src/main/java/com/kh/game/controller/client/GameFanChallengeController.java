@@ -407,8 +407,9 @@ public class GameFanChallengeController {
         }
 
         // 디버그: rounds 로딩 확인
+        List<GameRound> rounds = session.getRounds();
         log.info("Fan Challenge 결과 조회: sessionId={}, roundsSize={}",
-                sessionId, session.getRounds() != null ? session.getRounds().size() : "null");
+                sessionId, rounds != null ? rounds.size() : "null");
 
         model.addAttribute("useBackup", false);
 
@@ -417,6 +418,7 @@ public class GameFanChallengeController {
         FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
 
         model.addAttribute("session", session);
+        model.addAttribute("rounds", rounds); // rounds를 별도로 추가
         model.addAttribute("artist", artist);
         model.addAttribute("correctCount", session.getCorrectCount());
         model.addAttribute("totalRounds", session.getTotalRounds());
@@ -436,7 +438,8 @@ public class GameFanChallengeController {
         // 내 기록 및 퍼펙트 뱃지
         Long memberId = (Long) httpSession.getAttribute("memberId");
         if (memberId != null) {
-            memberService.findById(memberId).ifPresent(member -> {
+            Member member = memberService.findById(memberId).orElse(null);
+            if (member != null) {
                 // 현재 난이도 기록
                 fanChallengeService.getMemberRecord(member, artist, difficulty).ifPresent(record -> {
                     model.addAttribute("myRecord", record);
@@ -445,6 +448,9 @@ public class GameFanChallengeController {
                 // 퍼펙트 클리어 뱃지 목록 (전체 난이도)
                 List<FanChallengeRecord> perfectBadges = fanChallengeService.getPerfectBadges(member, artist);
                 List<Map<String, Object>> badges = new ArrayList<>();
+                boolean hasBadgeNormal = false;
+                boolean hasBadgeHardcore = false;
+
                 for (FanChallengeRecord badge : perfectBadges) {
                     Map<String, Object> badgeInfo = new HashMap<>();
                     badgeInfo.put("difficulty", badge.getDifficulty().name());
@@ -452,9 +458,18 @@ public class GameFanChallengeController {
                     badgeInfo.put("emoji", badge.getDifficulty().getBadgeEmoji());
                     badgeInfo.put("achievedAt", badge.getAchievedAt());
                     badges.add(badgeInfo);
+
+                    // 난이도별 뱃지 보유 여부
+                    if (badge.getDifficulty() == FanChallengeDifficulty.NORMAL) {
+                        hasBadgeNormal = true;
+                    } else if (badge.getDifficulty() == FanChallengeDifficulty.HARDCORE) {
+                        hasBadgeHardcore = true;
+                    }
                 }
                 model.addAttribute("perfectBadges", badges);
-            });
+                model.addAttribute("hasBadgeNormal", hasBadgeNormal);
+                model.addAttribute("hasBadgeHardcore", hasBadgeHardcore);
+            }
         }
 
         // 세션 정리
@@ -500,6 +515,51 @@ public class GameFanChallengeController {
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getTopArtistsRanking() {
         List<Map<String, Object>> result = fanChallengeService.getTopArtistsWithTopRecord(10);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 아티스트 챌린지 정보 조회 (설정 화면용)
+     * - 1위 기록
+     * - 내 기록 (로그인 시)
+     */
+    @GetMapping("/info/{artist}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getArtistChallengeInfo(
+            @PathVariable String artist,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        // 1위 기록 조회
+        List<FanChallengeRecord> topRecords = fanChallengeService.getArtistRanking(artist, 1);
+        if (!topRecords.isEmpty()) {
+            FanChallengeRecord top = topRecords.get(0);
+            Map<String, Object> topInfo = new HashMap<>();
+            topInfo.put("nickname", top.getMember().getNickname());
+            topInfo.put("correctCount", top.getCorrectCount());
+            topInfo.put("totalSongs", top.getTotalSongs());
+            topInfo.put("isPerfectClear", top.getIsPerfectClear());
+            topInfo.put("bestTimeMs", top.getBestTimeMs());
+            result.put("topRecord", topInfo);
+        }
+
+        // 내 기록 조회 (로그인 시, 하드코어 기록)
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+        if (memberId != null) {
+            memberService.findById(memberId).ifPresent(member -> {
+                fanChallengeService.getMemberRecord(member, artist, FanChallengeDifficulty.HARDCORE)
+                        .ifPresent(record -> {
+                            Map<String, Object> myInfo = new HashMap<>();
+                            myInfo.put("correctCount", record.getCorrectCount());
+                            myInfo.put("totalSongs", record.getTotalSongs());
+                            myInfo.put("isPerfectClear", record.getIsPerfectClear());
+                            myInfo.put("bestTimeMs", record.getBestTimeMs());
+                            result.put("myRecord", myInfo);
+                        });
+            });
+        }
+
         return ResponseEntity.ok(result);
     }
 

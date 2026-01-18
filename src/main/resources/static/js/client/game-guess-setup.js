@@ -137,6 +137,22 @@ function syncArtistTypeFromMobileSelect() {
     }
 }
 
+// 모바일 아티스트 유형 버튼 선택
+function setMobileArtistType(btn, value) {
+    // 버튼 active 상태 변경
+    document.querySelectorAll('.mobile-artist-type-buttons .type-btn').forEach(b => {
+        b.classList.remove('active');
+    });
+    btn.classList.add('active');
+
+    // PC 라디오 버튼과 동기화
+    const radioBtn = document.querySelector(`input[name="artistType"][value="${value}"]`);
+    if (radioBtn) {
+        radioBtn.checked = true;
+        updateSongCount();
+    }
+}
+
 // ========== 게임 모드 처리 ==========
 
 function handleGameModeChange() {
@@ -390,7 +406,7 @@ async function updateSongCount() {
             infoEl.textContent = '(사용 가능한 노래 없음)';
             infoEl.style.color = '#ef4444';
         } else {
-            infoEl.textContent = `(최대 ${maxAvailableSongs}라운드)`;
+            infoEl.textContent = `(최대 ${maxAvailableSongs})`;
             infoEl.style.color = '#22c55e';
         }
 

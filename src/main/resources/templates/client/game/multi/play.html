@@ -106,7 +106,7 @@
                         <span class="winner-score">+100점</span>
                     </div>
                     <div class="no-winner-info" id="noWinnerInfo" style="display:none;">
-                        <span class="no-winner-label">⏭️ 모두 포기!</span>
+                        <span class="no-winner-label">아쉽게도 스킵되었습니다.</span>
                     </div>
                     <button class="btn-report-inline" onclick="openReportModal(currentSong ? currentSong.id : null)">문제 신고</button>
                 </div>
@@ -165,21 +165,21 @@
 <style>
 /* 신고 버튼 */
 .btn-report-inline {
-    display: inline-block;
-    margin-top: 12px;
+    display: block;
+    margin: 12px auto 0;
     padding: 8px 16px;
     background: transparent;
-    color: #888;
-    border: 1px solid #ddd;
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 6px;
     font-size: 0.85em;
     cursor: pointer;
     transition: all 0.2s;
 }
 .btn-report-inline:hover {
-    background: #f8f9fa;
-    color: #666;
-    border-color: #ccc;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 /* 포기 버튼 섹션 */

@@ -858,4 +858,139 @@ class FanChallengeServiceTest {
                     .hasMessageContaining("20곡 이상");
         }
     }
+
+    // =====================================================
+    // Edge Case 12: 시간 기록 시나리오
+    // =====================================================
+    @Nested
+    @DisplayName("시간 기록 시나리오")
+    class TimeRecordingScenarios {
+
+        @Autowired
+        private com.kh.game.repository.FanChallengeRecordRepository fanChallengeRecordRepository;
+
+        @Autowired
+        private com.kh.game.repository.MemberRepository memberRepository;
+
+        @Autowired
+        private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
+        private Member testMember;
+
+        @BeforeEach
+        void setUpMember() {
+            // 테스트 회원 생성
+            testMember = memberRepository.findByEmail("time-test@test.com").orElseGet(() -> {
+                Member m = new Member();
+                m.setEmail("time-test@test.com");
+                m.setPassword(passwordEncoder.encode("1234"));
+                m.setNickname("시간테스터");
+                m.setUsername("timetester");
+                m.setRole(Member.MemberRole.USER);
+                m.setStatus(Member.MemberStatus.ACTIVE);
+                return memberRepository.save(m);
+            });
+        }
+
+        @Test
+        @DisplayName("퍼펙트가 아니어도 시간이 기록되어야 함")
+        void nonPerfect_shouldRecordTime() {
+            // Given: 20곡 생성 및 게임 시작
+            createSongsForArtist("Time Test Artist", 20);
+            GameSession session = fanChallengeService.startChallenge(
+                    testMember, "시간테스터", "Time Test Artist", FanChallengeDifficulty.HARDCORE);
+
+            // 17개 정답, 3개 오답 (퍼펙트 아님)
+            for (int i = 1; i <= 17; i++) {
+                final int roundNum = i;
+                GameRound round = session.getRounds().stream()
+                        .filter(r -> r.getRoundNumber() == roundNum)
+                        .findFirst()
+                        .orElseThrow();
+                fanChallengeService.processAnswer(session.getId(), roundNum, round.getSong().getTitle(), 5000);
+            }
+            for (int i = 18; i <= 20; i++) {
+                fanChallengeService.processAnswer(session.getId(), i, "틀린 답", 5000);
+            }
+
+            // When: 기록 업데이트
+            fanChallengeService.updateRecord(session, FanChallengeDifficulty.HARDCORE);
+
+            // Then: 시간이 기록되어야 함
+            FanChallengeRecord record = fanChallengeRecordRepository
+                    .findByMemberAndArtistAndDifficulty(testMember, "Time Test Artist", FanChallengeDifficulty.HARDCORE)
+                    .orElseThrow();
+
+            assertThat(record.getCorrectCount()).isEqualTo(17);
+            assertThat(record.getIsPerfectClear()).isFalse();
+            assertThat(record.getBestTimeMs()).isNotNull();  // 시간이 기록됨!
+        }
+
+        @Test
+        @DisplayName("동점일 때 시간이 더 빠르면 갱신되어야 함")
+        void sameScore_fasterTime_shouldUpdate() {
+            // Given: 기록 직접 생성 (첫 번째: 15개 정답, 100초)
+            FanChallengeRecord record = new FanChallengeRecord(testMember, "Speed Test Artist", 20, FanChallengeDifficulty.HARDCORE);
+            record.setCorrectCount(15);
+            record.setBestTimeMs(100000L);  // 100초
+            record.setAchievedAt(java.time.LocalDateTime.now());
+            fanChallengeRecordRepository.save(record);
+
+            Long firstTime = record.getBestTimeMs();
+
+            // When: 같은 15개 정답, 더 빠른 시간 (50초)으로 게임 완료
+            createSongsForArtist("Speed Test Artist", 20);
+            GameSession session = fanChallengeService.startChallenge(
+                    testMember, "시간테스터", "Speed Test Artist", FanChallengeDifficulty.HARDCORE);
+
+            // startedAt을 50초 전으로 설정하여 playTimeSeconds가 50이 되도록
+            session.setStartedAt(java.time.LocalDateTime.now().minusSeconds(50));
+            session.setCorrectCount(15);
+            session.setCompletedRounds(20);
+            session.setEndedAt(java.time.LocalDateTime.now());
+            gameSessionRepository.save(session);
+
+            fanChallengeService.updateRecord(session, FanChallengeDifficulty.HARDCORE);
+
+            // Then: 시간이 갱신되어야 함
+            FanChallengeRecord updatedRecord = fanChallengeRecordRepository
+                    .findByMemberAndArtistAndDifficulty(testMember, "Speed Test Artist", FanChallengeDifficulty.HARDCORE)
+                    .orElseThrow();
+
+            assertThat(updatedRecord.getCorrectCount()).isEqualTo(15);
+            assertThat(updatedRecord.getBestTimeMs()).isLessThan(firstTime);  // 더 빠른 시간으로 갱신됨
+        }
+
+        @Test
+        @DisplayName("더 높은 점수면 시간도 함께 갱신되어야 함")
+        void higherScore_shouldUpdateWithTime() {
+            // Given: 기록 직접 생성 (첫 번째: 10개 정답, 80초)
+            FanChallengeRecord record = new FanChallengeRecord(testMember, "Higher Score Artist", 20, FanChallengeDifficulty.HARDCORE);
+            record.setCorrectCount(10);
+            record.setBestTimeMs(80000L);  // 80초
+            record.setAchievedAt(java.time.LocalDateTime.now());
+            fanChallengeRecordRepository.save(record);
+
+            // When: 더 높은 점수 (15개 정답, 60초)로 게임 완료
+            createSongsForArtist("Higher Score Artist", 20);
+            GameSession session = fanChallengeService.startChallenge(
+                    testMember, "시간테스터", "Higher Score Artist", FanChallengeDifficulty.HARDCORE);
+
+            session.setStartedAt(java.time.LocalDateTime.now().minusSeconds(60));
+            session.setCorrectCount(15);
+            session.setCompletedRounds(20);
+            session.setEndedAt(java.time.LocalDateTime.now());
+            gameSessionRepository.save(session);
+
+            fanChallengeService.updateRecord(session, FanChallengeDifficulty.HARDCORE);
+
+            // Then: 점수와 시간 모두 갱신
+            FanChallengeRecord updatedRecord = fanChallengeRecordRepository
+                    .findByMemberAndArtistAndDifficulty(testMember, "Higher Score Artist", FanChallengeDifficulty.HARDCORE)
+                    .orElseThrow();
+
+            assertThat(updatedRecord.getCorrectCount()).isEqualTo(15);
+            assertThat(updatedRecord.getBestTimeMs()).isEqualTo(60000L);  // 60초
+        }
+    }
 }

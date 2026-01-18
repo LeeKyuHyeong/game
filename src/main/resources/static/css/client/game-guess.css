@@ -183,6 +183,11 @@
     display: block;
 }
 
+.user-answer-info .skip-message {
+    color: var(--warning);
+    font-size: 0.95rem;
+}
+
 /* Genre Select Modal */
 .genre-select-modal {
     max-width: 800px;
@@ -258,7 +263,7 @@
 }
 
 .genre-item.disabled .genre-count {
-    color: var(--gray-400);
+    color: var(--text-muted);
 }
 
 /* Modal Search Input */
@@ -561,35 +566,48 @@
         display: none;
     }
 
-    /* 실시간 점수 인디케이터: PC 레이아웃 */
+    /* 실시간 점수 인디케이터: PC 레이아웃 - 줌 레벨에 반응 */
     .game-container.guess-mode.pc-compact .live-score-indicator {
-        padding: 1rem 1.25rem;
-        margin: 0.5rem 0;
-        height: clamp(105px, 22vh, 400px);
+        padding: clamp(0.5rem, 2vw, 1.25rem);
+        margin: clamp(0.25rem, 1vw, 0.5rem) 0;
+        height: clamp(80px, 20vh, 300px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .game-container.guess-mode.pc-compact .score-display {
-        margin-bottom: 0.5rem;
+        margin-bottom: clamp(0.25rem, 1vh, 0.5rem);
+        gap: clamp(3px, 0.5vw, 6px);
     }
 
     .game-container.guess-mode.pc-compact .score-value {
-        font-size: 4rem;
-        min-width: 55px;
+        font-size: clamp(1.5rem, 6vw, 4rem);
+        min-width: clamp(40px, 8vw, 70px);
     }
 
     .game-container.guess-mode.pc-compact .score-label,
     .game-container.guess-mode.pc-compact .score-unit {
-        font-size: 1.25rem;
+        font-size: clamp(0.7rem, 2vw, 1.25rem);
     }
 
     .game-container.guess-mode.pc-compact .score-countdown {
-        font-size: 1.95rem;
-        margin-bottom: 0.5rem;
+        font-size: clamp(0.8rem, 3vw, 1.5rem);
+        margin-bottom: clamp(0.25rem, 1vh, 0.5rem);
+        gap: clamp(2px, 0.5vw, 4px);
+    }
+
+    .game-container.guess-mode.pc-compact .live-score-indicator.waiting .score-countdown::after {
+        font-size: clamp(0.6rem, 2vw, 0.9rem);
     }
 
     .game-container.guess-mode.pc-compact .score-segment {
-        padding: 5px 0;
-        font-size: 1.45rem;
+        padding: clamp(3px, 0.8vh, 8px) 0;
+        font-size: clamp(0.6rem, 2vw, 1.2rem);
+    }
+
+    .game-container.guess-mode.pc-compact .score-progress {
+        gap: clamp(2px, 0.5vw, 4px);
     }
 
     /* 사이드바: PC 레이아웃 */

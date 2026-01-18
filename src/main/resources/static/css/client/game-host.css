@@ -299,7 +299,7 @@
 
     /* 종료 버튼 - 레드 */
     .host-mobile-compact .game-header button.btn-quit {
-        background: rgba(239, 68, 68, 0.2);
-        color: #fca5a5;
+        background: rgba(239, 68, 68, 0.2);;
+        color: var(--danger-light);
     }
 }

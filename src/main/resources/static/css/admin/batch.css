@@ -66,7 +66,7 @@
 
 .batch-card.disabled {
     opacity: 0.7;
-    border-left: 3px solid #9ca3af;
+    border-left: 3px solid var(--text-muted);
 }
 
 /* Batch Header */
@@ -101,13 +101,13 @@
 }
 
 .batch-status.implemented {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
 }
 
 .batch-status.not-implemented {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 /* Batch Priority */
@@ -121,18 +121,18 @@
 }
 
 .batch-priority.high {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--badge-danger-bg);
+    color: var(--danger);
 }
 
 .batch-priority.medium {
-    background: #fef3c7;
-    color: #d97706;
+    background: var(--badge-warning-bg);
+    color: var(--warning-dark);
 }
 
 .batch-priority.low {
-    background: #e0e7ff;
-    color: #4f46e5;
+    background: var(--badge-indigo-bg);
+    color: var(--primary);
 }
 
 /* Batch Description */
@@ -209,15 +209,15 @@
 }
 
 .exec-value.success {
-    color: #16a34a;
+    color: var(--success-dark);
 }
 
 .exec-value.fail {
-    color: #dc2626;
+    color: var(--danger);
 }
 
 .exec-value.running {
-    color: #2563eb;
+    color: var(--info-dark);
 }
 
 .exec-message {
@@ -258,13 +258,13 @@
 }
 
 .batch-enabled.on {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
 }
 
 .batch-enabled.off {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--badge-gray-bg);
+    color: var(--badge-gray-text);
 }
 
 /* Scheduled Badge */
@@ -274,8 +274,8 @@
     border-radius: 9999px;
     font-size: 0.625rem;
     font-weight: 600;
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
     margin-left: 0.25rem;
 }
 
@@ -330,15 +330,15 @@
 }
 
 .priority-dot.high {
-    background: #dc2626;
+    background: var(--danger);
 }
 
 .priority-dot.medium {
-    background: #d97706;
+    background: var(--warning-dark);
 }
 
 .priority-dot.low {
-    background: #4f46e5;
+    background: var(--primary);
 }
 
 /* Status Dots */
@@ -350,11 +350,11 @@
 }
 
 .status-dot.implemented {
-    background: #22c55e;
+    background: var(--success);
 }
 
 .status-dot.not-implemented {
-    background: #f59e0b;
+    background: var(--warning);
 }
 
 /* Execution Type */
@@ -367,13 +367,13 @@
 }
 
 .exec-type.manual {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 .exec-type.scheduled {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
 }
 
 /* Result Badge */
@@ -386,19 +386,19 @@
 }
 
 .result-badge.success {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
 }
 
 .result-badge.failure,
 .result-badge.fail {
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--badge-danger-bg);
+    color: var(--badge-danger-text);
 }
 
 .result-badge.running {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
 }
 
 /* Status Badge */
@@ -412,18 +412,18 @@
 }
 
 .status-badge.active {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
 }
 
 .status-badge.inactive {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--badge-gray-bg);
+    color: var(--badge-gray-text);
 }
 
 .status-badge.scheduled {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
 }
 
 /* Detail Grid */
@@ -518,7 +518,7 @@
 }
 
 .mini-table .fail-row {
-    background: #fef2f2;
+    background: var(--danger-bg);
 }
 
 .mini-table .message-cell {
@@ -537,8 +537,8 @@
 .running-spinner {
     width: 50px;
     height: 50px;
-    border: 4px solid #e5e7eb;
-    border-top-color: #3b82f6;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--info);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 1.5rem;
@@ -553,7 +553,7 @@
 .running-progress {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #3b82f6;
+    color: var(--info);
     margin-top: 1rem;
 }
 

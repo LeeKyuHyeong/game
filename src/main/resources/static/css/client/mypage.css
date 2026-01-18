@@ -189,7 +189,7 @@
 
 .badge-item.owned.selected {
     background: rgba(102, 126, 234, 0.3);
-    border-color: #667eea;
+    border-color: var(--primary-color);
 }
 
 .badge-item.locked {
@@ -226,23 +226,23 @@
 }
 
 .badge-rarity.common {
-    background: rgba(156, 163, 175, 0.3);
-    color: #9CA3AF;
+    background: var(--badge-gray-bg);
+    color: var(--badge-gray-text);
 }
 
 .badge-rarity.rare {
-    background: rgba(59, 130, 246, 0.3);
-    color: #3B82F6;
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
 }
 
 .badge-rarity.epic {
-    background: rgba(168, 85, 247, 0.3);
-    color: #A855F7;
+    background: var(--badge-purple-bg);
+    color: var(--badge-purple-text);
 }
 
 .badge-rarity.legendary {
-    background: rgba(245, 158, 11, 0.3);
-    color: #F59E0B;
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 .locked-overlay {
@@ -265,12 +265,12 @@
 
 .selected-check {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    background: #22c55e;
-    color: white;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--success);
+    color: var(--text-on-gradient);
     border-radius: 50%;
     display: flex;
     align-items: center;

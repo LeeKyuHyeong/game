@@ -188,7 +188,7 @@
     align-items: center;
     gap: 1rem;
     padding: 1.25rem;
-    background: white;
+    background: var(--bg-surface);
     border-radius: 1rem;
     transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -293,7 +293,7 @@
 }
 
 .create-card {
-    background: white;
+    background: var(--bg-surface);
     border-radius: 1.5rem;
     padding: 2rem;
     width: 100%;
@@ -330,7 +330,7 @@
 .btn-cancel {
     flex: 1;
     padding: 1rem;
-    background: #f1f5f9;
+    background: var(--bg-elevated);
     color: var(--text-secondary);
     border-radius: 0.75rem;
     font-weight: 600;
@@ -338,7 +338,7 @@
 }
 
 .btn-cancel:hover {
-    background: #e2e8f0;
+    background: var(--bg-muted);
 }
 
 .btn-create-room {
@@ -443,7 +443,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 1rem;
-    background: white;
+    background: var(--bg-surface);
     border-radius: 1rem;
     border: 2px solid transparent;
     transition: border-color 0.2s;
@@ -478,31 +478,31 @@
 }
 
 .status-badge.host {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 .status-badge.ready {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
 }
 
 .status-badge.waiting {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--badge-gray-bg);
+    color: var(--badge-gray-text);
 }
 
 .btn-kick {
     padding: 0.375rem 0.75rem;
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--badge-danger-bg);
+    color: var(--badge-danger-text);
     border-radius: 0.5rem;
     font-size: 0.75rem;
     font-weight: 500;
 }
 
 .btn-kick:hover {
-    background: #fecaca;
+    background: var(--danger-light);
 }
 
 /* Waiting Actions */
@@ -526,7 +526,7 @@
 
 .btn-ready {
     padding: 1rem 2.5rem;
-    background: #f1f5f9;
+    background: var(--bg-elevated);
     color: var(--text-primary);
     border-radius: 1rem;
     font-size: 1.125rem;
@@ -535,7 +535,7 @@
 }
 
 .btn-ready:hover {
-    background: #e2e8f0;
+    background: var(--bg-muted);
 }
 
 .btn-ready.is-ready {
@@ -559,7 +559,7 @@
 }
 
 .btn-start-game:disabled {
-    background: #9ca3af;
+    background: var(--text-muted);
     cursor: not-allowed;
 }
 
@@ -606,7 +606,7 @@
 }
 
 .game-area {
-    background: white;
+    background: var(--bg-surface);
     border-radius: 1.5rem;
     padding: 2rem;
     overflow-y: auto;
@@ -657,7 +657,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: var(--bg-elevated);
     border: 2px solid var(--border-color);
     border-radius: 1rem;
     cursor: pointer;
@@ -680,7 +680,7 @@
 
 .genre-grid .genre-item:hover:not(.disabled) {
     border-color: var(--primary-color);
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    background: var(--primary-light);
     transform: translateY(-2px);
 }
 
@@ -704,7 +704,7 @@
 
 /* Multi Game Music Player Override */
 .game-area .music-player {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    background: var(--gradient-game);
 }
 
 .game-area .player-status {
@@ -730,7 +730,7 @@
 /* Multi Game Answer Section Override */
 .game-area .answer-section,
 .game-area .multi-answer-section {
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border: 1px solid var(--border-color);
 }
 
@@ -800,7 +800,7 @@
 }
 
 .answer-info-card {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: var(--ranked-gradient);
     padding: 1.5rem;
     border-radius: 1rem;
     margin-top: 1rem;
@@ -820,7 +820,7 @@
 
 .answer-info-card .song-meta {
     font-size: 0.875rem;
-    color: #92400e;
+    color: var(--amber-text);
     margin-top: 0.5rem;
 }
 
@@ -838,19 +838,19 @@
     align-items: center;
     gap: 1rem;
     padding: 0.875rem 1rem;
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-radius: 0.75rem;
-    border-left: 4px solid #e2e8f0;
+    border-left: 4px solid var(--border-color);
     color: var(--text-primary);
 }
 
 .result-item.correct {
-    background: #f0fdf4;
+    background: var(--success-bg);
     border-left-color: var(--success);
 }
 
 .result-item.wrong {
-    background: #fef2f2;
+    background: var(--danger-bg);
     border-left-color: var(--danger);
 }
 
@@ -879,7 +879,7 @@
 }
 
 .result-answer .no-answer {
-    color: #9ca3af;
+    color: var(--text-muted);
     font-style: italic;
 }
 
@@ -894,7 +894,7 @@
 }
 
 .result-score .score-zero {
-    color: #9ca3af;
+    color: var(--text-muted);
 }
 
 /* Multi Scoreboard */
@@ -923,14 +923,14 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--card-bg);
     border-radius: 0.75rem;
     transition: all 0.2s;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .multi-scoreboard .score-item.me {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    background: var(--badge-info-bg);
     border: 2px solid var(--primary-color);
 }
 
@@ -951,7 +951,7 @@
     flex: 1;
     font-weight: 500;
     font-size: 0.875rem;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .multi-scoreboard .score-item .me-badge {
@@ -967,7 +967,7 @@
 .multi-scoreboard .score-item .answer-indicator {
     width: 20px;
     text-align: center;
-    color: #9ca3af;
+    color: var(--text-muted);
 }
 
 .multi-scoreboard .score-item .answer-indicator.answered {
@@ -1008,7 +1008,7 @@
 .chat-scoreboard-area .chat-input-area {
     flex-shrink: 0;
     padding: 0.75rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border-color);
 }
 
 /* Mini Scoreboard */
@@ -1040,14 +1040,14 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--card-bg);
     border-radius: 0.5rem;
     font-size: 0.85rem;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .mini-scoreboard .score-item.me {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    background: var(--badge-info-bg);
     border: 1px solid var(--primary-color);
 }
 
@@ -1067,7 +1067,7 @@
 .mini-scoreboard .score-item .player-name {
     flex: 1;
     font-weight: 500;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .mini-scoreboard .score-item .player-score {
@@ -1080,7 +1080,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--card-bg);
     border-radius: 1rem;
     overflow: hidden;
     min-height: 0;
@@ -1100,27 +1100,27 @@
     flex-direction: column;
     gap: 0.15rem;
     padding: 0.5rem 0.75rem;
-    background: var(--border-strong);
+    background: var(--bg-elevated);
     border-radius: 0.75rem;
     max-width: 85%;
     word-break: break-word;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .chat-message.my-message {
     align-self: flex-end;
-    background: #dbeafe;
+    background: var(--badge-info-bg);
 }
 
 .chat-message.correct-answer {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    background: var(--badge-success-bg);
     border: 2px solid var(--success);
     max-width: 100%;
 }
 
 .chat-message.system-message {
     align-self: center;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: var(--badge-warning-bg);
     text-align: center;
     max-width: 90%;
     font-size: 0.9rem;
@@ -1138,11 +1138,11 @@
 
 .chat-text {
     font-size: 0.9rem;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .system-text {
-    color: #92400e;
+    color: var(--warning-dark);
     font-weight: 500;
 }
 
@@ -1150,7 +1150,7 @@
     display: flex;
     gap: 0.5rem;
     padding: 0.75rem;
-    background: #f8fafc;
+    background: var(--bg-elevated);
     border-top: 1px solid var(--border-color);
 }
 
@@ -1248,7 +1248,7 @@
     text-align: center;
     margin-top: 2rem;
     padding: 1.5rem;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    background: var(--badge-info-bg);
     border-radius: 1rem;
 }
 
@@ -1279,9 +1279,8 @@
     gap: 0.75rem;
     margin-top: 1.5rem;
     padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    background: rgba(34, 197, 94, 0.15);
     border-radius: 1rem;
-    border: 2px solid var(--success);
 }
 
 .winner-label {
@@ -1303,14 +1302,14 @@
 /* Answer Hint */
 .answer-hint {
     font-size: 0.8125rem;
-    color: #6b7280;
+    color: var(--text-secondary);
     margin: 0.75rem 0;
     text-align: center;
 }
 
 .hint-note {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--text-muted);
     margin-top: 0.25rem;
 }
 
@@ -1324,11 +1323,11 @@
 }
 
 .room-info-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
 }
 
 .room-badge {
@@ -1346,23 +1345,23 @@
 }
 
 .badge-status.waiting {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
 }
 
 .badge-status.playing {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 .badge-status.finished {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
 }
 
 .badge-private {
-    background: #fef2f2;
-    color: #991b1b;
+    background: var(--badge-danger-bg);
+    color: var(--badge-danger-text);
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.75rem;
@@ -1372,14 +1371,14 @@
 .room-info-card h2 {
     font-size: 1.5rem;
     margin: 0 0 0.75rem 0;
-    color: #1f2937;
+    color: var(--text-primary);
 }
 
 .room-info-card .room-meta {
     display: flex;
     gap: 1.5rem;
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--text-secondary);
     margin-bottom: 1rem;
 }
 
@@ -1390,30 +1389,30 @@
 }
 
 .participant-tag {
-    background: #f3f4f6;
+    background: var(--bg-elevated);
     padding: 0.375rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.8125rem;
-    color: #374151;
+    color: var(--text-primary);
 }
 
 .participant-tag.host {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
 }
 
 .join-form-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
 }
 
 .join-form-card h3 {
     font-size: 1.25rem;
     margin: 0 0 1.25rem 0;
-    color: #1f2937;
+    color: var(--text-primary);
 }
 
 .join-form-card .form-group {
@@ -1427,14 +1426,14 @@
     display: block;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--text-primary);
     margin-bottom: 0.375rem;
 }
 
 .join-form-card .form-group input {
     flex: 1;
     padding: 0.75rem 1rem;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--border-color);
     border-radius: 0.5rem;
     font-size: 1rem;
     transition: border-color 0.2s;
@@ -1509,23 +1508,23 @@
 }
 
 .waiting-chat {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1rem;
     display: flex;
     flex-direction: column;
     height: 500px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
 }
 
 .waiting-chat .chat-header {
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .waiting-chat .chat-header h3 {
     margin: 0;
     font-size: 1rem;
-    color: #1f2937;
+    color: var(--text-primary);
 }
 
 .waiting-chat .chat-messages {
@@ -1550,16 +1549,16 @@
 }
 
 .waiting-chat .chat-message.system .system-text {
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 0.75rem;
-    background: #f3f4f6;
+    background: var(--bg-elevated);
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
 }
 
 .waiting-chat .chat-nickname {
     font-weight: 600;
-    color: #374151;
+    color: var(--text-primary);
     flex-shrink: 0;
 }
 
@@ -1568,12 +1567,12 @@
 }
 
 .waiting-chat .chat-text {
-    color: #1f2937;
+    color: var(--text-primary);
     word-break: break-word;
 }
 
 .waiting-chat .chat-message.mine {
-    background: #f0f4ff;
+    background: var(--badge-info-bg);
     padding: 0.375rem 0.625rem;
     border-radius: 0.5rem;
     margin-left: auto;
@@ -1584,13 +1583,13 @@
     display: flex;
     gap: 0.5rem;
     padding: 1rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border-color);
 }
 
 .waiting-chat .chat-input-area input {
     flex: 1;
     padding: 0.625rem 1rem;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--border-color);
     border-radius: 9999px;
     font-size: 0.875rem;
     transition: border-color 0.2s;
@@ -1613,27 +1612,27 @@
 }
 
 .waiting-chat .btn-send:hover {
-    background: #5a67d8;
+    background: var(--primary-hover);
 }
 
 /* Troubleshoot Section */
 .troubleshoot-section {
     margin-top: 2rem;
     padding-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border-color);
     text-align: center;
 }
 
 .troubleshoot-hint {
     font-size: 0.875rem;
-    color: #9ca3af;
+    color: var(--text-muted);
     margin-bottom: 0.5rem;
 }
 
 .btn-link {
     background: none;
     border: none;
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 0.875rem;
     cursor: pointer;
     text-decoration: underline;
@@ -1641,7 +1640,7 @@
 }
 
 .btn-link:hover {
-    color: #374151;
+    color: var(--text-primary);
 }
 
 .btn-danger {
@@ -1651,7 +1650,7 @@
 }
 
 .btn-danger:hover {
-    background: #dc2626;
+    background: var(--danger-dark);
 }
 
 /* ========================================
@@ -1918,7 +1917,7 @@
     .chat-input-area {
         padding: 0.5rem;
         gap: 0.375rem;
-        background: #fff;
+        background: var(--card-bg);
         position: sticky;
         bottom: 0;
     }
@@ -2128,25 +2127,25 @@
     background: rgba(239, 68, 68, 0.15);
 }
 
-/* Scoreboard - 항상 밝은 배경 유지 */
+/* Scoreboard - 다크모드에서도 읽기 쉬운 스타일 */
 [data-theme="dark"] .multi-scoreboard .score-item {
-    background: rgba(255, 255, 255, 0.9);
-    color: var(--gray-900);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
 }
 
 [data-theme="dark"] .multi-scoreboard .score-item.me {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    color: var(--gray-900);
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--text-primary);
 }
 
 [data-theme="dark"] .mini-scoreboard .score-item {
-    background: rgba(255, 255, 255, 0.9);
-    color: var(--gray-900);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
 }
 
 [data-theme="dark"] .mini-scoreboard .score-item.me {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    color: var(--gray-900);
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--text-primary);
 }
 
 /* Chat Section */
@@ -2164,7 +2163,7 @@
 }
 
 [data-theme="dark"] .chat-message .chat-nickname {
-    color: #93c5fd;
+    color: var(--primary-light);
 }
 
 [data-theme="dark"] .chat-message.my-message {
@@ -2173,7 +2172,7 @@
 }
 
 [data-theme="dark"] .chat-message.my-message .chat-nickname {
-    color: #a5b4fc;
+    color: var(--indigo-light);
 }
 
 [data-theme="dark"] .chat-message.correct-answer {
@@ -2236,7 +2235,7 @@
 
 [data-theme="dark"] .badge-status.waiting {
     background: rgba(34, 197, 94, 0.2);
-    color: #86efac;
+    color: var(--success-light);
 }
 
 [data-theme="dark"] .badge-status.playing {
@@ -2478,7 +2477,7 @@
 
     :root:not([data-theme]) .badge-status.waiting {
         background: rgba(34, 197, 94, 0.2);
-        color: #86efac;
+        color: var(--success-light);
     }
 
     :root:not([data-theme]) .badge-status.playing {
@@ -2983,7 +2982,6 @@
         padding: 6px 10px !important;
         margin-top: 8px !important;
         gap: 4px !important;
-        background: rgba(34, 197, 94, 0.15) !important;
         border: 1px solid rgba(34, 197, 94, 0.3) !important;
     }
 
@@ -3067,23 +3065,23 @@
 }
 
 .toast-info {
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    color: white;
+    background: var(--gradient-primary);
+    color: var(--text-on-gradient);
 }
 
 .toast-success {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
+    background: var(--gradient-success);
+    color: var(--text-on-gradient);
 }
 
 .toast-warning {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
+    background: var(--gradient-warning);
+    color: var(--text-on-gradient);
 }
 
 .toast-error {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
+    background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+    color: var(--text-on-gradient);
 }
 
 @media (max-width: 480px) {

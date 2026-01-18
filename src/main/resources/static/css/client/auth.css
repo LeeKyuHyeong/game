@@ -130,8 +130,8 @@
 /* Auth Button */
 .btn-auth {
     padding: 1rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--violet) 100%);
+    color: var(--text-on-gradient);
     border: none;
     border-radius: 0.75rem;
     font-size: 1rem;

@@ -18,11 +18,11 @@
 
 /* ========== Result Card (Retro Game) ========== */
 .result-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1.5rem;
     padding: 2.5rem;
     text-align: center;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
     max-width: 400px;
     margin: 0 auto;
 }
@@ -34,7 +34,7 @@
 .result-summary .nickname {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--gray-500);
+    color: var(--text-secondary);
     margin-bottom: 1rem;
 }
 
@@ -48,7 +48,7 @@
 
 .result-summary .stats {
     font-size: 1.125rem;
-    color: var(--gray-700);
+    color: var(--text-primary);
 }
 
 .result-summary .stats strong {
@@ -66,7 +66,7 @@
     display: block;
     padding: 1rem 2rem;
     background: var(--gradient-primary);
-    color: white;
+    color: var(--text-on-gradient);
     border-radius: 0.75rem;
     font-size: 1.125rem;
     font-weight: 600;
@@ -83,7 +83,7 @@
     display: block;
     padding: 0.875rem 2rem;
     background: var(--bg-elevated);
-    color: var(--gray-500);
+    color: var(--text-secondary);
     border-radius: 0.75rem;
     font-size: 1rem;
     font-weight: 500;
@@ -93,7 +93,7 @@
 
 .result-actions .btn-home:hover {
     background: var(--border-color);
-    color: var(--gray-700);
+    color: var(--text-primary);
 }
 
 /* Result Card Responsive */
@@ -138,7 +138,7 @@
 .result-header {
     text-align: center;
     padding: 2rem 0;
-    color: white;
+    color: var(--text-on-gradient);
 }
 
 .result-header h1 {
@@ -163,7 +163,7 @@
 
 /* Score Section */
 .score-section {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1.5rem;
     padding: 2rem;
     text-align: center;
@@ -192,7 +192,7 @@
     justify-content: center;
     align-items: center;
     gap: 1.5rem;
-    background: white;
+    background: var(--card-bg);
     border-radius: 1rem;
     padding: 1rem 2rem;
     margin-bottom: 1.5rem;
@@ -206,13 +206,13 @@
 
 .stats-bar .stat-label {
     font-size: 0.875rem;
-    color: var(--gray-500);
+    color: var(--text-secondary);
 }
 
 .stats-bar .stat-value {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--gray-700);
+    color: var(--text-primary);
 }
 
 .stats-bar .stat-value.correct {
@@ -241,7 +241,7 @@
 }
 
 .stat-box {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1rem;
     padding: 1.5rem;
     text-align: center;
@@ -273,7 +273,7 @@
 
 /* Rounds Section */
 .rounds-section {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1.5rem;
     padding: 1.5rem;
 }
@@ -589,7 +589,7 @@
 .lp-change {
     font-weight: bold;
     margin-left: 8px;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .lp-change.positive {
@@ -649,7 +649,7 @@
 
 /* Podium Section */
 .podium-section {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1.5rem;
     padding: 2rem;
     display: flex;
@@ -670,7 +670,7 @@
     text-align: center;
     padding: 1.5rem;
     border-radius: 1rem;
-    min-width: 15vw;
+    min-width: 7vw;
 }
 
 .podium-place.first {
@@ -712,7 +712,7 @@
 /* Podium Item (Multi-player result) */
 .podium-item {
     text-align: center;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .podium-crown {
@@ -737,15 +737,15 @@
 }
 
 .podium-player.first-name {
-    color: var(;
+    color: var(--warning);
 }
 
 .podium-player.second-name {
-    color: #1e3a5f;
+    color: var(--text-primary);
 }
 
 .podium-player.third-name {
-    color: #1e3a5f;
+    color: var(--text-primary);
 }
 
 .podium-score {
@@ -758,7 +758,7 @@
     font-size: 0.875rem;
     opacity: 0.8;
     margin-bottom: 0.5rem;
-    color: #555;
+    color: var(--text-secondary);
 }
 
 .podium-stand {
@@ -789,7 +789,7 @@
 
 /* Full Ranking */
 .full-ranking {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1.5rem;
     padding: 1.5rem;
     margin-bottom: 2rem;
@@ -814,11 +814,11 @@
     padding: 0.875rem 1rem;
     background: var(--bg-elevated);
     border-radius: 0.75rem;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .full-ranking .ranking-item.me {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    background: var(--badge-info-bg);
     border: 2px solid var(--primary-color);
 }
 
@@ -829,7 +829,7 @@
     align-items: center;
     justify-content: center;
     background: var(--primary-color);
-    color: white;
+    color: var(--text-on-gradient);
     border-radius: 50%;
     font-weight: 600;
 }
@@ -837,7 +837,7 @@
 .full-ranking .ranking-item .player-name {
     flex: 1;
     font-weight: 500;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .full-ranking .ranking-item .me-badge {
@@ -847,7 +847,7 @@
 }
 
 .full-ranking .ranking-item .correct-count {
-    color: var(--gray-500);
+    color: var(--text-secondary);
     font-size: 0.875rem;
 }
 
@@ -875,13 +875,13 @@
 }
 
 .result-footer .btn-replay {
-    background: white;
+    background: var(--card-bg);
     color: var(--primary-color);
 }
 
 .result-footer .btn-home {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
+    background: var(--overlay-light);
+    color: var(--text-on-gradient);
 }
 
 .result-footer .btn-replay:hover,
@@ -899,8 +899,8 @@
 
 .btn-restart {
     padding: 1rem 2.5rem;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: white;
+    background: var(--gradient-success);
+    color: var(--text-on-gradient);
     border: none;
     border-radius: 1rem;
     font-size: 1.125rem;
@@ -916,7 +916,7 @@
 
 .btn-lobby {
     padding: 1rem 2.5rem;
-    background: white;
+    background: var(--card-bg);
     color: var(--primary-color);
     border-radius: 1rem;
     font-size: 1.125rem;
@@ -926,7 +926,7 @@
 
 .btn-lobby:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
 }
 
 /* Desktop/Mobile Toggle */
@@ -940,7 +940,7 @@
 
 /* Mobile Ranking List */
 .ranking-list-section {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1rem;
     padding: 12px;
     display: flex;
@@ -978,7 +978,7 @@
 .ranking-row .rank-name {
     flex: 1;
     font-weight: 600;
-    color: var(--gray-900);
+    color: var(--text-primary);
 }
 
 .ranking-row .rank-score {
@@ -1802,7 +1802,7 @@
 
 /* ========== 재시작 알림 및 대기 버튼 ========== */
 .restart-notice {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: var(--gradient-success);
     border-radius: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
@@ -1820,7 +1820,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
-    color: white;
+    color: var(--text-on-gradient);
 }
 
 .restart-notice .notice-icon {
@@ -1840,8 +1840,8 @@
 
 .btn-wait {
     padding: 1rem 2.5rem;
-    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
-    color: white;
+    background: var(--gradient-silver);
+    color: var(--text-on-gradient);
     border: none;
     border-radius: 1rem;
     font-size: 1.125rem;
@@ -1874,7 +1874,7 @@
 
 /* ========== 전원 동점 표시 ========== */
 .all-tied-section {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1.5rem;
     padding: 2.5rem 2rem;
     text-align: center;
@@ -1895,13 +1895,13 @@
 .all-tied-section .tied-message {
     font-size: 1.75rem;
     font-weight: 700;
-    color: var(--gray-900);
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
 }
 
 .all-tied-section .tied-sub {
     font-size: 1rem;
-    color: var(--gray-500);
+    color: var(--text-secondary);
 }
 
 /* 다크 모드 */
@@ -1916,6 +1916,125 @@
 
 [data-theme="dark"] .all-tied-section .tied-sub {
     color: var(--result-text-secondary, #94a3b8);
+}
+
+/* ========== 다크 모드 - 랭킹 목록 (항상 다크 배경) ========== */
+
+/* 모바일 랭킹 리스트 섹션 */
+[data-theme="dark"] .ranking-list-section {
+    background: var(--result-surface, #334155);
+    border: 1px solid var(--result-border, #475569);
+}
+
+/* 모바일 랭킹 행 - 기본 스타일 (항상 다크) */
+[data-theme="dark"] .ranking-row {
+    background: var(--result-bg, #1e293b);
+    border: 1px solid var(--result-border, #475569);
+}
+
+/* 모바일 랭킹 행 - 1/2/3위 (어두운 그라데이션) */
+[data-theme="dark"] .ranking-row.first {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.15) 100%);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+[data-theme="dark"] .ranking-row.second {
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(100, 116, 139, 0.15) 100%);
+    border-color: rgba(148, 163, 184, 0.3);
+}
+
+[data-theme="dark"] .ranking-row.third {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.2) 0%, rgba(180, 83, 9, 0.15) 100%);
+    border-color: rgba(217, 119, 6, 0.3);
+}
+
+/* 모바일 랭킹 행 - hover/active 효과 제거 (다크모드) */
+[data-theme="dark"] .ranking-row:hover,
+[data-theme="dark"] .ranking-row:active,
+[data-theme="dark"] .ranking-row:focus {
+    background: var(--result-bg, #1e293b);
+    border-color: var(--result-border, #475569);
+    transform: none;
+}
+
+[data-theme="dark"] .ranking-row.first:hover,
+[data-theme="dark"] .ranking-row.first:active,
+[data-theme="dark"] .ranking-row.first:focus {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.15) 100%);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+[data-theme="dark"] .ranking-row.second:hover,
+[data-theme="dark"] .ranking-row.second:active,
+[data-theme="dark"] .ranking-row.second:focus {
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(100, 116, 139, 0.15) 100%);
+    border-color: rgba(148, 163, 184, 0.3);
+}
+
+[data-theme="dark"] .ranking-row.third:hover,
+[data-theme="dark"] .ranking-row.third:active,
+[data-theme="dark"] .ranking-row.third:focus {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.2) 0%, rgba(180, 83, 9, 0.15) 100%);
+    border-color: rgba(217, 119, 6, 0.3);
+}
+
+/* 모바일 랭킹 텍스트 색상 */
+[data-theme="dark"] .ranking-row .rank-name {
+    color: var(--result-text-primary, #f1f5f9);
+}
+
+[data-theme="dark"] .ranking-row .rank-score {
+    color: #818cf8;
+}
+
+/* PC 전체 순위 섹션 */
+[data-theme="dark"] .all-scores {
+    background: var(--result-surface, #334155);
+    border: 1px solid var(--result-border, #475569);
+    border-radius: 1rem;
+    padding: 1.5rem;
+}
+
+[data-theme="dark"] .all-scores h3 {
+    color: var(--result-text-primary, #f1f5f9);
+    margin-bottom: 1rem;
+}
+
+/* PC 점수 테이블 행 - 기본 스타일 (항상 다크) */
+[data-theme="dark"] .score-table .score-row {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--result-bg, #1e293b);
+    border: 1px solid var(--result-border, #475569);
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* PC 점수 테이블 - hover 효과 제거 (다크모드) */
+[data-theme="dark"] .score-table .score-row:hover,
+[data-theme="dark"] .score-table .score-row:active,
+[data-theme="dark"] .score-table .score-row:focus {
+    background: var(--result-bg, #1e293b);
+    border-color: var(--result-border, #475569);
+    transform: none;
+}
+
+/* PC 점수 테이블 텍스트 색상 */
+[data-theme="dark"] .score-row .rank {
+    color: #818cf8;
+    font-weight: 600;
+    min-width: 3rem;
+}
+
+[data-theme="dark"] .score-row .name {
+    flex: 1;
+    color: var(--result-text-primary, #f1f5f9);
+}
+
+[data-theme="dark"] .score-row .score {
+    color: #fbbf24;
+    font-weight: 700;
 }
 
 /* 모바일 대응 */

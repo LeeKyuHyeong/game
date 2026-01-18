@@ -203,3 +203,41 @@
         font-size: 0.85rem;
     }
 }
+
+/* 480px 이하 - 한 화면에 모두 표시 */
+@media (max-width: 480px) {
+    .client-container {
+        padding: 0.5rem;
+        min-height: auto;
+    }
+
+    .client-header {
+        padding: 0.5rem 0;
+    }
+
+    .client-header h1 {
+        font-size: 1.25rem;
+        margin-bottom: 0.125rem;
+    }
+
+    .client-header p {
+        font-size: 0.75rem;
+    }
+
+    .client-header.compact {
+        padding: 0.375rem 0;
+    }
+
+    .client-header.compact h1 {
+        font-size: 1.1rem;
+    }
+
+    .header-nav {
+        margin-bottom: 0.25rem;
+    }
+
+    .btn-home {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+    }
+}

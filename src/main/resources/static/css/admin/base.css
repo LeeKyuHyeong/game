@@ -324,23 +324,23 @@ code {
 }
 
 .toast-info {
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    color: white;
+    background: linear-gradient(135deg, var(--info), var(--primary));
+    color: var(--text-on-gradient);
 }
 
 .toast-success {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
+    background: var(--gradient-success);
+    color: var(--text-on-gradient);
 }
 
 .toast-warning {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
+    background: var(--gradient-warning);
+    color: var(--text-on-gradient);
 }
 
 .toast-error {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
+    background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+    color: var(--text-on-gradient);
 }
 
 @media (max-width: 480px) {

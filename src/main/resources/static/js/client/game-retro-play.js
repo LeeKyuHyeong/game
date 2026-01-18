@@ -507,7 +507,7 @@ function showAnswerModal(isCorrect, userAnswer, answerInfo, isGameOver, isSkip =
     if (isSkip) {
         header.textContent = '⏭ 스킵';
         header.className = 'answer-header skip';
-        userAnswerInfo.innerHTML = '';
+        userAnswerInfo.innerHTML = '<span class="skip-message">아쉽게도 스킵되었습니다.</span>';
     } else if (isCorrect) {
         header.textContent = '🎉 정답!';
         header.className = 'answer-header correct';

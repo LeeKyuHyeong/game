@@ -3,39 +3,122 @@ let isUserLoggedIn = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
-    // 아티스트 챌린지 준비 중 - 30곡 이상 아티스트 확보 후 활성화
-    // loadArtistChallengeRanking();
+    applyCheckerboardPattern();
+    loadArtistChallengeRanking();
 });
+
+// 화면 리사이즈 시 체커보드 패턴 재적용
+window.addEventListener('resize', debounce(applyCheckerboardPattern, 150));
+
+// 체커보드 패턴 자동 적용 (열 수 자동 감지)
+function applyCheckerboardPattern() {
+    document.querySelectorAll('.mode-grid').forEach(grid => {
+        const items = grid.querySelectorAll('.grid-item');
+        if (items.length === 0) return;
+
+        // 그리드의 실제 열 수 계산
+        const gridStyle = window.getComputedStyle(grid);
+        const columns = gridStyle.gridTemplateColumns.split(' ').length;
+
+        items.forEach((item, index) => {
+            const row = Math.floor(index / columns);
+            const col = index % columns;
+
+            // 체커보드: (row + col) % 2 === 1 이면 대체 색상
+            if ((row + col) % 2 === 1) {
+                item.classList.add('checker-alt');
+            } else {
+                item.classList.remove('checker-alt');
+            }
+        });
+    });
+}
+
+// 디바운스 유틸리티
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
 async function checkLoginStatus() {
     try {
         const response = await fetch('/auth/status');
         const result = await response.json();
 
-        const userInfo = document.getElementById('userInfo');
+        const userInfoDesktop = document.getElementById('userInfoDesktop');
+        const userInfoMobile = document.getElementById('userInfoMobile');
 
         if (result.isLoggedIn) {
             isUserLoggedIn = true;
             const adminBtn = result.role === 'ADMIN' ? '<a href="/admin/login" class="btn btn-admin">관리자</a>' : '';
-            userInfo.innerHTML = `
+            const adminBtnMobile = result.role === 'ADMIN' ? '<a href="/admin/login" class="mobile-menu-link admin">🛠️ 관리자</a>' : '';
+
+            // 데스크탑 UI
+            userInfoDesktop.innerHTML = `
                 <span class="user-greeting">안녕하세요, <strong>${result.nickname}</strong>님!</span>
                 <a href="/mypage" class="btn btn-mypage">마이페이지</a>
                 <button class="btn btn-logout" onclick="logout()">로그아웃</button>
                 ${adminBtn}
             `;
+
+            // 모바일 UI
+            userInfoMobile.innerHTML = `
+                <div class="mobile-user-greeting">안녕하세요, <strong>${result.nickname}</strong>님!</div>
+                <a href="/mypage" class="mobile-menu-link">👤 마이페이지</a>
+                <button class="mobile-menu-link" onclick="logout()">🚪 로그아웃</button>
+                ${adminBtnMobile}
+            `;
+
             // 내 순위 섹션 표시
             loadMyRanking();
         } else {
             isUserLoggedIn = false;
-            userInfo.innerHTML = `
+
+            // 데스크탑 UI
+            userInfoDesktop.innerHTML = `
                 <a href="/auth/login" class="btn btn-login">로그인</a>
                 <a href="/auth/register" class="btn btn-register">회원가입</a>
+            `;
+
+            // 모바일 UI
+            userInfoMobile.innerHTML = `
+                <a href="/auth/login" class="mobile-menu-link">🔑 로그인</a>
+                <a href="/auth/register" class="mobile-menu-link primary">✨ 회원가입</a>
             `;
         }
     } catch (error) {
         console.error('로그인 상태 확인 오류:', error);
     }
 }
+
+// 모바일 메뉴 토글
+function toggleMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    const btn = document.getElementById('hamburgerBtn');
+    const isOpen = menu.classList.toggle('open');
+
+    btn.setAttribute('aria-expanded', isOpen);
+    btn.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
+}
+
+// 메뉴 외부 클릭 시 닫기
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobileMenu');
+    const btn = document.getElementById('hamburgerBtn');
+
+    if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-label', '메뉴 열기');
+    }
+});
 
 // 내가 맞추기 버튼 클릭 핸들러
 function handleGuessClick() {
@@ -136,6 +219,9 @@ async function loadArtistChallengeRanking() {
             const badgeHtml = item.isPerfectClear
                 ? '<span class="artist-card-badge">PERFECT</span>'
                 : '';
+            const timeHtml = item.bestTimeMs
+                ? `<div class="artist-card-time">${(item.bestTimeMs / 1000).toFixed(1)}s</div>`
+                : '';
 
             html += `
                 <div class="artist-card">
@@ -143,6 +229,7 @@ async function loadArtistChallengeRanking() {
                     <div class="artist-card-name" title="${item.artist}">${item.artist}</div>
                     <div class="artist-card-user">${item.nickname}</div>
                     <div class="artist-card-score">${scoreText}</div>
+                    ${timeHtml}
                     ${badgeHtml}
                 </div>
             `;

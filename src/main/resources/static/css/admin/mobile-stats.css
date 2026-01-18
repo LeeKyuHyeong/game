@@ -37,8 +37,7 @@
 
     .history-stats .stats-cards .stat-label {
         font-size: 11px;
-        color: var(--text-inverse);
-        opacity: 0.7;
+        color: var(--text-secondary);
         order: 1;
     }
 
@@ -49,7 +48,7 @@
     .history-stats .stats-cards .stat-value {
         font-size: 14px;
         font-weight: 700;
-        color: var(--text-inverse);
+        color: var(--text-primary);
         order: 2;
     }
 }
@@ -77,18 +76,18 @@
     }
 
     .ranking-mobile .ranking-table tbody tr:nth-child(1) td:first-child .rank-num {
-        background: linear-gradient(135deg, #ffd700, #ffb347);
-        color: #333;
+        background: var(--gradient-gold);
+        color: var(--gray-900);
     }
 
     .ranking-mobile .ranking-table tbody tr:nth-child(2) td:first-child .rank-num {
-        background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
-        color: #333;
+        background: var(--gradient-silver);
+        color: var(--gray-900);
     }
 
     .ranking-mobile .ranking-table tbody tr:nth-child(3) td:first-child .rank-num {
-        background: linear-gradient(135deg, #cd7f32, #b87333);
-        color: #fff;
+        background: var(--gradient-bronze);
+        color: var(--text-on-gradient);
     }
 
     /* 랭킹 테이블 모바일 최적화 */
@@ -133,45 +132,45 @@
         align-items: center;
         gap: 6px;
         flex-grow: 0;
-        border: 1px solid #dee2e6;
+        border: 1px solid var(--border-color);
         box-shadow: none;
-        background: #fff;
+        background: var(--card-bg);
     }
 
     .batch-stats .stats-cards .stat-card.implemented {
-        border-color: #28a745;
-        background: #e8f5e9;
+        border-color: var(--success);
+        background: var(--badge-success-bg);
     }
 
     .batch-stats .stats-cards .stat-card.enabled {
-        border-color: #007bff;
-        background: #e3f2fd;
+        border-color: var(--info);
+        background: var(--badge-info-bg);
     }
 
     .batch-stats .stats-cards .stat-card.scheduled {
-        border-color: #6f42c1;
-        background: #f3e5f5;
+        border-color: var(--violet);
+        background: var(--badge-indigo-bg);
     }
 
     .batch-stats .stats-cards .stat-icon {
         font-size: 10px;
-        background: #667eea;
-        color: white;
+        background: var(--primary);
+        color: var(--text-on-gradient);
         padding: 2px 6px;
         border-radius: 10px;
         font-weight: 500;
     }
 
     .batch-stats .stats-cards .stat-card.implemented .stat-icon {
-        background: #28a745;
+        background: var(--success);
     }
 
     .batch-stats .stats-cards .stat-card.enabled .stat-icon {
-        background: #007bff;
+        background: var(--info);
     }
 
     .batch-stats .stats-cards .stat-card.scheduled .stat-icon {
-        background: #6f42c1;
+        background: var(--violet);
     }
 
     .batch-stats .stats-cards .stat-info {
@@ -183,7 +182,7 @@
     .batch-stats .stats-cards .stat-value {
         font-size: 14px;
         font-weight: 700;
-        color: var(--text-inverse);
+        color: var(--text-primary);
     }
 
     .batch-stats .stats-cards .stat-label {
@@ -211,25 +210,25 @@
         align-items: center;
         gap: 8px;
         flex: 0 0 auto;
-        border: 1px solid #dee2e6;
+        border: 1px solid var(--border-color);
         box-shadow: none;
-        background: #fff;
+        background: var(--card-bg);
         border-left: none;
     }
 
     .room-stats.stats-cards .stat-card.waiting {
-        border-color: #f59e0b;
-        background: #fffbeb;
+        border-color: var(--warning);
+        background: var(--badge-warning-bg);
     }
 
     .room-stats.stats-cards .stat-card.playing {
-        border-color: #22c55e;
-        background: #f0fdf4;
+        border-color: var(--success);
+        background: var(--badge-success-bg);
     }
 
     .room-stats.stats-cards .stat-card.finished {
-        border-color: #6366f1;
-        background: #eef2ff;
+        border-color: var(--indigo);
+        background: var(--badge-indigo-bg);
     }
 
     .room-stats.stats-cards .stat-icon {
@@ -246,12 +245,11 @@
     .room-stats.stats-cards .stat-value {
         font-size: 1rem;
         font-weight: 700;
-        color: var(--text-inverse);
+        color: var(--text-primary);
     }
 
     .room-stats.stats-cards .stat-label {
         font-size: 0.75rem;
-        color: var(--text-inverse);
-        opacity: 0.7;
+        color: var(--text-secondary);
     }
 }

@@ -244,39 +244,43 @@ public class FanChallengeService {
         FanChallengeRecord record;
         boolean isNewPerfectClear = false;
 
+        long currentTimeMs = session.getPlayTimeSeconds() * 1000;
+
         if (existingRecord.isPresent()) {
             record = existingRecord.get();
             boolean wasPerfect = Boolean.TRUE.equals(record.getIsPerfectClear());
 
-            // 더 좋은 기록인 경우에만 업데이트
+            // 더 좋은 기록인 경우 업데이트
             if (session.getCorrectCount() > record.getCorrectCount()) {
                 record.setCorrectCount(session.getCorrectCount());
                 record.setTotalSongs(session.getTotalRounds());
+                record.setBestTimeMs(currentTimeMs);  // 항상 시간 기록
                 record.setAchievedAt(LocalDateTime.now());
 
                 // 퍼펙트 클리어 체크
                 if (session.getCorrectCount().equals(session.getTotalRounds())) {
                     record.setIsPerfectClear(true);
-                    record.setBestTimeMs(session.getPlayTimeSeconds() * 1000);
+                    record.setIsCurrentPerfect(true);
                     if (!wasPerfect) {
                         isNewPerfectClear = true;
                     }
                 }
-            } else if (session.getCorrectCount().equals(record.getCorrectCount())
-                    && record.getIsPerfectClear()
-                    && session.getPlayTimeSeconds() * 1000 < record.getBestTimeMs()) {
-                // 같은 점수인데 시간이 더 빠른 경우
-                record.setBestTimeMs(session.getPlayTimeSeconds() * 1000);
-                record.setAchievedAt(LocalDateTime.now());
+            } else if (session.getCorrectCount().equals(record.getCorrectCount())) {
+                // 동점일 때 시간이 더 빠르면 갱신 (퍼펙트 여부 무관)
+                if (record.getBestTimeMs() == null || currentTimeMs < record.getBestTimeMs()) {
+                    record.setBestTimeMs(currentTimeMs);
+                    record.setAchievedAt(LocalDateTime.now());
+                }
             }
         } else {
             record = new FanChallengeRecord(member, artist, session.getTotalRounds(), difficulty);
             record.setCorrectCount(session.getCorrectCount());
+            record.setBestTimeMs(currentTimeMs);  // 항상 시간 기록
             record.setAchievedAt(LocalDateTime.now());
 
             if (session.getCorrectCount().equals(session.getTotalRounds())) {
                 record.setIsPerfectClear(true);
-                record.setBestTimeMs(session.getPlayTimeSeconds() * 1000);
+                record.setIsCurrentPerfect(true);
                 isNewPerfectClear = true;
             }
         }
@@ -314,10 +318,26 @@ public class FanChallengeService {
     }
 
     /**
-     * 세션 조회
+     * 세션 조회 (rounds와 song 포함)
      */
+    @Transactional(readOnly = true)
     public GameSession getSession(Long sessionId) {
-        return gameSessionRepository.findById(sessionId).orElse(null);
+        log.info("getSession 호출: sessionId={}", sessionId);
+        GameSession session = gameSessionRepository.findByIdWithRounds(sessionId).orElse(null);
+        if (session != null) {
+            // rounds와 song 강제 초기화 (Lazy Loading 방지)
+            if (session.getRounds() != null) {
+                session.getRounds().forEach(round -> {
+                    if (round.getSong() != null) {
+                        round.getSong().getTitle(); // 강제 초기화
+                    }
+                });
+            }
+            log.info("세션 조회 성공: rounds.size={}", session.getRounds().size());
+        } else {
+            log.warn("세션 조회 실패: sessionId={}", sessionId);
+        }
+        return session;
     }
 
     /**

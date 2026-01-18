@@ -120,6 +120,16 @@
                         </label>
                     </div>
                     <small class="per-round-desc">매 라운드마다 직접 선택하여 출제</small>
+
+                    <!-- 모바일 아티스트 유형 섹션 -->
+                    <div class="mobile-artist-type-section">
+                        <label>아티스트 유형</label>
+                        <div class="mobile-artist-type-buttons">
+                            <button type="button" class="type-btn active" data-value="all" onclick="setMobileArtistType(this, 'all')">전체</button>
+                            <button type="button" class="type-btn" data-value="group" onclick="setMobileArtistType(this, 'group')">그룹</button>
+                            <button type="button" class="type-btn" data-value="solo" onclick="setMobileArtistType(this, 'solo')">솔로</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 장르 선택 (FIXED_GENRE) -->

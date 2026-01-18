@@ -55,31 +55,31 @@
 
 /* Stat Card Variants */
 .stat-card.waiting {
-    border-left: 4px solid #f59e0b;
+    border-left: 4px solid var(--warning);
 }
 
 .stat-card.playing {
-    border-left: 4px solid #22c55e;
+    border-left: 4px solid var(--success);
 }
 
 .stat-card.finished {
-    border-left: 4px solid #6366f1;
+    border-left: 4px solid var(--indigo);
 }
 
 .stat-card.implemented {
-    border-left: 4px solid #22c55e;
+    border-left: 4px solid var(--success);
 }
 
 .stat-card.not-implemented {
-    border-left: 4px solid #f59e0b;
+    border-left: 4px solid var(--warning);
 }
 
 .stat-card.enabled {
-    border-left: 4px solid #3b82f6;
+    border-left: 4px solid var(--info);
 }
 
 .stat-card.scheduled {
-    border-left: 4px solid #8b5cf6;
+    border-left: 4px solid var(--violet);
 }
 
 .stat-card.with-answer {
@@ -108,7 +108,7 @@
 }
 
 .stats-row .stat-item.active {
-    border-left: 3px solid #22c55e;
+    border-left: 3px solid var(--success);
 }
 
 .stats-row .stat-item .stat-label {

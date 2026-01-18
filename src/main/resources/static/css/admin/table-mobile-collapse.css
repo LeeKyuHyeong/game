@@ -29,7 +29,22 @@
     }
 
     .data-table tbody tr:hover {
-        background: var(--card-bg);
+        background: var(--table-row-hover);
+    }
+
+    /* 정답 없는 행 - 노란색 강조 */
+    .data-table tbody tr.no-answer-row {
+        background: var(--badge-warning-bg) !important;
+        border-color: var(--warning) !important;
+        border-left: 4px solid var(--warning) !important;
+    }
+
+    .data-table tbody tr.no-answer-row:hover {
+        background: var(--warning-light) !important;
+    }
+
+    [data-theme="dark"] .data-table tbody tr.no-answer-row:hover {
+        background: var(--badge-warning-bg) !important;
     }
 
     /* 모든 셀 숨김 */

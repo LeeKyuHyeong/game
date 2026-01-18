@@ -5,15 +5,43 @@
 <div class="client-container">
     <header class="client-header">
         <div class="header-top">
-            <button class="btn btn-theme" onclick="toggleTheme()" aria-label="테마 전환" title="테마 전환">
-                <span class="theme-icon sun">☀️</span>
-                <span class="theme-icon moon">🌙</span>
-                <span class="theme-label">테마</span>
-            </button>
-            <div class="user-info" id="userInfo">
-                <!-- JS에서 로그인 상태에 따라 표시 -->
+            <!-- PC: 기존 방식 유지 -->
+            <div class="header-actions-desktop">
+                <button class="btn btn-theme" onclick="toggleTheme()" aria-label="테마 전환" title="테마 전환">
+                    <span class="theme-icon sun">☀️</span>
+                    <span class="theme-icon moon">🌙</span>
+                    <span class="theme-label">테마</span>
+                </button>
+                <div class="user-info" id="userInfoDesktop">
+                    <!-- JS에서 로그인 상태에 따라 표시 -->
+                </div>
+            </div>
+
+            <!-- 모바일: 테마 버튼 + 햄버거 메뉴 -->
+            <div class="header-actions-mobile">
+                <button class="btn btn-theme-mobile" onclick="toggleTheme()" aria-label="테마 전환" title="테마 전환">
+                    <span class="theme-icon sun">☀️</span>
+                    <span class="theme-icon moon">🌙</span>
+                </button>
+                <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="메뉴 열기" aria-expanded="false">
+                    <span class="hamburger-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </button>
             </div>
         </div>
+
+        <!-- 모바일 드롭다운 메뉴 -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-content">
+                <div class="mobile-menu-user" id="userInfoMobile">
+                    <!-- JS에서 로그인 상태에 따라 표시 -->
+                </div>
+            </div>
+        </div>
+
         <h1>🎵 Song Quiz</h1>
         <p>노래를 듣고 제목을 맞춰보세요!</p>
     </header>
@@ -41,7 +69,7 @@
 
                         <!-- 내가 맞추기 -->
                         <button th:if="${menuStatus == null or menuStatus['SOLO_GUESS'] == null or menuStatus['SOLO_GUESS']}"
-                                type="button" class="grid-item primary" onclick="handleGuessClick()">
+                                type="button" class="grid-item" onclick="handleGuessClick()">
                             <span class="grid-icon">🎯</span>
                             <span class="grid-label">내가 맞추기</span>
                         </button>
@@ -113,6 +141,7 @@
             <div class="artist-ranking-section hidden" id="artistRankingSection">
                 <div class="artist-ranking-header">
                     <h3>아티스트 챌린지 TOP</h3>
+                    <p class="artist-ranking-subtitle">정답 수가 같으면 클리어 시간이 빠른 순</p>
                 </div>
                 <div class="artist-ranking-scroll" id="artistRankingScroll">
                     <!-- JS에서 로딩 -->

@@ -345,7 +345,7 @@ button.btn-quit:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--overlay-heavy);
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -357,10 +357,16 @@ button.btn-quit:hover {
 }
 
 .modal-content {
-    background: white;
+    background: var(--bg-surface);
     border-radius: 1.5rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-xl);
     animation: modalIn 0.3s ease-out;
+}
+
+/* 게임 페이지 모달 - 밝은 배경 유지 (가독성) */
+.game-page .modal-content {
+    background: var(--bg-surface);
+    color: var(--text-primary);
 }
 
 @keyframes modalIn {
@@ -406,19 +412,19 @@ button.btn-quit:hover {
 .answer-info .song-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--gray-900);
+    color: var(--text-primary);
     margin-bottom: 0.25rem;
 }
 
 .answer-info .song-artist {
     font-size: 1.125rem;
-    color: var(--gray-500);
+    color: var(--text-secondary);
     margin-bottom: 0.5rem;
 }
 
 .answer-info .song-meta {
     font-size: 0.875rem;
-    color: var(--gray-500);
+    color: var(--text-secondary);
 }
 
 .winner-info {
@@ -543,11 +549,11 @@ button.btn-quit:hover {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    color: white;
+    background: var(--gradient-warning);
+    color: var(--text-on-gradient);
     padding: 1rem 1.5rem;
     border-radius: 0.75rem;
-    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+    box-shadow: var(--shadow-lg);
     z-index: 1000;
     animation: slideDown 0.3s ease-out;
     max-width: 90%;
@@ -696,4 +702,43 @@ button.btn-quit:hover {
     .game-main {
         gap: 0.75rem;
     }
+}
+
+/* ========== Dark Theme Overrides ========== */
+/* 일반 페이지 (비-게임)에서의 모달 다크모드 */
+[data-theme="dark"] .modal-content {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-xl);
+}
+
+[data-theme="dark"] .answer-info .song-title {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .answer-info .song-artist,
+[data-theme="dark"] .answer-info .song-meta {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .winner-info {
+    background: var(--badge-success-bg);
+}
+
+[data-theme="dark"] .playback-error-modal .error-message {
+    background: var(--badge-danger-bg);
+    color: var(--badge-danger-text);
+}
+
+[data-theme="dark"] .playback-error-modal .error-description {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .playback-error-modal .auto-report-notice {
+    background: var(--badge-success-bg);
+    border-color: var(--success);
+}
+
+[data-theme="dark"] .playback-error-modal .auto-report-notice p {
+    color: var(--badge-success-text);
 }

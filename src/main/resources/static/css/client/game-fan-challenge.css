@@ -4,7 +4,7 @@
 
 /* 밝은 테마 설정 카드 (내가맞추기와 동일) */
 .setup-card.fan-challenge-card {
-    background: white;
+    background: var(--card-bg);
     color: var(--text-primary);
 }
 
@@ -16,11 +16,11 @@
 }
 
 .fan-challenge-card .input-text {
-    background: white;
+    background: var(--bg-surface);
     border: 2px solid var(--border-color);
     color: var(--text-primary);
     padding: 0.75rem;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     width: 100%;
     font-size: 1rem;
 }
@@ -73,13 +73,13 @@
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--card-bg);
     border: 2px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 0.5rem;
     max-height: 200px;
     overflow-y: auto;
     z-index: 100;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
 }
 
 .search-result-item {
@@ -160,12 +160,82 @@
     font-weight: 600;
 }
 
+/* 아티스트 랭킹 정보 (설정 화면) */
+.artist-record-info {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background: var(--bg-base);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.record-info-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    gap: 0.5rem;
+}
+
+.record-info-item + .record-info-item {
+    border-top: 1px solid var(--border-color);
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+}
+
+.record-info-item .record-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.record-info-item .record-value {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.record-info-item .record-value .nickname {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.record-info-item .record-value .score {
+    font-weight: 700;
+}
+
+.record-info-item .record-value .time {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.record-info-item .record-value .perfect-badge {
+    font-size: 0.7rem;
+    background: var(--ranked-gradient);
+    color: var(--amber-text);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.no-record-info {
+    text-align: center;
+}
+
+.no-record-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
 .btn-change-artist {
-    background: white;
+    background: var(--bg-surface);
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
     padding: 0.5rem 1.25rem;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     cursor: pointer;
     font-size: 0.9rem;
     transition: all 0.2s;
@@ -238,9 +308,9 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 1rem 1.25rem;
-    background: white;
+    background: var(--bg-surface);
     border: 2px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 0.75rem;
     cursor: pointer;
     transition: all 0.2s;
     text-align: left;
@@ -301,11 +371,6 @@
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
-}
-
-.difficulty-badge[data-difficulty="BEGINNER"] {
-    background: var(--success-bg);
-    color: var(--success-text-dark);
 }
 
 .difficulty-badge[data-difficulty="NORMAL"] {
@@ -464,7 +529,7 @@
 }
 
 .life.lost {
-    color: var(--overlay-strong);
+    color: var(--bg-muted);
     opacity: 0.5;
 }
 
@@ -498,18 +563,23 @@
 /* 포기 버튼 */
 .game-container.fan-challenge .btn-quit {
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: 0.375rem;
     cursor: pointer;
     text-decoration: none;
     border: none;
     font-size: 0.9rem;
-    background: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: var(--danger);
+    color: var(--danger-light);
+    border: 1px solid var(--danger);
 }
 
 .game-container.fan-challenge .btn-quit:hover {
-    background: rgba(239, 68, 68, 0.3);
+    background: var(--badge-danger-bg);
+}
+
+/* 모바일 플로팅 버튼 (기본: 숨김) */
+.mobile-floating-buttons {
+    display: none;
 }
 
 /* 게임 메인 */
@@ -545,7 +615,7 @@
 }
 
 .ready-content p {
-    color: var(--text-secondary);
+    color: var(--badge-pink-text);
 }
 
 .btn-ready {
@@ -690,9 +760,9 @@
 .chosung-hint .chosung-text {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #fef08a;
+    color: var(--tier-gold);
     letter-spacing: 0.3em;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 4px var(--overlay-light);
 }
 
 /* 정답 입력 */
@@ -764,13 +834,13 @@
 }
 
 .game-container.fan-challenge .modal-content {
-    background: white;
+    background: var(--card-bg);
     padding: 2rem;
-    border-radius: 16px;
+    border-radius: 1rem;
     text-align: center;
     max-width: 400px;
     width: 90%;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
     color: var(--text-primary);
 }
 
@@ -846,7 +916,7 @@
 }
 
 .game-page .game-container.fan-challenge .modal .stat-value {
-    color: #1e293b;
+    color: var(--badge-info-text);
 }
 
 .stat-value.lives .life {
@@ -890,7 +960,7 @@
 
 .gameover-message {
     margin-bottom: 2rem;
-    color: var(--text-secondary);
+    color: var(--badge-info-text);
 }
 
 .btn-result {
@@ -912,7 +982,27 @@
 .fan-challenge-result {
     min-height: 100vh;
     padding: 2rem;
-    background: white;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    justify-items: center;
+}
+
+/* 결과 페이지 헤더 */
+.fan-challenge-result .result-header {
+    color: var(--text-primary);
+}
+
+.fan-challenge-result .result-header h1 {
+    color: var(--text-primary);
+}
+
+/* stats-row 내부 요소 테마 적용 */
+.fan-challenge-result .stats-row .stat-item .stat-label {
+    color: var(--text-secondary);
+}
+
+.fan-challenge-result .stats-row .stat-item .stat-value {
+    color: var(--text-primary);
 }
 
 .perfect-clear-badge {
@@ -936,6 +1026,14 @@
 @keyframes glow {
     0%, 100% { text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
     50% { text-shadow: 0 0 20px rgba(245, 158, 11, 0.7), 0 0 30px rgba(245, 158, 11, 0.5); }
+}
+
+.result-summary {
+    background: var(--bg-surface);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
 }
 
 .result-summary .score-display {
@@ -981,10 +1079,20 @@
     border: 1px solid var(--border-color);
 }
 
-.fan-challenge-result .ranking-section h2 {
-    margin-bottom: 1rem;
+.fan-challenge-result .ranking-header {
     text-align: center;
+    margin-bottom: 1rem;
+}
+
+.fan-challenge-result .ranking-section h2 {
+    margin-bottom: 0.25rem;
     color: var(--text-primary);
+}
+
+.fan-challenge-result .ranking-subtitle {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin: 0;
 }
 
 .my-record {
@@ -1017,7 +1125,7 @@
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
-    background: white;
+    background: var(--bg-surface);
     border-radius: 8px;
     border: 1px solid var(--border-color);
     color: var(--text-primary);
@@ -1046,6 +1154,11 @@
     color: var(--text-primary);
 }
 
+.record-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
 .perfect-badge {
     font-size: 0.75rem;
     background: var(--ranked-gradient);
@@ -1071,10 +1184,6 @@
 }
 
 /* 퍼펙트 클리어 뱃지 난이도별 */
-.perfect-clear-badge[data-difficulty="BEGINNER"] .badge-text {
-    color: var(--success-text-dark);
-}
-
 .perfect-clear-badge[data-difficulty="NORMAL"] .badge-text {
     color: var(--warning);
 }
@@ -1133,17 +1242,12 @@
     align-items: center;
     gap: 0.25rem;
     padding: 1rem 1.5rem;
-    background: white;
+    background: var(--card-bg);
     border: 2px solid var(--border-color);
     border-radius: 12px;
     min-width: 80px;
     flex: 0 0 auto;
     scroll-snap-align: start;
-}
-
-.badge-item[data-difficulty="BEGINNER"] {
-    border-color: var(--success);
-    background: var(--success-bg);
 }
 
 .badge-item[data-difficulty="NORMAL"] {
@@ -1223,6 +1327,10 @@
 /* 라운드별 기록 */
 .fan-challenge-result .rounds-section {
     margin: 2rem 0;
+    background: var(--bg-surface);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
 }
 
 .fan-challenge-result .rounds-section h2 {
@@ -1231,58 +1339,245 @@
     color: var(--text-primary);
 }
 
+.no-rounds {
+    padding: 2rem;
+    text-align: center;
+}
+
+.no-rounds p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
 .rounds-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
 }
 
+/* ========== 라운드 카드 - PC: 2컬럼 비교 스타일 ========== */
 .round-card {
+    position: relative;
     padding: 1rem;
-    background: var(--bg-base);
-    border-radius: 8px;
-    text-align: center;
-    border-left: 4px solid;
+    background: var(--bg-surface);
+    border-radius: 0.75rem;
     border: 1px solid var(--border-color);
 }
 
 .round-card.correct {
-    border-left: 4px solid var(--success);
-    background: var(--correct-row-bg);
+    border-color: var(--success);
+    background: var(--success-bg);
 }
 
 .round-card.wrong {
-    border-left: 4px solid var(--danger);
+    border-color: var(--danger);
     background: var(--danger-bg);
 }
 
-.round-number {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
+/* 결과 뱃지 - PC: 우상단 */
+.round-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
 }
 
-.round-song {
-    font-weight: bold;
-    margin: 0.5rem 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.round-badge .badge-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.round-badge .badge-icon.correct {
+    background: var(--success);
+    color: white;
+}
+
+.round-badge .badge-icon.wrong {
+    background: var(--danger);
+    color: white;
+}
+
+.round-badge .badge-icon.timeout {
+    background: var(--warning);
+    color: white;
+}
+
+.round-badge .round-number {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+/* 2컬럼 비교 영역 */
+.round-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    padding-right: 3rem; /* 뱃지 공간 확보 */
+}
+
+.compare-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--overlay-subtle);
+    border-radius: 0.5rem;
+}
+
+.compare-column .column-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.compare-column .column-value {
+    font-size: 0.9rem;
+    font-weight: 600;
     color: var(--text-primary);
+    word-break: break-word;
+}
+
+.compare-column.correct-col {
+    border-left: 2px solid var(--success);
+}
+
+.compare-column.user-col {
+    border-left: 2px solid var(--danger);
+}
+
+.compare-column.user-col .column-value {
+    color: var(--danger);
+}
+
+/* 정답인 경우 1컬럼만 표시 */
+.round-card.correct .round-compare {
+    grid-template-columns: 1fr;
+}
+
+.round-card.correct .compare-column.correct-col {
+    border-left-color: var(--success);
+}
+
+.round-card.correct .compare-column.correct-col .column-value {
+    color: var(--success);
 }
 
 .round-result .result-correct {
     color: var(--success);
     font-weight: bold;
+    font-size: 0.9rem;
 }
 
 .round-result .result-wrong {
     color: var(--danger);
     font-weight: bold;
+    font-size: 0.9rem;
 }
 
 .round-result .result-timeout {
     color: var(--warning);
-    font-size: 0.85rem;
+    font-size: 0.75rem;
+}
+
+/* ========== 모바일: 컴팩트 뱃지 스타일 ========== */
+@media (max-width: 768px) {
+    .rounds-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .round-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    /* 뱃지를 좌측에 배치 */
+    .round-badge {
+        position: static;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.125rem;
+        min-width: 2.5rem;
+    }
+
+    .round-badge .badge-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        font-size: 0.85rem;
+    }
+
+    .round-badge .round-number {
+        font-size: 0.6rem;
+    }
+
+    /* 비교 영역을 세로로 변경 */
+    .round-compare {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding-right: 0;
+    }
+
+    .compare-column {
+        padding: 0.25rem 0;
+        background: transparent;
+        border-radius: 0;
+        border-left: none;
+    }
+
+    .compare-column.correct-col {
+        border-left: none;
+    }
+
+    .compare-column.user-col {
+        border-left: none;
+        padding-top: 0;
+    }
+
+    .compare-column .column-label {
+        display: inline;
+        font-size: 0.6rem;
+        margin-right: 0.25rem;
+    }
+
+    .compare-column .column-value {
+        display: inline;
+        font-size: 0.85rem;
+    }
+
+    /* 정답일 때 라벨 숨기기 */
+    .round-card.correct .compare-column .column-label {
+        display: none;
+    }
+
+    .round-card.correct .compare-column .column-value {
+        font-size: 0.9rem;
+    }
+
+    /* 오답일 때 내 답 스타일 */
+    .compare-column.user-col .column-label {
+        color: var(--text-muted);
+    }
+
+    .compare-column.user-col .column-value {
+        font-size: 0.8rem;
+        color: var(--danger);
+    }
 }
 
 /* 결과 액션 버튼 */
@@ -1341,6 +1636,10 @@
         padding: 1rem;
         margin: -1rem -1rem 1rem -1rem;
         border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .game-container.fan-challenge .game-main {
+        flex: 0;
     }
 
     .fan-challenge-card .challenge-icon {
@@ -1431,7 +1730,7 @@
 
     .header-center {
         order: -1;
-        width: 100%;
+        width: 25%;
         display: flex;
         justify-content: center;
     }
@@ -1453,16 +1752,50 @@
         font-size: 0.85rem;
     }
 
-    /* 홈/포기 버튼 통일 */
+    /* 모바일: 상단 홈/포기 버튼 숨김 */
     .game-container.fan-challenge .btn-home,
     .game-container.fan-challenge .btn-quit {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
+        display: none;
     }
 
-    /* 홈 버튼 아이콘 숨김 */
-    .game-container.fan-challenge .btn-home .btn-icon {
-        display: none;
+    /* 모바일: 플로팅 버튼 표시 */
+    .mobile-floating-buttons {
+        display: flex;
+        position: fixed;
+        top: 4rem;
+        left: 50%;
+        transform: translateX(-50%);
+        gap: 0.75rem;
+        z-index: 100;
+    }
+
+    .floating-btn {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        box-shadow: var(--shadow-lg);
+        text-decoration: none;
+    }
+
+    .floating-btn:active {
+        transform: scale(0.95);
+    }
+
+    .floating-home {
+        background: var(--badge-gray-text);
+        color: var(--text-inverse);
+    }
+
+    .floating-quit {
+        background: var(--danger);
+        color: var(--text-inverse);
     }
 
     .game-main {
@@ -1676,15 +2009,51 @@
     /* 연습 알림 모바일 */
     .practice-notice {
         padding: 1rem;
+        margin: 0;
     }
 
     .practice-notice p {
         font-size: 0.85rem;
     }
 
+    .fan-challenge-result .rounds-section {
+        margin: 0;
+    }
+
     .btn-hardcore {
         padding: 0.6rem 1.25rem;
         font-size: 0.9rem;
+    }
+
+    /* 결과 화면 모바일 */
+    .fan-challenge-result {
+        padding: 1rem;
+    }
+
+    .fan-challenge-result .result-header h1 {
+        font-size: 1.1rem;
+    }
+
+    .fan-challenge-result .result-summary {
+        padding: 1rem;
+        margin-bottom: 0;
+    }
+
+    .score-value {
+        font-size: 2.5rem;
+    }
+
+    .score-separator,
+    .score-total {
+        font-size: 1.5rem;
+    }
+
+    .stats-row {
+        gap: 1.5rem;
+    }
+
+    .rounds-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -1750,6 +2119,11 @@
     background: var(--bg-base);
 }
 
+[data-theme="dark"] .result-summary {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
 [data-theme="dark"] .fan-challenge-result .ranking-section {
     background: var(--bg-surface);
     border-color: var(--border-color);
@@ -1779,11 +2153,6 @@
     border-color: var(--border-color);
 }
 
-[data-theme="dark"] .badge-item[data-difficulty="BEGINNER"] {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: #10b981;
-}
-
 [data-theme="dark"] .badge-item[data-difficulty="NORMAL"] {
     background: rgba(59, 130, 246, 0.15);
     border-color: #3b82f6;
@@ -1794,17 +2163,50 @@
     border-color: var(--danger);
 }
 
+[data-theme="dark"] .rounds-section {
+    background: var(--bg-surface);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
 [data-theme="dark"] .round-card {
     background: var(--bg-surface);
     border-color: var(--border-color);
 }
 
 [data-theme="dark"] .round-card.correct {
-    background: rgba(34, 197, 94, 0.15);
+    background: rgba(34, 197, 94, 0.1);
+    border-color: var(--success);
 }
 
 [data-theme="dark"] .round-card.wrong {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--danger);
+}
+
+[data-theme="dark"] .compare-column {
+    background: var(--overlay-light);
+}
+
+[data-theme="dark"] .practice-notice {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+[data-theme="dark"] .practice-notice p {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .no-rounds {
+    background: var(--bg-surface);
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+[data-theme="dark"] .no-rounds p {
+    color: var(--text-secondary);
 }
 
 [data-theme="dark"] .btn-change-artist {
@@ -1819,6 +2221,11 @@
 
 [data-theme="dark"] .selected-artist-card {
     background: rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="dark"] .artist-record-info {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
 }
 
 [data-theme="dark"] .login-notice {
@@ -1850,6 +2257,23 @@
 
 [data-theme="dark"] .mode-label.practice {
     background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ready-content p {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .life.lost {
+    color: var(--overlay-strong);
+    opacity: 0.5;
+}
+
+[data-theme="dark"] .game-page .game-container.fan-challenge .modal .stat-value {
+    color: var(--info-color);
+}
+
+[data-theme="dark"] .gameover-message {
     color: var(--text-secondary);
 }
 
@@ -1945,11 +2369,6 @@
         border-color: var(--border-color);
     }
 
-    :root:not([data-theme]) .badge-item[data-difficulty="BEGINNER"] {
-        background: rgba(16, 185, 129, 0.15);
-        border-color: #10b981;
-    }
-
     :root:not([data-theme]) .badge-item[data-difficulty="NORMAL"] {
         background: rgba(59, 130, 246, 0.15);
         border-color: #3b82f6;
@@ -1985,6 +2404,11 @@
 
     :root:not([data-theme]) .selected-artist-card {
         background: rgba(99, 102, 241, 0.15);
+    }
+
+    :root:not([data-theme]) .artist-record-info {
+        background: var(--bg-elevated);
+        border-color: var(--border-color);
     }
 
     :root:not([data-theme]) .login-notice {

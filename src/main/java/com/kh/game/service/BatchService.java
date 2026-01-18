@@ -283,7 +283,8 @@ public class BatchService {
                 "BATCH_GAME_SESSION_CLEANUP",
                 "BATCH_SONG_REPORT_CLEANUP",
                 "BATCH_BADGE_AWARD",
-                "BATCH_FAN_CHALLENGE_PERFECT_CHECK"
+                "BATCH_FAN_CHALLENGE_PERFECT_CHECK",
+                "BATCH_WEEKLY_PERFECT_REFRESH"
         );
 
         int updatedCount = 0;
@@ -484,6 +485,21 @@ public class BatchService {
                     true  // 구현됨
             ));
             log.info("BATCH_FAN_CHALLENGE_PERFECT_CHECK 배치 설정 추가 완료");
+        }
+
+        // BATCH_WEEKLY_PERFECT_REFRESH: 주간 퍼펙트 갱신 배치
+        if (!batchConfigRepository.existsById("BATCH_WEEKLY_PERFECT_REFRESH")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_WEEKLY_PERFECT_REFRESH",
+                    "주간 퍼펙트 갱신",
+                    "곡 수 변경에 따른 현재시점 퍼펙트 상태를 갱신합니다. isPerfectClear는 달성시점, isCurrentPerfect는 현재시점 기준입니다.",
+                    "0 0 4 * * MON",
+                    "매주 월요일 04:00",
+                    "FanChallengeRecord",
+                    BatchConfig.Priority.MEDIUM,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_WEEKLY_PERFECT_REFRESH 배치 설정 추가 완료");
         }
     }
 
