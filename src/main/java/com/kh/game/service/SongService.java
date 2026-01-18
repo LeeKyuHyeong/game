@@ -382,14 +382,43 @@ public class SongService {
         return songRepository.countRetroSongsForGame("Y");
     }
 
-    // 아티스트 목록 조회 (곡 수 포함) - 게임용 (레트로 제외)
+    // 아티스트 목록 조회 (곡 수 포함) - 게임용 (레트로 제외, 대중곡만)
     public List<Map<String, Object>> getArtistsWithCount() {
-        List<Object[]> results = songRepository.findDistinctArtistsWithCountExcludingGenre(GenreService.EXCLUDED_GENRE_CODE);
+        List<Song> allSongs = findSongsForGame();
+        Map<String, Integer> artistCountMap = new TreeMap<>();
+
+        for (Song song : allSongs) {
+            if (song.getArtist() != null) {
+                artistCountMap.merge(song.getArtist(), 1, Integer::sum);
+            }
+        }
+
         List<Map<String, Object>> artists = new ArrayList<>();
-        for (Object[] row : results) {
+        for (Map.Entry<String, Integer> entry : artistCountMap.entrySet()) {
             Map<String, Object> artist = new HashMap<>();
-            artist.put("name", row[0]);
-            artist.put("count", ((Number) row[1]).intValue());
+            artist.put("name", entry.getKey());
+            artist.put("count", entry.getValue());
+            artists.add(artist);
+        }
+        return artists;
+    }
+
+    // 아티스트 목록 조회 (곡 수 포함) - 아티스트 챌린지용 (레트로 제외, 매니악 곡 포함)
+    public List<Map<String, Object>> getArtistsWithCountForFanChallenge() {
+        List<Song> allSongs = findAllSongsForArtistChallenge();
+        Map<String, Integer> artistCountMap = new TreeMap<>();
+
+        for (Song song : allSongs) {
+            if (song.getArtist() != null) {
+                artistCountMap.merge(song.getArtist(), 1, Integer::sum);
+            }
+        }
+
+        List<Map<String, Object>> artists = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : artistCountMap.entrySet()) {
+            Map<String, Object> artist = new HashMap<>();
+            artist.put("name", entry.getKey());
+            artist.put("count", entry.getValue());
             artists.add(artist);
         }
         return artists;
@@ -861,10 +890,10 @@ public class SongService {
     }
 
     /**
-     * 아티스트의 전체 곡 수 조회 (팬 챌린지 설정용) - 게임용 (레트로 제외)
+     * 아티스트의 전체 곡 수 조회 (팬 챌린지 설정용) - 레트로 장르 제외, 매니악 곡 포함
      */
     public int getSongCountByArtist(String artist) {
-        List<Song> allSongs = findSongsForGame();
+        List<Song> allSongs = findAllSongsForArtistChallenge();
         int count = 0;
         for (Song song : allSongs) {
             if (song.getArtist() != null && song.getArtist().equals(artist)) {

@@ -51,7 +51,7 @@ public class GameFanChallengeController {
     @GetMapping("/artists")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getArtistsWithCount() {
-        List<Map<String, Object>> artists = songService.getArtistsWithCount();
+        List<Map<String, Object>> artists = songService.getArtistsWithCountForFanChallenge();
         // 최소 30곡 이상인 아티스트만 필터링
         artists.removeIf(artist -> ((Number) artist.get("count")).intValue() < FanChallengeService.CHALLENGE_SONG_COUNT);
         return ResponseEntity.ok(artists);
@@ -401,9 +401,14 @@ public class GameFanChallengeController {
 
         GameSession session = fanChallengeService.getSession(sessionId);
         if (session == null) {
+            log.warn("Fan Challenge 결과 조회 실패: sessionId={}", sessionId);
             model.addAttribute("useBackup", true);
             return "client/game/fan-challenge/result";
         }
+
+        // 디버그: rounds 로딩 확인
+        log.info("Fan Challenge 결과 조회: sessionId={}, roundsSize={}",
+                sessionId, session.getRounds() != null ? session.getRounds().size() : "null");
 
         model.addAttribute("useBackup", false);
 
