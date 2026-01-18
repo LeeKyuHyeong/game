@@ -160,7 +160,8 @@ GitHub Actions workflow at `.github/workflows/deploy.yml`:
 ### 필수 규칙
 - **색상값을 직접 쓰지 말고 반드시 CSS 변수 사용** (`#1e293b` ❌ → `var(--text-primary)` ✅)
 - 새로운 색상이 필요하면 `common.css`의 `:root`에 변수 추가 후 사용
-- 라이트/다크 모드 모두 지원해야 함
+- **⚠️ 라이트/다크 모드 1:1 매칭 필수** - 모든 스타일은 라이트와 다크 모드 양쪽에 정의해야 함
+- **⚠️ 반응형 3단계 필수** - 모든 레이아웃/크기 관련 스타일은 PC/태블릿/모바일 3단계로 정의해야 함
 
 ### 테마 시스템 구조
 ```
@@ -201,6 +202,68 @@ common.css
     color: var(--text-primary);     /* 이제 흰 글씨가 맞음 */
 }
 ```
+
+### ⚠️ CSS 작성 필수 템플릿
+
+새로운 컴포넌트 CSS 작성 시 반드시 아래 구조를 따라야 함:
+
+```css
+/* ========================================
+   [컴포넌트명] - 기본 스타일 (라이트 모드 + PC)
+   ======================================== */
+.component {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    padding: 2rem;
+    font-size: 1rem;
+}
+
+/* ========================================
+   [컴포넌트명] - 다크 모드
+   ======================================== */
+[data-theme="dark"] .component {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
+/* .game-page는 항상 다크 모드이므로 함께 처리 */
+.game-page .component {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
+/* ========================================
+   [컴포넌트명] - 태블릿 (768px 이하)
+   ======================================== */
+@media (max-width: 768px) {
+    .component {
+        padding: 1.5rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* ========================================
+   [컴포넌트명] - 모바일 (480px 이하)
+   ======================================== */
+@media (max-width: 480px) {
+    .component {
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+}
+```
+
+### 체크리스트: CSS 작성 완료 전 확인
+
+| 항목 | 확인 |
+|------|------|
+| `:root` (라이트 모드) 스타일 정의 | ☐ |
+| `[data-theme="dark"]` 스타일 정의 | ☐ |
+| `.game-page` 스타일 정의 (필요시) | ☐ |
+| `@media (max-width: 768px)` 태블릿 스타일 | ☐ |
+| `@media (max-width: 480px)` 모바일 스타일 | ☐ |
+| 색상값 하드코딩 없음 | ☐ |
+| CSS 변수만 사용 | ☐ |
 
 ### 반응형 브레이크포인트
 
