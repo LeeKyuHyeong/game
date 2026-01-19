@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             },
             onError: function(e, errorInfo) {
-                console.error('YouTube 재생 오류:', e.data);
+                // console.error('YouTube 재생 오류:', e.data);
                 videoReady = false;
                 pendingPlay = false;
                 // 재생 불가 처리 (자동 신고 + 방장에게 스킵 버튼 표시)
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
         youtubePlayerReady = true;
     } catch (error) {
-        console.error('YouTube Player 초기화 실패:', error);
+        // console.error('YouTube Player 초기화 실패:', error);
         showYouTubeInitError();
     }
 
@@ -133,7 +133,7 @@ async function fetchRoundInfo() {
         networkErrorCount = 0;
 
         if (!result.success) {
-            console.error('라운드 정보 조회 실패:', result.message);
+            // console.error('라운드 정보 조회 실패:', result.message);
             return;
         }
 
@@ -206,11 +206,11 @@ async function fetchRoundInfo() {
         }
 
     } catch (error) {
-        console.error('라운드 정보 조회 오류:', error);
+        // console.error('라운드 정보 조회 오류:', error);
         networkErrorCount++;
 
         if (networkErrorCount >= MAX_NETWORK_ERRORS) {
-            console.error('네트워크 오류가 계속 발생하여 폴링을 중단합니다.');
+            // console.error('네트워크 오류가 계속 발생하여 폴링을 중단합니다.');
             stopPolling();
             showNetworkErrorNotice();
         }
@@ -473,7 +473,7 @@ function loadSong(song) {
         }
 
         if (!loaded) {
-            console.error('YouTube loadVideo 실패 (최대 재시도 초과)');
+            // console.error('YouTube loadVideo 실패 (최대 재시도 초과)');
             handlePlaybackError({
                 code: 'LOAD_FAILED',
                 message: 'YouTube 영상 로드 실패',
@@ -481,7 +481,7 @@ function loadSong(song) {
             });
         }
     } else {
-        console.error('유효하지 않은 YouTube Video ID:', song.youtubeVideoId);
+        // console.error('유효하지 않은 YouTube Video ID:', song.youtubeVideoId);
         handlePlaybackError({
             code: 'INVALID_VIDEO_ID',
             message: '유효하지 않은 YouTube Video ID',
@@ -551,7 +551,7 @@ async function fetchChats() {
         }
 
     } catch (error) {
-        console.error('채팅 조회 오류:', error);
+        // console.error('채팅 조회 오류:', error);
     }
 }
 
@@ -601,12 +601,12 @@ async function sendChat() {
         const result = await response.json();
 
         if (!result.success) {
-            alert(result.message || '메시지 전송 실패');
+            showToast(result.message || '메시지 전송 실패');
         }
         // 정답이든 아니든 채팅 폴링에서 자동으로 표시됨
 
     } catch (error) {
-        console.error('채팅 전송 오류:', error);
+        // console.error('채팅 전송 오류:', error);
     }
 }
 
@@ -688,12 +688,12 @@ async function voteSkipRound() {
             mySkipVoted = true;
             updateSkipVoteButton();
         } else {
-            alert(result.message || '포기 투표 실패');
+            showToast(result.message || '포기 투표 실패');
             btn.disabled = false;
         }
 
     } catch (error) {
-        console.error('포기 투표 오류:', error);
+        // console.error('포기 투표 오류:', error);
         btn.disabled = false;
     }
 }
@@ -775,13 +775,13 @@ async function startRound() {
             }
             // ★ 성공 시에도 버튼 복원 (폴링에서 UI 변경되기 전까지 대비)
         } else {
-            alert(result.message || '라운드 시작 실패');
+            showToast(result.message || '라운드 시작 실패');
             btn.disabled = false;
             btn.textContent = '🎵 라운드 시작';
         }
 
     } catch (error) {
-        console.error('라운드 시작 오류:', error);
+        // console.error('라운드 시작 오류:', error);
         btn.disabled = false;
         btn.textContent = '🎵 라운드 시작';
     }
@@ -811,13 +811,13 @@ async function nextRound() {
             // ★ 성공해도 폴링에서 PLAYING으로 바뀌면 roundResult가 숨겨지므로
             // 다음 RESULT 때를 대비해 버튼 복원은 updatePhaseUI()에서 처리
         } else {
-            alert(result.message || '다음 라운드 진행 실패');
+            showToast(result.message || '다음 라운드 진행 실패');
             btn.disabled = false;
             btn.textContent = '다음 라운드 →';
         }
 
     } catch (error) {
-        console.error('다음 라운드 오류:', error);
+        // console.error('다음 라운드 오류:', error);
         btn.disabled = false;
         btn.textContent = '다음 라운드 →';
     }
@@ -883,7 +883,7 @@ async function reportUnplayableSong(songId, errorCode) {
         });
         console.log('재생 불가 곡 자동 신고 완료');
     } catch (error) {
-        console.error('자동 신고 실패:', error);
+        // console.error('자동 신고 실패:', error);
     }
 
     // 2. 서버에 재생 오류 보고 (YouTube 유효성 플래그 업데이트)
@@ -898,7 +898,7 @@ async function reportUnplayableSong(songId, errorCode) {
         });
         console.log('서버에 재생 오류 보고 완료');
     } catch (error) {
-        console.error('재생 오류 보고 실패:', error);
+        // console.error('재생 오류 보고 실패:', error);
     }
 }
 
@@ -947,11 +947,11 @@ async function skipUnplayableSong(songId) {
             }
             // 성공 시 폴링에서 새 곡 정보를 받아옴
         } else {
-            alert(result.message || '스킵에 실패했습니다.');
+            showToast(result.message || '스킵에 실패했습니다.');
         }
     } catch (error) {
-        console.error('스킵 요청 실패:', error);
-        alert('스킵 요청 중 오류가 발생했습니다.');
+        // console.error('스킵 요청 실패:', error);
+        showToast('스킵 요청 중 오류가 발생했습니다.');
     }
 }
 
@@ -1011,7 +1011,7 @@ async function reinitializePlayer() {
                 }
             },
             onError: function(e, errorInfo) {
-                console.error('YouTube 재생 오류:', e.data);
+                // console.error('YouTube 재생 오류:', e.data);
                 videoReady = false;
                 pendingPlay = false;
                 handlePlaybackError(errorInfo);
@@ -1037,7 +1037,7 @@ async function reinitializePlayer() {
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
     } catch (error) {
-        console.error('YouTube 플레이어 재초기화 실패:', error);
+        // console.error('YouTube 플레이어 재초기화 실패:', error);
         showYouTubeInitError();
     }
 }

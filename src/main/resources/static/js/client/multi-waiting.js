@@ -65,7 +65,7 @@ async function fetchRoomStatus() {
         const result = await response.json();
 
         if (!result.success) {
-            alert('방이 종료되었습니다.');
+            showToast('방이 종료되었습니다.');
             window.location.href = '/game/multi';
             return;
         }
@@ -74,7 +74,7 @@ async function fetchRoomStatus() {
         if (result.kicked) {
             stopPolling();
             stopChatPolling();
-            alert('방에서 강퇴되었습니다.');
+            showToast('방에서 강퇴되었습니다.');
             window.location.href = '/game/multi';
             return;
         }
@@ -113,7 +113,7 @@ async function fetchRoomStatus() {
         }
 
     } catch (error) {
-        console.error('상태 조회 오류:', error);
+        // console.error('상태 조회 오류:', error);
     }
 }
 
@@ -127,7 +127,7 @@ async function fetchChats() {
             appendChats(result.chats);
         }
     } catch (error) {
-        console.error('채팅 조회 오류:', error);
+        // console.error('채팅 조회 오류:', error);
     }
 }
 
@@ -183,10 +183,10 @@ async function sendChat() {
         const result = await response.json();
 
         if (!result.success) {
-            console.error('채팅 전송 실패:', result.message);
+            // console.error('채팅 전송 실패:', result.message);
         }
     } catch (error) {
-        console.error('채팅 전송 오류:', error);
+        // console.error('채팅 전송 오류:', error);
     }
 }
 
@@ -260,10 +260,10 @@ async function toggleReady() {
         const result = await response.json();
 
         if (!result.success) {
-            alert(result.message || '준비 상태 변경에 실패했습니다.');
+            showToast(result.message || '준비 상태 변경에 실패했습니다.');
         }
     } catch (error) {
-        console.error('준비 상태 변경 오류:', error);
+        // console.error('준비 상태 변경 오류:', error);
     }
 }
 
@@ -283,10 +283,10 @@ async function leaveRoom() {
             stopChatPolling();
             window.location.href = '/game/multi';
         } else {
-            alert(result.message || '나가기에 실패했습니다.');
+            showToast(result.message || '나가기에 실패했습니다.');
         }
     } catch (error) {
-        console.error('나가기 오류:', error);
+        // console.error('나가기 오류:', error);
         window.location.href = '/game/multi';
     }
 }
@@ -303,10 +303,10 @@ async function kickPlayer(memberId) {
         const result = await response.json();
 
         if (!result.success) {
-            alert(result.message || '강퇴에 실패했습니다.');
+            showToast(result.message || '강퇴에 실패했습니다.');
         }
     } catch (error) {
-        console.error('강퇴 오류:', error);
+        // console.error('강퇴 오류:', error);
     }
 }
 
@@ -320,11 +320,11 @@ async function startGame() {
         const result = await response.json();
 
         if (!result.success) {
-            alert(result.message || '게임 시작에 실패했습니다.');
+            showToast(result.message || '게임 시작에 실패했습니다.');
         }
     } catch (error) {
-        console.error('게임 시작 오류:', error);
-        alert('게임 시작 중 오류가 발생했습니다.');
+        // console.error('게임 시작 오류:', error);
+        showToast('게임 시작 중 오류가 발생했습니다.');
     }
 }
 

@@ -2070,3 +2070,214 @@
         font-size: 0.875rem;
     }
 }
+
+/* ========================================
+   신고 버튼 스타일
+   ======================================== */
+.btn-report-small {
+    display: block;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75em;
+    background: var(--overlay-subtle);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s;
+}
+
+.btn-report-small:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.round-card {
+    position: relative;
+}
+
+/* ========================================
+   시도 내역 스타일
+   ======================================== */
+.attempts-section {
+    margin-top: 0.75rem;
+    padding-top: 0.625rem;
+    border-top: 1px dashed var(--border-color);
+}
+
+.attempts-label {
+    font-size: 0.75em;
+    color: var(--text-muted);
+    margin-bottom: 0.375rem;
+    font-weight: 500;
+}
+
+.attempts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.attempt-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.8em;
+    background: var(--overlay-subtle);
+}
+
+.attempt-item.correct {
+    background: rgba(74, 222, 128, 0.15);
+}
+
+.attempt-item.wrong {
+    background: rgba(248, 113, 113, 0.15);
+}
+
+.attempt-num {
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 1.75rem;
+}
+
+.attempt-answer {
+    flex: 1;
+    color: var(--text-primary);
+    word-break: break-all;
+}
+
+.attempt-result {
+    font-weight: 700;
+    min-width: 1.25rem;
+    text-align: center;
+}
+
+.attempt-result.correct {
+    color: var(--success);
+}
+
+.attempt-result.wrong {
+    color: var(--danger);
+}
+
+/* ========================================
+   챌린지 완료 배너
+   ======================================== */
+.challenge-complete-banner {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    border-radius: 1rem;
+    margin-bottom: 1.25rem;
+    animation: celebrationPulse 2s ease-in-out infinite;
+}
+
+@keyframes celebrationPulse {
+    0%, 100% {
+        box-shadow: 0 4px 20px var(--primary-alpha);
+    }
+    50% {
+        box-shadow: 0 4px 30px var(--primary-alpha);
+    }
+}
+
+.challenge-complete-content .challenge-icon-large {
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.challenge-complete-content h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+}
+
+.challenge-complete-content p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* 랭킹 버튼 */
+.btn-ranking {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    text-decoration: none;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.btn-ranking:hover {
+    filter: brightness(1.1);
+}
+
+/* ========================================
+   결과 페이지 - 정답자 박스 가시성 개선
+   ======================================== */
+.round-card .winner-info {
+    background: rgba(34, 197, 94, 0.1);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    border-top: none;
+    margin-top: 0.5rem;
+}
+
+.round-card .winner-label {
+    color: #166534;
+    font-weight: 500;
+}
+
+.round-card .winner-name {
+    color: #15803d;
+}
+
+/* 다크모드 - 라운드 카드 정답자 이름 */
+[data-theme="dark"] .round-card .winner-info {
+    background: rgba(34, 197, 94, 0.15);
+    border-top: none;
+}
+
+[data-theme="dark"] .round-card .winner-name {
+    color: #4ade80;
+}
+
+[data-theme="dark"] .round-card .winner-label {
+    color: #86efac;
+}
+
+/* 다크모드 - 포디움/랭킹 이름 색상 수정 (밝은 배경에서 읽기 쉽게) */
+[data-theme="dark"] .podium-place .place-name {
+    color: #1e293b;
+}
+
+[data-theme="dark"] .podium-place .place-score {
+    color: #4f46e5;
+}
+
+[data-theme="dark"] .podium-place .place-stand {
+    color: #475569;
+}
+
+/* ========================================
+   챌린지/시도 내역 - 반응형
+   ======================================== */
+@media (max-width: 480px) {
+    .challenge-complete-banner {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .challenge-complete-content .challenge-icon-large {
+        font-size: 2.5rem;
+    }
+
+    .challenge-complete-content h2 {
+        font-size: 1.25rem;
+    }
+}

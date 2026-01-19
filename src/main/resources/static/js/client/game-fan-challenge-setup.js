@@ -77,7 +77,7 @@ async function loadArtists() {
             container.appendChild(item);
         });
     } catch (error) {
-        console.error('아티스트 로드 오류:', error);
+        // console.error('아티스트 로드 오류:', error);
     }
 }
 
@@ -118,7 +118,7 @@ async function searchArtists(keyword) {
 
         resultsContainer.style.display = 'block';
     } catch (error) {
-        console.error('아티스트 검색 오류:', error);
+        // console.error('아티스트 검색 오류:', error);
     }
 }
 
@@ -192,7 +192,7 @@ async function loadArtistChallengeInfo(artist) {
         infoContainer.style.display = 'block';
 
     } catch (error) {
-        console.error('아티스트 챌린지 정보 로드 오류:', error);
+        // console.error('아티스트 챌린지 정보 로드 오류:', error);
     }
 }
 
@@ -261,13 +261,13 @@ async function startGame() {
     const nickname = nicknameInput.value.trim();
 
     if (!nickname) {
-        alert('닉네임을 입력해주세요');
+        showToast('닉네임을 입력해주세요');
         nicknameInput.focus();
         return;
     }
 
     if (!selectedArtist) {
-        alert('아티스트를 선택해주세요');
+        showToast('아티스트를 선택해주세요');
         document.getElementById('artistSearch').focus();
         return;
     }
@@ -294,13 +294,13 @@ async function startGame() {
         if (result.success) {
             window.location.href = '/game/fan-challenge/play';
         } else {
-            alert(result.message || '게임 시작에 실패했습니다');
+            showToast(result.message || '게임 시작에 실패했습니다');
             startBtn.disabled = false;
             updateStartButton();
         }
     } catch (error) {
-        console.error('게임 시작 오류:', error);
-        alert('게임 시작 중 오류가 발생했습니다');
+        // console.error('게임 시작 오류:', error);
+        showToast('게임 시작 중 오류가 발생했습니다');
         startBtn.disabled = false;
         updateStartButton();
     }

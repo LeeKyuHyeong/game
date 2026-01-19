@@ -3269,3 +3269,109 @@
         font-size: 0.875rem;
     }
 }
+
+/* ========================================
+   신고 버튼 (인라인)
+   ======================================== */
+.btn-report-inline {
+    display: block;
+    margin: 0.75rem auto 0;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--overlay-white-medium);
+    border: 1px solid var(--overlay-white-subtle);
+    border-radius: 0.375rem;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-report-inline:hover {
+    background: var(--overlay-white-light);
+    color: var(--overlay-white-strong);
+    border-color: var(--overlay-white-medium);
+}
+
+/* ========================================
+   포기 투표 섹션
+   ======================================== */
+.skip-vote-section {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-skip-vote {
+    padding: 0.625rem 1.5rem;
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-skip-vote:hover:not(:disabled) {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
+.btn-skip-vote:disabled {
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    border-color: var(--border-color);
+}
+
+.btn-skip-vote.voted {
+    background: var(--status-warning-bg);
+    color: var(--warning-dark);
+    border-color: var(--warning);
+}
+
+.skip-vote-status {
+    font-size: 0.85em;
+    color: var(--text-muted);
+}
+
+/* 스킵 결과 (모두 포기) */
+.no-winner-info {
+    margin-top: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--status-warning-bg);
+    border-radius: 0.5rem;
+}
+
+.no-winner-label {
+    color: var(--warning-dark);
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+/* 다크모드 포기 투표 */
+[data-theme="dark"] .btn-skip-vote {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-skip-vote:hover:not(:disabled) {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .btn-skip-vote.voted {
+    background: var(--status-warning-bg);
+    color: var(--warning);
+    border-color: var(--warning);
+}
+
+[data-theme="dark"] .no-winner-info {
+    background: var(--status-warning-bg);
+}
+
+[data-theme="dark"] .no-winner-label {
+    color: var(--warning);
+}

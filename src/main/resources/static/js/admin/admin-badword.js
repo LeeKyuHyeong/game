@@ -40,8 +40,8 @@ function editBadWord(id) {
             document.getElementById('badWordModal').classList.add('show');
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('정보를 불러오는데 실패했습니다.');
+            // console.error('Error:', error);
+            showToast('정보를 불러오는데 실패했습니다.');
         });
 }
 
@@ -56,14 +56,14 @@ function saveBadWord() {
     })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showToast(data.message);
             if (data.success) {
                 location.reload();
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('저장 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('저장 중 오류가 발생했습니다.');
         });
 }
 
@@ -74,14 +74,14 @@ function deleteBadWord(id) {
     fetch(`/admin/badword/delete/${id}`, { method: 'POST' })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showToast(data.message);
             if (data.success) {
                 location.reload();
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('삭제 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('삭제 중 오류가 발생했습니다.');
         });
 }
 
@@ -93,12 +93,12 @@ function toggleStatus(id) {
             if (data.success) {
                 location.reload();
             } else {
-                alert(data.message);
+                showToast(data.message);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('상태 변경 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('상태 변경 중 오류가 발생했습니다.');
         });
 }
 
@@ -114,7 +114,7 @@ function testFilter() {
     const message = document.getElementById('testMessage').value.trim();
 
     if (!message) {
-        alert('테스트할 메시지를 입력해주세요.');
+        showToast('테스트할 메시지를 입력해주세요.');
         return;
     }
 
@@ -134,12 +134,12 @@ function testFilter() {
                     data.foundWords.length > 0 ? data.foundWords.join(', ') : '없음';
                 document.getElementById('testResult').style.display = 'block';
             } else {
-                alert(data.message);
+                showToast(data.message);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('테스트 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('테스트 중 오류가 발생했습니다.');
         });
 }
 
@@ -154,7 +154,7 @@ function bulkAdd() {
     const words = document.getElementById('bulkWords').value.trim();
 
     if (!words) {
-        alert('비속어를 입력해주세요.');
+        showToast('비속어를 입력해주세요.');
         return;
     }
 
@@ -167,14 +167,14 @@ function bulkAdd() {
     })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showToast(data.message);
             if (data.success) {
                 location.reload();
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('일괄 등록 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('일괄 등록 중 오류가 발생했습니다.');
         });
 }
 

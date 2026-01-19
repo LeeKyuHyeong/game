@@ -45,7 +45,7 @@ class BadgeToast {
                 await fetch('/mypage/badges/mark-read', { method: 'POST' });
             }
         } catch (error) {
-            console.error('뱃지 체크 오류:', error);
+            // console.error('뱃지 체크 오류:', error);
         }
     }
 }

@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             },
             onError: function(e, errorInfo) {
-                console.error('YouTube 재생 오류:', e.data);
+                // console.error('YouTube 재생 오류:', e.data);
                 videoReady = false;
                 pendingAutoPlay = false;
                 if (currentSong && currentSong.filePath) {
@@ -141,7 +141,7 @@ async function loadRound(roundNumber) {
         const result = await response.json();
 
         if (!result.success) {
-            alert(result.message);
+            showToast(result.message);
             return;
         }
 
@@ -161,8 +161,8 @@ async function loadRound(roundNumber) {
         document.getElementById('answerInput').focus();
 
     } catch (error) {
-        console.error('라운드 로딩 오류:', error);
-        alert('라운드를 불러오는 중 오류가 발생했습니다.');
+        // console.error('라운드 로딩 오류:', error);
+        showToast('라운드를 불러오는 중 오류가 발생했습니다.');
     }
 }
 
@@ -202,7 +202,7 @@ function loadAudioSource() {
 
 function togglePlay() {
     if (!currentSong || (!currentSong.youtubeVideoId && !currentSong.filePath)) {
-        alert('재생할 노래가 없습니다.');
+        showToast('재생할 노래가 없습니다.');
         return;
     }
 
@@ -394,7 +394,7 @@ async function submitAnswer() {
     const userAnswer = answerInput.value.trim();
 
     if (!userAnswer) {
-        alert('정답을 입력해주세요.');
+        showToast('정답을 입력해주세요.');
         answerInput.focus();
         return;
     }
@@ -442,10 +442,10 @@ async function submitAnswer() {
                 answerInput.focus();
             }
         } else {
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
-        console.error('답변 제출 오류:', error);
+        // console.error('답변 제출 오류:', error);
     }
 }
 
@@ -490,11 +490,11 @@ async function skipRound() {
             showAnswerModal(false, null, result.answer, result.isGameOver, true);
         } else {
             isRoundEnded = false;
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
         isRoundEnded = false;
-        console.error('스킵 오류:', error);
+        // console.error('스킵 오류:', error);
     }
 }
 
@@ -571,7 +571,7 @@ audioPlayer.addEventListener('ended', function() {
 });
 
 audioPlayer.addEventListener('error', function() {
-    alert('오디오 파일을 재생할 수 없습니다.');
+    showToast('오디오 파일을 재생할 수 없습니다.');
     pauseAudio();
 });
 
@@ -616,7 +616,7 @@ async function reportUnplayableSong(songId, errorCode) {
         });
         console.log('재생 불가 곡 자동 신고 완료');
     } catch (error) {
-        console.error('자동 신고 실패:', error);
+        // console.error('자동 신고 실패:', error);
     }
 }
 
@@ -683,11 +683,11 @@ async function skipUnplayableRound() {
             }
         } else {
             isRoundEnded = false;
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
         isRoundEnded = false;
-        console.error('스킵 오류:', error);
+        // console.error('스킵 오류:', error);
     }
 }
 

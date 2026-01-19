@@ -92,12 +92,12 @@ async function loadRoundInfo() {
             document.getElementById('totalRounds').textContent = totalRounds;
             updateUI();
         } else {
-            alert(data.message || '라운드 정보를 불러올 수 없습니다');
+            showToast(data.message || '라운드 정보를 불러올 수 없습니다');
             window.location.href = '/game/fan-challenge';
         }
     } catch (error) {
-        console.error('라운드 정보 로드 오류:', error);
-        alert('게임 정보를 불러올 수 없습니다');
+        // console.error('라운드 정보 로드 오류:', error);
+        showToast('게임 정보를 불러올 수 없습니다');
         window.location.href = '/game/fan-challenge';
     }
 }
@@ -172,7 +172,7 @@ function playMP3(filePath, startTime) {
         isPlaying = true;
         startTimer();
     }).catch(error => {
-        console.error('MP3 재생 오류:', error);
+        // console.error('MP3 재생 오류:', error);
         isPlaying = true;
         startTimer();
     });
@@ -312,11 +312,11 @@ async function submitAnswer() {
         if (result.success) {
             showAnswerResult(result);
         } else {
-            alert(result.message || '오류가 발생했습니다');
+            showToast(result.message || '오류가 발생했습니다');
         }
     } catch (error) {
-        console.error('정답 제출 오류:', error);
-        alert('정답 제출 중 오류가 발생했습니다');
+        // console.error('정답 제출 오류:', error);
+        showToast('정답 제출 중 오류가 발생했습니다');
     }
 }
 
@@ -344,7 +344,7 @@ async function handleTimeout() {
             showAnswerResult(result);
         }
     } catch (error) {
-        console.error('시간 초과 처리 오류:', error);
+        // console.error('시간 초과 처리 오류:', error);
     }
 }
 

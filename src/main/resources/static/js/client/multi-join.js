@@ -35,7 +35,7 @@ function searchRoom() {
     const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
 
     if (!roomCode || roomCode.length < 4) {
-        alert('방 코드를 입력해주세요.');
+        showToast('방 코드를 입력해주세요.');
         return;
     }
 
@@ -47,13 +47,13 @@ function searchRoom() {
                 showRoomInfo(data);
             } else {
                 hideRoomInfo();
-                alert(data.message || '방을 찾을 수 없습니다.');
+                showToast(data.message || '방을 찾을 수 없습니다.');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            // console.error('Error:', error);
             hideRoomInfo();
-            alert('방 정보를 불러오는데 실패했습니다.');
+            showToast('방 정보를 불러오는데 실패했습니다.');
         });
 }
 
@@ -128,14 +128,14 @@ function hideRoomInfo() {
 // 방 참가
 function joinRoom() {
     if (!currentRoomCode) {
-        alert('먼저 방을 검색해주세요.');
+        showToast('먼저 방을 검색해주세요.');
         return;
     }
 
     const password = document.getElementById('password').value;
 
     if (isPrivate && !password) {
-        alert('비밀번호를 입력해주세요.');
+        showToast('비밀번호를 입력해주세요.');
         return;
     }
 
@@ -152,11 +152,11 @@ function joinRoom() {
                 // 대기실로 이동
                 window.location.href = `/game/multi/room/${currentRoomCode}`;
             } else {
-                alert(data.message || '참가에 실패했습니다.');
+                showToast(data.message || '참가에 실패했습니다.');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('참가 처리 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('참가 처리 중 오류가 발생했습니다.');
         });
 }

@@ -32,11 +32,11 @@ async function selectBadge(badgeId) {
             // 페이지 새로고침으로 UI 업데이트
             window.location.reload();
         } else {
-            alert(result.message || '뱃지 선택에 실패했습니다.');
+            showToast(result.message || '뱃지 선택에 실패했습니다.');
         }
     } catch (error) {
-        console.error('뱃지 선택 오류:', error);
-        alert('뱃지 선택 중 오류가 발생했습니다.');
+        // console.error('뱃지 선택 오류:', error);
+        showToast('뱃지 선택 중 오류가 발생했습니다.');
     }
 }
 
@@ -54,11 +54,11 @@ async function clearBadge() {
         if (result.success) {
             window.location.reload();
         } else {
-            alert(result.message || '뱃지 해제에 실패했습니다.');
+            showToast(result.message || '뱃지 해제에 실패했습니다.');
         }
     } catch (error) {
-        console.error('뱃지 해제 오류:', error);
-        alert('뱃지 해제 중 오류가 발생했습니다.');
+        // console.error('뱃지 해제 오류:', error);
+        showToast('뱃지 해제 중 오류가 발생했습니다.');
     }
 }
 
@@ -73,6 +73,6 @@ async function checkNewBadges() {
             await fetch('/mypage/badges/mark-read', { method: 'POST' });
         }
     } catch (error) {
-        console.error('새 뱃지 체크 오류:', error);
+        // console.error('새 뱃지 체크 오류:', error);
     }
 }

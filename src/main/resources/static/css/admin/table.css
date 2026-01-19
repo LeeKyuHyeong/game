@@ -99,6 +99,25 @@
     background: var(--warning-light);
 }
 
+/* Toggle On/Off States */
+.btn-toggle-on {
+    background: var(--success) !important;
+    color: white !important;
+}
+
+.btn-toggle-on:hover {
+    background: var(--success-dark) !important;
+}
+
+.btn-toggle-off {
+    background: var(--warning) !important;
+    color: white !important;
+}
+
+.btn-toggle-off:hover {
+    background: var(--warning-dark) !important;
+}
+
 /* Popular Button */
 .btn-popular {
     background: var(--info);
@@ -130,6 +149,16 @@
 }
 
 .btn-view:hover {
+    background: var(--info-dark);
+}
+
+/* Info Button */
+.btn-info {
+    background: var(--info);
+    color: white;
+}
+
+.btn-info:hover {
     background: var(--info-dark);
 }
 
@@ -428,6 +457,22 @@ tr:nth-last-child(-n+3) .answer-tooltip {
 
 .col-id {
     width: 60px;
+}
+
+/* Song Info Cell (Table Display) */
+.song-info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.song-info-cell .song-title {
+    font-weight: 500;
+}
+
+.song-info-cell .song-artist {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
 }
 
 /* ========== Responsive ========== */

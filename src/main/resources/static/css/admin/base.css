@@ -182,6 +182,16 @@ code {
     color: var(--badge-warning-text);
 }
 
+.badge-solo {
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
+}
+
+.badge-multi {
+    background: var(--badge-danger-bg);
+    color: var(--badge-danger-text);
+}
+
 /* Score Cell */
 .score-cell {
     font-weight: 600;
@@ -341,6 +351,179 @@ code {
 .toast-error {
     background: linear-gradient(135deg, var(--danger), var(--danger-dark));
     color: var(--text-on-gradient);
+}
+
+/* Pending Badge (notification count) */
+.pending-badge {
+    background: var(--danger);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.9rem;
+    margin-left: 0.75rem;
+}
+
+/* Report Type Badges */
+.report-type-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.report-type-badge.AD {
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
+}
+
+.report-type-badge.UNPLAYABLE {
+    background: var(--badge-danger-bg);
+    color: var(--badge-danger-text);
+}
+
+.report-type-badge.OTHER {
+    background: var(--badge-gray-bg);
+    color: var(--badge-gray-text);
+}
+
+/* Status Badge Variants (Report) */
+.status-badge.PENDING {
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
+}
+
+.status-badge.CONFIRMED {
+    background: var(--badge-info-bg);
+    color: var(--badge-info-text);
+}
+
+.status-badge.REJECTED {
+    background: var(--badge-gray-bg);
+    color: var(--badge-gray-text);
+}
+
+.status-badge.RESOLVED {
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
+}
+
+/* Tier Badge */
+.tier-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+/* Role Badge */
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+}
+
+.role-badge.admin {
+    background: var(--danger);
+    color: white;
+}
+
+.role-badge.user {
+    background: var(--info);
+    color: white;
+}
+
+/* Status Variants (Member) */
+.status.ACTIVE {
+    background: var(--success);
+    color: white;
+}
+
+.status.INACTIVE {
+    background: var(--gray-500);
+    color: white;
+}
+
+.status.BANNED {
+    background: var(--danger);
+    color: white;
+}
+
+/* Badge Inline Container (Member Detail) */
+.badge-inline-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+}
+
+.badge-item {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid;
+    border-radius: 0.5rem;
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.badge-item:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 10px var(--overlay-light);
+}
+
+.badge-emoji {
+    font-size: 1.25rem;
+}
+
+.badge-legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.legend-dot {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+}
+
+.no-badges {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    padding: 1rem 0;
+}
+
+@media (max-width: 768px) {
+    .badge-item {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    .badge-emoji {
+        font-size: 1.1rem;
+    }
+
+    .badge-legend {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
 }
 
 @media (max-width: 480px) {

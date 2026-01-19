@@ -53,7 +53,7 @@ async function editSong(id) {
 
         modal.classList.add('show');
     } catch (error) {
-        alert(error.message);
+        showToast(error.message);
     }
 }
 
@@ -65,13 +65,13 @@ async function deleteSong(id) {
         const result = await response.json();
 
         if (result.success) {
-            alert(result.message);
+            showToast(result.message);
             location.reload();
         } else {
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
-        alert('삭제 중 오류가 발생했습니다.');
+        showToast('삭제 중 오류가 발생했습니다.');
     }
 }
 
@@ -83,10 +83,10 @@ async function toggleStatus(id) {
         if (result.success) {
             location.reload();
         } else {
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
-        alert('상태 변경 중 오류가 발생했습니다.');
+        showToast('상태 변경 중 오류가 발생했습니다.');
     }
 }
 
@@ -106,10 +106,10 @@ async function togglePopular(id) {
                 btn.textContent = isPopular ? (btn.closest('.card-actions') ? '대중' : '대중곡') : '매니악';
             });
         } else {
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
-        alert('상태 변경 중 오류가 발생했습니다.');
+        showToast('상태 변경 중 오류가 발생했습니다.');
     }
 }
 
@@ -148,14 +148,14 @@ songForm.addEventListener('submit', async function(e) {
         const result = await response.json();
 
         if (result.success) {
-            alert(result.message);
+            showToast(result.message);
             closeModal();
             location.reload();
         } else {
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
-        alert('저장 중 오류가 발생했습니다.');
+        showToast('저장 중 오류가 발생했습니다.');
     }
 });
 

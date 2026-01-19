@@ -27,7 +27,7 @@ function closeReportModal() {
  */
 async function submitReport(reportType) {
     if (!reportSongId) {
-        alert('신고할 곡을 선택해주세요.');
+        showToast('신고할 곡을 선택해주세요.');
         return;
     }
 
@@ -35,7 +35,7 @@ async function submitReport(reportType) {
 
     // 기타 선택 시 설명 필수
     if (reportType === 'OTHER' && !description) {
-        alert('기타 선택 시 상세 내용을 입력해주세요.');
+        showToast('기타 선택 시 상세 내용을 입력해주세요.');
         document.getElementById('reportDescription').focus();
         return;
     }
@@ -52,14 +52,14 @@ async function submitReport(reportType) {
         });
 
         const result = await response.json();
-        alert(result.message);
+        showToast(result.message);
 
         if (result.success) {
             closeReportModal();
         }
     } catch (error) {
-        console.error('신고 오류:', error);
-        alert('신고 중 오류가 발생했습니다.');
+        // console.error('신고 오류:', error);
+        showToast('신고 중 오류가 발생했습니다.');
     }
 }
 

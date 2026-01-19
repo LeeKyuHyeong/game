@@ -180,6 +180,335 @@
     margin-top: 0.25rem;
 }
 
+/* ========================================
+   Fan Challenge Specific Styles
+   ======================================== */
+
+/* Difficulty Badge */
+.difficulty-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.difficulty-badge.NORMAL {
+    background: var(--info);
+    color: white;
+}
+
+.difficulty-badge.HARDCORE {
+    background: var(--danger);
+    color: white;
+}
+
+/* Clear Rate */
+.clear-rate {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: 0.25rem;
+}
+
+/* Perfect Badge */
+.perfect-badge {
+    font-size: 1.25rem;
+}
+
+.perfect-badge.achieved {
+    color: var(--warning);
+}
+
+.perfect-badge.not-achieved {
+    color: var(--text-muted);
+}
+
+/* Perfect Status */
+.perfect-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.perfect-icon {
+    font-size: 1.5rem;
+}
+
+.perfect-text {
+    font-size: 0.875rem;
+}
+
+.perfect-text.valid {
+    color: var(--success);
+}
+
+.perfect-text.invalid {
+    color: var(--danger);
+}
+
+/* Detail Grid (Fan Challenge Modal) */
+.fan-detail-grid,
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.detail-item {
+    padding: 0.75rem;
+    background: var(--bg-elevated);
+    border-radius: 0.25rem;
+}
+
+.detail-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.detail-value {
+    font-weight: 600;
+}
+
+.detail-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.detail-section h3 {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: var(--primary-color);
+}
+
+/* ========================================
+   Wrong Answers Stats Specific Styles
+   ======================================== */
+
+/* Stats Tabs */
+.stats-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.stats-tab {
+    padding: 0.625rem 1.25rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.stats-tab:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+.stats-tab.active {
+    background: var(--gradient-client);
+    color: var(--text-on-gradient);
+    border-color: transparent;
+}
+
+/* Stats Panel */
+.stats-panel {
+    background: var(--card-bg);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.panel-header h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.panel-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Stats Table */
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.stats-table th {
+    background: var(--table-header-bg);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.stats-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.stats-table tr:hover td {
+    background: var(--table-row-hover);
+}
+
+/* Rank Badge */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    background: var(--bg-elevated);
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.rank-badge.top-1 {
+    background: linear-gradient(135deg, var(--tier-gold), var(--warning));
+    color: var(--gray-900);
+}
+
+.rank-badge.top-2 {
+    background: linear-gradient(135deg, var(--tier-silver), var(--gray-400));
+    color: var(--gray-900);
+}
+
+.rank-badge.top-3 {
+    background: linear-gradient(135deg, var(--tier-bronze), #b87333);
+    color: white;
+}
+
+/* Song Info Display */
+.song-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.song-info .song-title {
+    font-weight: 500;
+}
+
+.song-info .song-artist {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Rate Bar */
+.rate-bar {
+    position: relative;
+    width: 100%;
+    height: 1.25rem;
+    background: var(--bg-elevated);
+    border-radius: 0.625rem;
+    overflow: hidden;
+}
+
+.rate-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--danger), var(--danger-light));
+    border-radius: 0.625rem;
+    transition: width 0.3s;
+}
+
+.rate-text {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+}
+
+/* Wrong Text */
+.wrong-text {
+    color: var(--danger);
+    font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 2.5rem;
+    color: var(--text-muted);
+}
+
+/* Wrong Answer List (alternative layout) */
+.wrong-answer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.wrong-answer-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg-elevated);
+    border-radius: 0.5rem;
+}
+
+.wrong-answer-item .rank {
+    width: 1.875rem;
+    height: 1.875rem;
+    background: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: white;
+}
+
+.wrong-answer-item .answer {
+    flex: 1;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.wrong-answer-item .count {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* Gradient Stat Card Variant (Wrong Answers) */
+.stats-cards .stat-card.gradient {
+    background: var(--gradient-client);
+    color: var(--text-on-gradient);
+}
+
+.stats-cards .stat-card.gradient .stat-label {
+    color: var(--text-on-gradient);
+    opacity: 0.9;
+}
+
 /* ========== Responsive ========== */
 @media (max-width: 768px) {
     .stats-cards {
@@ -188,5 +517,144 @@
 
     .stats-row {
         flex-direction: column;
+    }
+
+    .fan-detail-grid,
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Stats Tabs Mobile */
+    .stats-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 0.5rem;
+    }
+
+    .stats-tab {
+        flex-shrink: 0;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .stats-panel {
+        padding: 0.75rem;
+    }
+
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .panel-header h3 {
+        font-size: 1rem;
+    }
+
+    /* Stats Table Mobile - Card View */
+    .stats-table thead {
+        display: none;
+    }
+
+    .stats-table tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .stats-table tbody tr {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-elevated);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .stats-table tbody tr:hover {
+        background: var(--bg-surface);
+    }
+
+    .stats-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .stats-table td:last-child {
+        border-bottom: none;
+    }
+
+    .stats-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        flex-shrink: 0;
+        margin-right: 0.75rem;
+    }
+
+    .stats-table td[data-label="순위"] {
+        order: -1;
+        justify-content: flex-start;
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.25rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .stats-table td[data-label="순위"]::before {
+        display: none;
+    }
+
+    .stats-table td[data-label="순위"] .rank-badge {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+    }
+
+    .stats-table td[data-label="오답"] {
+        order: -1;
+        padding-top: 0;
+    }
+
+    .stats-table td[data-label="오답"] .wrong-text {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .stats-table td .song-info {
+        text-align: right;
+    }
+
+    .stats-table td .song-title {
+        font-size: 0.9rem;
+    }
+
+    .stats-table td .song-artist {
+        font-size: 0.75rem;
+    }
+
+    .stats-table td .rate-bar {
+        width: 6.25rem;
+        height: 1.125rem;
+    }
+
+    .stats-table td .rate-text {
+        font-size: 0.7rem;
+    }
+
+    .stats-table tbody tr.empty-row {
+        padding: 1.875rem;
+    }
+
+    .stats-table tbody tr.empty-row td {
+        justify-content: center;
+    }
+
+    .stats-table tbody tr.empty-row td::before {
+        display: none;
     }
 }

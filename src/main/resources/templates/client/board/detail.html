@@ -98,7 +98,7 @@
         if (likeBtn) {
             likeBtn.addEventListener('click', async function() {
                 if (!currentMemberId) {
-                    alert('로그인이 필요합니다.');
+                    showToast('로그인이 필요합니다.', 'warning');
                     location.href = '/auth/login?redirect=' + location.pathname;
                     return;
                 }
@@ -115,10 +115,10 @@
                         this.querySelector('span:last-child').textContent = result.likeCount;
                         this.classList.toggle('liked', result.liked);
                     } else {
-                        alert(result.message);
+                        showToast(result.message, 'error');
                     }
                 } catch (error) {
-                    console.error('좋아요 오류:', error);
+                    showToast('좋아요 처리 중 오류가 발생했습니다.', 'error');
                 }
             });
         }
@@ -137,13 +137,13 @@
                     });
                     const result = await response.json();
                     if (result.success) {
-                        alert('삭제되었습니다.');
+                        showToast('삭제되었습니다.', 'success');
                         location.href = '/board';
                     } else {
-                        alert(result.message);
+                        showToast(result.message, 'error');
                     }
                 } catch (error) {
-                    console.error('삭제 오류:', error);
+                    showToast('삭제 중 오류가 발생했습니다.', 'error');
                 }
             });
         }
@@ -154,7 +154,7 @@
             commentBtn.addEventListener('click', async function() {
                 const content = document.getElementById('commentContent').value.trim();
                 if (!content) {
-                    alert('댓글 내용을 입력하세요.');
+                    showToast('댓글 내용을 입력하세요.', 'warning');
                     return;
                 }
 
@@ -169,10 +169,10 @@
                     if (result.success) {
                         location.reload();
                     } else {
-                        alert(result.message);
+                        showToast(result.message, 'error');
                     }
                 } catch (error) {
-                    console.error('댓글 작성 오류:', error);
+                    showToast('댓글 작성 중 오류가 발생했습니다.', 'error');
                 }
             });
         }
@@ -191,11 +191,12 @@
                     const result = await response.json();
                     if (result.success) {
                         this.closest('.comment-item').remove();
+                        showToast('댓글이 삭제되었습니다.', 'success');
                     } else {
-                        alert(result.message);
+                        showToast(result.message, 'error');
                     }
                 } catch (error) {
-                    console.error('댓글 삭제 오류:', error);
+                    showToast('댓글 삭제 중 오류가 발생했습니다.', 'error');
                 }
             });
         });

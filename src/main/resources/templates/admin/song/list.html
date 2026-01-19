@@ -474,10 +474,15 @@ function updateSelectedArtists() {
     countSpan.textContent = selectedArtists.length;
     updateSelectAllCheckboxState();
 
+    // innerHTML 대신 DOM API 사용 (XSS 방지)
+    tagsContainer.replaceChildren();
+
     if (selectedArtists.length === 0) {
-        tagsContainer.innerHTML = '<span class="no-selection-text">선택된 아티스트가 없습니다</span>';
+        const noSelectionSpan = document.createElement('span');
+        noSelectionSpan.className = 'no-selection-text';
+        noSelectionSpan.textContent = '선택된 아티스트가 없습니다';
+        tagsContainer.appendChild(noSelectionSpan);
     } else {
-        tagsContainer.innerHTML = '';
         selectedArtists.forEach(a => {
             const tag = document.createElement('span');
             tag.className = 'selected-artist-tag';
@@ -493,7 +498,7 @@ function updateSelectedArtists() {
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'tag-remove';
-            removeBtn.innerHTML = '&times;';
+            removeBtn.textContent = '×';
             removeBtn.onclick = () => removeArtist(a.name);
 
             tag.appendChild(nameSpan);
@@ -697,7 +702,7 @@ function closeYoutubePreview() {
         ytPlayer.destroy();
         ytPlayer = null;
     }
-    document.getElementById('youtubePlayer').innerHTML = '';
+    document.getElementById('youtubePlayer').replaceChildren();
     document.getElementById('youtubePreviewModal').classList.remove('show');
 }
 

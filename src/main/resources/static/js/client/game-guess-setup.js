@@ -35,7 +35,7 @@ async function startChallenge() {
     // 로그인 사용자의 닉네임 사용
     const nickname = memberNickname || '';
     if (!nickname) {
-        alert('로그인이 필요합니다.');
+        showToast('로그인이 필요합니다.');
         window.location.href = '/auth/login';
         return;
     }
@@ -61,11 +61,11 @@ async function startChallenge() {
             sessionStorage.setItem('challengeMode', 'true');
             window.location.href = '/game/solo/guess/play';
         } else {
-            alert(result.message || '게임 시작에 실패했습니다.');
+            showToast(result.message || '게임 시작에 실패했습니다.');
         }
     } catch (error) {
-        alert('게임 시작 중 오류가 발생했습니다.');
-        console.error(error);
+        showToast('게임 시작 중 오류가 발생했습니다.');
+        // console.error(error);
     }
 }
 
@@ -214,7 +214,7 @@ function adjustRounds(delta) {
 
 function setRounds(value) {
     if (value > maxAvailableSongs) {
-        alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+        showToast(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
         return;
     }
     document.getElementById('totalRounds').value = value;
@@ -265,7 +265,7 @@ async function loadYears() {
         const response = await fetch('/game/solo/guess/years');
         allYears = await response.json();
     } catch (error) {
-        console.error('연도 목록 로드 오류:', error);
+        // console.error('연도 목록 로드 오류:', error);
     }
 }
 
@@ -274,7 +274,7 @@ async function loadArtists() {
         const response = await fetch('/game/solo/guess/artists');
         allArtists = await response.json();
     } catch (error) {
-        console.error('아티스트 목록 로드 오류:', error);
+        // console.error('아티스트 목록 로드 오류:', error);
     }
 }
 
@@ -426,7 +426,7 @@ async function updateSongCount() {
         }
 
     } catch (error) {
-        console.error('노래 개수 조회 오류:', error);
+        // console.error('노래 개수 조회 오류:', error);
     }
 }
 
@@ -435,7 +435,7 @@ async function updateSongCount() {
 async function startGame() {
     const nickname = document.getElementById('nickname').value.trim();
     if (!nickname) {
-        alert('닉네임을 입력해주세요.');
+        showToast('닉네임을 입력해주세요.');
         document.getElementById('nickname').focus();
         return;
     }
@@ -446,35 +446,35 @@ async function startGame() {
     if (gameMode === 'FIXED_GENRE') {
         const genreId = document.getElementById('fixedGenreId').value;
         if (!genreId) {
-            alert('장르를 선택해주세요.');
+            showToast('장르를 선택해주세요.');
             return;
         }
     }
 
     if (gameMode === 'FIXED_ARTIST') {
         if (selectedArtists.length === 0) {
-            alert('아티스트를 선택해주세요.');
+            showToast('아티스트를 선택해주세요.');
             return;
         }
     }
 
     if (gameMode === 'FIXED_YEAR') {
         if (selectedYears.length === 0) {
-            alert('연도를 선택해주세요.');
+            showToast('연도를 선택해주세요.');
             return;
         }
     }
 
     // 매 라운드 선택 모드가 아닌 경우 노래 개수 확인
     if (!gameMode.includes('PER_ROUND') && maxAvailableSongs === 0) {
-        alert('현재 조건에 맞는 노래가 없습니다. 조건을 변경해주세요.');
+        showToast('현재 조건에 맞는 노래가 없습니다. 조건을 변경해주세요.');
         return;
     }
 
     const totalRounds = getTotalRounds();
 
     if (!gameMode.includes('PER_ROUND') && totalRounds > maxAvailableSongs) {
-        alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+        showToast(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
         return;
     }
 
@@ -527,10 +527,10 @@ async function startGame() {
             }
             window.location.href = '/game/solo/guess/play';
         } else {
-            alert(result.message || '게임 시작에 실패했습니다.');
+            showToast(result.message || '게임 시작에 실패했습니다.');
         }
     } catch (error) {
-        alert('게임 시작 중 오류가 발생했습니다.');
-        console.error(error);
+        showToast('게임 시작 중 오류가 발생했습니다.');
+        // console.error(error);
     }
 }

@@ -48,6 +48,10 @@
     max-width: 450px;
 }
 
+.modal-md {
+    max-width: 600px;
+}
+
 .modal-lg {
     max-width: 800px;
 }
@@ -328,4 +332,17 @@
     border-radius: 0.25rem;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+/* Report Detail */
+.report-detail {
+    background: var(--bg-elevated);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+}
+
+.report-detail p {
+    margin: 0.5rem 0;
 }

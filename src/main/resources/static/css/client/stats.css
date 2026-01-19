@@ -1,0 +1,380 @@
+/* ========================================
+   통계 페이지 스타일 (stats.html)
+   ======================================== */
+
+/* stats 페이지 레이아웃 */
+.stats-page .client-main {
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem;
+}
+
+/* 탭 스타일 */
+.stats-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 75rem;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.875rem 1.25rem;
+    background: var(--overlay-subtle);
+    border: 2px solid transparent;
+    border-radius: 0.75rem;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background: var(--overlay-light);
+    color: var(--text-primary);
+}
+
+.tab-btn.active {
+    background: var(--primary-alpha);
+    border-color: var(--primary);
+    color: var(--text-primary);
+}
+
+.tab-content {
+    display: none !important;
+}
+
+.tab-content.active {
+    display: grid !important;
+}
+
+/* 비로그인 안내 */
+.login-prompt {
+    text-align: center;
+    padding: 2rem;
+    background: var(--overlay-subtle);
+    border-radius: 1rem;
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 75rem;
+}
+
+.login-prompt p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.btn-login {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--primary-alpha);
+}
+
+/* 작은 순위 숫자 */
+.rank-num-small {
+    width: 1.75rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   벤토 그리드 레이아웃
+   ======================================== */
+.stats-content.bento-grid {
+    width: 100%;
+    max-width: 75rem;
+    gap: 1.25rem;
+}
+
+/* 전체 통계 탭 그리드 레이아웃 */
+#tab-global {
+    grid-template-columns: 2fr 2fr;
+    grid-template-areas: "hard-songs wrong-answers";
+}
+
+#tab-global [data-area="hard-songs"] {
+    grid-area: hard-songs;
+}
+
+#tab-global [data-area="wrong-answers"] {
+    grid-area: wrong-answers;
+}
+
+/* 내 기록 탭 그리드 레이아웃 */
+#tab-my {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        "my-correct my-hard"
+        "my-all     my-all";
+}
+
+#tab-my [data-area="my-correct"] {
+    grid-area: my-correct;
+}
+
+#tab-my [data-area="my-hard"] {
+    grid-area: my-hard;
+}
+
+#tab-my [data-area="my-all"] {
+    grid-area: my-all;
+}
+
+.stats-section {
+    background: var(--overlay-subtle);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+}
+
+.section-title {
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.section-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+}
+
+.hard-songs-list,
+.wrong-answers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.hard-song-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    background: var(--overlay-subtle);
+    border-radius: 0.625rem;
+    transition: background 0.2s;
+}
+
+.hard-song-item:hover {
+    background: var(--overlay-light);
+}
+
+.rank-badge {
+    width: 2rem;
+    height: 2rem;
+    background: var(--overlay-medium);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--text-primary);
+    flex-shrink: 0;
+}
+
+.rank-badge.top-1 {
+    background: linear-gradient(135deg, #ffd700, #ffb347);
+    color: #1a1a2e;
+}
+
+.rank-badge.top-2 {
+    background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+    color: #1a1a2e;
+}
+
+.rank-badge.top-3 {
+    background: linear-gradient(135deg, #cd7f32, #b87333);
+}
+
+.song-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.song-title {
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.song-artist {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.song-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.rate-badge {
+    padding: 0.25rem 0.625rem;
+    border-radius: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.rate-badge.hard {
+    background: rgba(255, 71, 87, 0.3);
+    color: #ff4757;
+}
+
+.rate-badge.medium {
+    background: rgba(255, 193, 7, 0.3);
+    color: #ffc107;
+}
+
+.rate-badge.easy {
+    background: rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+}
+
+.play-count {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.wrong-answer-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--overlay-subtle);
+    border-radius: 0.625rem;
+}
+
+.rank-num {
+    width: 1.5rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: center;
+}
+
+.wrong-text {
+    flex: 1;
+    color: var(--danger);
+    font-weight: 500;
+}
+
+.wrong-count {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 2.5rem 1.25rem;
+    color: var(--text-muted);
+}
+
+.empty-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+/* ========================================
+   태블릿 (768px 이하)
+   ======================================== */
+@media (max-width: 768px) {
+    .stats-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .tab-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    /* 모바일에서 1열로 전환 */
+    #tab-global,
+    #tab-my {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "hard-songs"
+            "wrong-answers";
+    }
+
+    #tab-my {
+        grid-template-areas:
+            "my-correct"
+            "my-hard"
+            "my-all";
+    }
+
+    .stats-section {
+        padding: 1rem;
+    }
+
+    .hard-song-item {
+        padding: 0.75rem;
+        gap: 0.625rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .login-prompt {
+        padding: 1.5rem 1rem;
+    }
+
+    .song-stats {
+        flex-shrink: 0;
+        min-width: 0;
+        max-width: 90px;
+    }
+
+    .rate-badge {
+        padding: 0.1875rem 0.5rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .play-count {
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+
+    .rank-badge {
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.85rem;
+    }
+
+    .song-title {
+        font-size: 0.9rem;
+    }
+
+    .song-artist {
+        font-size: 0.75rem;
+    }
+}

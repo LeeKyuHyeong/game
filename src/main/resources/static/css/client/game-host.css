@@ -303,3 +303,114 @@
         color: var(--danger-light);
     }
 }
+
+/* ========================================
+   준비 완료 프롬프트
+   ======================================== */
+.ready-prompt {
+    background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 100%);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    text-align: center;
+    border: 2px solid var(--tier-gold);
+    box-shadow: 0 4px 15px var(--tier-gold-bg-hover);
+}
+
+.ready-content {
+    max-width: 18.75rem;
+    margin: 0 auto;
+}
+
+.ready-message {
+    font-size: 1.1em;
+    color: var(--tier-gold);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.ready-hint {
+    font-size: 0.9em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.btn-ready {
+    background: linear-gradient(135deg, var(--success) 0%, var(--success-dark) 100%);
+    color: white;
+    padding: 0.875rem 2.5rem;
+    font-size: 1.1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 1.875rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-ready:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+/* ========================================
+   재생 버튼 비활성화
+   ======================================== */
+.play-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   인라인 신고 버튼
+   ======================================== */
+.btn-report-inline {
+    display: block;
+    margin: 0.75rem auto 0;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--overlay-white-medium);
+    border: 1px solid var(--overlay-white-subtle);
+    border-radius: 0.375rem;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-report-inline:hover {
+    background: var(--overlay-white-light);
+    color: var(--overlay-white-strong);
+    border-color: var(--overlay-white-medium);
+}
+
+/* ========================================
+   준비 프롬프트 - 태블릿 (768px 이하)
+   ======================================== */
+@media (max-width: 768px) {
+    .ready-prompt {
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+}
+
+/* ========================================
+   준비 프롬프트 - 모바일 (480px 이하)
+   ======================================== */
+@media (max-width: 480px) {
+    .ready-prompt {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .ready-message {
+        font-size: 1em;
+    }
+
+    .ready-hint {
+        font-size: 0.85em;
+    }
+
+    .btn-ready {
+        padding: 0.75rem 2rem;
+        font-size: 1em;
+    }
+}

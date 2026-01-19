@@ -6,12 +6,12 @@ async function deleteSession(id) {
         const result = await response.json();
 
         if (result.success) {
-            alert(result.message);
+            showToast(result.message);
             location.reload();
         } else {
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
-        alert('삭제 중 오류가 발생했습니다.');
+        showToast('삭제 중 오류가 발생했습니다.');
     }
 }

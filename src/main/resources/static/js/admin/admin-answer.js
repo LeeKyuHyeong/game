@@ -64,7 +64,7 @@ async function loadAnswers(songId) {
             `;
         }
     } catch (error) {
-        console.error('Error:', error);
+        // console.error('Error:', error);
         listContainer.innerHTML = '<div class="error">정답을 불러오는데 실패했습니다.</div>';
     }
 }
@@ -75,7 +75,7 @@ async function addAnswer() {
     const isPrimary = document.getElementById('newAnswerPrimary').checked;
     
     if (!answer) {
-        alert('정답을 입력해주세요.');
+        showToast('정답을 입력해주세요.');
         return;
     }
     
@@ -99,11 +99,11 @@ async function addAnswer() {
             document.getElementById('newAnswerPrimary').checked = false;
             loadAnswers(currentSongId);
         } else {
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('정답 추가 중 오류가 발생했습니다.');
+        // console.error('Error:', error);
+        showToast('정답 추가 중 오류가 발생했습니다.');
     }
 }
 
@@ -123,11 +123,11 @@ async function deleteAnswer(answerId) {
         if (result.success) {
             loadAnswers(currentSongId);
         } else {
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('정답 삭제 중 오류가 발생했습니다.');
+        // console.error('Error:', error);
+        showToast('정답 삭제 중 오류가 발생했습니다.');
     }
 }
 
@@ -151,7 +151,7 @@ async function saveEditAnswer() {
     const isPrimary = document.getElementById('editAnswerPrimary').checked;
     
     if (!answer) {
-        alert('정답을 입력해주세요.');
+        showToast('정답을 입력해주세요.');
         return;
     }
     
@@ -173,11 +173,11 @@ async function saveEditAnswer() {
             closeEditModal();
             loadAnswers(currentSongId);
         } else {
-            alert(result.message);
+            showToast(result.message);
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('정답 수정 중 오류가 발생했습니다.');
+        // console.error('Error:', error);
+        showToast('정답 수정 중 오류가 발생했습니다.');
     }
 }
 
@@ -193,14 +193,14 @@ async function autoGenerateAnswers() {
         });
         
         const result = await response.json();
-        alert(result.message);
+        showToast(result.message);
         
         if (result.success) {
             loadAnswers(currentSongId);
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('자동 생성 중 오류가 발생했습니다.');
+        // console.error('Error:', error);
+        showToast('자동 생성 중 오류가 발생했습니다.');
     }
 }
 

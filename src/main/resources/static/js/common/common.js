@@ -55,9 +55,12 @@ const Utils = {
     }
 };
 
-// Global error handler
+// Global error handler (운영 환경에서는 로깅 서비스로 전송 권장)
 window.addEventListener('unhandledrejection', function(event) {
-    console.error('Unhandled promise rejection:', event.reason);
+    // 운영 환경에서는 console.error 대신 로깅 서비스 사용 권장
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.error('Unhandled promise rejection:', event.reason);
+    }
 });
 
 // ========== 중복 로그인 감지 (세션 유효성 체크) ==========
@@ -109,7 +112,7 @@ const SessionManager = {
             }
         } catch (error) {
             // 네트워크 오류는 무시 (오프라인 등)
-            console.warn('Session validation failed:', error);
+            // 운영 환경에서는 로깅 서비스 사용 권장
         } finally {
             this.isChecking = false;
         }
@@ -119,12 +122,14 @@ const SessionManager = {
     handleSessionInvalidated(message) {
         this.stopSessionCheck();
 
-        // 알림 표시
+        // 토스트 알림 표시
         const msg = message || '다른 기기에서 로그인하여 현재 세션이 종료되었습니다.';
-        alert(msg);
+        showToast(msg, 'warning');
 
-        // 로그인 페이지로 이동
-        window.location.href = '/auth/login';
+        // 잠시 후 로그인 페이지로 이동 (토스트 확인 시간)
+        setTimeout(() => {
+            window.location.href = '/auth/login';
+        }, 1500);
     }
 };
 

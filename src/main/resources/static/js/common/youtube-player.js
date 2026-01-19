@@ -84,7 +84,7 @@ const YouTubePlayerManager = {
                 onError: (e) => {
                     const errorCode = e.data;
                     const errorMessage = this.ERROR_CODES[errorCode] || '알 수 없는 오류';
-                    console.error('YouTube Player Error:', errorCode, errorMessage);
+                    // console.error('YouTube Player Error:', errorCode, errorMessage);
 
                     // Error 2일 때 startTime=0으로 한 번 재시도 (startTime 문제일 수 있음)
                     if (errorCode === 2 && this.retryCount < this.MAX_ERROR_RETRIES && this.currentVideoId) {

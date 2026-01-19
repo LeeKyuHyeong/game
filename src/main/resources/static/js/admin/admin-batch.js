@@ -78,7 +78,7 @@ function runAllBatches() {
     });
 
     if (batches.length === 0) {
-        alert('실행할 수 있는 활성화된 배치가 없습니다.');
+        showToast('실행할 수 있는 활성화된 배치가 없습니다.');
         return;
     }
 
@@ -91,7 +91,7 @@ function runAllBatches() {
     function runNext(index) {
         if (index >= batches.length) {
             closeModal('runningModal');
-            alert('총 ' + total + '개 배치 실행 완료!');
+            showToast('총 ' + total + '개 배치 실행 완료!');
             location.reload();
             return;
         }
@@ -109,7 +109,7 @@ function runAllBatches() {
                 runNext(index + 1);
             })
             .catch(function(error) {
-                console.error('배치 실행 오류:', batch.id, error);
+                // console.error('배치 실행 오류:', batch.id, error);
                 completed++;
                 runNext(index + 1);
             });
@@ -175,8 +175,8 @@ function viewBatchDetail(batchId) {
             openModal('batchDetailModal');
         })
         .catch(function(error) {
-            console.error('배치 상세 조회 오류:', error);
-            alert('배치 상세 정보를 불러오는 중 오류가 발생했습니다.');
+            // console.error('배치 상세 조회 오류:', error);
+            showToast('배치 상세 정보를 불러오는 중 오류가 발생했습니다.');
         });
 }
 
@@ -194,8 +194,8 @@ function openEditModal(batchId) {
             openModal('batchEditModal');
         })
         .catch(function(error) {
-            console.error('배치 정보 조회 오류:', error);
-            alert('배치 정보를 불러오는 중 오류가 발생했습니다.');
+            // console.error('배치 정보 조회 오류:', error);
+            showToast('배치 정보를 불러오는 중 오류가 발생했습니다.');
         });
 }
 
@@ -223,16 +223,16 @@ function saveBatchConfig() {
     })
     .then(function(result) {
         if (result.success) {
-            alert(result.message);
+            showToast(result.message);
             closeModal('batchEditModal');
             location.reload();
         } else {
-            alert(result.message);
+            showToast(result.message);
         }
     })
     .catch(function(error) {
-        console.error('배치 설정 저장 오류:', error);
-        alert('배치 설정 저장 중 오류가 발생했습니다.');
+        // console.error('배치 설정 저장 오류:', error);
+        showToast('배치 설정 저장 중 오류가 발생했습니다.');
     });
 }
 
@@ -246,12 +246,12 @@ function toggleEnabled(batchId) {
             if (result.success) {
                 location.reload();
             } else {
-                alert(result.message);
+                showToast(result.message);
             }
         })
         .catch(function(error) {
-            console.error('배치 상태 변경 오류:', error);
-            alert('배치 상태 변경 중 오류가 발생했습니다.');
+            // console.error('배치 상태 변경 오류:', error);
+            showToast('배치 상태 변경 중 오류가 발생했습니다.');
         });
 }
 
@@ -270,17 +270,17 @@ function runBatch(batchId, batchName) {
         })
         .then(function(result) {
             if (result.success) {
-                alert(result.message);
+                showToast(result.message);
                 location.reload();
             } else {
-                alert(result.message);
+                showToast(result.message);
                 runBtn.disabled = false;
                 runBtn.textContent = '수동 실행';
             }
         })
         .catch(function(error) {
-            console.error('배치 실행 오류:', error);
-            alert('배치 실행 중 오류가 발생했습니다.');
+            // console.error('배치 실행 오류:', error);
+            showToast('배치 실행 중 오류가 발생했습니다.');
             runBtn.disabled = false;
             runBtn.textContent = '수동 실행';
         });
@@ -294,15 +294,15 @@ function refreshSchedules() {
         })
         .then(function(result) {
             if (result.success) {
-                alert(result.message + ' (등록: ' + result.scheduledCount + '개)');
+                showToast(result.message + ' (등록: ' + result.scheduledCount + '개)');
                 location.reload();
             } else {
-                alert(result.message);
+                showToast(result.message);
             }
         })
         .catch(function(error) {
-            console.error('스케줄 새로고침 오류:', error);
-            alert('스케줄 새로고침 중 오류가 발생했습니다.');
+            // console.error('스케줄 새로고침 오류:', error);
+            showToast('스케줄 새로고침 중 오류가 발생했습니다.');
         });
 }
 

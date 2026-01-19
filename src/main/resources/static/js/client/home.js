@@ -94,7 +94,7 @@ async function checkLoginStatus() {
             `;
         }
     } catch (error) {
-        console.error('로그인 상태 확인 오류:', error);
+        // console.error('로그인 상태 확인 오류:', error);
     }
 }
 
@@ -160,7 +160,7 @@ async function logout() {
         await fetch('/auth/logout', { method: 'POST' });
         window.location.reload();
     } catch (error) {
-        console.error('로그아웃 오류:', error);
+        // console.error('로그아웃 오류:', error);
     }
 }
 
@@ -195,7 +195,7 @@ async function loadMyRanking() {
             `;
         }
     } catch (error) {
-        console.error('내 순위 로딩 오류:', error);
+        // console.error('내 순위 로딩 오류:', error);
     }
 }
 
@@ -240,6 +240,6 @@ async function loadArtistChallengeRanking() {
         // PC 드래그 스크롤 활성화
         enableDragScroll(scroll);
     } catch (error) {
-        console.error('아티스트 챌린지 랭킹 로딩 오류:', error);
+        // console.error('아티스트 챌린지 랭킹 로딩 오류:', error);
     }
 }

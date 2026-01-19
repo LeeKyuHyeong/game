@@ -88,7 +88,7 @@ async function loadYears() {
         const response = await fetch('/game/multi/years');
         allYears = await response.json();
     } catch (error) {
-        console.error('연도 목록 로드 오류:', error);
+        // console.error('연도 목록 로드 오류:', error);
     }
 }
 
@@ -97,7 +97,7 @@ async function loadArtists() {
         const response = await fetch('/game/multi/artists');
         allArtists = await response.json();
     } catch (error) {
-        console.error('아티스트 목록 로드 오류:', error);
+        // console.error('아티스트 목록 로드 오류:', error);
     }
 }
 
@@ -234,7 +234,7 @@ async function updateSongCount() {
         }
 
     } catch (error) {
-        console.error('노래 개수 조회 오류:', error);
+        // console.error('노래 개수 조회 오류:', error);
     }
 }
 
@@ -244,13 +244,13 @@ async function createRoom() {
     const roomName = document.getElementById('roomName').value.trim();
 
     if (!roomName) {
-        alert('방 이름을 입력해주세요.');
+        showToast('방 이름을 입력해주세요.');
         document.getElementById('roomName').focus();
         return;
     }
 
     if (roomName.length < 2) {
-        alert('방 이름은 2자 이상 입력해주세요.');
+        showToast('방 이름은 2자 이상 입력해주세요.');
         document.getElementById('roomName').focus();
         return;
     }
@@ -261,28 +261,28 @@ async function createRoom() {
     if (gameMode === 'FIXED_GENRE') {
         const genreId = document.getElementById('fixedGenreId').value;
         if (!genreId) {
-            alert('장르를 선택해주세요.');
+            showToast('장르를 선택해주세요.');
             return;
         }
     }
 
     if (gameMode === 'FIXED_ARTIST') {
         if (selectedArtists.length === 0) {
-            alert('아티스트를 선택해주세요.');
+            showToast('아티스트를 선택해주세요.');
             return;
         }
     }
 
     if (gameMode === 'FIXED_YEAR') {
         if (selectedYears.length === 0) {
-            alert('연도를 선택해주세요.');
+            showToast('연도를 선택해주세요.');
             return;
         }
     }
 
     // 노래 개수 확인
     if (maxAvailableSongs === 0) {
-        alert('현재 조건에 맞는 노래가 없습니다. 조건을 변경해주세요.');
+        showToast('현재 조건에 맞는 노래가 없습니다. 조건을 변경해주세요.');
         return;
     }
 
@@ -292,7 +292,7 @@ async function createRoom() {
 
     // 라운드 수가 사용 가능한 노래 수를 초과하는지 확인
     if (totalRounds > maxAvailableSongs) {
-        alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+        showToast(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
         return;
     }
 
@@ -336,10 +336,10 @@ async function createRoom() {
         if (result.success) {
             window.location.href = `/game/multi/room/${result.roomCode}`;
         } else {
-            alert(result.message || '방 생성에 실패했습니다.');
+            showToast(result.message || '방 생성에 실패했습니다.');
         }
     } catch (error) {
-        console.error('방 생성 오류:', error);
-        alert('방 생성 중 오류가 발생했습니다.');
+        // console.error('방 생성 오류:', error);
+        showToast('방 생성 중 오류가 발생했습니다.');
     }
 }

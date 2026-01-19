@@ -142,168 +142,6 @@
     </div>
 </div>
 
-<style>
-.stats-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.stat-card {
-    background: var(--bg-surface);
-    border-radius: 0.5rem;
-    padding: 1.25rem;
-    text-align: center;
-    border: 1px solid var(--border-color);
-}
-
-.stat-value {
-    font-size: 1.75rem;
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-    margin-top: 0.25rem;
-}
-
-.difficulty-badge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: bold;
-}
-
-.difficulty-badge.NORMAL {
-    background: #3498db;
-    color: #fff;
-}
-
-.difficulty-badge.HARDCORE {
-    background: #e74c3c;
-    color: #fff;
-}
-
-.clear-rate {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-left: 0.25rem;
-}
-
-.perfect-badge {
-    font-size: 1.25rem;
-}
-
-.perfect-badge.achieved {
-    color: #f1c40f;
-}
-
-.perfect-badge.not-achieved {
-    color: var(--text-muted);
-}
-
-.btn-info {
-    background: #3498db;
-    color: #fff;
-}
-
-.btn-info:hover {
-    background: #2980b9;
-}
-
-.form-select {
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.25rem;
-    background: var(--bg-surface);
-    color: var(--text-primary);
-    min-width: 120px;
-}
-
-.detail-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-}
-
-.detail-item {
-    padding: 0.75rem;
-    background: var(--bg-elevated);
-    border-radius: 0.25rem;
-}
-
-.detail-label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-bottom: 0.25rem;
-}
-
-.detail-value {
-    font-weight: bold;
-}
-
-.detail-section {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.detail-section h3 {
-    margin-bottom: 1rem;
-    font-size: 1rem;
-    color: var(--primary-color);
-}
-
-.modal-md {
-    max-width: 600px;
-}
-
-.perfect-status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.perfect-icon {
-    font-size: 1.5rem;
-}
-
-.perfect-text {
-    font-size: 0.875rem;
-}
-
-.perfect-text.valid {
-    color: #27ae60;
-}
-
-.perfect-text.invalid {
-    color: #e74c3c;
-}
-
-@media (max-width: 768px) {
-    .stats-cards {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .detail-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .search-form {
-        flex-wrap: wrap;
-    }
-
-    .form-select {
-        width: 100%;
-        margin-top: 0.5rem;
-    }
-}
-</style>
-
 <script th:src="@{/js/common/common.js}"></script>
 <script th:inline="javascript">
 const currentSort = [[${sort}]];
@@ -335,12 +173,6 @@ async function viewDetail(id) {
         }
         const data = await response.json();
 
-        const perfectStatus = data.isPerfectClear
-            ? (data.isCurrentPerfect
-                ? '<span class="perfect-status"><span class="perfect-icon">✅</span><span class="perfect-text valid">현재 유효한 퍼펙트</span></span>'
-                : '<span class="perfect-status"><span class="perfect-icon">⭐</span><span class="perfect-text invalid">곡 추가로 무효화됨</span></span>')
-            : '<span class="perfect-status"><span class="perfect-icon">-</span><span class="perfect-text">미달성</span></span>';
-
         const bestTime = data.bestTimeMs
             ? `${(data.bestTimeMs / 1000).toFixed(1)}초`
             : '-';
@@ -353,55 +185,93 @@ async function viewDetail(id) {
             ? new Date(data.lastCheckedAt).toLocaleString('ko-KR')
             : '-';
 
-        document.getElementById('detailContent').innerHTML = `
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">회원</div>
-                    <div class="detail-value">${data.memberNickname}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">이메일</div>
-                    <div class="detail-value">${data.memberEmail}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">아티스트</div>
-                    <div class="detail-value">${data.artist}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">난이도</div>
-                    <div class="detail-value">${data.difficultyDisplayName}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">달성 시점 정답/전체</div>
-                    <div class="detail-value">${data.correctCount}/${data.totalSongs} (${data.clearRate}%)</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">현재 시점 정답/전체</div>
-                    <div class="detail-value">${data.correctCount}/${data.currentSongCount} (${data.currentClearRate}%)</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">퍼펙트 상태</div>
-                    <div class="detail-value">${perfectStatus}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">최고 클리어 시간</div>
-                    <div class="detail-value">${bestTime}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">달성일</div>
-                    <div class="detail-value">${achievedAt}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">마지막 검사일</div>
-                    <div class="detail-value">${lastCheckedAt}</div>
-                </div>
-            </div>
-        `;
+        // DOM API를 사용하여 안전하게 요소 생성 (XSS 방지)
+        const detailContent = document.getElementById('detailContent');
+        detailContent.textContent = '';
+
+        const grid = document.createElement('div');
+        grid.className = 'detail-grid';
+
+        // 상세 항목 생성 헬퍼 함수
+        function createDetailItem(label, value) {
+            const item = document.createElement('div');
+            item.className = 'detail-item';
+
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'detail-label';
+            labelDiv.textContent = label;
+
+            const valueDiv = document.createElement('div');
+            valueDiv.className = 'detail-value';
+            valueDiv.textContent = value;
+
+            item.appendChild(labelDiv);
+            item.appendChild(valueDiv);
+            return item;
+        }
+
+        // 퍼펙트 상태 항목 생성 (HTML 구조 필요)
+        function createPerfectStatusItem() {
+            const item = document.createElement('div');
+            item.className = 'detail-item';
+
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'detail-label';
+            labelDiv.textContent = '퍼펙트 상태';
+
+            const valueDiv = document.createElement('div');
+            valueDiv.className = 'detail-value';
+
+            const statusSpan = document.createElement('span');
+            statusSpan.className = 'perfect-status';
+
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'perfect-icon';
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'perfect-text';
+
+            if (data.isPerfectClear) {
+                if (data.isCurrentPerfect) {
+                    iconSpan.textContent = '✅';
+                    textSpan.classList.add('valid');
+                    textSpan.textContent = '현재 유효한 퍼펙트';
+                } else {
+                    iconSpan.textContent = '⭐';
+                    textSpan.classList.add('invalid');
+                    textSpan.textContent = '곡 추가로 무효화됨';
+                }
+            } else {
+                iconSpan.textContent = '-';
+                textSpan.textContent = '미달성';
+            }
+
+            statusSpan.appendChild(iconSpan);
+            statusSpan.appendChild(textSpan);
+            valueDiv.appendChild(statusSpan);
+
+            item.appendChild(labelDiv);
+            item.appendChild(valueDiv);
+            return item;
+        }
+
+        // 각 항목 추가
+        grid.appendChild(createDetailItem('회원', data.memberNickname));
+        grid.appendChild(createDetailItem('이메일', data.memberEmail));
+        grid.appendChild(createDetailItem('아티스트', data.artist));
+        grid.appendChild(createDetailItem('난이도', data.difficultyDisplayName));
+        grid.appendChild(createDetailItem('달성 시점 정답/전체', `${data.correctCount}/${data.totalSongs} (${data.clearRate}%)`));
+        grid.appendChild(createDetailItem('현재 시점 정답/전체', `${data.correctCount}/${data.currentSongCount} (${data.currentClearRate}%)`));
+        grid.appendChild(createPerfectStatusItem());
+        grid.appendChild(createDetailItem('최고 클리어 시간', bestTime));
+        grid.appendChild(createDetailItem('달성일', achievedAt));
+        grid.appendChild(createDetailItem('마지막 검사일', lastCheckedAt));
+
+        detailContent.appendChild(grid);
 
         openModal('detailModal');
     } catch (error) {
-        console.error('상세 조회 실패:', error);
-        alert('기록을 불러오는데 실패했습니다.');
+        showToast('기록을 불러오는데 실패했습니다.', 'error');
     }
 }
 

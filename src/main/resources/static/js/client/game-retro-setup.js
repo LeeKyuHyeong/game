@@ -29,7 +29,7 @@ async function startChallenge() {
     // 로그인 사용자의 닉네임 사용
     const nickname = memberNickname || '';
     if (!nickname) {
-        alert('로그인이 필요합니다.');
+        showToast('로그인이 필요합니다.');
         window.location.href = '/auth/login';
         return;
     }
@@ -51,11 +51,11 @@ async function startChallenge() {
             sessionStorage.setItem('challengeMode', 'true');
             window.location.href = '/game/retro/play';
         } else {
-            alert(result.message || '게임 시작에 실패했습니다.');
+            showToast(result.message || '게임 시작에 실패했습니다.');
         }
     } catch (error) {
-        alert('게임 시작 중 오류가 발생했습니다.');
-        console.error(error);
+        showToast('게임 시작 중 오류가 발생했습니다.');
+        // console.error(error);
     }
 }
 
@@ -107,7 +107,7 @@ function adjustRounds(delta) {
 
 function setRounds(value) {
     if (value > maxAvailableSongs) {
-        alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+        showToast(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
         return;
     }
     document.getElementById('totalRounds').value = value;
@@ -182,7 +182,7 @@ async function updateSongCount() {
         }
 
     } catch (error) {
-        console.error('노래 개수 조회 오류:', error);
+        // console.error('노래 개수 조회 오류:', error);
     }
 }
 
@@ -191,20 +191,20 @@ async function updateSongCount() {
 async function startGame() {
     const nickname = document.getElementById('nickname').value.trim();
     if (!nickname) {
-        alert('닉네임을 입력해주세요.');
+        showToast('닉네임을 입력해주세요.');
         document.getElementById('nickname').focus();
         return;
     }
 
     if (maxAvailableSongs === 0) {
-        alert('레트로 노래가 없습니다.');
+        showToast('레트로 노래가 없습니다.');
         return;
     }
 
     const totalRounds = getTotalRounds();
 
     if (totalRounds > maxAvailableSongs) {
-        alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+        showToast(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
         return;
     }
 
@@ -231,10 +231,10 @@ async function startGame() {
             }
             window.location.href = '/game/retro/play';
         } else {
-            alert(result.message || '게임 시작에 실패했습니다.');
+            showToast(result.message || '게임 시작에 실패했습니다.');
         }
     } catch (error) {
-        alert('게임 시작 중 오류가 발생했습니다.');
-        console.error(error);
+        showToast('게임 시작 중 오류가 발생했습니다.');
+        // console.error(error);
     }
 }

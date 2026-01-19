@@ -126,8 +126,8 @@ function viewDetail(id) {
             openModal('detailModal');
         })
         .catch(error => {
-            alert('회원 정보를 불러오는데 실패했습니다.');
-            console.error(error);
+            showToast('회원 정보를 불러오는데 실패했습니다.');
+            // console.error(error);
         });
 }
 
@@ -196,16 +196,16 @@ document.getElementById('statusForm').addEventListener('submit', function(e) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
+                showToast(data.message);
                 closeModal('statusModal');
                 location.reload();
             } else {
-                alert(data.message);
+                showToast(data.message);
             }
         })
         .catch(error => {
-            alert('상태 변경에 실패했습니다.');
-            console.error(error);
+            showToast('상태 변경에 실패했습니다.');
+            // console.error(error);
         });
 });
 
@@ -225,16 +225,16 @@ document.getElementById('roleForm').addEventListener('submit', function(e) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
+                showToast(data.message);
                 closeModal('roleModal');
                 location.reload();
             } else {
-                alert(data.message);
+                showToast(data.message);
             }
         })
         .catch(error => {
-            alert('권한 변경에 실패했습니다.');
-            console.error(error);
+            showToast('권한 변경에 실패했습니다.');
+            // console.error(error);
         });
 });
 
@@ -249,14 +249,14 @@ function resetPassword() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
+                showToast(data.message);
             } else {
-                alert(data.message);
+                showToast(data.message);
             }
         })
         .catch(error => {
-            alert('비밀번호 초기화에 실패했습니다.');
-            console.error(error);
+            showToast('비밀번호 초기화에 실패했습니다.');
+            // console.error(error);
         });
 }
 
@@ -271,14 +271,14 @@ function kickSession() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
+                showToast(data.message);
             } else {
-                alert(data.message);
+                showToast(data.message);
             }
         })
         .catch(error => {
-            alert('세션 종료에 실패했습니다.');
-            console.error(error);
+            showToast('세션 종료에 실패했습니다.');
+            // console.error(error);
         });
 }
 

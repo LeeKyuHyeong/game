@@ -85,8 +85,8 @@ function viewRoom(id) {
             openModalById('roomDetailModal');
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('방 정보를 불러오는데 실패했습니다.');
+            // console.error('Error:', error);
+            showToast('방 정보를 불러오는데 실패했습니다.');
         });
 }
 
@@ -98,7 +98,7 @@ function viewChat(id) {
         .then(response => response.json())
         .then(data => {
             if (!data.success) {
-                alert(data.message);
+                showToast(data.message);
                 return;
             }
 
@@ -129,8 +129,8 @@ function viewChat(id) {
             openModalById('chatModal');
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('채팅 내역을 불러오는데 실패했습니다.');
+            // console.error('Error:', error);
+            showToast('채팅 내역을 불러오는데 실패했습니다.');
         });
 }
 
@@ -141,14 +141,14 @@ function closeRoom(id) {
     fetch(`/admin/room/close/${id}`, { method: 'POST' })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showToast(data.message);
             if (data.success) {
                 location.reload();
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('방 종료 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('방 종료 중 오류가 발생했습니다.');
         });
 }
 
@@ -159,14 +159,14 @@ function deleteRoom(id) {
     fetch(`/admin/room/delete/${id}`, { method: 'POST' })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showToast(data.message);
             if (data.success) {
                 location.reload();
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('방 삭제 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('방 삭제 중 오류가 발생했습니다.');
         });
 }
 
@@ -180,12 +180,12 @@ function deleteSingleChat(chatId) {
             if (data.success) {
                 viewChat(currentRoomId); // 채팅 목록 새로고침
             } else {
-                alert(data.message);
+                showToast(data.message);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('채팅 삭제 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('채팅 삭제 중 오류가 발생했습니다.');
         });
 }
 
@@ -196,14 +196,14 @@ function deleteAllChats(roomId) {
     fetch(`/admin/room/chat/delete-all/${roomId}`, { method: 'POST' })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showToast(data.message);
             if (data.success) {
                 viewChat(roomId); // 채팅 목록 새로고침
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('채팅 삭제 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('채팅 삭제 중 오류가 발생했습니다.');
         });
 }
 

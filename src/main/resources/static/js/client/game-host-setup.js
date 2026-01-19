@@ -22,7 +22,7 @@ async function loadYears() {
         allYears = await response.json();
         renderYearChips();
     } catch (error) {
-        console.error('연도 목록 로드 오류:', error);
+        // console.error('연도 목록 로드 오류:', error);
     }
 }
 
@@ -33,7 +33,7 @@ async function loadArtists() {
         allArtists = await response.json();
         renderArtistChips();
     } catch (error) {
-        console.error('아티스트 목록 로드 오류:', error);
+        // console.error('아티스트 목록 로드 오류:', error);
     }
 }
 
@@ -183,7 +183,7 @@ if (roundInput) {
         value = Math.max(1, Math.min(50, value));
 
         if (value > maxAvailableSongs && maxAvailableSongs > 0) {
-            alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+            showToast(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
             value = maxAvailableSongs;
         }
 
@@ -211,7 +211,7 @@ function adjustRounds(delta) {
 // 라운드 프리셋 설정 함수
 function setRounds(value) {
     if (value > maxAvailableSongs && maxAvailableSongs > 0) {
-        alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+        showToast(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
         return;
     }
 
@@ -354,7 +354,7 @@ async function updateSongCount() {
         updatePresetButtons();
 
     } catch (error) {
-        console.error('노래 개수 조회 오류:', error);
+        // console.error('노래 개수 조회 오류:', error);
     }
 }
 
@@ -389,32 +389,32 @@ function goToStep2() {
     if (gameMode === 'FIXED_GENRE') {
         const genreId = document.getElementById('fixedGenreId').value;
         if (!genreId) {
-            alert('장르를 선택해주세요.');
+            showToast('장르를 선택해주세요.');
             return;
         }
     }
 
     if (gameMode === 'FIXED_ARTIST') {
         if (selectedArtists.length === 0) {
-            alert('아티스트를 최소 1명 이상 선택해주세요.');
+            showToast('아티스트를 최소 1명 이상 선택해주세요.');
             return;
         }
     }
 
     if (gameMode === 'FIXED_YEAR') {
         if (selectedYears.length === 0) {
-            alert('연도를 최소 1개 이상 선택해주세요.');
+            showToast('연도를 최소 1개 이상 선택해주세요.');
             return;
         }
     }
 
     if (maxAvailableSongs === 0) {
-        alert('현재 조건에 맞는 노래가 없습니다. 조건을 변경해주세요.');
+        showToast('현재 조건에 맞는 노래가 없습니다. 조건을 변경해주세요.');
         return;
     }
 
     if (totalRounds > maxAvailableSongs) {
-        alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+        showToast(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
         return;
     }
 
@@ -463,12 +463,12 @@ async function startGame() {
     for (const input of inputs) {
         const name = input.value.trim();
         if (!name) {
-            alert('모든 플레이어의 별명을 입력해주세요.');
+            showToast('모든 플레이어의 별명을 입력해주세요.');
             input.focus();
             return;
         }
         if (players.includes(name)) {
-            alert('중복된 별명이 있습니다.');
+            showToast('중복된 별명이 있습니다.');
             input.focus();
             return;
         }
@@ -482,14 +482,14 @@ async function startGame() {
     if (gameMode === 'FIXED_GENRE') {
         const genreId = document.getElementById('fixedGenreId').value;
         if (!genreId) {
-            alert('장르를 선택해주세요.');
+            showToast('장르를 선택해주세요.');
             return;
         }
     }
 
     // 최종 라운드 수 검증
     if (totalRounds > maxAvailableSongs) {
-        alert(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
+        showToast(`현재 조건에서 최대 ${maxAvailableSongs}라운드까지 가능합니다.`);
         return;
     }
 
@@ -542,11 +542,11 @@ async function startGame() {
             }
             window.location.href = '/game/solo/host/play';
         } else {
-            alert(result.message || '게임 시작에 실패했습니다.');
+            showToast(result.message || '게임 시작에 실패했습니다.');
         }
     } catch (error) {
-        alert('게임 시작 중 오류가 발생했습니다.');
-        console.error(error);
+        showToast('게임 시작 중 오류가 발생했습니다.');
+        // console.error(error);
     }
 }
 

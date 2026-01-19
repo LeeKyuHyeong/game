@@ -45,12 +45,12 @@ function deleteChat(id) {
             if (data.success) {
                 location.reload();
             } else {
-                alert(data.message);
+                showToast(data.message);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('삭제 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('삭제 중 오류가 발생했습니다.');
         });
 }
 
@@ -60,7 +60,7 @@ function deleteSelected() {
     const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
 
     if (ids.length === 0) {
-        alert('삭제할 채팅을 선택해주세요.');
+        showToast('삭제할 채팅을 선택해주세요.');
         return;
     }
 
@@ -75,13 +75,13 @@ function deleteSelected() {
     })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showToast(data.message);
             if (data.success) {
                 location.reload();
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('삭제 중 오류가 발생했습니다.');
+            // console.error('Error:', error);
+            showToast('삭제 중 오류가 발생했습니다.');
         });
 }

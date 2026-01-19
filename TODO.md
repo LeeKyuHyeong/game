@@ -19,7 +19,11 @@
 - [O] Admin/Client CSS 테마 변수화 (다크모드 대응)
 - [O] 모바일 반응형 레이아웃 개선 (setup, result, play 화면)
 - [O] rem 단위 및 CSS 변수 표준화
-
+- [O] 라이트모드 전체랭킹 포디움 내부 별명 및 점수 color
+- [] 통계 가시성 Up
+- [] 커뮤니티 모바일 버전 탭 디자인 수정 
+- [O] 아티스트 챌린지 정답 가시성
+- 
 ### 테스트
 - [O] FanChallengeServiceTest 추가
 - [O] AdminFanChallengeControllerTest 추가
@@ -94,7 +98,5 @@
 ### 씨스타
 ### 오마이걸
 ### 백예린
-### 
+### 엔믹스 
 
-다크모드 전체랭킹 포디움 내부 별명 color
-통계 가시성 Up

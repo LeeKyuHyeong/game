@@ -19,12 +19,12 @@ async function joinByCode() {
     const code = document.getElementById('joinCode').value.trim();
 
     if (!code) {
-        alert('참가 코드를 입력해주세요.');
+        showToast('참가 코드를 입력해주세요.');
         return;
     }
 
     if (code.length !== 6) {
-        alert('참가 코드는 6자리입니다.');
+        showToast('참가 코드는 6자리입니다.');
         return;
     }
 
@@ -45,11 +45,11 @@ async function joinRoom(roomCode) {
         if (result.success) {
             window.location.href = `/game/multi/room/${result.roomCode}`;
         } else {
-            alert(result.message || '방 참가에 실패했습니다.');
+            showToast(result.message || '방 참가에 실패했습니다.');
         }
     } catch (error) {
-        console.error('참가 오류:', error);
-        alert('방 참가 중 오류가 발생했습니다.');
+        // console.error('참가 오류:', error);
+        showToast('방 참가 중 오류가 발생했습니다.');
     }
 }
 
@@ -68,7 +68,7 @@ async function loadRooms() {
 
         renderRoomList(rooms);
     } catch (error) {
-        console.error('방 목록 로드 오류:', error);
+        // console.error('방 목록 로드 오류:', error);
     }
 }
 
@@ -140,14 +140,14 @@ async function resetParticipation() {
         const result = await response.json();
 
         if (result.success) {
-            alert(result.message);
+            showToast(result.message);
             // 페이지 새로고침
             window.location.reload();
         } else {
-            alert(result.message || '초기화에 실패했습니다.');
+            showToast(result.message || '초기화에 실패했습니다.');
         }
     } catch (error) {
-        console.error('초기화 오류:', error);
-        alert('초기화 중 오류가 발생했습니다.');
+        // console.error('초기화 오류:', error);
+        showToast('초기화 중 오류가 발생했습니다.');
     }
 }
