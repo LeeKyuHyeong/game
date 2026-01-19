@@ -665,6 +665,77 @@
     }
 }
 
+/* ========== 라이트 모드 - 포디움 텍스트 가시성 개선 ========== */
+:root:not([data-theme="dark"]) .podium-name {
+    color: var(--text-primary);
+}
+
+:root:not([data-theme="dark"]) .podium-value {
+    color: var(--text-secondary);
+}
+
+/* 시스템 다크 모드 사용자는 원래 색상 유지 */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .podium-name,
+    :root:not([data-theme]) .podium-value {
+        color: var(--text-on-gold);
+    }
+}
+
+/* ========== 라이트 모드 - 티어 뱃지 가시성 개선 ========== */
+:root:not([data-theme="dark"]) .tier-silver {
+    color: var(--tier-silver-dark) !important;
+    background: var(--tier-silver-bg-strong);
+}
+
+:root:not([data-theme="dark"]) .tier-gold {
+    color: var(--tier-gold-dark) !important;
+    background: var(--tier-gold-bg-strong);
+}
+
+:root:not([data-theme="dark"]) .tier-platinum {
+    color: var(--tier-platinum-dark) !important;
+    background: var(--tier-platinum-bg-strong);
+}
+
+:root:not([data-theme="dark"]) .tier-diamond {
+    color: var(--tier-diamond-dark) !important;
+    background: var(--tier-diamond-bg-strong);
+}
+
+:root:not([data-theme="dark"]) .tier-challenger {
+    color: var(--tier-challenger-dark) !important;
+    background: var(--tier-challenger-bg-strong);
+}
+
+/* 시스템 다크 모드 사용자는 원래 색상 유지 */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .tier-silver {
+        color: var(--tier-silver) !important;
+        background: var(--tier-silver-bg);
+    }
+
+    :root:not([data-theme]) .tier-gold {
+        color: var(--tier-gold) !important;
+        background: var(--tier-gold-bg);
+    }
+
+    :root:not([data-theme]) .tier-platinum {
+        color: var(--tier-platinum) !important;
+        background: var(--tier-platinum-bg);
+    }
+
+    :root:not([data-theme]) .tier-diamond {
+        color: var(--tier-diamond) !important;
+        background: var(--tier-diamond-bg);
+    }
+
+    :root:not([data-theme]) .tier-challenger {
+        color: var(--tier-challenger) !important;
+        background: var(--tier-challenger-bg);
+    }
+}
+
 /* ========== 다크 테마 지원 ========== */
 [data-theme="dark"] .ranking-table-section {
     background: var(--bg-surface);
