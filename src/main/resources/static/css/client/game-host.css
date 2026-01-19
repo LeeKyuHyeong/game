@@ -367,9 +367,9 @@
     display: block;
     margin: 0.75rem auto 0;
     padding: 0.5rem 1rem;
-    background: transparent;
-    color: var(--overlay-white-medium);
-    border: 1px solid var(--overlay-white-subtle);
+    background: var(--border-strong);
+    color: var(--badge-danger-text);
+    border: 1px solid var(--overlay-white-medium);
     border-radius: 0.375rem;
     font-size: 0.85em;
     cursor: pointer;
@@ -378,8 +378,8 @@
 
 .btn-report-inline:hover {
     background: var(--overlay-white-light);
-    color: var(--overlay-white-strong);
-    border-color: var(--overlay-white-medium);
+    color: var(--overlay-white-text);
+    border-color: var(--overlay-white-strong);
 }
 
 /* ========================================

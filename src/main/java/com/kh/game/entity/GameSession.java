@@ -95,6 +95,7 @@ public class GameSession {
 
     public enum GameMode {
         RANDOM,              // 전체 랜덤
+        RETRO,               // 레트로 (2000년 이전 + RETRO 장르)
         FIXED_GENRE,         // 장르 고정
         FIXED_ARTIST,        // 아티스트 고정
         FIXED_YEAR,          // 연도 고정

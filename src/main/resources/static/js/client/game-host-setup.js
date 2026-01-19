@@ -272,6 +272,7 @@ document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
         } else if (this.value === 'FIXED_YEAR') {
             if (yearSelectArea) yearSelectArea.style.display = 'block';
         }
+        // RETRO, RANDOM 모드는 추가 선택 영역 없음
         updateSongCount();
     });
 });
@@ -301,6 +302,11 @@ async function updateSongCount() {
 
     // 요청 본문 구성
     const requestBody = {};
+
+    // 레트로 모드
+    if (gameMode === 'RETRO') {
+        requestBody.isRetroMode = true;
+    }
 
     // 장르 필터
     if (gameMode === 'FIXED_GENRE') {
@@ -499,6 +505,11 @@ async function startGame() {
     const artistType = document.querySelector('input[name="artistType"]:checked').value;
     if (artistType === 'solo') settings.soloOnly = true;
     if (artistType === 'group') settings.groupOnly = true;
+
+    // 레트로 모드
+    if (gameMode === 'RETRO') {
+        settings.isRetroMode = true;
+    }
 
     if (gameMode === 'FIXED_GENRE') {
         settings.fixedGenreId = parseInt(document.getElementById('fixedGenreId').value);

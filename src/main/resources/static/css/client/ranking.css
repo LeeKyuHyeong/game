@@ -674,14 +674,6 @@
     color: var(--text-secondary);
 }
 
-/* 시스템 다크 모드 사용자는 원래 색상 유지 */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) .podium-name,
-    :root:not([data-theme]) .podium-value {
-        color: var(--text-on-gold);
-    }
-}
-
 /* ========== 라이트 모드 - 티어 뱃지 가시성 개선 ========== */
 :root:not([data-theme="dark"]) .tier-silver {
     color: var(--tier-silver-dark) !important;
@@ -706,34 +698,6 @@
 :root:not([data-theme="dark"]) .tier-challenger {
     color: var(--tier-challenger-dark) !important;
     background: var(--tier-challenger-bg-strong);
-}
-
-/* 시스템 다크 모드 사용자는 원래 색상 유지 */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) .tier-silver {
-        color: var(--tier-silver) !important;
-        background: var(--tier-silver-bg);
-    }
-
-    :root:not([data-theme]) .tier-gold {
-        color: var(--tier-gold) !important;
-        background: var(--tier-gold-bg);
-    }
-
-    :root:not([data-theme]) .tier-platinum {
-        color: var(--tier-platinum) !important;
-        background: var(--tier-platinum-bg);
-    }
-
-    :root:not([data-theme]) .tier-diamond {
-        color: var(--tier-diamond) !important;
-        background: var(--tier-diamond-bg);
-    }
-
-    :root:not([data-theme]) .tier-challenger {
-        color: var(--tier-challenger) !important;
-        background: var(--tier-challenger-bg);
-    }
 }
 
 /* ========== 다크 테마 지원 ========== */
@@ -776,50 +740,6 @@
 
 [data-theme="dark"] .empty-state {
     background: var(--bg-surface);
-}
-
-/* 시스템 다크모드 따르기 (저장값 없을 때) */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) .ranking-table-section {
-        background: var(--bg-surface);
-    }
-
-    :root:not([data-theme]) .ranking-row {
-        border-bottom-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .ranking-row:hover {
-        background: var(--bg-elevated);
-    }
-
-    :root:not([data-theme]) .ranking-row.top-1 {
-        background: var(--tier-gold-bg);
-    }
-
-    :root:not([data-theme]) .ranking-row.top-2 {
-        background: var(--tier-silver-bg);
-    }
-
-    :root:not([data-theme]) .ranking-row.top-3 {
-        background: var(--tier-bronze-bg);
-    }
-
-    :root:not([data-theme]) .rank-cell {
-        color: var(--text-secondary);
-    }
-
-    :root:not([data-theme]) .name-cell,
-    :root:not([data-theme]) .member-name {
-        color: var(--text-primary);
-    }
-
-    :root:not([data-theme]) .sub-stat {
-        color: var(--text-secondary);
-    }
-
-    :root:not([data-theme]) .empty-state {
-        background: var(--bg-surface);
-    }
 }
 
 /* ========== 서브탭 스타일 ========== */

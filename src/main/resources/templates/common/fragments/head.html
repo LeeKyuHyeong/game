@@ -58,6 +58,13 @@
             } catch (e) {
                 document.documentElement.setAttribute('data-theme', 'light');
             }
+
+            // 게임 페이지(.game-page)에서 다크 테마 강제
+            document.addEventListener('DOMContentLoaded', function() {
+                if (document.body.classList.contains('game-page')) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            });
         })();
     </script>
     <link rel="stylesheet" th:href="@{/css/common/common.css}">

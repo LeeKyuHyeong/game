@@ -13,7 +13,7 @@
 
     <main class="client-main">
         <div class="board-content">
-            <!-- Category Tabs -->
+            <!-- Category Tabs (PC) -->
             <div class="category-tabs">
                 <a th:href="@{/board}" th:classappend="${category == null} ? 'active'" class="category-tab">
                     전체
@@ -27,6 +27,20 @@
                         <span class="category-count" th:text="'(' + ${categoryStats[cat.name()]} + ')'"></span>
                     </a>
                 </th:block>
+            </div>
+
+            <!-- Category Select (Mobile) -->
+            <div class="category-select-wrapper">
+                <select class="category-select" id="categorySelect" onchange="navigateCategory(this)">
+                    <option value="" th:selected="${category == null}">
+                        전체 (<span th:text="${totalItems}"></span>)
+                    </option>
+                    <th:block th:each="cat : ${categories}">
+                        <option th:value="${cat.name()}" th:selected="${category == cat.name()}"
+                                th:text="${cat.description} + ' (' + ${categoryStats[cat.name()]} + ')'">
+                        </option>
+                    </th:block>
+                </select>
             </div>
 
             <!-- Search -->
@@ -91,5 +105,15 @@
     </main>
 </div>
 <script th:src="@{/js/common/common.js}"></script>
+<script>
+function navigateCategory(select) {
+    const category = select.value;
+    if (category) {
+        window.location.href = '/board?category=' + category;
+    } else {
+        window.location.href = '/board';
+    }
+}
+</script>
 </body>
 </html>

@@ -38,6 +38,7 @@ public class GameSettings {
     private Integer totalRounds = 10;            // 총 라운드
     private Boolean privateRoom = false;         // 비공개 방 여부
     private String gameMode = "RANDOM";          // 게임 모드 (RANDOM, FIXED_GENRE, FIXED_ARTIST)
+    private Boolean isRetroMode = false;         // 레트로 모드 여부 (2000년 이전 곡만)
 
     // boolean getter는 is로 시작해야 함
     public boolean isPrivateRoom() {

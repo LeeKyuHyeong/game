@@ -2328,230 +2328,6 @@
     background: var(--bg-elevated);
 }
 
-/* 시스템 다크모드 따르기 (저장값 없을 때) */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) .room-card {
-        background: var(--bg-surface);
-    }
-
-    :root:not([data-theme]) .room-card:hover {
-        box-shadow: 0 4px 15px var(--overlay-black-strong);
-    }
-
-    :root:not([data-theme]) .create-card {
-        background: var(--bg-surface);
-    }
-
-    :root:not([data-theme]) .input-full,
-    :root:not([data-theme]) .select-full {
-        background: var(--bg-elevated);
-        color: var(--text-primary);
-        border-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .btn-cancel {
-        background: var(--bg-elevated);
-        color: var(--text-secondary);
-    }
-
-    :root:not([data-theme]) .participant-card {
-        background: var(--bg-surface);
-    }
-
-    :root:not([data-theme]) .participant-card.ready {
-        background: var(--status-success-bg);
-    }
-
-    :root:not([data-theme]) .status-badge.waiting {
-        background: var(--bg-elevated);
-        color: var(--text-secondary);
-    }
-
-    :root:not([data-theme]) .btn-ready {
-        background: var(--bg-elevated);
-        color: var(--text-primary);
-    }
-
-    :root:not([data-theme]) .game-area {
-        background: var(--bg-surface);
-    }
-
-    :root:not([data-theme]) .game-area .answer-section,
-    :root:not([data-theme]) .game-area .multi-answer-section {
-        background: var(--bg-elevated);
-        border-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .genre-grid .genre-item {
-        background: var(--bg-surface);
-        border-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .genre-grid .genre-item:hover:not(.disabled) {
-        background: var(--bg-elevated);
-    }
-
-    :root:not([data-theme]) .result-item {
-        background: var(--bg-elevated);
-        border-left-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .result-item.correct {
-        background: var(--status-success-bg);
-    }
-
-    :root:not([data-theme]) .result-item.wrong {
-        background: var(--status-danger-bg);
-    }
-
-    :root:not([data-theme]) .multi-scoreboard .score-item,
-    :root:not([data-theme]) .mini-scoreboard .score-item {
-        background: var(--bg-surface);
-    }
-
-    :root:not([data-theme]) .multi-scoreboard .score-item.me,
-    :root:not([data-theme]) .mini-scoreboard .score-item.me {
-        background: var(--status-primary-bg);
-    }
-
-    :root:not([data-theme]) .chat-section {
-        background: var(--bg-surface);
-    }
-
-    :root:not([data-theme]) .chat-message {
-        background: var(--bg-elevated);
-    }
-
-    :root:not([data-theme]) .chat-message.my-message {
-        background: var(--status-primary-bg);
-    }
-
-    :root:not([data-theme]) .chat-message.correct-answer {
-        background: var(--status-success-bg);
-    }
-
-    :root:not([data-theme]) .chat-message.system-message {
-        background: var(--status-warning-bg);
-    }
-
-    :root:not([data-theme]) .system-text {
-        color: var(--warning);
-    }
-
-    :root:not([data-theme]) .chat-input-area {
-        background: var(--bg-elevated);
-        border-top-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .chat-input {
-        background: var(--bg-surface);
-        color: var(--text-primary);
-        border-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .play-hint {
-        background: var(--status-primary-bg);
-    }
-
-    :root:not([data-theme]) .winner-info {
-        background: var(--status-success-bg);
-    }
-
-    :root:not([data-theme]) .room-info-card {
-        background: var(--bg-surface);
-    }
-
-    :root:not([data-theme]) .room-info-card h2 {
-        color: var(--text-primary);
-    }
-
-    :root:not([data-theme]) .participant-tag {
-        background: var(--bg-elevated);
-        color: var(--text-primary);
-    }
-
-    :root:not([data-theme]) .participant-tag.host {
-        background: var(--status-warning-bg);
-        color: var(--warning);
-    }
-
-    :root:not([data-theme]) .badge-status.waiting {
-        background: var(--status-success-bg);
-        color: var(--success-light);
-    }
-
-    :root:not([data-theme]) .badge-status.playing {
-        background: var(--status-warning-bg);
-        color: var(--warning);
-    }
-
-    :root:not([data-theme]) .join-form-card {
-        background: var(--bg-surface);
-    }
-
-    :root:not([data-theme]) .join-form-card h3,
-    :root:not([data-theme]) .join-form-card .form-group label {
-        color: var(--text-primary);
-    }
-
-    :root:not([data-theme]) .join-form-card .form-group input {
-        background: var(--bg-elevated);
-        color: var(--text-primary);
-        border-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .waiting-chat {
-        background: var(--bg-surface);
-    }
-
-    :root:not([data-theme]) .waiting-chat .chat-header {
-        border-bottom-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .waiting-chat .chat-header h3 {
-        color: var(--text-primary);
-    }
-
-    :root:not([data-theme]) .waiting-chat .chat-nickname {
-        color: var(--text-primary);
-    }
-
-    :root:not([data-theme]) .waiting-chat .chat-text {
-        color: var(--text-primary);
-    }
-
-    :root:not([data-theme]) .waiting-chat .chat-message.system .system-text {
-        background: var(--bg-elevated);
-        color: var(--text-secondary);
-    }
-
-    :root:not([data-theme]) .waiting-chat .chat-message.mine {
-        background: var(--status-primary-bg);
-    }
-
-    :root:not([data-theme]) .waiting-chat .chat-input-area {
-        border-top-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .waiting-chat .chat-input-area input {
-        background: var(--bg-elevated);
-        color: var(--text-primary);
-        border-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .troubleshoot-section {
-        border-top-color: var(--border-color);
-    }
-
-    :root:not([data-theme]) .btn-link {
-        color: var(--text-secondary);
-    }
-
-    :root:not([data-theme]) .user-answer-info {
-        background: var(--bg-elevated);
-    }
-}
-
 /* ========================================
    Mobile Multi Game Compact Layout (450px 이하)
    요청 사항:
@@ -2970,7 +2746,7 @@
 
     .answer-info-card .song-artist {
         font-size: 0.85rem !important;
-        color: var(--checker-alt-hover) !important;
+        color: var(--badge-indigo-text) !important;
     }
 
     .answer-info-card .song-meta {
@@ -3277,9 +3053,9 @@
     display: block;
     margin: 0.75rem auto 0;
     padding: 0.5rem 1rem;
-    background: transparent;
-    color: var(--overlay-white-medium);
-    border: 1px solid var(--overlay-white-subtle);
+    background: var(--border-strong);
+    color: var(--badge-danger-text);
+    border: 1px solid var(--overlay-white-medium);
     border-radius: 0.375rem;
     font-size: 0.85em;
     cursor: pointer;
@@ -3288,8 +3064,8 @@
 
 .btn-report-inline:hover {
     background: var(--overlay-white-light);
-    color: var(--overlay-white-strong);
-    border-color: var(--overlay-white-medium);
+    color: var(--overlay-white-text);
+    border-color: var(--overlay-white-strong);
 }
 
 /* ========================================

@@ -390,94 +390,6 @@
     --info-dark: #93c5fd;
 }
 
-/* ========== 시스템 설정 따르기 (저장값 없을 때) ========== */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) {
-        /* 배경 계층 */
-        --bg-base: #0f172a;
-        --bg-surface: #1e293b;
-        --bg-elevated: #334155;
-        --bg-muted: #475569;
-        --bg-color: var(--bg-base);
-        --card-bg: var(--bg-surface);
-
-        /* 텍스트 계층 */
-        --text-primary: #f1f5f9;
-        --text-secondary: #cbd5e1;
-        --text-muted: #94a3b8;
-        --text-inverse: #0f172a;
-
-        /* 테두리 */
-        --border-default: #334155;
-        --border-subtle: #1e293b;
-        --border-strong: #475569;
-        --border-color: var(--border-default);
-
-        /* 오버레이 반전 */
-        --overlay-subtle: rgba(255, 255, 255, 0.04);
-        --overlay-light: rgba(255, 255, 255, 0.08);
-        --overlay-medium: rgba(255, 255, 255, 0.16);
-        --overlay-strong: rgba(255, 255, 255, 0.32);
-        --overlay-heavy: rgba(255, 255, 255, 0.64);
-
-        /* 그림자 */
-        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-        --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
-        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
-        --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
-
-        /* 뱃지 반전 */
-        --badge-success-bg: #166534;
-        --badge-success-text: #dcfce7;
-        --badge-danger-bg: #991b1b;
-        --badge-danger-text: #fee2e2;
-        --badge-warning-bg: #92400e;
-        --badge-warning-text: #fef3c7;
-        --badge-info-bg: #1e40af;
-        --badge-info-text: #dbeafe;
-        --badge-gray-bg: #334155;
-        --badge-gray-text: #e2e8f0;
-        --badge-indigo-bg: #3730a3;
-        --badge-indigo-text: #e0e7ff;
-        --badge-pink-bg: #9d174d;
-        --badge-pink-text: #fce7f3;
-
-        /* 체커보드 패턴 (다크) */
-        --checker-base-bg: #1e293b;
-        --checker-base-hover: #3730a3;
-        --checker-alt-bg: #334155;
-        --checker-alt-hover: #475569;
-
-        /* 보조 색상 */
-        --secondary-hover: #9ca3af;
-        --correct-row-bg: #166534;
-
-        /* 입력 필드 */
-        --input-bg: #1e293b;
-        --input-border: #475569;
-        --input-placeholder: #64748b;
-
-        /* 테이블 */
-        --table-header-bg: #1e293b;
-        --table-row-hover: #334155;
-        --table-border: #475569;
-
-        /* 포디움 카드 배경 (다크) */
-        --podium-gold-bg: var(--podium-gold-bg-dark);
-        --podium-silver-bg: var(--podium-silver-bg-dark);
-        --podium-bronze-bg: var(--podium-bronze-bg-dark);
-        --podium-gold-stand: var(--podium-gold-stand-dark);
-        --podium-silver-stand: var(--podium-silver-stand-dark);
-        --podium-bronze-stand: var(--podium-bronze-stand-dark);
-
-        /* 정보 박스 (info-box) */
-        --info: #1d4ed8;
-        --info-light: #1e3a5f;
-        --info-dark: #93c5fd;
-    }
-}
-
 /* ========== 게임 페이지 다크 고정 ========== */
 .game-page {
     --bg-base: #0f172a;
@@ -721,16 +633,6 @@ button {
 
 [data-theme="dark"] .theme-icon.moon {
     display: block;
-}
-
-/* 시스템 다크모드 시 아이콘 전환 (저장값 없을 때) */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) .theme-icon.sun {
-        display: none;
-    }
-    :root:not([data-theme]) .theme-icon.moon {
-        display: block;
-    }
 }
 
 /* ========== 유틸리티 클래스 ========== */

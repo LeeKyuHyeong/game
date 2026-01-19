@@ -87,7 +87,13 @@ public class GameHostController {
             settings.setSelectedArtists(artists);
         }
 
-        int count = songService.getAvailableSongCount(settings);
+        // 레트로 모드
+        boolean isRetroMode = Boolean.TRUE.equals(request.get("isRetroMode"));
+        settings.setIsRetroMode(isRetroMode);
+
+        int count = isRetroMode
+                ? songService.getAvailableRetroSongCount(settings)
+                : songService.getAvailableSongCount(settings);
         result.put("count", count);
 
         return ResponseEntity.ok(result);
@@ -224,6 +230,10 @@ public class GameHostController {
                     List<String> selectedArtists = (List<String>) settingsMap.get("selectedArtists");
                     settings.setSelectedArtists(selectedArtists);
                 }
+                // 레트로 모드
+                if (settingsMap.get("isRetroMode") != null) {
+                    settings.setIsRetroMode((Boolean) settingsMap.get("isRetroMode"));
+                }
             }
             session.setSettings(gameSessionService.toSettingsJson(settings));
 
@@ -243,8 +253,11 @@ public class GameHostController {
                     || "ARTIST_PER_ROUND".equals(gameMode);
             if (!isPerRoundMode) {
                 // YouTube 사전 검증 포함된 노래 목록 가져오기
+                // 레트로 모드면 레트로 곡만, 아니면 일반 곡 (RETRO 제외)
                 SongService.ValidatedSongsResult validatedResult =
-                        songService.getRandomSongsWithValidation(totalRounds, settings);
+                        Boolean.TRUE.equals(settings.getIsRetroMode())
+                                ? songService.getRandomRetroSongsWithValidation(totalRounds, settings)
+                                : songService.getRandomSongsWithValidation(totalRounds, settings);
                 List<Song> songs = validatedResult.getSongs();
                 replacedCount = validatedResult.getReplacedCount();
 

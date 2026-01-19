@@ -607,6 +607,7 @@ button.btn-quit:hover {
     font-weight: 600;
     font-size: 1rem;
     margin-bottom: 0.25rem;
+    color: var(--badge-gray-text);
 }
 
 .report-option .option-desc {
