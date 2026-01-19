@@ -770,30 +770,39 @@
     width: 100%;
     display: flex;
     gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg-elevated);
+    border-radius: 1rem;
 }
 
 .game-container.fan-challenge .answer-input {
     flex: 1;
     padding: 1rem;
     font-size: 1.25rem;
-    background: var(--bg-surface);
-    border: 2px solid var(--overlay-strong);
-    border-radius: 12px;
+    background: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 0.75rem;
     color: var(--text-primary);
     text-align: center;
 }
 
-/* .game-page가 --text-primary를 흰색으로 오버라이드하므로, 흰색 배경 input에 명시적 지정 */
-.game-page .game-container.fan-challenge .answer-input {
-    color: var(--slate-800);
+.game-container.fan-challenge .answer-input::placeholder {
+    color: var(--input-placeholder);
 }
 
-.game-container.fan-challenge .answer-input::placeholder {
-    color: var(--text-muted);
+/* .game-page는 항상 다크 모드이므로 별도 처리 */
+.game-page .game-container.fan-challenge .answer-section {
+    background: var(--overlay-medium);
+}
+
+.game-page .game-container.fan-challenge .answer-input {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-primary);
 }
 
 .game-page .game-container.fan-challenge .answer-input::placeholder {
-    color: var(--slate-400);
+    color: var(--text-muted);
 }
 
 .game-container.fan-challenge .answer-input:focus {
@@ -2110,6 +2119,20 @@
     color: var(--text-primary);
 }
 
+[data-theme="dark"] .game-container.fan-challenge .answer-section {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .game-container.fan-challenge .answer-input {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .game-container.fan-challenge .answer-input::placeholder {
+    color: var(--text-muted);
+}
+
 [data-theme="dark"] .game-container.fan-challenge .modal-content {
     background: var(--bg-surface);
     color: var(--text-primary);
@@ -2329,6 +2352,20 @@
     :root:not([data-theme]) .ready-content {
         background: var(--bg-surface);
         color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .game-container.fan-challenge .answer-section {
+        background: var(--bg-surface);
+    }
+
+    :root:not([data-theme]) .game-container.fan-challenge .answer-input {
+        background: var(--bg-elevated);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    :root:not([data-theme]) .game-container.fan-challenge .answer-input::placeholder {
+        color: var(--text-muted);
     }
 
     :root:not([data-theme]) .game-container.fan-challenge .modal-content {
