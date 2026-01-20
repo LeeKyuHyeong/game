@@ -51,7 +51,7 @@ public class AdminSongController {
 
         model.addAttribute("songs", songPage.getContent());
         model.addAttribute("genres", genreService.findActiveGenres());
-        model.addAttribute("artists", songService.getArtistsWithCount());
+        model.addAttribute("artists", songService.getArtistsWithCountForAdmin());
         model.addAttribute("years", songService.getAllYears());
         model.addAttribute("currentPage", page);
         model.addAttribute("size", size);

@@ -432,6 +432,20 @@ public class SongService {
         return artists;
     }
 
+    // 아티스트 목록 조회 (곡 수 포함) - 관리자용 (전체 곡 대상, 비활성화 및 매니악 곡 포함)
+    public List<Map<String, Object>> getArtistsWithCountForAdmin() {
+        List<Object[]> results = songRepository.findAllArtistsWithCount();
+        List<Map<String, Object>> artists = new ArrayList<>();
+
+        for (Object[] row : results) {
+            Map<String, Object> artist = new HashMap<>();
+            artist.put("name", row[0]);
+            artist.put("count", ((Number) row[1]).intValue());
+            artists.add(artist);
+        }
+        return artists;
+    }
+
     // 연도 목록 조회 (곡 수 포함) - 게임용 (레트로 제외)
     public List<Map<String, Object>> getYearsWithCount() {
         List<Song> allSongs = findSongsForGame();
