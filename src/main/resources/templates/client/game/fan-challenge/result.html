@@ -240,10 +240,7 @@
                         <!-- 곡 인기도 평가 -->
                         <div th:if="${round.song != null}" class="popularity-vote-section"
                              th:data-song-id="${round.song.id}">
-                            <!-- 비로그인 상태 -->
-                            <div th:if="${!isLoggedIn}" class="vote-login-prompt">
-                                <a th:href="@{/auth/login(redirect='/game/fan-challenge/result')}" class="login-link">로그인하여 평가하기</a>
-                            </div>
+                            <!-- 비로그인 상태: 평가 UI 숨김 (로그인 후 세션 유실로 인해 링크 제거) -->
                             <!-- 로그인 상태 - 이미 평가한 경우 -->
                             <div th:if="${isLoggedIn && existingVotes != null && existingVotes.containsKey(round.song.id)}"
                                  class="vote-display"
