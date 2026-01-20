@@ -7,6 +7,7 @@ import com.kh.game.entity.GameSession;
 import com.kh.game.entity.Member;
 import com.kh.game.service.FanChallengeService;
 import com.kh.game.service.MemberService;
+import com.kh.game.service.SongPopularityVoteService;
 import com.kh.game.service.SongService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class GameFanChallengeController {
     private final FanChallengeService fanChallengeService;
     private final SongService songService;
     private final MemberService memberService;
+    private final SongPopularityVoteService songPopularityVoteService;
 
     /**
      * 설정 페이지
@@ -469,8 +471,19 @@ public class GameFanChallengeController {
                 model.addAttribute("perfectBadges", badges);
                 model.addAttribute("hasBadgeNormal", hasBadgeNormal);
                 model.addAttribute("hasBadgeHardcore", hasBadgeHardcore);
+
+                // 곡 인기도 평가 기존 투표 조회
+                List<Long> songIds = rounds.stream()
+                        .filter(r -> r.getSong() != null)
+                        .map(r -> r.getSong().getId())
+                        .toList();
+                Map<Long, Integer> existingVotes = songPopularityVoteService.getMemberVotesForSongs(member, songIds);
+                model.addAttribute("existingVotes", existingVotes);
             }
         }
+
+        // 로그인 여부
+        model.addAttribute("isLoggedIn", memberId != null);
 
         // 세션 정리
         httpSession.removeAttribute("fanChallengeSessionId");
@@ -561,6 +574,56 @@ public class GameFanChallengeController {
         }
 
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 곡 인기도 평가 제출
+     */
+    @PostMapping("/api/song/{songId}/popularity-vote")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> submitPopularityVote(
+            @PathVariable Long songId,
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        // 로그인 확인
+        Long memberId = (Long) httpSession.getAttribute("memberId");
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다");
+            return ResponseEntity.status(401).body(result);
+        }
+
+        Member member = memberService.findById(memberId).orElse(null);
+        if (member == null) {
+            result.put("success", false);
+            result.put("message", "회원 정보를 찾을 수 없습니다");
+            return ResponseEntity.status(401).body(result);
+        }
+
+        // rating 파싱
+        int rating;
+        try {
+            rating = ((Number) request.get("rating")).intValue();
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "평가 값이 올바르지 않습니다");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 투표 제출
+        result = songPopularityVoteService.submitVote(songId, member, rating);
+
+        if ((boolean) result.get("success")) {
+            result.put("ratingLabel", SongPopularityVoteService.getRatingLabel(rating));
+            return ResponseEntity.ok(result);
+        } else if (result.get("alreadyVoted") != null && (boolean) result.get("alreadyVoted")) {
+            return ResponseEntity.status(409).body(result); // Conflict
+        } else {
+            return ResponseEntity.badRequest().body(result);
+        }
     }
 
     /**

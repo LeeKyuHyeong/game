@@ -237,6 +237,46 @@
                                 <span class="column-value" th:text="${round.userAnswer}">입력한 답</span>
                             </div>
                         </div>
+                        <!-- 곡 인기도 평가 -->
+                        <div th:if="${round.song != null}" class="popularity-vote-section"
+                             th:data-song-id="${round.song.id}">
+                            <!-- 비로그인 상태 -->
+                            <div th:if="${!isLoggedIn}" class="vote-login-prompt">
+                                <a th:href="@{/login}" class="login-link">로그인하여 평가하기</a>
+                            </div>
+                            <!-- 로그인 상태 - 이미 평가한 경우 -->
+                            <div th:if="${isLoggedIn && existingVotes != null && existingVotes.containsKey(round.song.id)}"
+                                 class="vote-display"
+                                 th:data-rating="${existingVotes.get(round.song.id)}">
+                                <span class="vote-label">내 평가:</span>
+                                <span class="vote-stars">
+                                    <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                        <span th:if="${i <= existingVotes.get(round.song.id)}" class="star filled">★</span>
+                                        <span th:if="${i > existingVotes.get(round.song.id)}" class="star empty">☆</span>
+                                    </th:block>
+                                </span>
+                                <span class="vote-rating-label"
+                                      th:text="${existingVotes.get(round.song.id) == 1 ? '매우 대중적' : (existingVotes.get(round.song.id) == 2 ? '대중적' : (existingVotes.get(round.song.id) == 3 ? '보통' : (existingVotes.get(round.song.id) == 4 ? '매니악' : '매우 매니악')))}">
+                                    보통
+                                </span>
+                            </div>
+                            <!-- 로그인 상태 - 아직 평가 안 한 경우 -->
+                            <div th:if="${isLoggedIn && (existingVotes == null || !existingVotes.containsKey(round.song.id))}"
+                                 class="vote-buttons">
+                                <span class="vote-prompt">인기도 평가:</span>
+                                <div class="vote-btn-group">
+                                    <button type="button" class="vote-btn" data-rating="1" title="매우 대중적">1</button>
+                                    <button type="button" class="vote-btn" data-rating="2" title="대중적">2</button>
+                                    <button type="button" class="vote-btn" data-rating="3" title="보통">3</button>
+                                    <button type="button" class="vote-btn" data-rating="4" title="매니악">4</button>
+                                    <button type="button" class="vote-btn" data-rating="5" title="매우 매니악">5</button>
+                                </div>
+                                <div class="vote-scale-labels">
+                                    <span>대중적</span>
+                                    <span>매니악</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </th:block>
             </div>

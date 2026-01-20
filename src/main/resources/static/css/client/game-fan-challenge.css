@@ -2299,3 +2299,223 @@
 [data-theme="dark"] .gameover-message {
     color: var(--text-secondary);
 }
+
+/* ========================================
+   곡 인기도 평가 섹션
+   ======================================== */
+.popularity-vote-section {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--border-color);
+}
+
+/* 비로그인 상태 - 로그인 유도 */
+.vote-login-prompt {
+    text-align: center;
+}
+
+.vote-login-prompt .login-link {
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.vote-login-prompt .login-link:hover {
+    text-decoration: underline;
+}
+
+/* 평가 버튼 영역 */
+.vote-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.vote-prompt {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.vote-btn-group {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+}
+
+.vote-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.vote-btn:hover:not(:disabled) {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.vote-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.vote-scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    padding: 0 0.25rem;
+}
+
+/* 평가 완료 표시 */
+.vote-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.vote-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.vote-stars {
+    display: flex;
+    gap: 0.125rem;
+}
+
+.vote-stars .star {
+    font-size: 0.9rem;
+}
+
+.vote-stars .star.filled {
+    color: var(--warning);
+}
+
+.vote-stars .star.empty {
+    color: var(--text-muted);
+}
+
+.vote-rating-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.75rem;
+}
+
+/* 평가 제출 애니메이션 */
+.vote-submitted {
+    animation: voteSubmit 0.3s ease;
+}
+
+@keyframes voteSubmit {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ========================================
+   곡 인기도 평가 - 다크 모드
+   ======================================== */
+[data-theme="dark"] .popularity-vote-section {
+    border-top-color: var(--border-color);
+}
+
+[data-theme="dark"] .vote-btn {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .vote-btn:hover:not(:disabled) {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .vote-rating-label {
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+}
+
+/* ========================================
+   곡 인기도 평가 - 태블릿 (768px 이하)
+   ======================================== */
+@media (max-width: 768px) {
+    .popularity-vote-section {
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+    }
+
+    .vote-btn {
+        width: 1.5rem;
+        height: 1.5rem;
+        font-size: 0.7rem;
+    }
+
+    .vote-stars .star {
+        font-size: 0.8rem;
+    }
+}
+
+/* ========================================
+   곡 인기도 평가 - 모바일 (480px 이하)
+   ======================================== */
+@media (max-width: 480px) {
+    .popularity-vote-section {
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+    }
+
+    .vote-prompt {
+        font-size: 0.65rem;
+    }
+
+    .vote-btn-group {
+        gap: 0.375rem;
+    }
+
+    .vote-btn {
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.75rem;
+    }
+
+    .vote-scale-labels {
+        font-size: 0.55rem;
+    }
+
+    .vote-display {
+        gap: 0.375rem;
+    }
+
+    .vote-label {
+        font-size: 0.65rem;
+    }
+
+    .vote-stars .star {
+        font-size: 0.85rem;
+    }
+
+    .vote-rating-label {
+        font-size: 0.65rem;
+        padding: 0.1rem 0.375rem;
+    }
+}
