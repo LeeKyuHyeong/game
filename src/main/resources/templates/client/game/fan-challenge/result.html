@@ -242,7 +242,7 @@
                              th:data-song-id="${round.song.id}">
                             <!-- 비로그인 상태 -->
                             <div th:if="${!isLoggedIn}" class="vote-login-prompt">
-                                <a th:href="@{/auth/login}" class="login-link">로그인하여 평가하기</a>
+                                <a th:href="@{/auth/login(redirect='/game/fan-challenge/result')}" class="login-link">로그인하여 평가하기</a>
                             </div>
                             <!-- 로그인 상태 - 이미 평가한 경우 -->
                             <div th:if="${isLoggedIn && existingVotes != null && existingVotes.containsKey(round.song.id)}"
