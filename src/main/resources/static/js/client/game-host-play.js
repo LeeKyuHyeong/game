@@ -37,6 +37,19 @@ document.addEventListener('DOMContentLoaded', async function() {
                     pauseAudio();
                 } else if (e.data === 1) { // PLAYING
                     videoReady = true;
+                    // loadAndPlay 성공 시 UI 업데이트 (CUED 건너뛰는 경우 대응)
+                    if (pendingAutoPlay) {
+                        console.log('자동 재생 시작 (PLAYING 상태)');
+                        pendingAutoPlay = false;
+                        isPlaying = true;
+                        document.getElementById('playBtn').innerHTML = '<span class="pause-icon">❚❚</span>';
+                        document.getElementById('musicIcon').textContent = '🎶';
+                        document.getElementById('musicIcon').classList.add('playing');
+                        document.getElementById('playerStatus').textContent = '재생 중...';
+                        if (!progressInterval) {
+                            progressInterval = setInterval(updateProgress, 100);
+                        }
+                    }
                 }
             },
             onError: function(e, errorInfo) {
@@ -510,15 +523,11 @@ function loadAudioSource() {
 
     if (currentSong.youtubeVideoId && youtubePlayerReady) {
         if (shouldAutoPlay) {
-            // 자동 재생: loadAndPlay 사용 (loadVideoById)
-            console.log('자동 재생 시작 (라운드:', currentRound, ')');
+            // 자동 재생: pendingAutoPlay 설정 후 loadAndPlay
+            // CUED 또는 PLAYING 상태에서 UI 업데이트 (네트워크 지연 대응)
+            pendingAutoPlay = true;
+            console.log('자동 재생 대기 (라운드:', currentRound, ')');
             YouTubePlayerManager.loadAndPlay(currentSong.youtubeVideoId, currentSong.startTime || 0);
-            isPlaying = true;
-            document.getElementById('playBtn').innerHTML = '<span class="pause-icon">❚❚</span>';
-            document.getElementById('musicIcon').textContent = '🎶';
-            document.getElementById('musicIcon').classList.add('playing');
-            document.getElementById('playerStatus').textContent = '재생 중...';
-            progressInterval = setInterval(updateProgress, 100);
         } else {
             // 수동 재생: loadVideo 사용 (cueVideoById)
             YouTubePlayerManager.loadVideo(currentSong.youtubeVideoId, currentSong.startTime || 0);
