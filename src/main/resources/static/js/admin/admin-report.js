@@ -46,14 +46,13 @@ async function processReport() {
         });
 
         const result = await response.json();
-        showToast(result.message);
+        showToast(result.message, result.success ? 'success' : 'error');
 
         if (result.success) {
-            window.location.reload();
+            setTimeout(() => window.location.reload(), 1000);
         }
     } catch (error) {
-        // console.error('처리 오류:', error);
-        showToast('처리 중 오류가 발생했습니다.');
+        showToast('처리 중 오류가 발생했습니다.', 'error');
     }
 }
 
@@ -68,14 +67,13 @@ async function disableSong(reportId) {
         });
 
         const result = await response.json();
-        showToast(result.message);
+        showToast(result.message, result.success ? 'success' : 'error');
 
         if (result.success) {
-            window.location.reload();
+            setTimeout(() => window.location.reload(), 1000);
         }
     } catch (error) {
-        // console.error('비활성화 오류:', error);
-        showToast('비활성화 중 오류가 발생했습니다.');
+        showToast('비활성화 중 오류가 발생했습니다.', 'error');
     }
 }
 
