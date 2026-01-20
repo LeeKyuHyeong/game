@@ -124,16 +124,46 @@
             </div>
         </div>
 
-        <!-- Rank Type Tabs -->
-        <div class="rank-type-tabs">
-            <a th:href="@{/admin/history/ranking(rankType='guess')}" th:classappend="${rankType == 'guess' or rankType == null} ? 'active'" class="rank-type-tab">🎵 내가맞추기</a>
-            <a th:href="@{/admin/history/ranking(rankType='multi')}" th:classappend="${rankType == 'multi'} ? 'active'" class="rank-type-tab">👥 멀티게임</a>
-            <a th:href="@{/admin/history/ranking(rankType='weekly')}" th:classappend="${rankType == 'weekly'} ? 'active'" class="rank-type-tab">📅 주간</a>
-            <a th:href="@{/admin/history/ranking(rankType='best')}" th:classappend="${rankType == 'best'} ? 'active'" class="rank-type-tab">⭐ 최고기록</a>
+        <!-- Rank Type Tabs - 내가맞추기 -->
+        <div class="rank-tab-group">
+            <span class="rank-tab-label">내가맞추기</span>
+            <div class="rank-type-tabs">
+                <a th:href="@{/admin/history/ranking(rankType='guess')}" th:classappend="${rankType == 'guess' or rankType == null} ? 'active'" class="rank-type-tab">🎵 총점</a>
+                <a th:href="@{/admin/history/ranking(rankType='weekly')}" th:classappend="${rankType == 'weekly'} ? 'active'" class="rank-type-tab">📅 주간</a>
+                <a th:href="@{/admin/history/ranking(rankType='best')}" th:classappend="${rankType == 'best'} ? 'active'" class="rank-type-tab">⭐ 최고기록</a>
+            </div>
         </div>
 
-        <!-- TOP 10 Rankers (Non-Multi) - Desktop -->
-        <div class="top-rankers desktop-only" th:if="${!#lists.isEmpty(memberRankings) and rankType != 'multi'}">
+        <!-- Rank Type Tabs - 레트로 -->
+        <div class="rank-tab-group">
+            <span class="rank-tab-label">레트로</span>
+            <div class="rank-type-tabs">
+                <a th:href="@{/admin/history/ranking(rankType='retro')}" th:classappend="${rankType == 'retro'} ? 'active'" class="rank-type-tab">🕰️ 총점</a>
+                <a th:href="@{/admin/history/ranking(rankType='retroWeekly')}" th:classappend="${rankType == 'retroWeekly'} ? 'active'" class="rank-type-tab">📅 주간</a>
+                <a th:href="@{/admin/history/ranking(rankType='retroBest')}" th:classappend="${rankType == 'retroBest'} ? 'active'" class="rank-type-tab">⭐ 최고기록</a>
+            </div>
+        </div>
+
+        <!-- Rank Type Tabs - 멀티게임 -->
+        <div class="rank-tab-group">
+            <span class="rank-tab-label">멀티게임</span>
+            <div class="rank-type-tabs">
+                <a th:href="@{/admin/history/ranking(rankType='multi')}" th:classappend="${rankType == 'multi'} ? 'active'" class="rank-type-tab">👥 LP티어</a>
+                <a th:href="@{/admin/history/ranking(rankType='weeklyMulti')}" th:classappend="${rankType == 'weeklyMulti'} ? 'active'" class="rank-type-tab">📅 주간</a>
+            </div>
+        </div>
+
+        <!-- Rank Type Tabs - 팬챌린지 -->
+        <div class="rank-tab-group">
+            <span class="rank-tab-label">팬챌린지</span>
+            <div class="rank-type-tabs">
+                <a th:href="@{/admin/history/ranking(rankType='fan')}" th:classappend="${rankType == 'fan'} ? 'active'" class="rank-type-tab">🎤 아티스트별</a>
+                <a th:href="@{/admin/history/ranking(rankType='fanPerfect')}" th:classappend="${rankType == 'fanPerfect'} ? 'active'" class="rank-type-tab">🏆 퍼펙트</a>
+            </div>
+        </div>
+
+        <!-- TOP 10 Rankers (내가맞추기/주간/최고기록) - Desktop -->
+        <div class="top-rankers desktop-only" th:if="${!#lists.isEmpty(memberRankings) and (rankType == 'guess' or rankType == 'weekly' or rankType == 'best')}">
             <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 10}">
                 <div class="ranker-card" th:classappend="${idx.index == 0} ? 'top-1' : (${idx.index == 1} ? 'top-2' : (${idx.index == 2} ? 'top-3' : ''))">
                     <div class="ranker-rank">
@@ -144,10 +174,59 @@
                     </div>
                     <div class="ranker-tier-badge" th:if="${rankType != 'best'}" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</div>
                     <div class="ranker-nickname" th:text="${member.nickname}">닉네임</div>
-                    <div class="ranker-score" th:text="${rankType == 'best'} ? (${member.bestGuessScore} + '점') : (${member.totalScore} + '점')">0점</div>
+                    <div class="ranker-score">
+                        <span th:if="${rankType == 'best'}" th:text="${member.bestGuessScore} + '점'">0점</span>
+                        <span th:if="${rankType == 'guess'}" th:text="${member.guessScore} + '점'">0점</span>
+                        <span th:if="${rankType == 'weekly'}" th:text="${member.weeklyGuessScore} + '점'">0점</span>
+                    </div>
                     <div class="ranker-stats">
-                        게임 <span th:text="${member.totalGames}">0</span>회 |
-                        정답률 <span th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)}">0</span>%
+                        게임 <span th:text="${rankType == 'weekly'} ? ${member.weeklyGuessGames} : ${member.guessGames}">0</span>회 |
+                        정답률 <span th:text="${#numbers.formatDecimal(member.guessAccuracyRate, 0, 1)}">0</span>%
+                    </div>
+                </div>
+            </th:block>
+        </div>
+
+        <!-- TOP 10 Rankers (레트로) - Desktop -->
+        <div class="top-rankers desktop-only" th:if="${!#lists.isEmpty(memberRankings) and (rankType == 'retro' or rankType == 'retroWeekly' or rankType == 'retroBest')}">
+            <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 10}">
+                <div class="ranker-card" th:classappend="${idx.index == 0} ? 'top-1' : (${idx.index == 1} ? 'top-2' : (${idx.index == 2} ? 'top-3' : ''))">
+                    <div class="ranker-rank">
+                        <span th:if="${idx.index == 0}">🥇 1위</span>
+                        <span th:if="${idx.index == 1}">🥈 2위</span>
+                        <span th:if="${idx.index == 2}">🥉 3위</span>
+                        <span th:if="${idx.index > 2}" th:text="${idx.index + 1} + '위'"></span>
+                    </div>
+                    <div class="ranker-tier-badge" th:if="${rankType != 'retroBest'}" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</div>
+                    <div class="ranker-nickname" th:text="${member.nickname}">닉네임</div>
+                    <div class="ranker-score">
+                        <span th:if="${rankType == 'retroBest'}" th:text="${member.retroBest30Score != null} ? ${member.retroBest30Score} + '점' : '0점'">0점</span>
+                        <span th:if="${rankType == 'retro'}" th:text="${member.retroScore} + '점'">0점</span>
+                        <span th:if="${rankType == 'retroWeekly'}" th:text="${member.weeklyRetroScore} + '점'">0점</span>
+                    </div>
+                    <div class="ranker-stats">
+                        게임 <span th:text="${rankType == 'retroWeekly'} ? ${member.weeklyRetroGames} : ${member.retroGames}">0</span>회 |
+                        정답률 <span th:text="${#numbers.formatDecimal(member.retroAccuracyRate, 0, 1)}">0</span>%
+                    </div>
+                </div>
+            </th:block>
+        </div>
+
+        <!-- TOP 10 Rankers (멀티 주간) - Desktop -->
+        <div class="top-rankers desktop-only" th:if="${!#lists.isEmpty(memberRankings) and rankType == 'weeklyMulti'}">
+            <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 10}">
+                <div class="ranker-card" th:classappend="${idx.index == 0} ? 'top-1' : (${idx.index == 1} ? 'top-2' : (${idx.index == 2} ? 'top-3' : ''))">
+                    <div class="ranker-rank">
+                        <span th:if="${idx.index == 0}">🥇 1위</span>
+                        <span th:if="${idx.index == 1}">🥈 2위</span>
+                        <span th:if="${idx.index == 2}">🥉 3위</span>
+                        <span th:if="${idx.index > 2}" th:text="${idx.index + 1} + '위'"></span>
+                    </div>
+                    <div class="ranker-tier-badge" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</div>
+                    <div class="ranker-nickname" th:text="${member.nickname}">닉네임</div>
+                    <div class="ranker-score" th:text="${member.weeklyMultiScore} + '점'">0점</div>
+                    <div class="ranker-stats">
+                        게임 <span th:text="${member.weeklyMultiGames}">0</span>회
                     </div>
                 </div>
             </th:block>
@@ -174,8 +253,71 @@
             </th:block>
         </div>
 
-        <!-- Mobile Card List (Non-Multi) -->
-        <div class="mobile-card-list" th:if="${!#lists.isEmpty(memberRankings) and rankType != 'multi'}">
+        <!-- 팬챌린지 인기 아티스트 목록 -->
+        <div class="fan-artist-list desktop-only" th:if="${rankType == 'fan' and fanArtistStats != null and !#lists.isEmpty(fanArtistStats)}">
+            <h3>인기 아티스트 TOP 20</h3>
+            <div class="artist-grid">
+                <th:block th:each="stat, idx : ${fanArtistStats}">
+                    <a th:href="@{/admin/history/ranking(rankType='fan', artist=${stat['artist']})}"
+                       class="artist-card" th:classappend="${selectedArtist == stat['artist']} ? 'selected' : ''">
+                        <div class="artist-rank" th:text="${idx.index + 1}">1</div>
+                        <div class="artist-name" th:text="${stat['artist']}">아티스트</div>
+                        <div class="artist-count" th:text="'도전 ' + ${stat['challengeCount']} + '회'">도전 0회</div>
+                    </a>
+                </th:block>
+            </div>
+        </div>
+
+        <!-- 팬챌린지 아티스트별 랭킹 -->
+        <div class="fan-ranking-section desktop-only" th:if="${rankType == 'fan' and selectedArtist != null and !#lists.isEmpty(fanRankings)}">
+            <h3 th:text="'🎤 ' + ${selectedArtist} + ' 챌린지 랭킹'">아티스트 랭킹</h3>
+            <div class="top-rankers">
+                <th:block th:each="record, idx : ${fanRankings}" th:if="${idx.index < 10}">
+                    <div class="ranker-card" th:classappend="${idx.index == 0} ? 'top-1' : (${idx.index == 1} ? 'top-2' : (${idx.index == 2} ? 'top-3' : ''))">
+                        <div class="ranker-rank">
+                            <span th:if="${idx.index == 0}">🥇 1위</span>
+                            <span th:if="${idx.index == 1}">🥈 2위</span>
+                            <span th:if="${idx.index == 2}">🥉 3위</span>
+                            <span th:if="${idx.index > 2}" th:text="${idx.index + 1} + '위'"></span>
+                        </div>
+                        <div class="ranker-nickname" th:text="${record.member.nickname}">닉네임</div>
+                        <div class="ranker-score">
+                            <span th:text="${record.correctCount} + '/' + ${record.totalSongs} + '곡'">0/20곡</span>
+                            <span th:if="${record.isPerfectClear}" class="perfect-badge">PERFECT</span>
+                        </div>
+                        <div class="ranker-stats" th:if="${record.bestTimeMs != null}">
+                            클리어 <span th:text="${#numbers.formatDecimal(record.bestTimeMs / 1000.0, 0, 1)}">0</span>초
+                        </div>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+
+        <!-- 팬챌린지 퍼펙트 클리어 목록 -->
+        <div class="fan-perfect-section desktop-only" th:if="${rankType == 'fanPerfect' and !#lists.isEmpty(fanRankings)}">
+            <h3>🏆 퍼펙트 클리어 현황</h3>
+            <div class="top-rankers">
+                <th:block th:each="record, idx : ${fanRankings}" th:if="${idx.index < 20}">
+                    <div class="ranker-card perfect-card">
+                        <div class="ranker-rank">
+                            <span th:text="${idx.index + 1} + '번'"></span>
+                        </div>
+                        <div class="ranker-nickname" th:text="${record.member.nickname}">닉네임</div>
+                        <div class="ranker-artist" th:text="${record.artist}">아티스트</div>
+                        <div class="ranker-score">
+                            <span class="perfect-badge">PERFECT</span>
+                            <span class="difficulty-badge" th:text="${record.difficulty}">HARDCORE</span>
+                        </div>
+                        <div class="ranker-stats" th:if="${record.achievedAt != null}">
+                            <span th:text="${#temporals.format(record.achievedAt, 'yyyy-MM-dd')}">2024-01-01</span>
+                        </div>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+
+        <!-- Mobile Card List (내가맞추기) -->
+        <div class="mobile-card-list" th:if="${!#lists.isEmpty(memberRankings) and (rankType == 'guess' or rankType == 'weekly' or rankType == 'best')}">
             <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 20}">
                 <div class="mobile-rank-card" th:classappend="${idx.index < 3} ? 'top-' + (${idx.index + 1}) : ''">
                     <div class="mobile-rank-left">
@@ -190,19 +332,54 @@
                             <span class="mobile-tier-badge" th:if="${rankType != 'best'}" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</span>
                         </div>
                         <div class="mobile-rank-info">
-                            게임 <span th:text="${member.totalGames}">0</span>회 · 정답률 <span th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)}">0</span>%
+                            게임 <span th:text="${rankType == 'weekly'} ? ${member.weeklyGuessGames} : ${member.guessGames}">0</span>회 · 정답률 <span th:text="${#numbers.formatDecimal(member.guessAccuracyRate, 0, 1)}">0</span>%
                         </div>
                     </div>
                     <div class="mobile-rank-right">
-                        <span class="mobile-rank-score" th:text="${rankType == 'best'} ? (${#numbers.formatInteger(member.bestGuessScore, 0, 'COMMA')} + '점') : (${#numbers.formatInteger(member.totalScore, 0, 'COMMA')} + '점')">0점</span>
+                        <span class="mobile-rank-score">
+                            <span th:if="${rankType == 'best'}" th:text="${#numbers.formatInteger(member.bestGuessScore, 0, 'COMMA')} + '점'">0점</span>
+                            <span th:if="${rankType == 'guess'}" th:text="${#numbers.formatInteger(member.guessScore, 0, 'COMMA')} + '점'">0점</span>
+                            <span th:if="${rankType == 'weekly'}" th:text="${#numbers.formatInteger(member.weeklyGuessScore, 0, 'COMMA')} + '점'">0점</span>
+                        </span>
                     </div>
                 </div>
             </th:block>
             <div class="mobile-empty" th:if="${#lists.isEmpty(memberRankings)}">랭킹 데이터가 없습니다.</div>
         </div>
 
-        <!-- Mobile Card List (Multi) -->
-        <div class="mobile-card-list" th:if="${!#lists.isEmpty(memberRankings) and rankType == 'multi'}">
+        <!-- Mobile Card List (레트로) -->
+        <div class="mobile-card-list" th:if="${!#lists.isEmpty(memberRankings) and (rankType == 'retro' or rankType == 'retroWeekly' or rankType == 'retroBest')}">
+            <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 20}">
+                <div class="mobile-rank-card" th:classappend="${idx.index < 3} ? 'top-' + (${idx.index + 1}) : ''">
+                    <div class="mobile-rank-left">
+                        <span class="mobile-rank-num" th:if="${idx.index == 0}">🥇</span>
+                        <span class="mobile-rank-num" th:if="${idx.index == 1}">🥈</span>
+                        <span class="mobile-rank-num" th:if="${idx.index == 2}">🥉</span>
+                        <span class="mobile-rank-num" th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
+                    </div>
+                    <div class="mobile-rank-center">
+                        <div class="mobile-rank-name">
+                            <span th:text="${member.nickname}">닉네임</span>
+                            <span class="mobile-tier-badge" th:if="${rankType != 'retroBest'}" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</span>
+                        </div>
+                        <div class="mobile-rank-info">
+                            게임 <span th:text="${rankType == 'retroWeekly'} ? ${member.weeklyRetroGames} : ${member.retroGames}">0</span>회 · 정답률 <span th:text="${#numbers.formatDecimal(member.retroAccuracyRate, 0, 1)}">0</span>%
+                        </div>
+                    </div>
+                    <div class="mobile-rank-right">
+                        <span class="mobile-rank-score">
+                            <span th:if="${rankType == 'retroBest'}" th:text="${member.retroBest30Score != null} ? ${#numbers.formatInteger(member.retroBest30Score, 0, 'COMMA')} + '점' : '0점'">0점</span>
+                            <span th:if="${rankType == 'retro'}" th:text="${#numbers.formatInteger(member.retroScore, 0, 'COMMA')} + '점'">0점</span>
+                            <span th:if="${rankType == 'retroWeekly'}" th:text="${#numbers.formatInteger(member.weeklyRetroScore, 0, 'COMMA')} + '점'">0점</span>
+                        </span>
+                    </div>
+                </div>
+            </th:block>
+            <div class="mobile-empty" th:if="${#lists.isEmpty(memberRankings)}">랭킹 데이터가 없습니다.</div>
+        </div>
+
+        <!-- Mobile Card List (Multi / weeklyMulti) -->
+        <div class="mobile-card-list" th:if="${!#lists.isEmpty(memberRankings) and (rankType == 'multi' or rankType == 'weeklyMulti')}">
             <th:block th:each="member, idx : ${memberRankings}" th:if="${idx.index < 20}">
                 <div class="mobile-rank-card" th:classappend="${idx.index < 3} ? 'top-' + (${idx.index + 1}) : ''">
                     <div class="mobile-rank-left">
@@ -216,20 +393,55 @@
                             <span th:text="${member.nickname}">닉네임</span>
                             <span class="mobile-tier-badge" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</span>
                         </div>
-                        <div class="mobile-rank-info">
+                        <div class="mobile-rank-info" th:if="${rankType == 'multi'}">
                             1위 <span th:text="${member.multiWins}">0</span>회 · TOP3 <span th:text="${member.multiTop3}">0</span>회
+                        </div>
+                        <div class="mobile-rank-info" th:if="${rankType == 'weeklyMulti'}">
+                            게임 <span th:text="${member.weeklyMultiGames}">0</span>회
                         </div>
                     </div>
                     <div class="mobile-rank-right">
-                        <span class="mobile-rank-score" th:text="${member.multiLp} + ' LP'">0 LP</span>
+                        <span class="mobile-rank-score" th:if="${rankType == 'multi'}" th:text="${member.multiLp} + ' LP'">0 LP</span>
+                        <span class="mobile-rank-score" th:if="${rankType == 'weeklyMulti'}" th:text="${#numbers.formatInteger(member.weeklyMultiScore, 0, 'COMMA')} + '점'">0점</span>
                     </div>
                 </div>
             </th:block>
             <div class="mobile-empty" th:if="${#lists.isEmpty(memberRankings)}">랭킹 데이터가 없습니다.</div>
         </div>
 
-        <!-- Ranking Table (Non-Multi) - Desktop -->
-        <div class="ranking-table-container desktop-only" th:if="${rankType != 'multi'}">
+        <!-- Mobile Card List (팬챌린지) -->
+        <div class="mobile-card-list" th:if="${(rankType == 'fan' or rankType == 'fanPerfect') and !#lists.isEmpty(fanRankings)}">
+            <th:block th:each="record, idx : ${fanRankings}" th:if="${idx.index < 20}">
+                <div class="mobile-rank-card" th:classappend="${idx.index < 3} ? 'top-' + (${idx.index + 1}) : ''">
+                    <div class="mobile-rank-left">
+                        <span class="mobile-rank-num" th:if="${idx.index == 0}">🥇</span>
+                        <span class="mobile-rank-num" th:if="${idx.index == 1}">🥈</span>
+                        <span class="mobile-rank-num" th:if="${idx.index == 2}">🥉</span>
+                        <span class="mobile-rank-num" th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
+                    </div>
+                    <div class="mobile-rank-center">
+                        <div class="mobile-rank-name">
+                            <span th:text="${record.member.nickname}">닉네임</span>
+                            <span th:if="${record.isPerfectClear}" class="perfect-badge-mini">P</span>
+                        </div>
+                        <div class="mobile-rank-info" th:if="${rankType == 'fanPerfect'}">
+                            <span th:text="${record.artist}">아티스트</span> · <span th:text="${record.difficulty}">HARDCORE</span>
+                        </div>
+                        <div class="mobile-rank-info" th:if="${rankType == 'fan'}">
+                            <span th:text="${record.correctCount} + '/' + ${record.totalSongs} + '곡'">0/20곡</span>
+                        </div>
+                    </div>
+                    <div class="mobile-rank-right">
+                        <span class="mobile-rank-score" th:if="${record.bestTimeMs != null}" th:text="${#numbers.formatDecimal(record.bestTimeMs / 1000.0, 0, 1)} + '초'">0초</span>
+                        <span class="mobile-rank-score" th:if="${record.bestTimeMs == null}">-</span>
+                    </div>
+                </div>
+            </th:block>
+            <div class="mobile-empty" th:if="${#lists.isEmpty(fanRankings)}">랭킹 데이터가 없습니다.</div>
+        </div>
+
+        <!-- Ranking Table (내가맞추기) - Desktop -->
+        <div class="ranking-table-container desktop-only" th:if="${rankType == 'guess' or rankType == 'weekly' or rankType == 'best'}">
             <table class="member-ranking-table">
                 <thead>
                 <tr>
@@ -254,13 +466,61 @@
                         <span class="table-tier-badge" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</span>
                     </td>
                     <td th:text="${member.nickname}">닉네임</td>
-                    <td th:text="${rankType == 'best'} ? ${#numbers.formatInteger(member.bestGuessScore, 0, 'COMMA')} : ${#numbers.formatInteger(member.totalScore, 0, 'COMMA')}">0</td>
-                    <td th:text="${member.totalGames}">0</td>
-                    <td th:text="${#numbers.formatDecimal(member.accuracyRate, 0, 1)} + '%'">0%</td>
+                    <td>
+                        <span th:if="${rankType == 'best'}" th:text="${#numbers.formatInteger(member.bestGuessScore, 0, 'COMMA')}">0</span>
+                        <span th:if="${rankType == 'guess'}" th:text="${#numbers.formatInteger(member.guessScore, 0, 'COMMA')}">0</span>
+                        <span th:if="${rankType == 'weekly'}" th:text="${#numbers.formatInteger(member.weeklyGuessScore, 0, 'COMMA')}">0</span>
+                    </td>
+                    <td th:text="${rankType == 'weekly'} ? ${member.weeklyGuessGames} : ${member.guessGames}">0</td>
+                    <td th:text="${#numbers.formatDecimal(member.guessAccuracyRate, 0, 1)} + '%'">0%</td>
                     <td th:text="${member.createdAt != null} ? ${#temporals.format(member.createdAt, 'yyyy-MM-dd')} : '-'">-</td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(memberRankings)}">
-                    <td th:colspan="${rankType == 'best'} ? 6 : 7" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+                    <td th:colspan="${rankType == 'best'} ? 6 : 7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                        랭킹 데이터가 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Ranking Table (레트로) - Desktop -->
+        <div class="ranking-table-container desktop-only" th:if="${rankType == 'retro' or rankType == 'retroWeekly' or rankType == 'retroBest'}">
+            <table class="member-ranking-table">
+                <thead>
+                <tr>
+                    <th style="width: 60px;">순위</th>
+                    <th th:if="${rankType != 'retroBest'}" style="width: 80px;">티어</th>
+                    <th>닉네임</th>
+                    <th th:text="${rankType == 'retroBest'} ? '최고점수' : '점수'">점수</th>
+                    <th>게임수</th>
+                    <th>정답률</th>
+                    <th>가입일</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="member, idx : ${memberRankings}">
+                    <td>
+                        <span th:if="${idx.index == 0}" class="rank-medal">🥇</span>
+                        <span th:if="${idx.index == 1}" class="rank-medal">🥈</span>
+                        <span th:if="${idx.index == 2}" class="rank-medal">🥉</span>
+                        <span th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
+                    </td>
+                    <td th:if="${rankType != 'retroBest'}">
+                        <span class="table-tier-badge" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</span>
+                    </td>
+                    <td th:text="${member.nickname}">닉네임</td>
+                    <td>
+                        <span th:if="${rankType == 'retroBest'}" th:text="${member.retroBest30Score != null} ? ${#numbers.formatInteger(member.retroBest30Score, 0, 'COMMA')} : '0'">0</span>
+                        <span th:if="${rankType == 'retro'}" th:text="${#numbers.formatInteger(member.retroScore, 0, 'COMMA')}">0</span>
+                        <span th:if="${rankType == 'retroWeekly'}" th:text="${#numbers.formatInteger(member.weeklyRetroScore, 0, 'COMMA')}">0</span>
+                    </td>
+                    <td th:text="${rankType == 'retroWeekly'} ? ${member.weeklyRetroGames} : ${member.retroGames}">0</td>
+                    <td th:text="${#numbers.formatDecimal(member.retroAccuracyRate, 0, 1)} + '%'">0%</td>
+                    <td th:text="${member.createdAt != null} ? ${#temporals.format(member.createdAt, 'yyyy-MM-dd')} : '-'">-</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(memberRankings)}">
+                    <td th:colspan="${rankType == 'retroBest'} ? 6 : 7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
                         랭킹 데이터가 없습니다.
                     </td>
                 </tr>
@@ -300,8 +560,116 @@
                     <td th:text="${member.multiGames}">0</td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(memberRankings)}">
-                    <td colspan="7" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+                    <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
                         랭킹 데이터가 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Ranking Table (멀티 주간) - Desktop -->
+        <div class="ranking-table-container desktop-only" th:if="${rankType == 'weeklyMulti'}">
+            <table class="member-ranking-table">
+                <thead>
+                <tr>
+                    <th style="width: 60px;">순위</th>
+                    <th style="width: 100px;">LP 티어</th>
+                    <th>닉네임</th>
+                    <th>주간 점수</th>
+                    <th>주간 게임수</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="member, idx : ${memberRankings}">
+                    <td>
+                        <span th:if="${idx.index == 0}" class="rank-medal">🥇</span>
+                        <span th:if="${idx.index == 1}" class="rank-medal">🥈</span>
+                        <span th:if="${idx.index == 2}" class="rank-medal">🥉</span>
+                        <span th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
+                    </td>
+                    <td>
+                        <span class="table-tier-badge" th:classappend="${member.multiTier}" th:text="${member.multiTierDisplayName}">브론즈</span>
+                    </td>
+                    <td th:text="${member.nickname}">닉네임</td>
+                    <td th:text="${#numbers.formatInteger(member.weeklyMultiScore, 0, 'COMMA')}">0</td>
+                    <td th:text="${member.weeklyMultiGames}">0</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(memberRankings)}">
+                    <td colspan="5" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                        랭킹 데이터가 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Ranking Table (팬챌린지 아티스트별) - Desktop -->
+        <div class="ranking-table-container desktop-only" th:if="${rankType == 'fan' and selectedArtist != null}">
+            <table class="member-ranking-table">
+                <thead>
+                <tr>
+                    <th style="width: 60px;">순위</th>
+                    <th>닉네임</th>
+                    <th>정답</th>
+                    <th>클리어시간</th>
+                    <th>퍼펙트</th>
+                    <th>달성일</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="record, idx : ${fanRankings}">
+                    <td>
+                        <span th:if="${idx.index == 0}" class="rank-medal">🥇</span>
+                        <span th:if="${idx.index == 1}" class="rank-medal">🥈</span>
+                        <span th:if="${idx.index == 2}" class="rank-medal">🥉</span>
+                        <span th:if="${idx.index > 2}" th:text="${idx.index + 1}"></span>
+                    </td>
+                    <td th:text="${record.member.nickname}">닉네임</td>
+                    <td th:text="${record.correctCount} + '/' + ${record.totalSongs}">0/20</td>
+                    <td th:text="${record.bestTimeMs != null} ? ${#numbers.formatDecimal(record.bestTimeMs / 1000.0, 0, 1)} + '초' : '-'">-</td>
+                    <td>
+                        <span th:if="${record.isPerfectClear}" class="perfect-badge">PERFECT</span>
+                        <span th:if="${!record.isPerfectClear}">-</span>
+                    </td>
+                    <td th:text="${record.achievedAt != null} ? ${#temporals.format(record.achievedAt, 'yyyy-MM-dd')} : '-'">-</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(fanRankings)}">
+                    <td colspan="6" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                        랭킹 데이터가 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Ranking Table (팬챌린지 퍼펙트) - Desktop -->
+        <div class="ranking-table-container desktop-only" th:if="${rankType == 'fanPerfect'}">
+            <table class="member-ranking-table">
+                <thead>
+                <tr>
+                    <th style="width: 60px;">번호</th>
+                    <th>닉네임</th>
+                    <th>아티스트</th>
+                    <th>난이도</th>
+                    <th>클리어시간</th>
+                    <th>달성일</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="record, idx : ${fanRankings}">
+                    <td th:text="${idx.index + 1}">1</td>
+                    <td th:text="${record.member.nickname}">닉네임</td>
+                    <td th:text="${record.artist}">아티스트</td>
+                    <td>
+                        <span class="difficulty-badge" th:classappend="${record.difficulty}" th:text="${record.difficulty}">HARDCORE</span>
+                    </td>
+                    <td th:text="${record.bestTimeMs != null} ? ${#numbers.formatDecimal(record.bestTimeMs / 1000.0, 0, 1)} + '초' : '-'">-</td>
+                    <td th:text="${record.achievedAt != null} ? ${#temporals.format(record.achievedAt, 'yyyy-MM-dd')} : '-'">-</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(fanRankings)}">
+                    <td colspan="6" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                        퍼펙트 클리어 기록이 없습니다.
                     </td>
                 </tr>
                 </tbody>

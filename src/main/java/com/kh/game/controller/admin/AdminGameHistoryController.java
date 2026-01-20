@@ -1,13 +1,12 @@
 package com.kh.game.controller.admin;
 
 import com.kh.game.dto.GameSettings;
-import com.kh.game.entity.GameRound;
-import com.kh.game.entity.GameSession;
-import com.kh.game.entity.Member;
-import com.kh.game.entity.MultiTier;
+import com.kh.game.entity.*;
 import com.kh.game.service.GameSessionService;
 import com.kh.game.service.MemberService;
+import com.kh.game.service.FanChallengeService;
 import com.kh.game.repository.MemberRepository;
+import com.kh.game.repository.FanChallengeRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 @Controller
 @RequestMapping("/admin/history")
@@ -31,6 +31,8 @@ public class AdminGameHistoryController {
     private final GameSessionService gameSessionService;
     private final MemberService memberService;
     private final MemberRepository memberRepository;
+    private final FanChallengeRecordRepository fanChallengeRecordRepository;
+    private final FanChallengeService fanChallengeService;
 
     @GetMapping
     public String list(@RequestParam(defaultValue = "0") int page,
@@ -117,6 +119,7 @@ public class AdminGameHistoryController {
     @GetMapping("/ranking")
     public String ranking(
             @RequestParam(defaultValue = "guess") String rankType,
+            @RequestParam(required = false) String artist,
             Model model) {
 
         // 멀티게임 LP 티어 분포 조회
@@ -141,13 +144,15 @@ public class AdminGameHistoryController {
         }
 
         // 랭킹 타입에 따른 회원 조회
-        List<Member> memberRankings;
+        List<Member> memberRankings = new ArrayList<>();
+        List<FanChallengeRecord> fanRankings = new ArrayList<>();
+        List<Map<String, Object>> fanArtistStats = new ArrayList<>();
+
         switch (rankType) {
             case "guess":
                 memberRankings = memberService.getGuessRankingByScore(50);
                 break;
             case "multi":
-                // LP 티어 기준으로 변경
                 memberRankings = memberService.getMultiTierRanking(50);
                 break;
             case "weekly":
@@ -156,6 +161,45 @@ public class AdminGameHistoryController {
             case "best":
                 memberRankings = memberService.getGuessBestScoreRanking(50);
                 break;
+            // 레트로 게임 랭킹
+            case "retro":
+                memberRankings = memberService.getRetroRankingByScore(50);
+                break;
+            case "retroWeekly":
+                memberRankings = memberService.getWeeklyRetroRankingByScore(50);
+                break;
+            case "retroBest":
+                memberRankings = memberService.getRetroBest30Ranking(50);
+                break;
+            // 멀티게임 주간
+            case "weeklyMulti":
+                memberRankings = memberService.getWeeklyMultiRankingByScore(50);
+                break;
+            // 팬챌린지 랭킹
+            case "fan":
+                // 인기 아티스트 목록 조회
+                List<Object[]> popularArtists = fanChallengeRecordRepository.findPopularArtists(PageRequest.of(0, 20));
+                for (Object[] row : popularArtists) {
+                    Map<String, Object> stat = new HashMap<>();
+                    stat.put("artist", row[0]);
+                    stat.put("challengeCount", row[1]);
+                    // 퍼펙트 클리어 수 조회
+                    long perfectCount = fanChallengeRecordRepository.countPerfectClears();
+                    stat.put("perfectCount", perfectCount);
+                    fanArtistStats.add(stat);
+                }
+                // 특정 아티스트 선택 시 해당 아티스트 랭킹 조회
+                if (artist != null && !artist.isEmpty()) {
+                    fanRankings = fanChallengeRecordRepository.findTopByArtist(artist, PageRequest.of(0, 50));
+                }
+                model.addAttribute("fanArtistStats", fanArtistStats);
+                model.addAttribute("selectedArtist", artist);
+                break;
+            case "fanPerfect":
+                // 퍼펙트 클리어 기록만 조회
+                Page<FanChallengeRecord> perfectPage = fanChallengeRecordRepository.findByIsPerfectClear(true, PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "achievedAt")));
+                fanRankings = perfectPage.getContent();
+                break;
             default:
                 memberRankings = memberService.getGuessRankingByScore(50);
         }
@@ -163,6 +207,7 @@ public class AdminGameHistoryController {
         model.addAttribute("multiTierDistribution", multiTierDistribution);
         model.addAttribute("totalMultiPlayers", totalMultiPlayers);
         model.addAttribute("memberRankings", memberRankings);
+        model.addAttribute("fanRankings", fanRankings);
         model.addAttribute("rankType", rankType);
         model.addAttribute("menu", "ranking");
 
