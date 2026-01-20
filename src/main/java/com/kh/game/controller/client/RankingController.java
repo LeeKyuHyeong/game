@@ -38,7 +38,6 @@ public class RankingController {
 
         // 주간 랭킹
         model.addAttribute("weeklyGuessRanking", memberService.getWeeklyGuessRankingByScore(20));
-        model.addAttribute("weeklyMultiRanking", memberService.getWeeklyMultiRankingByScore(20));
 
         // 최고 기록 랭킹
         model.addAttribute("guessBestRanking", memberService.getGuessBestScoreRanking(20));

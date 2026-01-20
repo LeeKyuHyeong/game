@@ -92,6 +92,7 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
             FROM game_session gs
             JOIN member m ON gs.member_id = m.id
             WHERE gs.total_rounds = 30
+              AND gs.game_type = 'SOLO_GUESS'
               AND gs.status = 'COMPLETED'
               AND gs.member_id IS NOT NULL
               AND m.status = 'ACTIVE'
@@ -126,6 +127,7 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
             FROM game_session gs
             JOIN member m ON gs.member_id = m.id
             WHERE gs.total_rounds = 30
+              AND gs.game_type = 'SOLO_GUESS'
               AND gs.status = 'COMPLETED'
               AND gs.member_id IS NOT NULL
               AND m.status = 'ACTIVE'
@@ -160,6 +162,7 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
             FROM game_session gs
             JOIN member m ON gs.member_id = m.id
             WHERE gs.total_rounds = 30
+              AND gs.game_type = 'SOLO_GUESS'
               AND gs.status = 'COMPLETED'
               AND gs.member_id IS NOT NULL
               AND m.status = 'ACTIVE'
@@ -183,6 +186,7 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
         FROM game_session gs
         WHERE gs.member_id = :memberId
           AND gs.total_rounds = 30
+          AND gs.game_type = 'SOLO_GUESS'
           AND gs.status = 'COMPLETED'
           AND gs.started_at >= :periodStart
         ORDER BY gs.total_score DESC, duration_seconds ASC
@@ -203,6 +207,7 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
         FROM game_session gs
         WHERE gs.member_id = :memberId
           AND gs.total_rounds = 30
+          AND gs.game_type = 'SOLO_GUESS'
           AND gs.status = 'COMPLETED'
         ORDER BY gs.total_score DESC, duration_seconds ASC
         LIMIT 1
@@ -220,6 +225,7 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
             FROM game_session gs
             WHERE gs.member_id = :memberId
               AND gs.total_rounds = 30
+              AND gs.game_type = 'SOLO_GUESS'
               AND gs.status = 'COMPLETED'
               AND gs.started_at >= :periodStart
             ORDER BY gs.total_score DESC, duration_seconds ASC
@@ -238,6 +244,7 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
             FROM game_session gs
             JOIN member m ON gs.member_id = m.id
             WHERE gs.total_rounds = 30
+              AND gs.game_type = 'SOLO_GUESS'
               AND gs.status = 'COMPLETED'
               AND gs.member_id IS NOT NULL
               AND gs.member_id != :memberId
@@ -262,6 +269,7 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
         FROM game_session gs
         JOIN member m ON gs.member_id = m.id
         WHERE gs.total_rounds = 30
+          AND gs.game_type = 'SOLO_GUESS'
           AND gs.status = 'COMPLETED'
           AND gs.member_id IS NOT NULL
           AND m.status = 'ACTIVE'
@@ -277,6 +285,7 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
         FROM game_session gs
         JOIN member m ON gs.member_id = m.id
         WHERE gs.total_rounds = 30
+          AND gs.game_type = 'SOLO_GUESS'
           AND gs.status = 'COMPLETED'
           AND gs.member_id IS NOT NULL
           AND m.status = 'ACTIVE'
