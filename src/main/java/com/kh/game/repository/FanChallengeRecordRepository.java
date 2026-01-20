@@ -128,4 +128,18 @@ public interface FanChallengeRecordRepository extends JpaRepository<FanChallenge
     // 전체 퍼펙트 클리어 수
     @Query("SELECT COUNT(r) FROM FanChallengeRecord r WHERE r.isPerfectClear = true")
     long countPerfectClears();
+
+    // ========== 글로벌 랭킹용 쿼리 (랭킹 페이지) ==========
+
+    // 퍼펙트 클리어 횟수 랭킹 (HARDCORE 기준)
+    @Query("SELECT r.member.id, COUNT(r) as cnt FROM FanChallengeRecord r " +
+           "WHERE r.isPerfectClear = true AND r.difficulty = 'HARDCORE' " +
+           "GROUP BY r.member.id ORDER BY cnt DESC")
+    List<Object[]> findPerfectClearCountRanking(Pageable pageable);
+
+    // 도전 아티스트 수 랭킹 (클리어한 고유 아티스트 수, HARDCORE 기준)
+    @Query("SELECT r.member.id, COUNT(DISTINCT r.artist) as cnt FROM FanChallengeRecord r " +
+           "WHERE r.difficulty = 'HARDCORE' " +
+           "GROUP BY r.member.id ORDER BY cnt DESC")
+    List<Object[]> findArtistClearCountRanking(Pageable pageable);
 }

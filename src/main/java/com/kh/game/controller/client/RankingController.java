@@ -1,6 +1,7 @@
 package com.kh.game.controller.client;
 
 import com.kh.game.entity.Member;
+import com.kh.game.service.FanChallengeService;
 import com.kh.game.service.GameSessionService;
 import com.kh.game.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class RankingController {
 
     private final MemberService memberService;
     private final GameSessionService gameSessionService;
+    private final FanChallengeService fanChallengeService;
 
     // 랭킹 페이지
     @GetMapping("/ranking")
@@ -65,6 +67,10 @@ public class RankingController {
             // 멀티게임 랭킹
             members = getMultiRankingMembers(type, period, limit);
             return ResponseEntity.ok(toMultiRankingResponse(members, period));
+        } else if ("retro".equals(mode)) {
+            // 레트로 게임 랭킹
+            members = getRetroRankingMembers(type, period, limit);
+            return ResponseEntity.ok(toRetroRankingResponse(members, period));
         } else {
             // 내가맞추기 랭킹 (기본값)
             members = getGuessRankingMembers(type, period, limit);
@@ -124,6 +130,27 @@ public class RankingController {
                 case "score":
                 default:
                     return memberService.getMultiRankingByScore(limit);
+            }
+        }
+    }
+
+    // 레트로 게임 랭킹 멤버 조회
+    private List<Member> getRetroRankingMembers(String type, String period, int limit) {
+        if ("weekly".equals(period)) {
+            return memberService.getWeeklyRetroRankingByScore(limit);
+        } else if ("best30".equals(period)) {
+            // 레트로 30곡 최고점 (역대)
+            return memberService.getRetroBest30Ranking(limit);
+        } else {
+            // all (누적)
+            switch (type) {
+                case "accuracy":
+                    return memberService.getRetroRankingByAccuracy(limit);
+                case "games":
+                    return memberService.getRetroRankingByGames(limit);
+                case "score":
+                default:
+                    return memberService.getRetroRankingByScore(limit);
             }
         }
     }
@@ -217,6 +244,43 @@ public class RankingController {
 
             // 멀티 LP 티어 정보 추가
             addMultiTierInfo(memberInfo, member);
+
+            // 뱃지 정보 추가
+            addBadgeInfo(memberInfo, member);
+
+            result.add(memberInfo);
+        }
+        return result;
+    }
+
+    // 레트로 게임 랭킹 응답 변환
+    private List<Map<String, Object>> toRetroRankingResponse(List<Member> members, String period) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Member member : members) {
+            Map<String, Object> memberInfo = new HashMap<>();
+            memberInfo.put("id", member.getId());
+            memberInfo.put("nickname", member.getNickname());
+
+            // 기간에 따른 점수 표시
+            if ("weekly".equals(period)) {
+                memberInfo.put("totalScore", member.getWeeklyRetroScore() != null ? member.getWeeklyRetroScore() : 0);
+                memberInfo.put("totalGames", member.getWeeklyRetroGames() != null ? member.getWeeklyRetroGames() : 0);
+                memberInfo.put("totalCorrect", member.getWeeklyRetroCorrect() != null ? member.getWeeklyRetroCorrect() : 0);
+                memberInfo.put("totalRounds", member.getWeeklyRetroRounds() != null ? member.getWeeklyRetroRounds() : 0);
+                memberInfo.put("accuracyRate", member.getWeeklyRetroAccuracyRate());
+            } else if ("best30".equals(period)) {
+                memberInfo.put("totalScore", member.getRetroBest30Score() != null ? member.getRetroBest30Score() : 0);
+                memberInfo.put("achievedAt", member.getRetroBest30At());
+                memberInfo.put("totalGames", 1);
+                memberInfo.put("accuracyRate", 0.0);
+            } else {
+                // all (누적)
+                memberInfo.put("totalScore", member.getRetroScore() != null ? member.getRetroScore() : 0);
+                memberInfo.put("totalGames", member.getRetroGames() != null ? member.getRetroGames() : 0);
+                memberInfo.put("totalCorrect", member.getRetroCorrect() != null ? member.getRetroCorrect() : 0);
+                memberInfo.put("totalRounds", member.getRetroRounds() != null ? member.getRetroRounds() : 0);
+                memberInfo.put("accuracyRate", member.getRetroAccuracyRate());
+            }
 
             // 뱃지 정보 추가
             addBadgeInfo(memberInfo, member);
@@ -381,6 +445,54 @@ public class RankingController {
             result.put("guessTotal", 0);
             result.put("guessScore", 0);
             result.put("guessGames", 0);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    // 팬 챌린지 글로벌 랭킹 API
+    @GetMapping("/api/ranking/fan-challenge")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getFanChallengeRanking(
+            @RequestParam(defaultValue = "perfect") String type,
+            @RequestParam(defaultValue = "20") int limit) {
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        if ("perfect".equals(type)) {
+            // 퍼펙트 클리어 횟수 랭킹
+            List<Object[]> rankings = fanChallengeService.getPerfectClearRanking(limit);
+            for (Object[] row : rankings) {
+                Long memberId = (Long) row[0];
+                Long perfectCount = (Long) row[1];
+
+                Member member = memberService.findById(memberId).orElse(null);
+                if (member != null) {
+                    Map<String, Object> memberInfo = new HashMap<>();
+                    memberInfo.put("id", member.getId());
+                    memberInfo.put("nickname", member.getNickname());
+                    memberInfo.put("perfectCount", perfectCount);
+                    addBadgeInfo(memberInfo, member);
+                    result.add(memberInfo);
+                }
+            }
+        } else if ("artist".equals(type)) {
+            // 도전 아티스트 수 랭킹
+            List<Object[]> rankings = fanChallengeService.getArtistClearCountRanking(limit);
+            for (Object[] row : rankings) {
+                Long memberId = (Long) row[0];
+                Long artistCount = (Long) row[1];
+
+                Member member = memberService.findById(memberId).orElse(null);
+                if (member != null) {
+                    Map<String, Object> memberInfo = new HashMap<>();
+                    memberInfo.put("id", member.getId());
+                    memberInfo.put("nickname", member.getNickname());
+                    memberInfo.put("artistCount", artistCount);
+                    addBadgeInfo(memberInfo, member);
+                    result.add(memberInfo);
+                }
+            }
         }
 
         return ResponseEntity.ok(result);

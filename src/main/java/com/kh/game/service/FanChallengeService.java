@@ -558,4 +558,24 @@ public class FanChallengeService {
         }
         return result;
     }
+
+    // ========== 글로벌 랭킹 메서드 (랭킹 페이지용) ==========
+
+    /**
+     * 퍼펙트 클리어 횟수 랭킹 (HARDCORE 기준)
+     * @return [memberId, perfectCount] 형태
+     */
+    public List<Object[]> getPerfectClearRanking(int limit) {
+        return fanChallengeRecordRepository.findPerfectClearCountRanking(
+                org.springframework.data.domain.PageRequest.of(0, limit));
+    }
+
+    /**
+     * 도전 아티스트 수 랭킹 (클리어한 고유 아티스트 수, HARDCORE 기준)
+     * @return [memberId, artistCount] 형태
+     */
+    public List<Object[]> getArtistClearCountRanking(int limit) {
+        return fanChallengeRecordRepository.findArtistClearCountRanking(
+                org.springframework.data.domain.PageRequest.of(0, limit));
+    }
 }

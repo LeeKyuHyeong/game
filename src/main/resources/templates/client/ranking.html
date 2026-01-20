@@ -13,15 +13,27 @@
 
     <main class="client-main">
         <div class="ranking-content">
-            <!-- 메인 탭 -->
-            <div class="game-mode-tabs">
+            <!-- 메인 탭 (6개) -->
+            <div class="game-mode-tabs six-tabs">
                 <button class="mode-tab active" data-mode="tier">
                     <span class="tab-icon">🏆</span>
-                    <span class="tab-label">멀티게임 티어</span>
+                    <span class="tab-label">멀티 티어</span>
+                </button>
+                <button class="mode-tab" data-mode="weeklyMulti">
+                    <span class="tab-icon">📅</span>
+                    <span class="tab-label">주간 멀티</span>
                 </button>
                 <button class="mode-tab" data-mode="best30">
                     <span class="tab-icon">🎯</span>
-                    <span class="tab-label">30개 챌린지</span>
+                    <span class="tab-label">30곡 챌린지</span>
+                </button>
+                <button class="mode-tab" data-mode="retro">
+                    <span class="tab-icon">📻</span>
+                    <span class="tab-label">레트로</span>
+                </button>
+                <button class="mode-tab" data-mode="fanChallenge">
+                    <span class="tab-icon">🎤</span>
+                    <span class="tab-label">팬 챌린지</span>
                 </button>
                 <button class="mode-tab" data-mode="stats">
                     <span class="tab-icon">📊</span>
@@ -33,6 +45,12 @@
             <div class="best-score-notice" id="tierNotice">
                 <span class="notice-icon">🏆</span>
                 <span class="notice-text">멀티게임 순위에 따라 LP를 획득하여 티어가 결정됩니다</span>
+            </div>
+
+            <!-- 주간 멀티 안내 -->
+            <div class="best-score-notice" id="weeklyMultiNotice" style="display: none;">
+                <span class="notice-icon">📅</span>
+                <span class="notice-text">이번 주 멀티게임 점수 기준 (매주 월요일 초기화)</span>
             </div>
 
             <!-- 30개 챌린지 기간 탭 -->
@@ -52,6 +70,41 @@
             <div class="best-score-notice" id="best30Notice" style="display: none;">
                 <span class="notice-icon">🎯</span>
                 <span class="notice-text">전체 랜덤 · 30곡 게임 최고점 기준</span>
+            </div>
+
+            <!-- 레트로 서브탭 -->
+            <div class="period-tabs" id="retroPeriodTabs" style="display: none;">
+                <button class="period-tab active" data-period="score">
+                    <span class="tab-label">누적 점수</span>
+                </button>
+                <button class="period-tab" data-period="best30">
+                    <span class="tab-label">30곡 최고점</span>
+                </button>
+                <button class="period-tab" data-period="weekly">
+                    <span class="tab-label">주간</span>
+                </button>
+            </div>
+
+            <!-- 레트로 안내 -->
+            <div class="best-score-notice" id="retroNotice" style="display: none;">
+                <span class="notice-icon">📻</span>
+                <span class="notice-text">2000년 이전 노래 전용 모드</span>
+            </div>
+
+            <!-- 팬 챌린지 서브탭 -->
+            <div class="period-tabs" id="fanChallengePeriodTabs" style="display: none;">
+                <button class="period-tab active" data-period="perfect">
+                    <span class="tab-label">퍼펙트 클리어</span>
+                </button>
+                <button class="period-tab" data-period="artist">
+                    <span class="tab-label">도전 아티스트</span>
+                </button>
+            </div>
+
+            <!-- 팬 챌린지 안내 -->
+            <div class="best-score-notice" id="fanChallengeNotice" style="display: none;">
+                <span class="notice-icon">🎤</span>
+                <span class="notice-text">하드코어 난이도 기준 · 아티스트별 20곡 도전</span>
             </div>
 
             <!-- 통계 서브 탭 -->

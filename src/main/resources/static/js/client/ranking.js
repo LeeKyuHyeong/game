@@ -2,8 +2,10 @@
  * client/ranking.html - 전체 랭킹
  */
 
-let currentTab = 'tier';      // tier, best30, stats
+let currentTab = 'tier';      // tier, weeklyMulti, best30, retro, fanChallenge, stats
 let best30Period = 'weekly';  // weekly, monthly, alltime
+let retroPeriod = 'score';    // score, best30, weekly
+let fanChallengePeriod = 'perfect';  // perfect, artist
 let statsType = 'score';      // score, participation, avgScorePerRound, accuracyMin10
 let participationSubType = 'games';  // games, rounds (서브탭 선택)
 let showAllBest30 = false;
@@ -27,6 +29,20 @@ function setupTabs() {
                 document.querySelectorAll('#best30PeriodTabs .period-tab').forEach(t => t.classList.remove('active'));
                 document.querySelector('#best30PeriodTabs .period-tab[data-period="weekly"]').classList.add('active');
                 showAllBest30 = false;
+            }
+
+            // 레트로 탭 초기화
+            if (currentTab === 'retro') {
+                retroPeriod = 'score';
+                document.querySelectorAll('#retroPeriodTabs .period-tab').forEach(t => t.classList.remove('active'));
+                document.querySelector('#retroPeriodTabs .period-tab[data-period="score"]').classList.add('active');
+            }
+
+            // 팬 챌린지 탭 초기화
+            if (currentTab === 'fanChallenge') {
+                fanChallengePeriod = 'perfect';
+                document.querySelectorAll('#fanChallengePeriodTabs .period-tab').forEach(t => t.classList.remove('active'));
+                document.querySelector('#fanChallengePeriodTabs .period-tab[data-period="perfect"]').classList.add('active');
             }
 
             // 통계 탭 초기화
@@ -54,6 +70,28 @@ function setupTabs() {
             this.classList.add('active');
             best30Period = this.dataset.period;
             showAllBest30 = false;
+            loadRanking();
+        });
+    });
+
+    // 레트로 기간 탭
+    document.querySelectorAll('#retroPeriodTabs .period-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            if (currentTab !== 'retro') return;
+            document.querySelectorAll('#retroPeriodTabs .period-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            retroPeriod = this.dataset.period;
+            loadRanking();
+        });
+    });
+
+    // 팬 챌린지 기간 탭
+    document.querySelectorAll('#fanChallengePeriodTabs .period-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            if (currentTab !== 'fanChallenge') return;
+            document.querySelectorAll('#fanChallengePeriodTabs .period-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            fanChallengePeriod = this.dataset.period;
             loadRanking();
         });
     });
@@ -91,21 +129,39 @@ function setupTabs() {
 
 function updateTabsVisibility() {
     const tierNotice = document.getElementById('tierNotice');
+    const weeklyMultiNotice = document.getElementById('weeklyMultiNotice');
     const best30PeriodTabs = document.getElementById('best30PeriodTabs');
     const best30Notice = document.getElementById('best30Notice');
+    const retroPeriodTabs = document.getElementById('retroPeriodTabs');
+    const retroNotice = document.getElementById('retroNotice');
+    const fanChallengePeriodTabs = document.getElementById('fanChallengePeriodTabs');
+    const fanChallengeNotice = document.getElementById('fanChallengeNotice');
     const statsTabsContainer = document.getElementById('statsTabsContainer');
 
     // 모두 숨기기
     tierNotice.style.display = 'none';
+    weeklyMultiNotice.style.display = 'none';
     best30PeriodTabs.style.display = 'none';
     best30Notice.style.display = 'none';
+    retroPeriodTabs.style.display = 'none';
+    retroNotice.style.display = 'none';
+    fanChallengePeriodTabs.style.display = 'none';
+    fanChallengeNotice.style.display = 'none';
     statsTabsContainer.style.display = 'none';
 
     if (currentTab === 'tier') {
         tierNotice.style.display = 'flex';
+    } else if (currentTab === 'weeklyMulti') {
+        weeklyMultiNotice.style.display = 'flex';
     } else if (currentTab === 'best30') {
         best30PeriodTabs.style.display = 'flex';
         best30Notice.style.display = 'flex';
+    } else if (currentTab === 'retro') {
+        retroPeriodTabs.style.display = 'flex';
+        retroNotice.style.display = 'flex';
+    } else if (currentTab === 'fanChallenge') {
+        fanChallengePeriodTabs.style.display = 'flex';
+        fanChallengeNotice.style.display = 'flex';
     } else if (currentTab === 'stats') {
         statsTabsContainer.style.display = 'flex';
     }
@@ -120,11 +176,26 @@ async function loadRanking() {
             const response = await fetch('/api/ranking?mode=multi&period=tier&limit=20');
             rankings = await response.json();
             updateTierUI(rankings);
+        } else if (currentTab === 'weeklyMulti') {
+            // 주간 멀티 랭킹
+            const response = await fetch('/api/ranking?mode=multi&period=weekly&limit=20');
+            rankings = await response.json();
+            updateWeeklyMultiUI(rankings);
         } else if (currentTab === 'best30') {
             // 30개 챌린지 랭킹
             const response = await fetch(`/api/ranking/best30?period=${best30Period}&limit=50`);
             rankings = await response.json();
             updateBest30UI(rankings);
+        } else if (currentTab === 'retro') {
+            // 레트로 랭킹
+            const response = await fetch(`/api/ranking?mode=retro&period=${retroPeriod}&limit=20`);
+            rankings = await response.json();
+            updateRetroUI(rankings);
+        } else if (currentTab === 'fanChallenge') {
+            // 팬 챌린지 랭킹
+            const response = await fetch(`/api/ranking/fan-challenge?type=${fanChallengePeriod}&limit=20`);
+            rankings = await response.json();
+            updateFanChallengeUI(rankings);
         } else if (currentTab === 'stats') {
             // 통계 랭킹 (내가맞추기 전용)
             // participation 타입은 서브탭(games/rounds)으로 실제 API 호출
@@ -210,6 +281,84 @@ function updateTierTable(rankings) {
                 <div class="stats-cell">
                     <span class="main-stat">${(member.multiLp || 0)} LP</span>
                     <span class="sub-stat">1등 ${member.multiWins || 0}회 · Top3 ${member.multiTop3 || 0}회</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 주간 멀티 UI
+function updateWeeklyMultiUI(rankings) {
+    if (rankings.length === 0) {
+        document.getElementById('topThreePodium').style.display = 'none';
+        document.getElementById('rankingTable').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'flex';
+        return;
+    }
+
+    document.getElementById('topThreePodium').style.display = 'flex';
+    document.getElementById('rankingTable').style.display = 'block';
+    document.getElementById('emptyState').style.display = 'none';
+
+    updateWeeklyMultiPodium(rankings);
+    updateWeeklyMultiTable(rankings);
+}
+
+function updateWeeklyMultiPodium(rankings) {
+    const places = [
+        { id: 'place1', index: 0 },
+        { id: 'place2', index: 1 },
+        { id: 'place3', index: 2 }
+    ];
+
+    places.forEach(place => {
+        const el = document.getElementById(place.id);
+        const member = rankings[place.index];
+
+        el.style.display = 'flex';
+        if (member) {
+            el.classList.remove('empty');
+            const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
+            el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
+            el.querySelector('.podium-value').textContent = (member.totalScore || 0).toLocaleString() + '점';
+            el.querySelector('.podium-stand').textContent = place.index + 1;
+
+            const tierEl = el.querySelector('.podium-tier');
+            tierEl.textContent = member.multiTierDisplayName || '';
+            tierEl.style.color = member.multiTierColor || '#cd7f32';
+            tierEl.className = 'podium-tier tier-badge tier-' + (member.multiTier || 'BRONZE').toLowerCase();
+            tierEl.style.display = 'block';
+        } else {
+            el.classList.add('empty');
+            el.querySelector('.podium-name').textContent = '도전하세요!';
+            el.querySelector('.podium-value').textContent = '-';
+            el.querySelector('.podium-stand').textContent = place.index + 1;
+        }
+    });
+}
+
+function updateWeeklyMultiTable(rankings) {
+    const table = document.getElementById('rankingTable');
+
+    table.innerHTML = rankings.map((member, index) => {
+        const tierName = member.multiTier || 'BRONZE';
+        const tierColor = member.multiTierColor || '#cd7f32';
+        const tierDisplayName = member.multiTierDisplayName || '';
+        const badgeEmoji = member.badgeEmoji ? `<span class="member-badge" title="${member.badgeName || ''}">${member.badgeEmoji}</span>` : '';
+
+        return `
+            <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
+                <div class="rank-cell">
+                    ${index < 3 ? getMedal(index) : (index + 1)}
+                </div>
+                <div class="name-cell">
+                    <span class="tier-badge tier-${tierName.toLowerCase()}" style="color: ${tierColor}">${tierDisplayName}</span>
+                    ${badgeEmoji}
+                    <span class="member-name">${member.nickname}</span>
+                </div>
+                <div class="stats-cell">
+                    <span class="main-stat">${(member.totalScore || 0).toLocaleString()}점</span>
+                    <span class="sub-stat">${member.totalGames || 0}게임 · ${(member.accuracyRate || 0).toFixed(1)}%</span>
                 </div>
             </div>
         `;
@@ -338,6 +487,174 @@ function toggleBest30Expand() {
         restEl.style.display = 'none';
         iconEl.textContent = '▼';
     }
+}
+
+// 레트로 UI
+function updateRetroUI(rankings) {
+    if (rankings.length === 0) {
+        document.getElementById('topThreePodium').style.display = 'none';
+        document.getElementById('rankingTable').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'flex';
+        return;
+    }
+
+    document.getElementById('topThreePodium').style.display = 'flex';
+    document.getElementById('rankingTable').style.display = 'block';
+    document.getElementById('emptyState').style.display = 'none';
+
+    updateRetroPodium(rankings);
+    updateRetroTable(rankings);
+}
+
+function updateRetroPodium(rankings) {
+    const places = [
+        { id: 'place1', index: 0 },
+        { id: 'place2', index: 1 },
+        { id: 'place3', index: 2 }
+    ];
+
+    places.forEach(place => {
+        const el = document.getElementById(place.id);
+        const member = rankings[place.index];
+
+        el.style.display = 'flex';
+        if (member) {
+            el.classList.remove('empty');
+            const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
+            el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
+            el.querySelector('.podium-value').textContent = (member.totalScore || 0).toLocaleString() + '점';
+            el.querySelector('.podium-stand').textContent = place.index + 1;
+
+            const tierEl = el.querySelector('.podium-tier');
+            tierEl.textContent = '';
+            tierEl.style.display = 'none';
+        } else {
+            el.classList.add('empty');
+            el.querySelector('.podium-name').textContent = '도전하세요!';
+            el.querySelector('.podium-value').textContent = '-';
+            el.querySelector('.podium-stand').textContent = place.index + 1;
+        }
+    });
+}
+
+function updateRetroTable(rankings) {
+    const table = document.getElementById('rankingTable');
+
+    table.innerHTML = rankings.map((member, index) => {
+        const badgeEmoji = member.badgeEmoji ? `<span class="member-badge" title="${member.badgeName || ''}">${member.badgeEmoji}</span>` : '';
+        let subStat = '';
+
+        if (retroPeriod === 'best30') {
+            const achievedDate = member.achievedAt ? new Date(member.achievedAt).toLocaleDateString('ko-KR') : '';
+            subStat = achievedDate;
+        } else {
+            subStat = `${member.totalGames || 0}게임 · ${(member.accuracyRate || 0).toFixed(1)}%`;
+        }
+
+        return `
+            <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
+                <div class="rank-cell">
+                    ${index < 3 ? getMedal(index) : (index + 1)}
+                </div>
+                <div class="name-cell">
+                    ${badgeEmoji}
+                    <span class="member-name">${member.nickname}</span>
+                </div>
+                <div class="stats-cell">
+                    <span class="main-stat">${(member.totalScore || 0).toLocaleString()}점</span>
+                    <span class="sub-stat">${subStat}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 팬 챌린지 UI
+function updateFanChallengeUI(rankings) {
+    if (rankings.length === 0) {
+        document.getElementById('topThreePodium').style.display = 'none';
+        document.getElementById('rankingTable').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'flex';
+        return;
+    }
+
+    document.getElementById('topThreePodium').style.display = 'flex';
+    document.getElementById('rankingTable').style.display = 'block';
+    document.getElementById('emptyState').style.display = 'none';
+
+    updateFanChallengePodium(rankings);
+    updateFanChallengeTable(rankings);
+}
+
+function updateFanChallengePodium(rankings) {
+    const places = [
+        { id: 'place1', index: 0 },
+        { id: 'place2', index: 1 },
+        { id: 'place3', index: 2 }
+    ];
+
+    places.forEach(place => {
+        const el = document.getElementById(place.id);
+        const member = rankings[place.index];
+
+        el.style.display = 'flex';
+        if (member) {
+            el.classList.remove('empty');
+            const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
+            el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
+
+            if (fanChallengePeriod === 'perfect') {
+                el.querySelector('.podium-value').textContent = (member.perfectCount || 0) + '회';
+            } else {
+                el.querySelector('.podium-value').textContent = (member.artistCount || 0) + '명';
+            }
+            el.querySelector('.podium-stand').textContent = place.index + 1;
+
+            const tierEl = el.querySelector('.podium-tier');
+            tierEl.textContent = '';
+            tierEl.style.display = 'none';
+        } else {
+            el.classList.add('empty');
+            el.querySelector('.podium-name').textContent = '도전하세요!';
+            el.querySelector('.podium-value').textContent = '-';
+            el.querySelector('.podium-stand').textContent = place.index + 1;
+        }
+    });
+}
+
+function updateFanChallengeTable(rankings) {
+    const table = document.getElementById('rankingTable');
+
+    table.innerHTML = rankings.map((member, index) => {
+        const badgeEmoji = member.badgeEmoji ? `<span class="member-badge" title="${member.badgeName || ''}">${member.badgeEmoji}</span>` : '';
+
+        let mainStat = '';
+        let subStat = '';
+
+        if (fanChallengePeriod === 'perfect') {
+            mainStat = (member.perfectCount || 0) + '회 퍼펙트';
+            subStat = '하드코어 클리어';
+        } else {
+            mainStat = (member.artistCount || 0) + '명 도전';
+            subStat = '고유 아티스트';
+        }
+
+        return `
+            <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
+                <div class="rank-cell">
+                    ${index < 3 ? getMedal(index) : (index + 1)}
+                </div>
+                <div class="name-cell">
+                    ${badgeEmoji}
+                    <span class="member-name">${member.nickname}</span>
+                </div>
+                <div class="stats-cell">
+                    <span class="main-stat">${mainStat}</span>
+                    <span class="sub-stat">${subStat}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 function getMedal(index) {
