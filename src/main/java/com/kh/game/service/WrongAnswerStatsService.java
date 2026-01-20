@@ -2,6 +2,7 @@ package com.kh.game.service;
 
 import com.kh.game.repository.GameRoundAttemptRepository;
 import com.kh.game.repository.GameRoundRepository;
+import com.kh.game.util.JunkInputFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -228,5 +230,248 @@ public class WrongAnswerStatsService {
         }
 
         return stats;
+    }
+
+    // ========================================
+    // 정크 데이터 필터링 적용 메서드들
+    // ========================================
+
+    /**
+     * 정크 데이터를 제외한 가장 흔한 오답 (필터링 적용)
+     */
+    public List<Map<String, Object>> getMostCommonWrongAnswersFiltered(int limit) {
+        List<Object[]> results = attemptRepository.findMostCommonWrongAnswers();
+        List<Map<String, Object>> wrongAnswers = new ArrayList<>();
+
+        int count = 0;
+        for (Object[] row : results) {
+            if (count >= limit) break;
+
+            String answer = (String) row[0];
+            // 정크 데이터 제외
+            if (JunkInputFilter.isJunkInput(answer)) {
+                continue;
+            }
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("answer", answer);
+            item.put("count", row[1]);
+            wrongAnswers.add(item);
+            count++;
+        }
+
+        return wrongAnswers;
+    }
+
+    /**
+     * 정크 데이터를 제외한 오답+곡 쌍 (필터링 적용)
+     */
+    public List<Map<String, Object>> getMostCommonWrongAnswersWithSongFiltered(int limit) {
+        List<Object[]> results = attemptRepository.findMostCommonWrongAnswersWithSong();
+        List<Map<String, Object>> wrongAnswers = new ArrayList<>();
+
+        int count = 0;
+        for (Object[] row : results) {
+            if (count >= limit) break;
+
+            String answer = (String) row[0];
+            // 정크 데이터 제외
+            if (JunkInputFilter.isJunkInput(answer)) {
+                continue;
+            }
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("answer", answer);
+            item.put("songId", row[1]);
+            item.put("songTitle", row[2]);
+            item.put("artist", row[3]);
+            item.put("count", row[4]);
+            wrongAnswers.add(item);
+            count++;
+        }
+
+        return wrongAnswers;
+    }
+
+    /**
+     * 최근 오답 (정크 데이터 제외)
+     */
+    public List<Map<String, Object>> getRecentWrongAnswersFiltered(int limit) {
+        List<Object[]> results = attemptRepository.findRecentWrongAnswers();
+        List<Map<String, Object>> recentWrong = new ArrayList<>();
+
+        int count = 0;
+        for (Object[] row : results) {
+            if (count >= limit) break;
+
+            String userAnswer = (String) row[0];
+            // 정크 데이터 제외
+            if (JunkInputFilter.isJunkInput(userAnswer)) {
+                continue;
+            }
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("userAnswer", userAnswer);
+            item.put("songTitle", row[1]);
+            item.put("artist", row[2]);
+            item.put("createdAt", row[3]);
+
+            recentWrong.add(item);
+            count++;
+        }
+
+        return recentWrong;
+    }
+
+    /**
+     * 특정 곡에 대한 오답 (정크 데이터 제외)
+     */
+    public List<Map<String, Object>> getWrongAnswersForSongFiltered(Long songId, int limit) {
+        List<Object[]> results = attemptRepository.findMostCommonWrongAnswersBySong(songId);
+        List<Map<String, Object>> wrongAnswers = new ArrayList<>();
+
+        int count = 0;
+        for (Object[] row : results) {
+            if (count >= limit) break;
+
+            String answer = (String) row[0];
+            // 정크 데이터 제외
+            if (JunkInputFilter.isJunkInput(answer)) {
+                continue;
+            }
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("answer", answer);
+            item.put("count", row[1]);
+            wrongAnswers.add(item);
+            count++;
+        }
+
+        return wrongAnswers;
+    }
+
+    // ========================================
+    // 곡별 대중성 통계 메서드들
+    // ========================================
+
+    /**
+     * 곡별 대중성 통계 (정답률 기반)
+     * - 정답률 70% 이상: 대중적 추천
+     * - 정답률 30% 이하: 매니악 추천
+     */
+    public List<Map<String, Object>> getSongPopularityStats(int minPlays, int limit) {
+        List<Object[]> results = attemptRepository.findHardestSongs(minPlays);
+        List<Map<String, Object>> stats = new ArrayList<>();
+
+        int count = 0;
+        for (Object[] row : results) {
+            if (count >= limit) break;
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("songId", row[0]);
+            item.put("title", row[1]);
+            item.put("artist", row[2]);
+
+            long correct = ((Number) row[3]).longValue();
+            long total = ((Number) row[4]).longValue();
+            double correctRate = total > 0 ? (correct * 100.0 / total) : 0;
+
+            item.put("correctCount", correct);
+            item.put("totalPlays", total);
+            item.put("correctRate", Math.round(correctRate * 10) / 10.0);
+
+            // 대중성 추천값 계산
+            String popularityRecommend;
+            if (correctRate >= 70) {
+                popularityRecommend = "POPULAR";  // 대중적
+            } else if (correctRate <= 30) {
+                popularityRecommend = "MANIAC";   // 매니악
+            } else {
+                popularityRecommend = "NEUTRAL";  // 중립
+            }
+            item.put("popularityRecommend", popularityRecommend);
+
+            stats.add(item);
+            count++;
+        }
+
+        return stats;
+    }
+
+    /**
+     * 대중성 추천이 현재 설정과 다른 곡 목록
+     * (관리자가 검토해야 할 곡들)
+     */
+    public List<Map<String, Object>> getSongPopularityMismatch(int minPlays) {
+        List<Object[]> results = gameRoundRepository.findSongPopularityMismatch(minPlays);
+        List<Map<String, Object>> mismatches = new ArrayList<>();
+
+        for (Object[] row : results) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("songId", row[0]);
+            item.put("title", row[1]);
+            item.put("artist", row[2]);
+            // isPopular가 null이면 기본값 true (대중적)로 처리
+            boolean currentIsPopular = !Boolean.FALSE.equals(row[3]);
+            item.put("currentIsPopular", currentIsPopular);
+
+            long correct = ((Number) row[4]).longValue();
+            long total = ((Number) row[5]).longValue();
+            double correctRate = total > 0 ? (correct * 100.0 / total) : 0;
+
+            item.put("correctCount", correct);
+            item.put("totalPlays", total);
+            item.put("correctRate", Math.round(correctRate * 10) / 10.0);
+
+            // 추천값
+            String recommend;
+            if (correctRate >= 70 && !currentIsPopular) {
+                recommend = "CHANGE_TO_POPULAR";
+            } else if (correctRate <= 30 && currentIsPopular) {
+                recommend = "CHANGE_TO_MANIAC";
+            } else {
+                recommend = "KEEP";
+            }
+            item.put("recommend", recommend);
+
+            // KEEP이 아닌 것만 추가
+            if (!"KEEP".equals(recommend)) {
+                mismatches.add(item);
+            }
+        }
+
+        return mismatches;
+    }
+
+    /**
+     * 정크 데이터 통계 요약
+     */
+    public Map<String, Object> getJunkDataSummary() {
+        List<Object[]> allWrong = attemptRepository.findMostCommonWrongAnswers();
+        Map<String, Object> summary = new HashMap<>();
+
+        long totalCount = 0;
+        long junkCount = 0;
+        Map<String, Long> junkTypeCount = new HashMap<>();
+
+        for (Object[] row : allWrong) {
+            String answer = (String) row[0];
+            long count = ((Number) row[1]).longValue();
+            totalCount += count;
+
+            if (JunkInputFilter.isJunkInput(answer)) {
+                junkCount += count;
+                String junkType = JunkInputFilter.getJunkType(answer);
+                junkTypeCount.merge(junkType, count, Long::sum);
+            }
+        }
+
+        summary.put("totalWrongCount", totalCount);
+        summary.put("junkCount", junkCount);
+        summary.put("validCount", totalCount - junkCount);
+        summary.put("junkRate", totalCount > 0 ? Math.round(junkCount * 1000.0 / totalCount) / 10.0 : 0);
+        summary.put("junkTypeBreakdown", junkTypeCount);
+
+        return summary;
     }
 }

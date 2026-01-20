@@ -80,4 +80,26 @@ public interface GameRoundRepository extends JpaRepository<GameRound, Long> {
             "WHERE gr.gameSession.id = :sessionId " +
             "ORDER BY gr.roundNumber ASC")
     List<GameRound> findRoundsWithAttemptsBySessionId(@Param("sessionId") Long sessionId);
+
+    // 곡별 대중성 통계 (현재 isPopular 설정과 실제 정답률 비교용)
+    @Query("SELECT gr.song.id, gr.song.title, gr.song.artist, gr.song.isPopular, " +
+            "SUM(CASE WHEN gr.isCorrect = true THEN 1 ELSE 0 END) as correct, " +
+            "COUNT(gr) as total " +
+            "FROM GameRound gr " +
+            "WHERE gr.song IS NOT NULL AND gr.status <> com.kh.game.entity.GameRound.RoundStatus.WAITING " +
+            "GROUP BY gr.song.id, gr.song.title, gr.song.artist, gr.song.isPopular " +
+            "HAVING COUNT(gr) >= :minPlays " +
+            "ORDER BY (SUM(CASE WHEN gr.isCorrect = true THEN 1 ELSE 0 END) * 1.0 / COUNT(gr)) DESC")
+    List<Object[]> findSongPopularityMismatch(@Param("minPlays") int minPlays);
+
+    // 전체 곡별 정답률 통계 (대중성 분석용)
+    @Query("SELECT gr.song.id, gr.song.title, gr.song.artist, gr.song.isPopular, gr.song.genre.name, " +
+            "SUM(CASE WHEN gr.isCorrect = true THEN 1 ELSE 0 END) as correct, " +
+            "COUNT(gr) as total " +
+            "FROM GameRound gr " +
+            "WHERE gr.song IS NOT NULL AND gr.status <> com.kh.game.entity.GameRound.RoundStatus.WAITING " +
+            "GROUP BY gr.song.id, gr.song.title, gr.song.artist, gr.song.isPopular, gr.song.genre.name " +
+            "HAVING COUNT(gr) >= :minPlays " +
+            "ORDER BY total DESC")
+    List<Object[]> findAllSongPopularityStats(@Param("minPlays") int minPlays);
 }

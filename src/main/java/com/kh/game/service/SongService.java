@@ -177,6 +177,14 @@ public class SongService {
         });
     }
 
+    @Transactional
+    public void updatePopularity(Long id, boolean isPopular) {
+        Song song = songRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("곡을 찾을 수 없습니다: " + id));
+        song.setIsPopular(isPopular);
+        songRepository.save(song);
+    }
+
     public String saveFile(MultipartFile file) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {

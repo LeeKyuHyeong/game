@@ -70,6 +70,10 @@
                 <span class="nav-icon">❌</span>
                 <span class="nav-text">오답 통계</span>
             </a>
+            <a href="/admin/stats/popularity" class="nav-item" th:classappend="${menu == 'popularity-stats'} ? 'active'">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">대중성 통계</span>
+            </a>
             <a href="/admin/login-history" class="nav-item" th:classappend="${menu == 'login-history'} ? 'active'">
                 <span class="nav-icon">🔐</span>
                 <span class="nav-text">로그인 이력</span>
