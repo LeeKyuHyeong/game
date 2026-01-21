@@ -1,38 +1,11 @@
-// Client home page scripts
+// Client home page scripts - Bento Grid Version
 let isUserLoggedIn = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
-    applyCheckerboardPattern();
     loadArtistChallengeRanking();
+    loadRankingPreview();
 });
-
-// 화면 리사이즈 시 체커보드 패턴 재적용
-window.addEventListener('resize', debounce(applyCheckerboardPattern, 150));
-
-// 체커보드 패턴 자동 적용 (열 수 자동 감지)
-function applyCheckerboardPattern() {
-    document.querySelectorAll('.mode-grid').forEach(grid => {
-        const items = grid.querySelectorAll('.grid-item');
-        if (items.length === 0) return;
-
-        // 그리드의 실제 열 수 계산
-        const gridStyle = window.getComputedStyle(grid);
-        const columns = gridStyle.gridTemplateColumns.split(' ').length;
-
-        items.forEach((item, index) => {
-            const row = Math.floor(index / columns);
-            const col = index % columns;
-
-            // 체커보드: (row + col) % 2 === 1 이면 대체 색상
-            if ((row + col) % 2 === 1) {
-                item.classList.add('checker-alt');
-            } else {
-                item.classList.remove('checker-alt');
-            }
-        });
-    });
-}
 
 // 디바운스 유틸리티
 function debounce(func, wait) {
@@ -54,6 +27,8 @@ async function checkLoginStatus() {
 
         const userInfoDesktop = document.getElementById('userInfoDesktop');
         const userInfoMobile = document.getElementById('userInfoMobile');
+        const bentoMyRank = document.getElementById('bentoMyRank');
+        const bentoRanking = document.getElementById('bentoRanking');
 
         if (result.isLoggedIn) {
             isUserLoggedIn = true;
@@ -76,7 +51,11 @@ async function checkLoginStatus() {
                 ${adminBtnMobile}
             `;
 
-            // 내 순위 섹션 표시
+            // 벤토 카드: 로그인 시 내 순위 표시, 전체 랭킹 숨김
+            if (bentoMyRank) bentoMyRank.classList.remove('hidden');
+            if (bentoRanking) bentoRanking.classList.add('hidden');
+
+            // 내 순위 로딩
             loadMyRanking();
         } else {
             isUserLoggedIn = false;
@@ -92,6 +71,9 @@ async function checkLoginStatus() {
                 <a href="/auth/login" class="mobile-menu-link">🔑 로그인</a>
                 <a href="/auth/register" class="mobile-menu-link primary">✨ 회원가입</a>
             `;
+
+            // 벤토 카드: 비로그인 시 내 순위 숨김
+            if (bentoMyRank) bentoMyRank.classList.add('hidden');
         }
     } catch (error) {
         // console.error('로그인 상태 확인 오류:', error);
@@ -120,41 +102,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 내가 맞추기 버튼 클릭 핸들러
-function handleGuessClick() {
-    if (isUserLoggedIn) {
-        // 로그인 상태면 바로 게임으로 이동
-        window.location.href = '/game/solo/guess';
-    } else {
-        // 비로그인 상태면 모달 표시
-        showLoginPrompt();
-    }
-}
-
-// 로그인 안내 모달 표시
-function showLoginPrompt() {
-    const modal = document.getElementById('loginPromptModal');
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-// 로그인 안내 모달 닫기
-function closeLoginPrompt() {
-    const modal = document.getElementById('loginPromptModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-}
-
-// 비로그인으로 진행
-function proceedWithoutLogin() {
-    closeLoginPrompt();
-    window.location.href = '/game/solo/guess';
-}
-
 async function logout() {
     try {
         await fetch('/auth/logout', { method: 'POST' });
@@ -169,28 +116,25 @@ async function loadMyRanking() {
         const response = await fetch('/api/ranking/my');
         const data = await response.json();
 
-        const section = document.getElementById('myRankSection');
         const content = document.getElementById('myRankContent');
 
-        if (!data.loggedIn) {
+        if (!data.loggedIn || !content) {
             return;
         }
 
-        section.classList.remove('hidden');
-
         if (data.guessGames > 0) {
             content.innerHTML = `
-                <div class="my-rank-info">
-                    <span class="tier-badge" style="background: ${data.tierColor}">${data.tierDisplayName}</span>
-                    <span class="rank-text">내 순위: <strong>${data.guessRank}위</strong> / ${data.guessTotal}명</span>
-                    <span class="score-text">총점 ${data.guessScore.toLocaleString()}점</span>
+                <span class="myrank-tier tier-${data.tierName?.toLowerCase() || 'bronze'}">${data.tierDisplayName}</span>
+                <div class="myrank-stats">
+                    <span class="myrank-rank">#${data.guessRank}</span>
+                    <span class="myrank-score">${data.guessScore.toLocaleString()}점</span>
                 </div>
             `;
         } else {
             content.innerHTML = `
-                <div class="my-rank-info">
-                    <span class="tier-badge" style="background: ${data.tierColor}">${data.tierDisplayName}</span>
-                    <span class="rank-text">아직 게임 기록이 없습니다</span>
+                <span class="myrank-tier tier-${data.tierName?.toLowerCase() || 'bronze'}">${data.tierDisplayName}</span>
+                <div class="myrank-stats">
+                    <span class="myrank-score">게임 기록 없음</span>
                 </div>
             `;
         }
@@ -204,10 +148,10 @@ async function loadArtistChallengeRanking() {
         const response = await fetch('/game/fan-challenge/top-artists');
         const data = await response.json();
 
-        const section = document.getElementById('artistRankingSection');
+        const section = document.getElementById('bentoArtistTop');
         const scroll = document.getElementById('artistRankingScroll');
 
-        if (!data || data.length === 0) {
+        if (!data || data.length === 0 || !section || !scroll) {
             return;
         }
 
@@ -238,8 +182,40 @@ async function loadArtistChallengeRanking() {
         scroll.innerHTML = html;
 
         // PC 드래그 스크롤 활성화
-        enableDragScroll(scroll);
+        if (typeof enableDragScroll === 'function') {
+            enableDragScroll(scroll);
+        }
     } catch (error) {
         // console.error('아티스트 챌린지 랭킹 로딩 오류:', error);
+    }
+}
+
+// 전체 랭킹 미리보기 로딩 (TOP 3)
+async function loadRankingPreview() {
+    try {
+        const response = await fetch('/api/ranking/guess?page=0&size=3&period=TOTAL');
+        const data = await response.json();
+
+        const preview = document.getElementById('rankingPreview');
+        if (!preview || !data.content || data.content.length === 0) {
+            return;
+        }
+
+        const medals = ['🥇', '🥈', '🥉'];
+        let html = '';
+
+        data.content.slice(0, 3).forEach((item, index) => {
+            html += `
+                <div class="ranking-preview-item">
+                    <span class="ranking-preview-rank">${medals[index]}</span>
+                    <span class="ranking-preview-name">${item.nickname}</span>
+                    <span class="ranking-preview-score">${item.totalScore?.toLocaleString() || 0}</span>
+                </div>
+            `;
+        });
+
+        preview.innerHTML = html;
+    } catch (error) {
+        // console.error('랭킹 미리보기 로딩 오류:', error);
     }
 }

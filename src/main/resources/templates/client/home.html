@@ -47,116 +47,141 @@
     </header>
 
     <main class="client-main">
-        <div class="home-content">
-            <div class="game-modes">
-                <div class="mode-card">
-                    <div class="mode-icon">🎤</div>
-                    <h2>솔로 게임</h2>
-                    <p>혼자서 노래 맞추기에 도전!</p>
-                    <div class="mode-grid">
-                        <!-- 게임 진행용 -->
-                        <a th:if="${menuStatus == null or menuStatus['SOLO_HOST'] == null or menuStatus['SOLO_HOST']}"
-                           href="/game/solo/host" class="grid-item">
-                            <span class="grid-icon">📺</span>
-                            <span class="grid-label">게임 진행용</span>
-                        </a>
-                        <div th:if="${menuStatus != null and menuStatus['SOLO_HOST'] != null and !menuStatus['SOLO_HOST']}"
-                             class="grid-item disabled" title="준비 중입니다">
-                            <span class="grid-icon">📺</span>
-                            <span class="grid-label">게임 진행용</span>
-                            <span class="coming-soon-badge">준비 중</span>
-                        </div>
-
-                        <!-- 내가 맞추기 -->
-                        <button th:if="${menuStatus == null or menuStatus['SOLO_GUESS'] == null or menuStatus['SOLO_GUESS']}"
-                                type="button" class="grid-item" onclick="handleGuessClick()">
-                            <span class="grid-icon">🎯</span>
-                            <span class="grid-label">내가 맞추기</span>
-                        </button>
-                        <div th:if="${menuStatus != null and menuStatus['SOLO_GUESS'] != null and !menuStatus['SOLO_GUESS']}"
-                             class="grid-item disabled" title="준비 중입니다">
-                            <span class="grid-icon">🎯</span>
-                            <span class="grid-label">내가 맞추기</span>
-                            <span class="coming-soon-badge">준비 중</span>
-                        </div>
-
-                        <!-- 아티스트 챌린지 -->
-                        <a th:if="${menuStatus == null or menuStatus['FAN_CHALLENGE'] == null or menuStatus['FAN_CHALLENGE']}"
-                           href="/game/fan-challenge" class="grid-item">
-                            <span class="grid-icon">🏆</span>
-                            <span class="grid-label">아티스트 챌린지</span>
-                        </a>
-                        <div th:if="${menuStatus != null and menuStatus['FAN_CHALLENGE'] != null and !menuStatus['FAN_CHALLENGE']}"
-                             class="grid-item disabled" title="20곡 이상 보유한 아티스트만 도전 가능">
-                            <span class="grid-icon">🏆</span>
-                            <span class="grid-label">아티스트 챌린지</span>
-                            <span class="coming-soon-badge">준비 중</span>
-                        </div>
-
-                        <!-- 장르 챌린지 -->
-                        <a th:if="${menuStatus == null or menuStatus['GENRE_CHALLENGE'] == null or menuStatus['GENRE_CHALLENGE']}"
-                           href="/game/genre-challenge" class="grid-item">
-                            <span class="grid-icon">🎸</span>
-                            <span class="grid-label">장르 챌린지</span>
-                        </a>
-                        <div th:if="${menuStatus != null and menuStatus['GENRE_CHALLENGE'] != null and !menuStatus['GENRE_CHALLENGE']}"
-                             class="grid-item disabled" title="10곡 이상 보유한 장르만 도전 가능">
-                            <span class="grid-icon">🎸</span>
-                            <span class="grid-label">장르 챌린지</span>
-                            <span class="coming-soon-badge">준비 중</span>
-                        </div>
-
-                        <!-- 레트로 챌린지 -->
-                        <a th:if="${menuStatus == null or menuStatus['RETRO'] == null or menuStatus['RETRO']}"
-                           href="/game/retro" class="grid-item">
-                            <span class="grid-icon">📻</span>
-                            <span class="grid-label">레트로 챌린지</span>
-                        </a>
-                        <div th:if="${menuStatus != null and menuStatus['RETRO'] != null and !menuStatus['RETRO']}"
-                             class="grid-item disabled" title="준비 중입니다">
-                            <span class="grid-icon">📻</span>
-                            <span class="grid-label">레트로 챌린지</span>
-                            <span class="coming-soon-badge">준비 중</span>
-                        </div>
-                    </div>
+        <!-- 벤토 그리드 레이아웃 -->
+        <div class="bento-grid">
+            <!-- 1. 맞추기 게임 (가장 큰 카드 - 2x2) -->
+            <div class="bento-card bento-guess">
+                <div class="bento-card-header">
+                    <span class="bento-icon">🎯</span>
+                    <h2>맞추기 게임</h2>
                 </div>
+                <p class="bento-desc">노래를 듣고 제목을 맞춰보세요</p>
+                <div class="guess-grid">
+                    <!-- 일반 맞추기 -->
+                    <a th:if="${menuStatus == null or menuStatus['SOLO_GUESS'] == null or menuStatus['SOLO_GUESS']}"
+                       href="/game/solo/guess" class="guess-item">
+                        <span class="guess-icon">🎵</span>
+                        <span class="guess-label">일반</span>
+                        <span class="guess-sub">다양한 장르</span>
+                    </a>
+                    <div th:if="${menuStatus != null and menuStatus['SOLO_GUESS'] != null and !menuStatus['SOLO_GUESS']}"
+                         class="guess-item disabled">
+                        <span class="guess-icon">🎵</span>
+                        <span class="guess-label">일반</span>
+                        <span class="coming-soon-badge">준비 중</span>
+                    </div>
 
-                <div class="mode-card">
-                    <div class="mode-icon">👥</div>
-                    <h2>멀티 게임</h2>
-                    <p>친구들과 함께 대결!</p>
-                    <div class="mode-grid">
-                        <!-- 로비 입장 -->
-                        <a th:if="${menuStatus == null or menuStatus['MULTI_LOBBY'] == null or menuStatus['MULTI_LOBBY']}"
-                           href="/game/multi" class="grid-item primary">
-                            <span class="grid-icon">🚪</span>
-                            <span class="grid-label">로비 입장</span>
-                        </a>
-                        <div th:if="${menuStatus != null and menuStatus['MULTI_LOBBY'] != null and !menuStatus['MULTI_LOBBY']}"
-                             class="grid-item disabled" title="준비 중입니다">
-                            <span class="grid-icon">🚪</span>
-                            <span class="grid-label">로비 입장</span>
-                            <span class="coming-soon-badge">준비 중</span>
-                        </div>
+                    <!-- 아티스트 챌린지 -->
+                    <a th:if="${menuStatus == null or menuStatus['FAN_CHALLENGE'] == null or menuStatus['FAN_CHALLENGE']}"
+                       href="/game/fan-challenge" class="guess-item artist">
+                        <span class="guess-icon">🏆</span>
+                        <span class="guess-label">아티스트</span>
+                        <span class="guess-sub">덕후력 테스트</span>
+                    </a>
+                    <div th:if="${menuStatus != null and menuStatus['FAN_CHALLENGE'] != null and !menuStatus['FAN_CHALLENGE']}"
+                         class="guess-item disabled">
+                        <span class="guess-icon">🏆</span>
+                        <span class="guess-label">아티스트</span>
+                        <span class="coming-soon-badge">준비 중</span>
+                    </div>
+
+                    <!-- 장르 챌린지 -->
+                    <a th:if="${menuStatus == null or menuStatus['GENRE_CHALLENGE'] == null or menuStatus['GENRE_CHALLENGE']}"
+                       href="/game/genre-challenge" class="guess-item genre">
+                        <span class="guess-icon">🎸</span>
+                        <span class="guess-label">장르</span>
+                        <span class="guess-sub">장르별 도전</span>
+                    </a>
+                    <div th:if="${menuStatus != null and menuStatus['GENRE_CHALLENGE'] != null and !menuStatus['GENRE_CHALLENGE']}"
+                         class="guess-item disabled">
+                        <span class="guess-icon">🎸</span>
+                        <span class="guess-label">장르</span>
+                        <span class="coming-soon-badge">준비 중</span>
+                    </div>
+
+                    <!-- 레트로 챌린지 -->
+                    <a th:if="${menuStatus == null or menuStatus['RETRO'] == null or menuStatus['RETRO']}"
+                       href="/game/retro" class="guess-item retro">
+                        <span class="guess-icon">📻</span>
+                        <span class="guess-label">레트로</span>
+                        <span class="guess-sub">2000년 이전</span>
+                    </a>
+                    <div th:if="${menuStatus != null and menuStatus['RETRO'] != null and !menuStatus['RETRO']}"
+                         class="guess-item disabled">
+                        <span class="guess-icon">📻</span>
+                        <span class="guess-label">레트로</span>
+                        <span class="coming-soon-badge">준비 중</span>
                     </div>
                 </div>
             </div>
 
-            <!-- 내 순위 섹션 (로그인 사용자용) -->
-            <div class="my-rank-section hidden" id="myRankSection">
-                <div class="my-rank-content" id="myRankContent">
+            <!-- 2. 게임 진행용 (1x1) -->
+            <a th:if="${menuStatus == null or menuStatus['SOLO_HOST'] == null or menuStatus['SOLO_HOST']}"
+               href="/game/solo/host" class="bento-card bento-host">
+                <span class="bento-icon">📺</span>
+                <h2>게임 진행용</h2>
+                <p class="bento-desc">출제자가 되어<br>친구들과 함께!</p>
+                <span class="bento-action">시작하기 →</span>
+            </a>
+            <div th:if="${menuStatus != null and menuStatus['SOLO_HOST'] != null and !menuStatus['SOLO_HOST']}"
+                 class="bento-card bento-host disabled">
+                <span class="bento-icon">📺</span>
+                <h2>게임 진행용</h2>
+                <p class="bento-desc">출제자가 되어<br>친구들과 함께!</p>
+                <span class="coming-soon-badge">준비 중</span>
+            </div>
+
+            <!-- 3. 멀티 게임 (1x1) -->
+            <a th:if="${menuStatus == null or menuStatus['MULTI_LOBBY'] == null or menuStatus['MULTI_LOBBY']}"
+               href="/game/multi" class="bento-card bento-multi">
+                <span class="bento-icon">👥</span>
+                <h2>멀티 게임</h2>
+                <p class="bento-desc">실시간 대결!</p>
+                <span class="bento-action">로비 입장 →</span>
+            </a>
+            <div th:if="${menuStatus != null and menuStatus['MULTI_LOBBY'] != null and !menuStatus['MULTI_LOBBY']}"
+                 class="bento-card bento-multi disabled">
+                <span class="bento-icon">👥</span>
+                <h2>멀티 게임</h2>
+                <p class="bento-desc">실시간 대결!</p>
+                <span class="coming-soon-badge">준비 중</span>
+            </div>
+
+            <!-- 4. 전체 랭킹 (1x1) - 비로그인 시만 표시 -->
+            <a href="/ranking" class="bento-card bento-ranking" id="bentoRanking">
+                <span class="bento-icon">🥇</span>
+                <h2>전체 랭킹</h2>
+                <div class="ranking-preview" id="rankingPreview">
                     <!-- JS에서 로딩 -->
                 </div>
-                <a href="/ranking" class="btn btn-ranking">전체 랭킹 보기</a>
+                <span class="bento-action">더 보기 →</span>
+            </a>
+
+            <!-- 5. 내 순위 (1x1) - 로그인 시만 표시 (전체 랭킹 대신) -->
+            <div class="bento-card bento-myrank hidden" id="bentoMyRank">
+                <span class="bento-icon">🏅</span>
+                <h2>내 순위</h2>
+                <div class="myrank-content" id="myRankContent">
+                    <!-- JS에서 로딩 -->
+                </div>
+                <a href="/ranking" class="bento-action">전체 랭킹 →</a>
             </div>
 
-            <!-- 아티스트 챌린지 랭킹 섹션 -->
-            <div class="artist-ranking-section hidden" id="artistRankingSection">
-                <div class="artist-ranking-header">
-                    <h3>아티스트 챌린지 TOP</h3>
-                    <p class="artist-ranking-subtitle">정답 수가 같으면 클리어 시간이 빠른 순</p>
+            <!-- 6. 커뮤니티 (비로그인 시 전체 랭킹 옆, 로그인 시 아래로) -->
+            <a href="/board" class="bento-card bento-community" id="bentoCommunity">
+                <span class="bento-icon">💬</span>
+                <h2>커뮤니티</h2>
+                <p class="bento-desc">곡 추천, 의견 공유</p>
+                <span class="bento-action">바로가기 →</span>
+            </a>
+
+            <!-- 7. 아티스트 챌린지 TOP (전체 너비) -->
+            <div class="bento-card bento-artist-top hidden" id="bentoArtistTop">
+                <div class="bento-card-header">
+                    <span class="bento-icon">🏆</span>
+                    <h2>아티스트 챌린지 TOP</h2>
                 </div>
-                <div class="artist-ranking-scroll" id="artistRankingScroll">
+                <div class="artist-scroll" id="artistRankingScroll">
                     <!-- JS에서 로딩 -->
                 </div>
             </div>
@@ -164,25 +189,8 @@
     </main>
 
     <footer class="client-footer">
-        <div class="footer-links">
-            <a href="/board" class="footer-link">커뮤니티</a>
-            <a href="/stats" class="footer-link">통계</a>
-        </div>
+        <p>© 2024 Song Quiz. Made with 🎵</p>
     </footer>
-</div>
-
-<!-- 로그인 안내 모달 -->
-<div class="login-prompt-modal" id="loginPromptModal">
-    <div class="modal-overlay" onclick="closeLoginPrompt()"></div>
-    <div class="modal-content">
-        <div class="modal-icon">🎵</div>
-        <h3>로그인하면 더 재미있어요!</h3>
-        <p>회원으로 플레이하면 랭킹에 기록되고,<br>티어 승급의 재미를 느낄 수 있어요.</p>
-        <div class="modal-buttons">
-            <button class="btn btn-secondary" onclick="proceedWithoutLogin()">그냥 할래요</button>
-            <a href="/auth/login?redirect=/game/solo/guess" class="btn btn-primary">로그인하기</a>
-        </div>
-    </div>
 </div>
 
 <script th:src="@{/js/common/common.js}"></script>

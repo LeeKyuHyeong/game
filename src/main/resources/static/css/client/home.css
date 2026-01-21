@@ -1,97 +1,497 @@
 /**
- * Home CSS - Home Page Styles
+ * Home CSS - Bento Grid Layout
  *
- * Contains styles for the home/landing page including:
- * - Game mode cards and selection
- * - Header navigation with user info
- * - Login/register/logout buttons
- * - Ranking section and tabs
+ * 벤토 그리드 스타일 홈 화면
+ * PC: 4컬럼 / 태블릿: 2컬럼 / 모바일: 1컬럼
  */
 
-/* Home Content Container */
-.home-content {
+/* ========================================
+   Bento Grid Container
+   ======================================== */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    gap: 1rem;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* ========================================
+   Bento Card - Base Styles
+   ======================================== */
+.bento-card {
+    background: var(--bg-surface);
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.bento-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.bento-card.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.bento-card .bento-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    line-height: 1;
+}
+
+.bento-card h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.bento-card .bento-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+    flex: 1;
+}
+
+.bento-card .bento-action {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-top: auto;
+}
+
+.bento-card .bento-action.primary {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.bento-card .bento-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.bento-card-header .bento-icon {
+    margin-bottom: 0;
+    font-size: 1.75rem;
+}
+
+.bento-card-header h2 {
+    margin-bottom: 0;
+}
+
+.coming-soon-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: var(--text-muted);
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+/* ========================================
+   1. 맞추기 게임 카드 (2x2)
+   ======================================== */
+.bento-guess {
+    grid-column: span 2;
+    grid-row: span 2;
+    background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-elevated) 100%);
+}
+
+.guess-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-top: auto;
+}
+
+.guess-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
-    width: 100%;
-    max-width: 800px;
-}
-
-/* Game Modes */
-.game-modes {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    width: 100%;
-}
-
-.mode-card {
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 1rem 0.75rem;
     background: var(--bg-surface);
-    border-radius: 1.5rem;
-    padding: 2.5rem;
-    text-align: center;
-    box-shadow: var(--shadow-lg);
-    transition: transform 0.3s;
-}
-
-.mode-card:hover {
-    transform: translateY(-5px);
-}
-
-.mode-card.coming-soon {
-    opacity: 0.7;
-}
-
-.mode-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-}
-
-.mode-card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-}
-
-.mode-card p {
-    color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-}
-
-.btn-mode {
-    padding: 1rem 1.5rem;
-    border-radius: 0.75rem;
-    font-size: 1rem;
-    font-weight: 600;
-    background: var(--bg-elevated);
-    color: var(--text-primary);
+    border: 2px solid var(--border-default);
+    border-radius: 1rem;
+    text-decoration: none;
+    cursor: pointer;
     transition: all 0.2s;
 }
 
-.btn-mode:hover {
-    background: var(--bg-muted);
+.guess-item:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
-.btn-mode.primary {
-    background: var(--primary-color);
-    color: white;
+.guess-item .guess-icon {
+    font-size: 1.75rem;
+    line-height: 1;
 }
 
-.btn-mode.primary:hover {
-    background: var(--primary-hover);
+.guess-item .guess-label {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
-.coming-badge {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background: var(--bg-elevated);
+.guess-item .guess-sub {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+}
+
+/* 맞추기 게임 타입별 호버 색상 */
+.guess-item:hover {
+    background: var(--primary-light);
+}
+
+.guess-item.artist:hover {
+    border-color: var(--warning);
+    background: var(--warning-light);
+}
+
+.guess-item.genre:hover {
+    border-color: var(--success);
+    background: var(--success-light);
+}
+
+.guess-item.retro:hover {
+    border-color: var(--info);
+    background: var(--info-light);
+}
+
+.guess-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.guess-item.disabled:hover {
+    transform: none;
+    border-color: var(--border-default);
+    background: var(--bg-surface);
+}
+
+.guess-item .coming-soon-badge {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    font-size: 0.5rem;
+    padding: 0.125rem 0.25rem;
+}
+
+/* ========================================
+   2. 게임 진행용 카드
+   ======================================== */
+.bento-host {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+.bento-host h2 {
+    color: var(--amber-text-dark);
+}
+
+.bento-host .bento-desc {
+    color: var(--amber-text);
+}
+
+.bento-host .bento-action {
+    color: var(--amber-text-dark);
+}
+
+/* ========================================
+   3. 내 순위 카드 / 로그인 유도 카드
+   ======================================== */
+.bento-myrank {
+    background: linear-gradient(135deg, var(--primary-light) 0%, #c7d2fe 100%);
+}
+
+.bento-myrank h2 {
+    color: var(--primary-dark);
+}
+
+.bento-myrank .bento-action {
+    color: var(--primary-dark);
+}
+
+.myrank-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.myrank-tier {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    width: fit-content;
+}
+
+.myrank-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.myrank-rank {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.myrank-score {
+    font-size: 0.8125rem;
     color: var(--text-secondary);
-    border-radius: 0.75rem;
-    font-weight: 500;
 }
 
-/* Header Top with User Info */
+.bento-login {
+    background: var(--bg-elevated);
+    border: 2px dashed var(--border-strong);
+}
+
+.bento-login h2 {
+    color: var(--text-secondary);
+}
+
+/* ========================================
+   4. 멀티 게임 카드
+   ======================================== */
+.bento-multi {
+    background: var(--gradient-blue-card);
+}
+
+.bento-multi h2 {
+    color: var(--info-dark);
+}
+
+.bento-multi .bento-desc {
+    color: var(--info);
+}
+
+.bento-multi .bento-action {
+    color: var(--info-dark);
+}
+
+/* ========================================
+   5. 아티스트 챌린지 TOP (4칸 = 100%)
+   ======================================== */
+.bento-artist-top {
+    grid-column: span 4;
+}
+
+.artist-scroll {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.25rem 0;
+    cursor: grab;
+    margin-top: 0.5rem;
+}
+
+.artist-scroll:active,
+.artist-scroll.dragging {
+    cursor: grabbing;
+    user-select: none;
+}
+
+.artist-scroll::-webkit-scrollbar {
+    height: 4px;
+}
+
+.artist-scroll::-webkit-scrollbar-track {
+    background: var(--bg-elevated);
+    border-radius: 2px;
+}
+
+.artist-scroll::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 2px;
+}
+
+.artist-card {
+    flex: 0 0 auto;
+    width: 100px;
+    background: var(--bg-elevated);
+    border-radius: 0.75rem;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    text-decoration: none;
+    scroll-snap-align: start;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.artist-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.artist-card-icon {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.artist-card-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.125rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.artist-card-user {
+    font-size: 0.625rem;
+    color: var(--text-secondary);
+}
+
+.artist-card-score {
+    font-size: 0.625rem;
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.artist-card-time {
+    font-size: 0.5625rem;
+    color: var(--text-muted);
+    margin-top: 0.125rem;
+}
+
+.artist-card-badge {
+    display: inline-block;
+    font-size: 0.5rem;
+    background: var(--gradient-gold);
+    color: white;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
+    margin-top: 0.25rem;
+    font-weight: 700;
+}
+
+/* ========================================
+   6. 커뮤니티 카드 (1칸 = 25%, 아티스트 TOP 우측)
+   ======================================== */
+.bento-community {
+    grid-column: span 1;
+    background: var(--gradient-pink-light);
+}
+
+.bento-community h2 {
+    color: var(--badge-pink-text);
+}
+
+.bento-community .bento-desc {
+    color: var(--pink-dark);
+}
+
+.bento-community .bento-action {
+    color: var(--badge-pink-text);
+}
+
+/* ========================================
+   7. 통계 카드 (2x1)
+   ======================================== */
+.bento-stats {
+    grid-column: span 2;
+    background: var(--gradient-green-light);
+}
+
+.bento-stats h2 {
+    color: var(--badge-success-text);
+}
+
+.bento-stats .bento-desc {
+    color: var(--success-dark);
+}
+
+.bento-stats .bento-action {
+    color: var(--badge-success-text);
+}
+
+/* ========================================
+   8. 전체 랭킹 카드
+   ======================================== */
+.bento-ranking {
+    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+}
+
+.bento-ranking h2 {
+    color: var(--amber-text-dark);
+}
+
+.bento-ranking .bento-action {
+    color: var(--amber-text-dark);
+}
+
+.ranking-preview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin: 0.5rem 0;
+}
+
+.ranking-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.ranking-preview-rank {
+    font-weight: 700;
+    color: var(--text-secondary);
+    width: 1.25rem;
+}
+
+.ranking-preview-name {
+    flex: 1;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ranking-preview-score {
+    color: var(--warning);
+    font-weight: 600;
+}
+
+/* ========================================
+   Header Styles (기존 유지)
+   ======================================== */
 .header-top {
     display: flex;
     align-items: center;
@@ -100,14 +500,12 @@
     margin-bottom: 1rem;
 }
 
-/* PC: 헤더 액션 영역 */
 .header-actions-desktop {
     display: flex;
     align-items: center;
     gap: 0.6rem;
 }
 
-/* 모바일: 테마 + 햄버거 메뉴 버튼 영역 (기본적으로 숨김) */
 .header-actions-mobile {
     display: none;
     align-items: center;
@@ -125,7 +523,7 @@
     font-size: 0.875rem;
 }
 
-/* PC 버튼 통일 스타일 */
+/* PC 버튼 스타일 */
 .btn-login, .btn-register, .btn-logout, .btn-mypage, .btn-admin, .btn-theme {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
@@ -141,7 +539,57 @@
     justify-content: center;
 }
 
-/* 햄버거 메뉴 버튼 */
+.btn-theme, .btn-login {
+    background: var(--overlay-medium);
+    color: var(--text-on-gradient);
+}
+
+.btn-theme:hover, .btn-login:hover {
+    background: var(--overlay-strong);
+}
+
+.btn-register {
+    background: var(--bg-surface);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.btn-register:hover {
+    background: var(--bg-elevated);
+}
+
+.btn-logout {
+    background: transparent;
+    border: 1px solid var(--overlay-strong);
+    color: white;
+}
+
+.btn-logout:hover {
+    background: var(--overlay-light);
+}
+
+.btn-admin {
+    background: var(--status-warning-bg);
+    border: 1px solid var(--status-warning-bg-hover);
+    color: var(--warning);
+}
+
+.btn-admin:hover {
+    background: var(--status-warning-bg-hover);
+    color: var(--warning-light);
+}
+
+.btn-mypage {
+    background: var(--overlay-white-medium);
+    border: 1px solid var(--overlay-white-strong);
+    color: white;
+}
+
+.btn-mypage:hover {
+    background: var(--overlay-white-strong);
+}
+
+/* 햄버거 메뉴 */
 .hamburger-btn {
     display: flex;
     align-items: center;
@@ -175,18 +623,14 @@
     transition: all 0.3s ease;
 }
 
-/* 햄버거 아이콘 애니메이션 (열렸을 때) */
-.mobile-menu.open ~ .header-top .hamburger-icon span:nth-child(1),
 .hamburger-btn[aria-expanded="true"] .hamburger-icon span:nth-child(1) {
     transform: rotate(45deg) translate(0.3rem, 0.3rem);
 }
 
-.mobile-menu.open ~ .header-top .hamburger-icon span:nth-child(2),
 .hamburger-btn[aria-expanded="true"] .hamburger-icon span:nth-child(2) {
     opacity: 0;
 }
 
-.mobile-menu.open ~ .header-top .hamburger-icon span:nth-child(3),
 .hamburger-btn[aria-expanded="true"] .hamburger-icon span:nth-child(3) {
     transform: rotate(-45deg) translate(0.3rem, -0.3rem);
 }
@@ -209,30 +653,6 @@
     border-radius: 0.75rem;
     padding: 0.5rem;
     backdrop-filter: blur(8px);
-}
-
-.mobile-menu-item {
-    margin-bottom: 0.25rem;
-}
-
-/* 모바일 테마 버튼 (헤더에 노출) */
-.btn-theme-mobile {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    background: var(--overlay-medium);
-    border: none;
-    border-radius: 0.5rem;
-    color: white;
-    font-size: 1.125rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-theme-mobile:hover {
-    background: var(--overlay-strong);
 }
 
 .mobile-menu-user {
@@ -282,336 +702,29 @@
     color: var(--warning);
 }
 
-/* 테마, 로그인: 반투명 스타일 (보조 액션) */
-.btn-theme, .btn-login {
-    background: var(--overlay-medium);
-    color: var(--text-on-gradient);
-}
-
-.btn-theme:hover, .btn-login:hover {
-    background: var(--overlay-strong);
-}
-
-/* 회원가입: 채워진 스타일 (메인 CTA) */
-.btn-register {
-    background: var(--bg-surface);
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.btn-register:hover {
-    background: var(--bg-elevated);
-}
-
-.btn-logout {
-    background: transparent;
-    border: 1px solid var(--overlay-strong);
-    color: white;
-    cursor: pointer;
-}
-
-.btn-logout:hover {
-    background: var(--overlay-light);
-}
-
-.btn-admin {
-    background: var(--status-warning-bg);
-    border: 1px solid var(--status-warning-bg-hover);
-    color: var(--warning);
-}
-
-.btn-admin:hover {
-    background: var(--status-warning-bg-hover);
-    color: var(--warning-light);
-}
-
-.btn-mypage {
-    background: var(--overlay-white-medium);
-    border: 1px solid var(--overlay-white-strong);
-    color: white;
-}
-
-.btn-mypage:hover {
-    background: var(--overlay-white-strong);
-    border-color: var(--overlay-white-text);
-}
-
-/* My Rank Section */
-.my-rank-section {
-    background: var(--overlay-light);
-    border-radius: 1rem;
-    padding: 1.25rem 1.5rem;
-    width: 100%;
+/* 모바일 테마 버튼 */
+.btn-theme-mobile {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.my-rank-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.tier-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: white;
-}
-
-.rank-text {
-    color: white;
-    font-size: 0.9375rem;
-}
-
-.rank-text strong {
-    font-size: 1.125rem;
-    color: var(--warning);
-}
-
-.score-text {
-    color: var(--overlay-white-text);
-    font-size: 0.875rem;
-}
-
-.btn-ranking {
-    padding: 0.625rem 1.25rem;
-    background: var(--bg-surface);
-    color: var(--primary-color);
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: all 0.2s;
-}
-
-.btn-ranking:hover {
-    background: var(--bg-elevated);
-}
-
-/* Mode Grid - Icon Grid Layout */
-.mode-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-}
-
-.mode-grid .grid-item {
-    display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 1.25rem 1rem;
-    background: var(--checker-base-bg);
-    border: 2px solid var(--border-default);
-    border-radius: 1rem;
-    text-decoration: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--overlay-medium);
+    border: none;
+    border-radius: 0.5rem;
+    color: white;
+    font-size: 1.125rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.2s;
 }
 
-.mode-grid .grid-item:hover {
-    background: var(--checker-base-hover);
-    border-color: var(--border-strong);
-    transform: translateY(-2px);
-}
-
-/* 지그재그 패턴: JS에서 .checker-alt 클래스 자동 부여 */
-.mode-grid .grid-item.checker-alt {
-    background: var(--checker-alt-bg);
-}
-
-.mode-grid .grid-item.checker-alt:hover {
-    background: var(--checker-alt-hover);
-}
-
-.mode-grid .grid-item.primary {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-    border-color: var(--primary-color);
-    color: white;
-}
-
-.mode-grid .grid-item.primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--status-primary-bg-hover);
-}
-
-.mode-grid .grid-item .grid-icon {
-    font-size: 2rem;
-    line-height: 1;
-}
-
-.mode-grid .grid-item .grid-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    text-align: center;
-}
-
-.mode-grid .grid-item.primary .grid-label {
-    color: white;
-}
-
-.mode-grid .grid-item.disabled {
-    background: var(--bg-elevated);
-    border-color: var(--border-default);
-    cursor: not-allowed;
-    opacity: 0.7;
-    position: relative;
-}
-
-.mode-grid .grid-item.disabled:hover {
-    transform: none;
-    background: var(--bg-elevated);
-    border-color: var(--border-default);
-}
-
-.coming-soon-badge {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: var(--text-muted);
-    color: white;
-    font-size: 0.625rem;
-    font-weight: 600;
-    padding: 0.2rem 0.4rem;
-    border-radius: 0.25rem;
-}
-
-/* Single item in grid - center it */
-.mode-grid:has(.grid-item:only-child) {
-    grid-template-columns: 1fr;
-    max-width: 200px;
-    margin: 0 auto;
-}
-
-/* Artist Challenge Ranking Section */
-.artist-ranking-section {
-    width: 100%;
-    background: var(--overlay-light);
-    border-radius: 1rem;
-    padding: 1rem;
-}
-
-.artist-ranking-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-    padding: 0 0.25rem;
-}
-
-.artist-ranking-header h3 {
-    color: white;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.artist-ranking-subtitle {
-    color: var(--text-muted);
-    font-size: 0.75rem;
-    margin: 0.25rem 0 0 0;
-}
-
-.artist-ranking-scroll {
-    display: flex;
-    gap: 0.75rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 0.5rem;
-    cursor: grab;
-}
-
-.artist-ranking-scroll:active,
-.artist-ranking-scroll.dragging {
-    cursor: grabbing;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-.artist-ranking-scroll::-webkit-scrollbar {
-    height: 4px;
-}
-
-.artist-ranking-scroll::-webkit-scrollbar-track {
-    background: var(--overlay-light);
-    border-radius: 2px;
-}
-
-.artist-ranking-scroll::-webkit-scrollbar-thumb {
+.btn-theme-mobile:hover {
     background: var(--overlay-strong);
-    border-radius: 2px;
 }
 
-.artist-card {
-    flex: 0 0 auto;
-    width: 120px;
-    background: var(--bg-surface);
-    border-radius: 0.75rem;
-    padding: 1rem 0.75rem;
-    text-align: center;
-    text-decoration: none;
-    scroll-snap-align: start;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.artist-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--overlay-black-light);
-}
-
-.artist-card-icon {
-    font-size: 1.5rem;
-    margin-bottom: 0.375rem;
-}
-
-.artist-card-name {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.artist-card-user {
-    font-size: 0.6875rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.125rem;
-}
-
-.artist-card-score {
-    font-size: 0.6875rem;
-    color: var(--warning);
-    font-weight: 600;
-}
-
-.artist-card-time {
-    font-size: 0.625rem;
-    color: var(--text-muted);
-    margin-top: 0.125rem;
-}
-
-.artist-card-badge {
-    display: inline-block;
-    font-size: 0.5625rem;
-    background: var(--gradient-gold);
-    color: white;
-    padding: 0.125rem 0.375rem;
-    border-radius: 0.25rem;
-    margin-top: 0.25rem;
-}
-
-/* Login Prompt Modal */
+/* ========================================
+   Login Prompt Modal
+   ======================================== */
 .login-prompt-modal {
     display: none;
     position: fixed;
@@ -715,142 +828,114 @@
     background: var(--primary-hover);
 }
 
-/* Responsive */
+/* ========================================
+   Footer
+   ======================================== */
+.client-footer {
+    padding: 1.5rem 0;
+    text-align: center;
+}
+
+.client-footer p {
+    font-size: 0.75rem;
+    color: var(--overlay-white-text);
+}
+
+/* ========================================
+   태블릿 (768px 이하)
+   ======================================== */
 @media (max-width: 768px) {
-    .client-main {
-        flex: none;
-        align-items: flex-start;
+    .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
     }
 
-    .home-content {
-        gap: 1rem;
-    }
-
-    .game-modes {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    /* Mode Card 가로 배치 (아이콘 + 텍스트) */
-    .mode-card {
-        display: grid;
-        grid-template-columns: auto auto;
-        grid-template-rows: auto auto auto;
-        justify-content: center;
-        gap: 0 0.75rem;
+    .bento-card {
         padding: 1.25rem;
         border-radius: 1rem;
-        text-align: left;
     }
 
-    .mode-icon {
-        grid-row: 1 / 3;
-        align-self: center;
-        font-size: 2.5rem;
-        margin-bottom: 0;
+    .bento-card .bento-icon {
+        font-size: 2rem;
     }
 
-    .mode-card h2 {
-        grid-column: 2;
-        font-size: 1.125rem;
-        margin-bottom: 0.125rem;
+    .bento-card h2 {
+        font-size: 1rem;
     }
 
-    .mode-card p {
-        grid-column: 2;
+    .bento-card .bento-desc {
         font-size: 0.8125rem;
-        margin-bottom: 0;
     }
 
-    .mode-grid {
-        grid-column: 1 / -1;
-        margin-top: 0.75rem;
+    /* 맞추기 게임 카드 - 태블릿에서도 2x2 유지 */
+    .bento-guess {
+        grid-column: span 2;
+        grid-row: span 2;
     }
 
-    .btn-mode {
-        padding: 0.75rem 1.25rem;
-        font-size: 0.9rem;
+    .guess-grid {
+        gap: 0.5rem;
+    }
+
+    .guess-item {
+        padding: 0.875rem 0.5rem;
+        border-radius: 0.75rem;
+    }
+
+    .guess-item .guess-icon {
+        font-size: 1.5rem;
+    }
+
+    .guess-item .guess-label {
+        font-size: 0.8125rem;
+    }
+
+    .guess-item .guess-sub {
+        font-size: 0.625rem;
+    }
+
+    /* 아티스트 TOP - 태블릿에서 전체 너비 */
+    .bento-artist-top {
+        grid-column: span 2;
+    }
+
+    /* 커뮤니티, 통계 - 태블릿에서 1칸씩 */
+    .bento-community,
+    .bento-stats {
+        grid-column: span 1;
+    }
+
+    .artist-card {
+        width: 85px;
+        padding: 0.625rem 0.375rem;
+    }
+
+    .artist-card-icon {
+        font-size: 1rem;
+    }
+
+    .artist-card-name {
+        font-size: 0.6875rem;
+    }
+
+    /* 모바일 헤더 표시 */
+    .header-actions-desktop {
+        display: none;
+    }
+
+    .header-actions-mobile {
+        display: flex;
+    }
+
+    .mobile-menu {
+        display: block;
     }
 
     .header-top {
         margin-bottom: 0.5rem;
     }
 
-    /* 모바일에서 PC 버튼 숨김 */
-    .header-actions-desktop {
-        display: none;
-    }
-
-    /* 모바일에서 햄버거 메뉴 표시 */
-    .header-actions-mobile {
-        display: flex;
-    }
-
-    /* 모바일 메뉴 표시 */
-    .mobile-menu {
-        display: block;
-    }
-
-    /* 내 순위 섹션 모바일 */
-    .my-rank-section {
-        flex-direction: column;
-        padding: 1rem;
-        gap: 0.75rem;
-    }
-
-    .my-rank-info {
-        justify-content: center;
-        gap: 0.5rem;
-    }
-
-    .tier-badge {
-        font-size: 0.6875rem;
-        padding: 0.1875rem 0.5rem;
-    }
-
-    .rank-text {
-        font-size: 0.8125rem;
-    }
-
-    .rank-text strong {
-        font-size: 1rem;
-    }
-
-    .score-text {
-        font-size: 0.75rem;
-    }
-
-    .btn-ranking {
-        width: 100%;
-        text-align: center;
-        padding: 0.5rem 1rem;
-        font-size: 0.8125rem;
-    }
-
-    /* Mode Grid Mobile */
-    .mode-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
-    }
-
-    .mode-grid .grid-item {
-        padding: 1rem 0.75rem;
-        border-radius: 0.75rem;
-    }
-
-    .mode-grid .grid-item .grid-icon {
-        font-size: 1.5rem;
-    }
-
-    .mode-grid .grid-item .grid-label {
-        font-size: 0.75rem;
-    }
-
-    .mode-grid:has(.grid-item:only-child) {
-        max-width: 160px;
-    }
-
-    /* Login Prompt Modal Mobile */
+    /* 모달 축소 */
     .login-prompt-modal .modal-content {
         padding: 2rem 1.5rem;
         border-radius: 1rem;
@@ -872,54 +957,344 @@
         padding: 0.75rem 1.25rem;
         font-size: 0.9375rem;
     }
+}
 
-    /* Artist Ranking Mobile */
-    .artist-ranking-section {
-        padding: 0.75rem;
-        border-radius: 0.75rem;
+/* ========================================
+   모바일 (480px 이하)
+   ======================================== */
+@media (max-width: 480px) {
+    .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        /*align-items: start;*/
     }
 
-    .artist-ranking-header h3 {
+    /* 모바일에서 카드 내용 중앙정렬 */
+    .bento-card {
+        padding: 0.875rem;
+        text-align: center;
+        align-items: center;
+    }
+
+    .bento-card .bento-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.375rem;
+    }
+
+    .bento-card h2 {
+        font-size: 0.875rem;
+    }
+
+    .bento-card .bento-desc {
+        font-size: 0.75rem;
+        margin-bottom: 0.375rem;
+    }
+
+    .bento-card .bento-action {
+        font-size: 0.75rem;
+    }
+
+    .bento-card .bento-card-header {
+        justify-content: center;
+    }
+
+    /* 맞추기 게임 - 모바일에서 2칸 차지 */
+    .bento-guess {
+        grid-column: span 2;
+        grid-row: span 1;
+        text-align: left;
+        align-items: flex-start;
+    }
+
+    .bento-guess .bento-card-header {
+        justify-content: flex-start;
+    }
+
+    .guess-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.3rem;
+        flex: 1;
+    }
+
+    .guess-item {
+        padding: 0.875rem 0.5rem;
+        flex: 1;
+        min-height: 4.5rem;
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .guess-item .guess-icon {
+        font-size: 1.5rem;
+    }
+
+    .guess-item .guess-label {
         font-size: 0.8125rem;
     }
 
-    .artist-ranking-subtitle {
-        font-size: 0.5875rem;
+    .guess-item .guess-sub {
+        font-size: 0.625rem;
+        text-align: center;
     }
 
-    .artist-ranking-scroll {
+    /* 아티스트 TOP - 모바일에서 2칸 (전체 너비) */
+    .bento-artist-top {
+        grid-column: span 2;
+        text-align: left;
+        align-items: flex-start;
+    }
+
+    .bento-artist-top .bento-card-header {
+        justify-content: flex-start;
+    }
+
+    /* 커뮤니티, 통계 - 모바일에서 1칸 */
+    .bento-community,
+    .bento-stats {
+        grid-column: span 1;
+    }
+
+    .artist-scroll {
         gap: 0.5rem;
     }
 
     .artist-card {
-        width: 100px;
-        padding: 0.75rem 0.5rem;
-        border-radius: 0.625rem;
+        width: 70px;
+        padding: 0.5rem 0.25rem;
+        border-radius: 0.5rem;
     }
 
     .artist-card-icon {
-        font-size: 1.25rem;
-        margin-bottom: 0.25rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.125rem;
     }
 
     .artist-card-name {
-        font-size: 0.75rem;
-    }
-
-    .artist-card-user {
         font-size: 0.625rem;
     }
 
+    .artist-card-user,
     .artist-card-score {
-        font-size: 0.625rem;
-    }
-
-    .artist-card-time {
         font-size: 0.5625rem;
     }
 
-    .artist-card-badge {
-        font-size: 0.5rem;
-        padding: 0.1rem 0.25rem;
+    /* 랭킹 미리보기 축소 */
+    .ranking-preview {
+        align-items: center;
     }
+
+    .ranking-preview-item {
+        font-size: 0.625rem;
+        justify-content: center;
+    }
+
+    /* 내 순위 - 가로 레이아웃 */
+    .bento-myrank {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bento-myrank .bento-icon {
+        font-size: 1.25rem;
+        margin-bottom: 0;
+    }
+
+    .bento-myrank h2 {
+        margin-bottom: 0;
+        margin-right: auto;
+    }
+
+    .myrank-content {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .myrank-stats {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .myrank-rank {
+        font-size: 0.9375rem;
+    }
+
+    .myrank-score {
+        font-size: 0.75rem;
+    }
+
+    .myrank-tier {
+        font-size: 0.625rem;
+        padding: 0.125rem 0.375rem;
+    }
+
+    .bento-myrank .bento-action {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* 전체 랭킹 카드 */
+    .bento-ranking {
+        grid-column: span 1;
+    }
+}
+
+/* ========================================
+   다크 모드
+   ======================================== */
+[data-theme="dark"] .bento-card {
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .bento-guess {
+    background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-elevated) 100%);
+}
+
+[data-theme="dark"] .guess-item {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .guess-item:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .guess-item.artist:hover {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: var(--warning);
+}
+
+[data-theme="dark"] .guess-item.genre:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: var(--success);
+}
+
+[data-theme="dark"] .guess-item.retro:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--info);
+}
+
+[data-theme="dark"] .bento-host {
+    background: linear-gradient(135deg, rgba(146, 112, 12, 0.3) 0%, rgba(146, 112, 12, 0.2) 100%);
+}
+
+[data-theme="dark"] .bento-host h2,
+[data-theme="dark"] .bento-host .bento-action {
+    color: var(--warning-bright);
+}
+
+[data-theme="dark"] .bento-host .bento-desc {
+    color: var(--warning);
+}
+
+[data-theme="dark"] .bento-myrank {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(99, 102, 241, 0.2) 100%);
+}
+
+[data-theme="dark"] .bento-myrank h2,
+[data-theme="dark"] .bento-myrank .bento-action {
+    color: var(--primary-bright);
+}
+
+[data-theme="dark"] .myrank-rank {
+    color: var(--primary-bright);
+}
+
+[data-theme="dark"] .bento-login {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .bento-multi {
+    background: linear-gradient(135deg, var(--status-info-bg-hover) 0%, var(--status-info-bg) 100%);
+}
+
+[data-theme="dark"] .bento-multi h2 {
+    color: var(--text-on-gradient);
+}
+
+[data-theme="dark"] .bento-multi .bento-desc {
+    color: var(--info-bright);
+}
+
+[data-theme="dark"] .bento-multi .bento-action {
+    color: var(--text-on-gradient);
+}
+
+[data-theme="dark"] .bento-community {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(236, 72, 153, 0.2) 100%);
+}
+
+[data-theme="dark"] .bento-community h2,
+[data-theme="dark"] .bento-community .bento-action {
+    color: var(--pink-light-bright);
+}
+
+[data-theme="dark"] .bento-community .bento-desc {
+    color: var(--pink-bright);
+}
+
+[data-theme="dark"] .bento-stats {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.2) 100%);
+}
+
+[data-theme="dark"] .bento-stats h2,
+[data-theme="dark"] .bento-stats .bento-action {
+    color: var(--success-light-bright);
+}
+
+[data-theme="dark"] .bento-stats .bento-desc {
+    color: var(--success-bright);
+}
+
+[data-theme="dark"] .bento-ranking {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.2) 100%);
+}
+
+[data-theme="dark"] .bento-ranking h2,
+[data-theme="dark"] .bento-ranking .bento-action {
+    color: var(--warning-bright);
+}
+
+[data-theme="dark"] .artist-card {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .artist-scroll::-webkit-scrollbar-track {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .artist-scroll::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+}
+
+/* ========================================
+   Tier Colors (티어 배지용)
+   ======================================== */
+.tier-bronze { color: var(--tier-bronze) !important; background: var(--tier-bronze-bg); }
+.tier-silver { color: var(--tier-silver) !important; background: var(--tier-silver-bg); }
+.tier-gold { color: var(--tier-gold) !important; background: var(--tier-gold-bg); }
+.tier-platinum { color: var(--tier-platinum) !important; background: var(--tier-platinum-bg); }
+.tier-diamond { color: var(--tier-diamond) !important; background: var(--tier-diamond-bg); }
+.tier-master { color: var(--tier-master) !important; background: var(--tier-master-bg); }
+.tier-challenger { color: var(--tier-challenger) !important; background: var(--tier-challenger-bg); }
+
+/* 라이트 모드 티어 가시성 개선 */
+:root:not([data-theme="dark"]) .tier-silver {
+    color: var(--tier-silver-dark) !important;
+}
+
+:root:not([data-theme="dark"]) .tier-gold {
+    color: var(--tier-gold-dark) !important;
+}
+
+:root:not([data-theme="dark"]) .tier-platinum {
+    color: var(--tier-platinum-dark) !important;
 }

@@ -69,6 +69,7 @@
     --info: #3b82f6;
     --info-light: #dbeafe;
     --info-dark: #2563eb;
+    --info-bright: #93c5fd;
 
     /* ========== 뱃지 배경/텍스트 ========== */
     --badge-success-bg: #dcfce7;
@@ -85,6 +86,10 @@
     --badge-indigo-text: #3730a3;
     --badge-pink-bg: #fce7f3;
     --badge-pink-text: #9d174d;
+    --pink: #ec4899;
+    --pink-dark: #be185d;
+    --pink-bright: #f472b6;
+    --pink-light-bright: #f9a8d4;
 
     /* ========== 보조 색상 ========== */
     --secondary-hover: #4b5563;
@@ -307,6 +312,11 @@
     /* ========== 성공 색상 추가 ========== */
     --success-bright: #4ade80;
     --success-light-bright: #86efac;
+
+    /* ========== 벤토 카드용 그라디언트 ========== */
+    --gradient-pink-light: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+    --gradient-green-light: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    --gradient-blue-card: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
 }
 
 /* ========== 다크 모드 ========== */
