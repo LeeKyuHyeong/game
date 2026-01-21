@@ -13,8 +13,8 @@
 
     <main class="client-main">
         <div class="ranking-content">
-            <!-- 메인 탭 (5개) - PC/태블릿 -->
-            <div class="game-mode-tabs five-tabs desktop-tabs">
+            <!-- 메인 탭 (6개) - PC/태블릿 -->
+            <div class="game-mode-tabs six-tabs desktop-tabs">
                 <button class="mode-tab active" data-mode="tier">
                     <span class="tab-icon">🏆</span>
                     <span class="tab-label">멀티 티어</span>
@@ -31,6 +31,10 @@
                     <span class="tab-icon">🎤</span>
                     <span class="tab-label">팬 챌린지</span>
                 </button>
+                <button class="mode-tab" data-mode="genreChallenge">
+                    <span class="tab-icon">🎸</span>
+                    <span class="tab-label">장르 챌린지</span>
+                </button>
                 <button class="mode-tab" data-mode="stats">
                     <span class="tab-icon">📊</span>
                     <span class="tab-label">통계</span>
@@ -44,6 +48,7 @@
                     <option value="best30">🎯 30곡 챌린지</option>
                     <option value="retro">📻 레트로</option>
                     <option value="fanChallenge">🎤 팬 챌린지</option>
+                    <option value="genreChallenge">🎸 장르 챌린지</option>
                     <option value="stats">📊 통계</option>
                 </select>
             </div>
@@ -106,6 +111,21 @@
             <div class="best-score-notice" id="fanChallengeNotice" style="display: none;">
                 <span class="notice-icon">🎤</span>
                 <span class="notice-text">하드코어 난이도 기준 · 아티스트별 20곡 도전</span>
+            </div>
+
+            <!-- 장르 챌린지 장르 선택 -->
+            <div class="genre-select-container" id="genreChallengeGenreSelect" style="display: none;">
+                <label for="genreSelectDropdown">장르 선택:</label>
+                <select id="genreSelectDropdown">
+                    <option value="">장르를 선택하세요</option>
+                    <!-- JS에서 장르 목록 로드 -->
+                </select>
+            </div>
+
+            <!-- 장르 챌린지 안내 -->
+            <div class="best-score-notice" id="genreChallengeNotice" style="display: none;">
+                <span class="notice-icon">🎸</span>
+                <span class="notice-text">하드코어 난이도 기준 · 장르별 전곡 도전</span>
             </div>
 
             <!-- 통계 서브 탭 -->

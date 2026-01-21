@@ -2,19 +2,38 @@
  * client/ranking.html - 전체 랭킹
  */
 
-let currentTab = 'tier';      // tier, best30, retro, fanChallenge, stats
+let currentTab = 'tier';      // tier, best30, retro, fanChallenge, genreChallenge, stats
 let best30Period = 'weekly';  // weekly, monthly, alltime
 let retroPeriod = 'score';    // score, best30, weekly
 let fanChallengePeriod = 'perfect';  // perfect, artist
+let selectedGenreCode = '';   // 선택된 장르 코드
+let genreList = [];           // 장르 목록 캐시
 let statsType = 'score';      // score, participation, avgScorePerRound, accuracyMin10
 let participationSubType = 'games';  // games, rounds (서브탭 선택)
 let showAllBest30 = false;
 
 document.addEventListener('DOMContentLoaded', function() {
+    loadGenreList();  // 장르 목록 미리 로드
     loadRanking();
     setupTabs();
     setupSubTabs();
 });
+
+// 장르 목록 로드
+async function loadGenreList() {
+    try {
+        const response = await fetch('/api/ranking/genre-challenge/genres');
+        genreList = await response.json();
+
+        const dropdown = document.getElementById('genreSelectDropdown');
+        if (dropdown && genreList.length > 0) {
+            dropdown.innerHTML = '<option value="">장르를 선택하세요</option>' +
+                genreList.map(g => `<option value="${g.code}">${g.name}</option>`).join('');
+        }
+    } catch (error) {
+        // 장르 목록 로드 실패
+    }
+}
 
 function setupTabs() {
     // 메인 탭 (PC/태블릿)
@@ -64,6 +83,12 @@ function switchTab(mode) {
         fanChallengePeriod = 'perfect';
         document.querySelectorAll('#fanChallengePeriodTabs .period-tab').forEach(t => t.classList.remove('active'));
         document.querySelector('#fanChallengePeriodTabs .period-tab[data-period="perfect"]').classList.add('active');
+    }
+
+    if (currentTab === 'genreChallenge') {
+        selectedGenreCode = '';
+        const dropdown = document.getElementById('genreSelectDropdown');
+        if (dropdown) dropdown.value = '';
     }
 
     if (currentTab === 'stats') {
@@ -116,6 +141,16 @@ function setupSubTabs() {
         });
     });
 
+    // 장르 챌린지 장르 선택 드롭다운
+    const genreDropdown = document.getElementById('genreSelectDropdown');
+    if (genreDropdown) {
+        genreDropdown.addEventListener('change', function() {
+            if (currentTab !== 'genreChallenge') return;
+            selectedGenreCode = this.value;
+            loadRanking();
+        });
+    }
+
     // 통계 유형 탭
     document.querySelectorAll('.stats-type-tabs .period-tab').forEach(tab => {
         tab.addEventListener('click', function() {
@@ -155,6 +190,8 @@ function updateTabsVisibility() {
     const retroNotice = document.getElementById('retroNotice');
     const fanChallengePeriodTabs = document.getElementById('fanChallengePeriodTabs');
     const fanChallengeNotice = document.getElementById('fanChallengeNotice');
+    const genreChallengeGenreSelect = document.getElementById('genreChallengeGenreSelect');
+    const genreChallengeNotice = document.getElementById('genreChallengeNotice');
     const statsTabsContainer = document.getElementById('statsTabsContainer');
 
     // 모두 숨기기
@@ -165,6 +202,8 @@ function updateTabsVisibility() {
     retroNotice.style.display = 'none';
     fanChallengePeriodTabs.style.display = 'none';
     fanChallengeNotice.style.display = 'none';
+    genreChallengeGenreSelect.style.display = 'none';
+    genreChallengeNotice.style.display = 'none';
     statsTabsContainer.style.display = 'none';
 
     if (currentTab === 'tier') {
@@ -178,6 +217,9 @@ function updateTabsVisibility() {
     } else if (currentTab === 'fanChallenge') {
         fanChallengePeriodTabs.style.display = 'flex';
         fanChallengeNotice.style.display = 'flex';
+    } else if (currentTab === 'genreChallenge') {
+        genreChallengeGenreSelect.style.display = 'flex';
+        genreChallengeNotice.style.display = 'flex';
     } else if (currentTab === 'stats') {
         statsTabsContainer.style.display = 'flex';
     }
@@ -207,6 +249,16 @@ async function loadRanking() {
             const response = await fetch(`/api/ranking/fan-challenge?type=${fanChallengePeriod}&limit=20`);
             rankings = await response.json();
             updateFanChallengeUI(rankings);
+        } else if (currentTab === 'genreChallenge') {
+            // 장르 챌린지 랭킹 (장르별)
+            if (!selectedGenreCode) {
+                // 장르가 선택되지 않으면 빈 상태 표시
+                updateGenreChallengeUI([]);
+                return;
+            }
+            const response = await fetch(`/api/ranking/genre-challenge/by-genre?genreCode=${selectedGenreCode}&limit=20`);
+            rankings = await response.json();
+            updateGenreChallengeUI(rankings);
         } else if (currentTab === 'stats') {
             // 통계 랭킹 (내가맞추기 전용)
             // participation 타입은 서브탭(games/rounds)으로 실제 API 호출
@@ -571,6 +623,97 @@ function updateFanChallengeTable(rankings) {
             mainStat = (member.artistCount || 0) + '명 도전';
             subStat = '고유 아티스트';
         }
+
+        return `
+            <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">
+                <div class="rank-cell">
+                    ${index < 3 ? getMedal(index) : (index + 1)}
+                </div>
+                <div class="name-cell">
+                    ${badgeEmoji}
+                    <span class="member-name">${member.nickname}</span>
+                </div>
+                <div class="stats-cell">
+                    <span class="main-stat">${mainStat}</span>
+                    <span class="sub-stat">${subStat}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 장르 챌린지 UI
+function updateGenreChallengeUI(rankings) {
+    // 장르가 선택되지 않은 경우 안내 메시지 표시
+    if (!selectedGenreCode) {
+        document.getElementById('topThreePodium').style.display = 'none';
+        document.getElementById('rankingTable').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'flex';
+        document.querySelector('#emptyState p').textContent = '장르를 선택해주세요';
+        document.querySelector('#emptyState .empty-sub').textContent = '위 드롭다운에서 장르를 선택하면 랭킹을 볼 수 있습니다';
+        return;
+    }
+
+    if (rankings.length === 0) {
+        document.getElementById('topThreePodium').style.display = 'none';
+        document.getElementById('rankingTable').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'flex';
+        document.querySelector('#emptyState p').textContent = '아직 랭킹 데이터가 없습니다.';
+        document.querySelector('#emptyState .empty-sub').textContent = '게임을 플레이하고 랭킹에 도전하세요!';
+        return;
+    }
+
+    document.getElementById('topThreePodium').style.display = 'flex';
+    document.getElementById('rankingTable').style.display = 'block';
+    document.getElementById('emptyState').style.display = 'none';
+
+    updateGenreChallengePodium(rankings);
+    updateGenreChallengeTable(rankings);
+}
+
+function updateGenreChallengePodium(rankings) {
+    const places = [
+        { id: 'place1', index: 0 },
+        { id: 'place2', index: 1 },
+        { id: 'place3', index: 2 }
+    ];
+
+    places.forEach(place => {
+        const el = document.getElementById(place.id);
+        const member = rankings[place.index];
+
+        el.style.display = 'flex';
+        if (member) {
+            el.classList.remove('empty');
+            const badgeEmoji = member.badgeEmoji ? member.badgeEmoji + ' ' : '';
+            el.querySelector('.podium-name').textContent = badgeEmoji + member.nickname;
+            // 정답수/총곡수 형식으로 표시
+            el.querySelector('.podium-value').textContent =
+                (member.correctCount || 0) + '/' + (member.totalSongs || 0) + '곡';
+            el.querySelector('.podium-stand').textContent = place.index + 1;
+
+            const tierEl = el.querySelector('.podium-tier');
+            tierEl.textContent = '';
+            tierEl.style.display = 'none';
+        } else {
+            el.classList.add('empty');
+            el.querySelector('.podium-name').textContent = '도전하세요!';
+            el.querySelector('.podium-value').textContent = '-';
+            el.querySelector('.podium-stand').textContent = place.index + 1;
+        }
+    });
+}
+
+function updateGenreChallengeTable(rankings) {
+    const table = document.getElementById('rankingTable');
+
+    table.innerHTML = rankings.map((member, index) => {
+        const badgeEmoji = member.badgeEmoji ? `<span class="member-badge" title="${member.badgeName || ''}">${member.badgeEmoji}</span>` : '';
+
+        // 메인: 정답수/총곡수
+        const mainStat = (member.correctCount || 0) + '/' + (member.totalSongs || 0) + '곡';
+        // 서브: 최대 콤보
+        const subStat = '🔥' + (member.maxCombo || 0) + '콤보';
 
         return `
             <div class="ranking-row ${index < 3 ? 'top-' + (index + 1) : ''}">

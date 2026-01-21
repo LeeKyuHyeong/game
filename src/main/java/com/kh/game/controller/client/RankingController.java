@@ -1,6 +1,9 @@
 package com.kh.game.controller.client;
 
+import com.kh.game.entity.GenreChallengeRecord;
 import com.kh.game.entity.Member;
+import com.kh.game.repository.GenreChallengeRecordRepository;
+import com.kh.game.repository.GenreRepository;
 import com.kh.game.service.FanChallengeService;
 import com.kh.game.service.GameSessionService;
 import com.kh.game.service.MemberService;
@@ -9,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +27,8 @@ public class RankingController {
     private final MemberService memberService;
     private final GameSessionService gameSessionService;
     private final FanChallengeService fanChallengeService;
+    private final GenreChallengeRecordRepository genreChallengeRecordRepository;
+    private final GenreRepository genreRepository;
 
     // 랭킹 페이지
     @GetMapping("/ranking")
@@ -492,6 +499,117 @@ public class RankingController {
                     result.add(memberInfo);
                 }
             }
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    // 장르 챌린지 글로벌 랭킹 API
+    @GetMapping("/api/ranking/genre-challenge")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getGenreChallengeRanking(
+            @RequestParam(defaultValue = "totalCorrect") String type,
+            @RequestParam(defaultValue = "20") int limit) {
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        if ("totalCorrect".equals(type)) {
+            // 총 정답수 랭킹 (전체 장르 합산)
+            List<Object[]> rankings = genreChallengeRecordRepository.findTotalCorrectCountRanking(PageRequest.of(0, limit));
+            for (Object[] row : rankings) {
+                Long memberId = (Long) row[0];
+                Long totalCorrect = (Long) row[1];
+
+                Member member = memberService.findById(memberId).orElse(null);
+                if (member != null) {
+                    Map<String, Object> memberInfo = new HashMap<>();
+                    memberInfo.put("id", member.getId());
+                    memberInfo.put("nickname", member.getNickname());
+                    memberInfo.put("totalCorrect", totalCorrect);
+                    addBadgeInfo(memberInfo, member);
+                    result.add(memberInfo);
+                }
+            }
+        } else if ("genreCount".equals(type)) {
+            // 도전 장르 수 랭킹
+            List<Object[]> rankings = genreChallengeRecordRepository.findGenreClearCountRanking(PageRequest.of(0, limit));
+            for (Object[] row : rankings) {
+                Long memberId = (Long) row[0];
+                Long genreCount = (Long) row[1];
+
+                Member member = memberService.findById(memberId).orElse(null);
+                if (member != null) {
+                    Map<String, Object> memberInfo = new HashMap<>();
+                    memberInfo.put("id", member.getId());
+                    memberInfo.put("nickname", member.getNickname());
+                    memberInfo.put("genreCount", genreCount);
+                    addBadgeInfo(memberInfo, member);
+                    result.add(memberInfo);
+                }
+            }
+        } else if ("maxCombo".equals(type)) {
+            // 최대 콤보 랭킹
+            List<Object[]> rankings = genreChallengeRecordRepository.findMaxComboRanking(PageRequest.of(0, limit));
+            for (Object[] row : rankings) {
+                Long memberId = (Long) row[0];
+                Integer maxCombo = (Integer) row[1];
+
+                Member member = memberService.findById(memberId).orElse(null);
+                if (member != null) {
+                    Map<String, Object> memberInfo = new HashMap<>();
+                    memberInfo.put("id", member.getId());
+                    memberInfo.put("nickname", member.getNickname());
+                    memberInfo.put("maxCombo", maxCombo);
+                    addBadgeInfo(memberInfo, member);
+                    result.add(memberInfo);
+                }
+            }
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    // 장르 챌린지용 장르 목록 API
+    @GetMapping("/api/ranking/genre-challenge/genres")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getGenreChallengeGenres() {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 활성화된 장르 목록 조회
+        genreRepository.findByUseYnOrderByDisplayOrderAsc("Y").forEach(genre -> {
+            Map<String, Object> genreInfo = new HashMap<>();
+            genreInfo.put("code", genre.getCode());
+            genreInfo.put("name", genre.getName());
+            result.add(genreInfo);
+        });
+
+        return ResponseEntity.ok(result);
+    }
+
+    // 장르별 챌린지 랭킹 API
+    @GetMapping("/api/ranking/genre-challenge/by-genre")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getGenreChallengeRankingByGenre(
+            @RequestParam String genreCode,
+            @RequestParam(defaultValue = "20") int limit) {
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 장르별 랭킹 조회 (정답수 DESC, 시간 ASC)
+        List<GenreChallengeRecord> records = genreChallengeRecordRepository
+                .findTopByGenreCode(genreCode, PageRequest.of(0, limit));
+
+        for (GenreChallengeRecord record : records) {
+            Member member = record.getMember();
+            Map<String, Object> memberInfo = new HashMap<>();
+            memberInfo.put("id", member.getId());
+            memberInfo.put("nickname", member.getNickname());
+            memberInfo.put("correctCount", record.getCorrectCount());
+            memberInfo.put("totalSongs", record.getTotalSongs());
+            memberInfo.put("maxCombo", record.getMaxCombo());
+            memberInfo.put("achievedAt", record.getAchievedAt());
+            addBadgeInfo(memberInfo, member);
+            result.add(memberInfo);
         }
 
         return ResponseEntity.ok(result);
