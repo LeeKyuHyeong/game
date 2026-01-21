@@ -27,15 +27,41 @@ public class AdminMemberController {
     private final MemberService memberService;
     private final MemberBadgeRepository memberBadgeRepository;
 
-    @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "20") int size,
-                       @RequestParam(required = false) String keyword,
-                       @RequestParam(required = false) String status,
-                       @RequestParam(required = false) String role,
-                       @RequestParam(defaultValue = "id") String sort,
-                       @RequestParam(defaultValue = "desc") String direction,
-                       Model model) {
+    /**
+     * 통합 회원 관리 페이지
+     */
+    @GetMapping({"", "/"})
+    public String memberIndex(@RequestParam(defaultValue = "member") String tab, Model model) {
+        model.addAttribute("activeTab", tab);
+        model.addAttribute("menu", "member");
+
+        // 회원 통계
+        long totalCount = memberService.count();
+        long activeCount = memberService.countByStatus(Member.MemberStatus.ACTIVE);
+        long bannedCount = memberService.countByStatus(Member.MemberStatus.BANNED);
+        long adminCount = memberService.countByRole(Member.MemberRole.ADMIN);
+
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("activeCount", activeCount);
+        model.addAttribute("bannedCount", bannedCount);
+        model.addAttribute("adminCount", adminCount);
+
+
+        return "admin/member/index";
+    }
+
+    /**
+     * AJAX 로딩용 회원 목록 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "20") int size,
+                              @RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String status,
+                              @RequestParam(required = false) String role,
+                              @RequestParam(defaultValue = "id") String sort,
+                              @RequestParam(defaultValue = "desc") String direction,
+                              Model model) {
         Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
         Page<Member> memberPage;
@@ -70,9 +96,8 @@ public class AdminMemberController {
         model.addAttribute("role", role);
         model.addAttribute("sort", sort);
         model.addAttribute("direction", direction);
-        model.addAttribute("menu", "member");
 
-        return "admin/member/list";
+        return "admin/member/fragments/member";
     }
 
     @GetMapping("/detail/{id}")

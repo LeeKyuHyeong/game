@@ -1,0 +1,96 @@
+<!-- 회원 목록 탭 콘텐츠 (프래그먼트) -->
+<div class="member-tab-content" xmlns:th="http://www.thymeleaf.org">
+    <div class="sub-stats">
+        <div class="sub-stat"><span class="sub-stat-value" th:text="${totalCount}">0</span><span class="sub-stat-label">전체</span></div>
+        <div class="sub-stat active"><span class="sub-stat-value" th:text="${activeCount}">0</span><span class="sub-stat-label">활성</span></div>
+        <div class="sub-stat banned"><span class="sub-stat-value" th:text="${bannedCount}">0</span><span class="sub-stat-label">정지</span></div>
+        <div class="sub-stat admin"><span class="sub-stat-value" th:text="${adminCount}">0</span><span class="sub-stat-label">관리자</span></div>
+    </div>
+
+    <div class="search-bar">
+        <form class="search-form">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="이메일/닉네임 검색">
+            <select name="status" class="form-select">
+                <option value="">전체 상태</option>
+                <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">활성</option>
+                <option value="INACTIVE" th:selected="${status == 'INACTIVE'}">비활성</option>
+                <option value="BANNED" th:selected="${status == 'BANNED'}">정지</option>
+            </select>
+            <select name="role" class="form-select">
+                <option value="">전체 권한</option>
+                <option value="USER" th:selected="${role == 'USER'}">사용자</option>
+                <option value="ADMIN" th:selected="${role == 'ADMIN'}">관리자</option>
+            </select>
+            <input type="hidden" name="sort" th:value="${sort}">
+            <input type="hidden" name="direction" th:value="${direction}">
+            <button type="submit" class="btn btn-search">검색</button>
+            <a th:if="${keyword != null or status != null or role != null}" href="#" class="btn btn-reset">초기화</a>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table sortable-table">
+            <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th class="sortable" th:classappend="${sort == 'id'} ? ('sorted-' + ${direction})" onclick="sortBy('id')">ID</th>
+                <th class="sortable" th:classappend="${sort == 'email'} ? ('sorted-' + ${direction})" onclick="sortBy('email')">이메일</th>
+                <th class="sortable" th:classappend="${sort == 'nickname'} ? ('sorted-' + ${direction})" onclick="sortBy('nickname')">닉네임</th>
+                <th>티어</th>
+                <th class="sortable" th:classappend="${sort == 'totalGames'} ? ('sorted-' + ${direction})" onclick="sortBy('totalGames')">게임 수</th>
+                <th>권한</th>
+                <th>상태</th>
+                <th class="sortable" th:classappend="${sort == 'createdAt'} ? ('sorted-' + ${direction})" onclick="sortBy('createdAt')">가입일</th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="member, iterStat : ${members}" onclick="toggleRowExpand(this)">
+                <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
+                <td data-label="ID" th:text="${member.id}"></td>
+                <td data-label="이메일" th:text="${member.email}"></td>
+                <td data-label="닉네임" th:text="${member.nickname}"></td>
+                <td data-label="티어"><span class="tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}"></span></td>
+                <td data-label="게임 수" th:text="${member.totalGames}"></td>
+                <td data-label="권한"><span class="role-badge" th:classappend="${member.role.name()}" th:text="${member.role.name() == 'ADMIN'} ? '관리자' : '사용자'"></span></td>
+                <td data-label="상태"><span class="status" th:classappend="${member.status.name()}" th:text="${member.status.name() == 'ACTIVE'} ? '활성' : (${member.status.name() == 'BANNED'} ? '정지' : '비활성')"></span></td>
+                <td data-label="가입일" th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd')}"></td>
+                <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                    <button class="btn btn-sm btn-info" th:data-id="${member.id}" onclick="viewDetail(this.dataset.id)">상세</button>
+                    <button class="btn btn-sm btn-edit" th:data-id="${member.id}" onclick="openStatusModal(this.dataset.id)">상태</button>
+                    <button class="btn btn-sm btn-toggle" th:data-id="${member.id}" onclick="openRoleModal(this.dataset.id)">권한</button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(members)}"><td colspan="10" class="empty-row">등록된 회원이 없습니다.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination" th:if="${totalPages > 0}">
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link" th:onclick="'goToPage(0); return false;'">«</a>
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${currentPage - 1} + '); return false;'">‹</a>
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}" href="#" th:text="${i + 1}" th:classappend="${i == currentPage} ? 'active'" class="page-link" th:onclick="'goToPage(' + ${i} + '); return false;'"></a>
+        </th:block>
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${currentPage + 1} + '); return false;'">›</a>
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${totalPages - 1} + '); return false;'">»</a>
+    </div>
+</div>
+
+<style>
+.sub-stats { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.sub-stat { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-elevated); border-radius: 0.5rem; font-size: 0.9rem; }
+.sub-stat-value { font-weight: 600; color: var(--primary-color); }
+.sub-stat-label { color: var(--text-secondary); }
+.sub-stat.active .sub-stat-value { color: #10b981; }
+.sub-stat.banned .sub-stat-value { color: #ef4444; }
+.sub-stat.admin .sub-stat-value { color: #8b5cf6; }
+.tier-badge { padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; color: white; }
+.role-badge { padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.8rem; }
+.role-badge.ADMIN { background: #ede9fe; color: #6d28d9; }
+.role-badge.USER { background: #e5e7eb; color: #374151; }
+.status.ACTIVE { color: #10b981; }
+.status.BANNED { color: #ef4444; }
+.status.INACTIVE { color: #6b7280; }
+@media (max-width: 768px) { .sub-stat { flex: 1; min-width: calc(50% - 0.5rem); justify-content: center; } }
+</style>

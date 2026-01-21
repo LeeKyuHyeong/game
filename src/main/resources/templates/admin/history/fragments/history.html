@@ -1,0 +1,127 @@
+<!-- 게임 이력 탭 콘텐츠 (프래그먼트) -->
+<div class="history-tab-content" xmlns:th="http://www.thymeleaf.org">
+    <div class="sub-stats">
+        <div class="sub-stat"><span class="sub-stat-value" th:text="${todayCount} ?: 0">0</span><span class="sub-stat-label">오늘 게임</span></div>
+        <div class="sub-stat"><span class="sub-stat-value" th:text="${#numbers.formatDecimal(avgScore ?: 0, 0, 1)}">0</span><span class="sub-stat-label">평균 점수</span></div>
+        <div class="sub-stat"><span class="sub-stat-value" th:text="${totalItems}">0</span><span class="sub-stat-label">전체 이력</span></div>
+    </div>
+
+    <div class="filter-bar">
+        <form class="filter-form">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="별명 검색">
+            <select name="gameType">
+                <option value="">게임유형 전체</option>
+                <option value="SOLO_HOST" th:selected="${gameType == 'SOLO_HOST'}">게임진행용</option>
+                <option value="SOLO_GUESS" th:selected="${gameType == 'SOLO_GUESS'}">내가맞추기</option>
+                <option value="FAN_CHALLENGE" th:selected="${gameType == 'FAN_CHALLENGE'}">아티스트 챌린지</option>
+            </select>
+            <select name="status">
+                <option value="">상태 전체</option>
+                <option value="PLAYING" th:selected="${status == 'PLAYING'}">진행중</option>
+                <option value="COMPLETED" th:selected="${status == 'COMPLETED'}">완료</option>
+                <option value="ABANDONED" th:selected="${status == 'ABANDONED'}">중도포기</option>
+            </select>
+            <button type="submit" class="btn btn-search">검색</button>
+            <a th:if="${keyword != null or gameType != null or status != null}" href="#" class="btn btn-reset">초기화</a>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th class="col-no">ID</th>
+                <th>별명</th>
+                <th>게임유형</th>
+                <th>게임모드</th>
+                <th>라운드</th>
+                <th>점수</th>
+                <th>정답률</th>
+                <th>상태</th>
+                <th>시작시간</th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${sessions}" onclick="toggleRowExpand(this)">
+                <td data-label="ID" th:text="${s.id}"></td>
+                <td data-label="별명" th:text="${s.nickname}"></td>
+                <td data-label="게임유형">
+                    <span class="type-badge" th:classappend="${s.gameType.name()}"
+                          th:switch="${s.gameType.name()}">
+                        <span th:case="'SOLO_HOST'">게임진행용</span>
+                        <span th:case="'SOLO_GUESS'">내가맞추기</span>
+                        <span th:case="'FAN_CHALLENGE'">아티스트 챌린지</span>
+                        <span th:case="*">기타</span>
+                    </span>
+                </td>
+                <td data-label="게임모드">
+                    <span th:switch="${s.gameMode.name()}">
+                        <span th:case="'RANDOM'">전체랜덤</span>
+                        <span th:case="'FIXED_GENRE'">고정장르</span>
+                        <span th:case="'FIXED_ARTIST'">고정아티스트</span>
+                        <span th:case="'FIXED_YEAR'">고정연도</span>
+                        <span th:case="'GENRE_PER_ROUND'">라운드별장르</span>
+                        <span th:case="'ARTIST_PER_ROUND'">라운드별아티스트</span>
+                        <span th:case="'YEAR_PER_ROUND'">라운드별연도</span>
+                        <span th:case="*">-</span>
+                    </span>
+                </td>
+                <td data-label="라운드">
+                    <span th:text="${s.completedRounds}"></span>/<span th:text="${s.totalRounds}"></span>
+                </td>
+                <td data-label="점수" class="score-cell" th:text="${s.totalScore}"></td>
+                <td data-label="정답률">
+                    <span class="accuracy" th:text="${#numbers.formatDecimal(s.accuracyRate, 0, 1)} + '%'"></span>
+                </td>
+                <td data-label="상태">
+                    <span class="game-status" th:classappend="${s.status.name()}"
+                          th:switch="${s.status.name()}">
+                        <span th:case="'PLAYING'">진행중</span>
+                        <span th:case="'COMPLETED'">완료</span>
+                        <span th:case="'ABANDONED'">중도포기</span>
+                    </span>
+                </td>
+                <td data-label="시작시간" th:text="${#temporals.format(s.startedAt, 'MM-dd HH:mm')}"></td>
+                <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                    <a th:href="@{/admin/history/detail/{id}(id=${s.id})}" class="btn btn-sm btn-view">상세</a>
+                    <button class="btn btn-sm btn-delete" th:data-id="${s.id}" onclick="deleteSession(this.dataset.id)">삭제</button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(sessions)}">
+                <td colspan="10" class="empty-row">게임 이력이 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination" th:if="${totalPages > 0}">
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link" th:onclick="'goToPage(0); return false;'">«</a>
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${currentPage - 1} + '); return false;'">‹</a>
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}" href="#" th:text="${i + 1}" th:classappend="${i == currentPage} ? 'active'" class="page-link" th:onclick="'goToPage(' + ${i} + '); return false;'"></a>
+        </th:block>
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${currentPage + 1} + '); return false;'">›</a>
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${totalPages - 1} + '); return false;'">»</a>
+    </div>
+</div>
+
+<style>
+.sub-stats { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.sub-stat { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-elevated); border-radius: 0.5rem; font-size: 0.9rem; }
+.sub-stat-value { font-weight: 600; color: var(--primary-color); }
+.sub-stat-label { color: var(--text-secondary); }
+.filter-bar { margin-bottom: 1rem; }
+.filter-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.type-badge { padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.8rem; }
+.type-badge.SOLO_HOST { background: #dbeafe; color: #1e40af; }
+.type-badge.SOLO_GUESS { background: #d1fae5; color: #065f46; }
+.type-badge.FAN_CHALLENGE { background: #fef3c7; color: #92400e; }
+.game-status { font-weight: 500; }
+.game-status.PLAYING { color: #3b82f6; }
+.game-status.COMPLETED { color: #10b981; }
+.game-status.ABANDONED { color: #6b7280; }
+.score-cell { font-weight: 600; color: var(--primary-color); }
+.accuracy { color: var(--text-secondary); }
+@media (max-width: 768px) { .filter-form { flex-direction: column; } .filter-form input, .filter-form select { width: 100%; } }
+</style>

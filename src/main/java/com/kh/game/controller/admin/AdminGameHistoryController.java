@@ -34,13 +34,33 @@ public class AdminGameHistoryController {
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
     private final FanChallengeService fanChallengeService;
 
-    @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "20") int size,
-                       @RequestParam(required = false) String keyword,
-                       @RequestParam(required = false) String gameType,
-                       @RequestParam(required = false) String status,
-                       Model model) {
+    /**
+     * 통합 게임 관리 페이지 (게임 이력 + 랭킹)
+     */
+    @GetMapping({"", "/"})
+    public String historyIndex(@RequestParam(defaultValue = "history") String tab, Model model) {
+        model.addAttribute("activeTab", tab);
+        model.addAttribute("menu", "history");
+
+        // 통계
+        model.addAttribute("todayCount", gameSessionService.getTodayGameCount());
+        model.addAttribute("avgScore", gameSessionService.getAverageScore());
+        // 전체 게임 수는 페이지 로딩 시 첫 content 로드에서 표시
+        model.addAttribute("totalGames", gameSessionService.findAll(PageRequest.of(0, 1)).getTotalElements());
+
+        return "admin/history/index";
+    }
+
+    /**
+     * AJAX 로딩용 게임 이력 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "20") int size,
+                              @RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String gameType,
+                              @RequestParam(required = false) String status,
+                              Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<GameSession> sessionPage;
@@ -62,13 +82,13 @@ public class AdminGameHistoryController {
 
         model.addAttribute("sessions", sessionPage.getContent());
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
         model.addAttribute("totalPages", sessionPage.getTotalPages());
         model.addAttribute("totalItems", sessionPage.getTotalElements());
         model.addAttribute("todayCount", gameSessionService.getTodayGameCount());
         model.addAttribute("avgScore", gameSessionService.getAverageScore());
-        model.addAttribute("menu", "history");
 
-        return "admin/history/list";
+        return "admin/history/fragments/history";
     }
 
     @GetMapping("/detail/{id}")
@@ -116,8 +136,11 @@ public class AdminGameHistoryController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/ranking")
-    public String ranking(
+    /**
+     * AJAX 로딩용 랭킹 콘텐츠 (fragment)
+     */
+    @GetMapping("/ranking/content")
+    public String rankingContent(
             @RequestParam(defaultValue = "guess") String rankType,
             @RequestParam(required = false) String artist,
             Model model) {
@@ -209,8 +232,15 @@ public class AdminGameHistoryController {
         model.addAttribute("memberRankings", memberRankings);
         model.addAttribute("fanRankings", fanRankings);
         model.addAttribute("rankType", rankType);
-        model.addAttribute("menu", "ranking");
 
-        return "admin/history/ranking";
+        return "admin/history/fragments/ranking";
+    }
+
+    /**
+     * 기존 랭킹 URL 리다이렉트 (하위 호환)
+     */
+    @GetMapping("/ranking")
+    public String rankingRedirect() {
+        return "redirect:/admin/history?tab=ranking";
     }
 }

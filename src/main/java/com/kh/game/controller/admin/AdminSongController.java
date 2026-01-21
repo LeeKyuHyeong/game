@@ -27,8 +27,25 @@ public class AdminSongController {
     private final SongService songService;
     private final GenreService genreService;
 
-    @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page,
+    /**
+     * 통합 노래 관리 페이지 (노래 목록 + 곡 신고)
+     */
+    @GetMapping({"", "/"})
+    public String songIndex(@RequestParam(defaultValue = "song") String tab, Model model) {
+        model.addAttribute("activeTab", tab);
+        model.addAttribute("menu", "song");
+
+        // 노래 폼에 필요한 장르 목록
+        model.addAttribute("genres", genreService.findActiveGenres());
+
+        return "admin/song/index";
+    }
+
+    /**
+     * AJAX 로딩용 노래 목록 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(@RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "20") int size,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) List<String> artists,
@@ -70,7 +87,7 @@ public class AdminSongController {
         model.addAttribute("direction", direction);
         model.addAttribute("viewMode", viewMode);
 
-        return "admin/song/list";
+        return "admin/song/fragments/song";
     }
 
     @GetMapping("/detail/{id}")

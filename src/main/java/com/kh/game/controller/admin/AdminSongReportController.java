@@ -22,13 +22,21 @@ public class AdminSongReportController {
     private final SongReportService songReportService;
 
     /**
-     * 신고 목록 페이지
+     * 기존 신고 목록 페이지 → 통합 노래 관리로 리다이렉트
      */
-    @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "20") int size,
-                       @RequestParam(required = false) String status,
-                       Model model) {
+    @GetMapping({"", "/"})
+    public String reportRedirect() {
+        return "redirect:/admin/song?tab=report";
+    }
+
+    /**
+     * AJAX 로딩용 신고 목록 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "20") int size,
+                              @RequestParam(required = false) String status,
+                              Model model) {
 
         Pageable pageable = PageRequest.of(page, size);
         SongReport.ReportStatus statusFilter = null;
@@ -44,13 +52,13 @@ public class AdminSongReportController {
 
         model.addAttribute("reports", reports.getContent());
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
         model.addAttribute("totalPages", reports.getTotalPages());
         model.addAttribute("totalElements", reports.getTotalElements());
         model.addAttribute("pendingCount", songReportService.getPendingCount());
         model.addAttribute("selectedStatus", status);
-        model.addAttribute("menu", "report");
 
-        return "admin/report/list";
+        return "admin/song/fragments/report";
     }
 
     /**

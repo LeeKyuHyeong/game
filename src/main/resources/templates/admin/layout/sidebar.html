@@ -22,13 +22,9 @@
             <span>관리자</span>
         </div>
         <nav class="sidebar-nav">
-            <a href="/admin/song" class="nav-item" th:classappend="${menu == 'song'} ? 'active'">
+            <a href="/admin/song" class="nav-item" th:classappend="${menu == 'song' or menu == 'report'} ? 'active'">
                 <span class="nav-icon">🎶</span>
                 <span class="nav-text">노래 관리</span>
-            </a>
-            <a href="/admin/report" class="nav-item" th:classappend="${menu == 'report'} ? 'active'">
-                <span class="nav-icon">🚨</span>
-                <span class="nav-text">곡 신고</span>
             </a>
             <a href="/admin/answer" class="nav-item" th:classappend="${menu == 'answer'} ? 'active'">
                 <span class="nav-icon">🎯</span>
@@ -46,17 +42,13 @@
                 <span class="nav-icon">🚫</span>
                 <span class="nav-text">비속어 필터</span>
             </a>
-            <a href="/admin/member" class="nav-item" th:classappend="${menu == 'member'} ? 'active'">
+            <a href="/admin/member" class="nav-item" th:classappend="${menu == 'member' or menu == 'login-history'} ? 'active'">
                 <span class="nav-icon">👥</span>
                 <span class="nav-text">회원 관리</span>
             </a>
-            <a href="/admin/history" class="nav-item" th:classappend="${menu == 'history'} ? 'active'">
+            <a href="/admin/history" class="nav-item" th:classappend="${menu == 'history' or menu == 'ranking'} ? 'active'">
                 <span class="nav-icon">📊</span>
-                <span class="nav-text">게임 이력</span>
-            </a>
-            <a href="/admin/history/ranking" class="nav-item" th:classappend="${menu == 'ranking'} ? 'active'">
-                <span class="nav-icon">🏆</span>
-                <span class="nav-text">랭킹</span>
+                <span class="nav-text">게임 관리</span>
             </a>
             <a href="/admin/challenge" class="nav-item" th:classappend="${menu == 'challenge' or menu == 'fan-challenge' or menu == 'genre-challenge'} ? 'active'">
                 <span class="nav-icon">⭐</span>
@@ -65,10 +57,6 @@
             <a href="/admin/stats" class="nav-item" th:classappend="${menu == 'stats'} ? 'active'">
                 <span class="nav-icon">📈</span>
                 <span class="nav-text">통계 분석</span>
-            </a>
-            <a href="/admin/login-history" class="nav-item" th:classappend="${menu == 'login-history'} ? 'active'">
-                <span class="nav-icon">🔐</span>
-                <span class="nav-text">로그인 이력</span>
             </a>
             <a href="/admin/batch" class="nav-item" th:classappend="${menu == 'batch'} ? 'active'">
                 <span class="nav-icon">⚙️</span>

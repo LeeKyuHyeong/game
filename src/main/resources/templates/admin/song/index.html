@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('노래 관리')}"></head>
+<body class="admin-page">
+<link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+<link rel="stylesheet" th:href="@{/css/admin/song-grid.css}">
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+    <main class="main-content">
+        <header class="content-header">
+            <h1>노래 관리</h1>
+        </header>
+
+        <!-- 탭 네비게이션 -->
+        <div class="tab-navigation">
+            <button class="tab-btn" th:classappend="${activeTab == 'song'} ? 'active'"
+                    onclick="switchTab('song')">
+                <span class="tab-icon">🎶</span>
+                <span class="tab-text">노래 목록</span>
+            </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'report'} ? 'active'"
+                    onclick="switchTab('report')">
+                <span class="tab-icon">🚨</span>
+                <span class="tab-text">곡 신고</span>
+                <span id="pendingBadge" class="pending-count-badge" style="display: none;"></span>
+            </button>
+        </div>
+
+        <!-- 탭 콘텐츠 -->
+        <div class="tab-content" id="tabContent">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <span>로딩 중...</span>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- 노래 추가/수정 모달 -->
+<div id="songModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">노래 추가</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="songForm" class="modal-form">
+            <input type="hidden" id="songId" name="id">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title">제목 *</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="artist">아티스트 *</label>
+                    <input type="text" id="artist" name="artist" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="youtubeUrl">YouTube URL</label>
+                <input type="text" id="youtubeUrl" name="youtubeUrl"
+                       placeholder="https://www.youtube.com/watch?v=... 또는 https://youtu.be/...">
+                <div id="currentYoutubeId" class="current-file"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startTime">시작 시간 (초)</label>
+                    <input type="number" id="startTime" name="startTime" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="playDuration">재생 시간 (초)</label>
+                    <input type="number" id="playDuration" name="playDuration" min="1" value="10">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="genreId">장르</label>
+                    <select id="genreId" name="genreId">
+                        <option value="">선택하세요</option>
+                        <option th:each="genre : ${genres}"
+                                th:value="${genre.id}"
+                                th:text="${genre.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="releaseYear">발매연도</label>
+                    <input type="number" id="releaseYear" name="releaseYear" min="1900" max="2099" placeholder="예: 2024">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>솔로여부</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="isSolo" value="true"> 솔로
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="isSolo" value="false" checked> 그룹
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>대중곡</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="isPopular" value="true" checked> 대중곡
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="isPopular" value="false"> 매니악
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>사용여부</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="useYn" value="Y" checked> 사용
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="useYn" value="N"> 미사용
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" onclick="closeModal()">취소</button>
+                <button type="submit" class="btn btn-primary">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- YouTube 미리보기 모달 -->
+<div id="youtubePreviewModal" class="modal">
+    <div class="modal-content modal-lg">
+        <div class="modal-header">
+            <h2 id="youtubePreviewTitle">YouTube 미리보기</h2>
+            <button class="close-btn" onclick="closeYoutubePreview()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="youtube-preview-info">
+                <span id="previewSongInfo"></span>
+                <span id="previewTimeInfo" class="time-info"></span>
+            </div>
+            <div class="youtube-player-container">
+                <div id="youtubePlayer"></div>
+            </div>
+            <div class="youtube-preview-status">
+                <span id="previewStatus"></span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeYoutubePreview()">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 신고 처리 모달 -->
+<div id="processModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>신고 처리</h2>
+            <button class="close-btn" onclick="closeProcessModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="report-detail">
+                <p><strong>곡:</strong> <span id="modalSongTitle"></span> - <span id="modalSongArtist"></span></p>
+                <p><strong>신고 유형:</strong> <span id="modalReportType"></span></p>
+                <p><strong>상세 내용:</strong> <span id="modalDescription"></span></p>
+            </div>
+            <input type="hidden" id="processReportId">
+            <div class="form-group">
+                <label>처리 상태</label>
+                <select id="processStatus">
+                    <option value="PENDING">대기</option>
+                    <option value="CONFIRMED">확인됨 (문제 있음)</option>
+                    <option value="REJECTED">반려 (문제 없음)</option>
+                    <option value="RESOLVED">해결됨</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>관리자 메모</label>
+                <textarea id="adminNote" rows="3" placeholder="처리 내용을 입력하세요"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeProcessModal()">취소</button>
+            <button class="btn btn-primary" onclick="processReport()">처리</button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/admin/admin-song.js}"></script>
+<script th:src="@{/js/admin/admin-report.js}"></script>
+<script th:inline="javascript">
+const activeTab = [[${activeTab}]];
+let currentTab = activeTab;
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadTabContent(currentTab);
+    loadYouTubeAPI();
+});
+
+function switchTab(tab) {
+    if (currentTab === tab) return;
+    currentTab = tab;
+
+    const url = new URL(window.location);
+    url.searchParams.set('tab', tab);
+    window.history.pushState({}, '', url);
+
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.tab-btn:nth-child(${tab === 'song' ? 1 : 2})`).classList.add('active');
+
+    loadTabContent(tab);
+}
+
+async function loadTabContent(tab, params = '') {
+    const tabContent = document.getElementById('tabContent');
+    tabContent.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
+
+    try {
+        const url = tab === 'song'
+            ? `/admin/song/content${params ? '?' + params : ''}`
+            : `/admin/report/content${params ? '?' + params : ''}`;
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to load content');
+
+        tabContent.innerHTML = await response.text();
+        initTabScripts(tab);
+    } catch (error) {
+        tabContent.innerHTML = `<div class="error-message"><p>콘텐츠를 불러오는데 실패했습니다.</p><button class="btn btn-primary" onclick="loadTabContent('${tab}')">다시 시도</button></div>`;
+    }
+}
+
+function initTabScripts(tab) {
+    if (tab === 'song') {
+        // 노래 탭 초기화
+        initSongTabScripts();
+    } else {
+        // 신고 탭 초기화
+        initReportTabScripts();
+    }
+}
+
+function initSongTabScripts() {
+    // 폼 이벤트 바인딩
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleFormSubmit();
+            const params = new URLSearchParams(new FormData(filterForm)).toString();
+            loadTabContent('song', params);
+        });
+    }
+
+    // 초기화 버튼
+    const resetBtn = document.querySelector('.tab-content .btn-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadTabContent('song');
+        });
+    }
+
+    // 아티스트 필터 초기화
+    updateSelectedArtists();
+    sortArtistList();
+}
+
+function initReportTabScripts() {
+    // 상태 필터
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.onchange = function() {
+            const params = this.value ? `status=${this.value}` : '';
+            loadTabContent('report', params);
+        };
+    }
+
+    // 필터 초기화 버튼
+    const resetBtn = document.querySelector('.tab-content .btn-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadTabContent('report');
+        });
+    }
+
+    // 대기 건수 배지 업데이트
+    updatePendingBadge();
+}
+
+function updatePendingBadge() {
+    const pendingCount = document.querySelector('.pending-badge');
+    const badge = document.getElementById('pendingBadge');
+    if (pendingCount && badge) {
+        const count = pendingCount.textContent.match(/\d+/);
+        if (count && parseInt(count[0]) > 0) {
+            badge.textContent = count[0];
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+}
+
+// 행 펼치기/접기 (모바일)
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) row.classList.toggle('expanded');
+}
+
+// 페이지 이동
+function goToPage(page) {
+    const form = document.getElementById('filterForm');
+    const params = new URLSearchParams();
+    if (form) {
+        new FormData(form).forEach((v, k) => { if (v) params.set(k, v); });
+    }
+    params.set('page', page);
+    loadTabContent(currentTab, params.toString());
+}
+
+function goToReportPage(page) {
+    const statusFilter = document.getElementById('statusFilter');
+    const params = new URLSearchParams();
+    if (statusFilter && statusFilter.value) params.set('status', statusFilter.value);
+    params.set('page', page);
+    loadTabContent('report', params.toString());
+}
+
+// 정렬
+function sortBy(column) {
+    const form = document.getElementById('filterForm');
+    const sortInput = form.querySelector('input[name="sort"]');
+    const directionInput = form.querySelector('input[name="direction"]');
+    const currentSort = sortInput.value;
+    const currentDirection = directionInput.value;
+
+    if (currentSort === column) {
+        directionInput.value = currentDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortInput.value = column;
+        directionInput.value = 'desc';
+    }
+    form.querySelector('input[name="page"]').value = '0';
+
+    const params = new URLSearchParams(new FormData(form)).toString();
+    loadTabContent('song', params);
+}
+
+// 뷰 모드 변경
+function setViewMode(mode) {
+    const form = document.getElementById('filterForm');
+    form.querySelector('input[name="viewMode"]').value = mode;
+    form.querySelector('input[name="page"]').value = '0';
+
+    const params = new URLSearchParams(new FormData(form)).toString();
+    loadTabContent('song', params);
+}
+
+// ========== Artist Filter Functions ==========
+
+function updateSelectedArtists() {
+    const checkboxes = document.querySelectorAll('#artistCheckboxGrid input[type="checkbox"]');
+    if (!checkboxes.length) return;
+
+    const tagsContainer = document.getElementById('selectedArtistsTags');
+    const countSpan = document.getElementById('selectedCount');
+
+    let selectedArtists = [];
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            const item = cb.closest('.artist-checkbox-item');
+            selectedArtists.push({ name: item.dataset.name, count: item.dataset.count });
+        }
+    });
+
+    if (countSpan) countSpan.textContent = selectedArtists.length;
+    updateSelectAllCheckboxState();
+
+    if (tagsContainer) {
+        tagsContainer.replaceChildren();
+        if (selectedArtists.length === 0) {
+            const span = document.createElement('span');
+            span.className = 'no-selection-text';
+            span.textContent = '선택된 아티스트가 없습니다';
+            tagsContainer.appendChild(span);
+        } else {
+            selectedArtists.forEach(a => {
+                const tag = document.createElement('span');
+                tag.className = 'selected-artist-tag';
+                tag.innerHTML = `<span class="tag-name">${escapeHtml(a.name)}</span><span class="tag-count">(${a.count})</span>`;
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'tag-remove';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = () => removeArtist(a.name);
+                tag.appendChild(removeBtn);
+                tagsContainer.appendChild(tag);
+            });
+        }
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function removeArtist(name) {
+    const checkboxes = document.querySelectorAll('#artistCheckboxGrid input[type="checkbox"]');
+    checkboxes.forEach(cb => { if (cb.value === name) cb.checked = false; });
+    updateSelectedArtists();
+}
+
+function handleFormSubmit() {
+    const checkboxes = document.querySelectorAll('#artistCheckboxGrid input[type="checkbox"]');
+    const allCheckboxes = Array.from(checkboxes);
+    const checkedCount = allCheckboxes.filter(cb => cb.checked).length;
+    if (checkedCount === allCheckboxes.length && allCheckboxes.length > 0) {
+        allCheckboxes.forEach(cb => { cb.checked = false; });
+    }
+}
+
+function toggleSelectAllArtists() {
+    const selectAllCheckbox = document.getElementById('selectAllArtists');
+    const checkboxes = document.querySelectorAll('#artistCheckboxGrid input[type="checkbox"]');
+    const visibleCheckboxes = Array.from(checkboxes).filter(cb => !cb.closest('.artist-checkbox-item').classList.contains('hidden'));
+    visibleCheckboxes.forEach(cb => { cb.checked = selectAllCheckbox.checked; });
+    updateSelectedArtists();
+}
+
+function updateSelectAllCheckboxState() {
+    const selectAllCheckbox = document.getElementById('selectAllArtists');
+    if (!selectAllCheckbox) return;
+    const checkboxes = document.querySelectorAll('#artistCheckboxGrid input[type="checkbox"]');
+    const visibleCheckboxes = Array.from(checkboxes).filter(cb => !cb.closest('.artist-checkbox-item').classList.contains('hidden'));
+    if (visibleCheckboxes.length === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    } else {
+        const checkedCount = visibleCheckboxes.filter(cb => cb.checked).length;
+        selectAllCheckbox.checked = checkedCount === visibleCheckboxes.length;
+        selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < visibleCheckboxes.length;
+    }
+}
+
+function filterArtistList() {
+    const searchInput = document.getElementById('artistSearchInput');
+    const keyword = searchInput.value.toLowerCase().trim();
+    const items = document.querySelectorAll('#artistCheckboxGrid .artist-checkbox-item');
+    items.forEach(item => {
+        const name = item.dataset.name.toLowerCase();
+        item.classList.toggle('hidden', keyword !== '' && !name.includes(keyword));
+    });
+    updateSelectAllCheckboxState();
+}
+
+function sortArtistList() {
+    const sortSelect = document.getElementById('artistSortOrder');
+    const grid = document.getElementById('artistCheckboxGrid');
+    if (!sortSelect || !grid) return;
+
+    const sortOrder = sortSelect.value;
+    const items = Array.from(grid.querySelectorAll('.artist-checkbox-item'));
+    items.sort((a, b) => {
+        if (sortOrder === 'count') {
+            return parseInt(b.dataset.count) - parseInt(a.dataset.count);
+        } else {
+            return a.dataset.name.localeCompare(b.dataset.name, 'ko');
+        }
+    });
+    items.forEach(item => grid.appendChild(item));
+}
+
+function toggleShowMore() {
+    const grid = document.getElementById('artistCheckboxGrid');
+    const btn = document.getElementById('showMoreBtn');
+    if (grid.classList.contains('expanded')) {
+        grid.classList.remove('expanded');
+        btn.textContent = '더보기 ▼';
+    } else {
+        grid.classList.add('expanded');
+        btn.textContent = '접기 ▲';
+    }
+}
+
+// ========== YouTube Preview ==========
+let ytPlayer = null;
+let ytApiReady = false;
+
+function loadYouTubeAPI() {
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
+function onYouTubeIframeAPIReady() {
+    ytApiReady = true;
+}
+
+function openYoutubePreview(btn) {
+    const videoId = btn.dataset.videoId;
+    const startTime = parseInt(btn.dataset.startTime) || 0;
+    const duration = parseInt(btn.dataset.duration) || 10;
+    const title = btn.dataset.title;
+    const artist = btn.dataset.artist;
+
+    document.getElementById('youtubePreviewTitle').textContent = 'YouTube 미리보기';
+    document.getElementById('previewSongInfo').textContent = `${title} - ${artist}`;
+    document.getElementById('previewTimeInfo').textContent = `시작: ${startTime}초 / 재생: ${duration}초`;
+    document.getElementById('previewStatus').textContent = '로딩 중...';
+
+    document.getElementById('youtubePreviewModal').classList.add('show');
+
+    if (ytApiReady) {
+        if (ytPlayer) ytPlayer.destroy();
+        ytPlayer = new YT.Player('youtubePlayer', {
+            height: '360', width: '640', videoId: videoId,
+            playerVars: { 'start': startTime, 'autoplay': 1, 'controls': 1, 'rel': 0 },
+            events: {
+                'onReady': () => {
+                    document.getElementById('previewStatus').textContent = '재생 중';
+                    document.getElementById('previewStatus').style.color = '#10b981';
+                },
+                'onError': (event) => {
+                    let errorMsg = '알 수 없는 오류';
+                    switch(event.data) {
+                        case 2: errorMsg = '잘못된 Video ID'; break;
+                        case 5: errorMsg = 'HTML5 플레이어 오류'; break;
+                        case 100: errorMsg = '영상을 찾을 수 없음 (삭제됨)'; break;
+                        case 101: case 150: errorMsg = '소유자가 임베드를 허용하지 않음'; break;
+                    }
+                    document.getElementById('previewStatus').textContent = '오류: ' + errorMsg;
+                    document.getElementById('previewStatus').style.color = '#ef4444';
+                },
+                'onStateChange': (event) => {
+                    const statusEl = document.getElementById('previewStatus');
+                    if (event.data === YT.PlayerState.PLAYING) { statusEl.textContent = '재생 중'; statusEl.style.color = '#10b981'; }
+                    else if (event.data === YT.PlayerState.PAUSED) { statusEl.textContent = '일시정지'; statusEl.style.color = '#f59e0b'; }
+                    else if (event.data === YT.PlayerState.ENDED) { statusEl.textContent = '재생 완료'; statusEl.style.color = '#6b7280'; }
+                }
+            }
+        });
+    } else {
+        document.getElementById('previewStatus').textContent = 'YouTube API 로딩 중... 잠시 후 다시 시도해주세요.';
+        document.getElementById('previewStatus').style.color = '#f59e0b';
+    }
+}
+
+function closeYoutubePreview() {
+    if (ytPlayer) { ytPlayer.destroy(); ytPlayer = null; }
+    document.getElementById('youtubePlayer').replaceChildren();
+    document.getElementById('youtubePreviewModal').classList.remove('show');
+}
+
+// ESC 키로 모달 닫기
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const youtubeModal = document.getElementById('youtubePreviewModal');
+        if (youtubeModal && youtubeModal.classList.contains('show')) closeYoutubePreview();
+    }
+});
+
+document.getElementById('youtubePreviewModal').addEventListener('click', function(e) {
+    if (e.target === this) closeYoutubePreview();
+});
+</script>
+
+<style>
+.tab-navigation { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); }
+.tab-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: transparent; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; font-size: 0.95rem; color: var(--text-secondary); transition: all 0.2s; position: relative; }
+.tab-btn:hover { color: var(--text-primary); background: var(--bg-elevated); }
+.tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
+.tab-content { min-height: 400px; }
+.loading-spinner { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; gap: 1rem; color: var(--text-secondary); }
+.spinner { width: 40px; height: 40px; border: 3px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.pending-count-badge { position: absolute; top: 0.25rem; right: 0.25rem; background: #ef4444; color: white; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 1rem; font-weight: 600; }
+@media (max-width: 768px) { .tab-btn { flex: 1; justify-content: center; } .tab-text { display: none; } }
+</style>
+</body>
+</html>

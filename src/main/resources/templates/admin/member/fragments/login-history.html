@@ -1,0 +1,80 @@
+<!-- 로그인 이력 탭 콘텐츠 (프래그먼트) -->
+<div class="login-history-tab-content" xmlns:th="http://www.thymeleaf.org">
+    <div class="sub-stats">
+        <div class="sub-stat"><span class="sub-stat-value" th:text="${totalItems}">0</span><span class="sub-stat-label">전체 이력</span></div>
+    </div>
+
+    <div class="search-bar">
+        <form class="filter-form">
+            <input type="text" name="email" th:value="${email}" placeholder="이메일 검색">
+            <select name="result" class="form-select">
+                <option value="">전체 결과</option>
+                <option value="SUCCESS" th:selected="${result == 'SUCCESS'}">성공</option>
+                <option value="FAIL" th:selected="${result == 'FAIL'}">실패 전체</option>
+                <option value="FAIL_PASSWORD" th:selected="${result == 'FAIL_PASSWORD'}">비밀번호 오류</option>
+                <option value="FAIL_NOT_FOUND" th:selected="${result == 'FAIL_NOT_FOUND'}">계정 없음</option>
+                <option value="FAIL_BANNED" th:selected="${result == 'FAIL_BANNED'}">정지 계정</option>
+            </select>
+            <input type="date" name="startDate" th:value="${startDate}" placeholder="시작일">
+            <input type="date" name="endDate" th:value="${endDate}" placeholder="종료일">
+            <button type="submit" class="btn btn-search">검색</button>
+            <a th:if="${email != null or result != null or startDate != null or endDate != null}" href="#" class="btn btn-reset">초기화</a>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th>이메일</th>
+                <th>결과</th>
+                <th>IP 주소</th>
+                <th>사유</th>
+                <th>일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="history, iterStat : ${histories}" onclick="toggleRowExpand(this)">
+                <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
+                <td data-label="이메일" th:text="${history.email}"></td>
+                <td data-label="결과">
+                    <span class="status-badge" th:classappend="${history.result.name() == 'SUCCESS' ? 'success' : 'danger'}"
+                          th:text="${history.result.name() == 'SUCCESS' ? '성공' :
+                                    (history.result.name() == 'FAIL_PASSWORD' ? '비밀번호 오류' :
+                                    (history.result.name() == 'FAIL_NOT_FOUND' ? '계정 없음' :
+                                    (history.result.name() == 'FAIL_BANNED' ? '정지 계정' :
+                                    (history.result.name() == 'FAIL_INACTIVE' ? '비활성 계정' : history.result.name()))))}"></span>
+                </td>
+                <td data-label="IP 주소" th:text="${history.ipAddress}"></td>
+                <td data-label="사유" th:text="${history.failReason ?: '-'}"></td>
+                <td data-label="일시" th:text="${#temporals.format(history.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            </tr>
+            <tr th:if="${histories.isEmpty()}"><td colspan="6" class="empty-row">조회된 이력이 없습니다.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination" th:if="${totalPages > 0}">
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link" th:onclick="'goToPage(0); return false;'">«</a>
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${currentPage - 1} + '); return false;'">‹</a>
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}" href="#" th:text="${i + 1}" th:classappend="${i == currentPage} ? 'active'" class="page-link" th:onclick="'goToPage(' + ${i} + '); return false;'"></a>
+        </th:block>
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${currentPage + 1} + '); return false;'">›</a>
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${totalPages - 1} + '); return false;'">»</a>
+    </div>
+</div>
+
+<style>
+.sub-stats { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.sub-stat { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-elevated); border-radius: 0.5rem; font-size: 0.9rem; }
+.sub-stat-value { font-weight: 600; color: var(--primary-color); }
+.sub-stat-label { color: var(--text-secondary); }
+.filter-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.filter-form input[type="date"] { padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.25rem; background: var(--bg-surface); color: var(--text-primary); }
+.status-badge { padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: 500; }
+.status-badge.success { background: #d1fae5; color: #065f46; }
+.status-badge.danger { background: #fee2e2; color: #991b1b; }
+@media (max-width: 768px) { .filter-form { flex-direction: column; } .filter-form input, .filter-form select { width: 100%; } }
+</style>

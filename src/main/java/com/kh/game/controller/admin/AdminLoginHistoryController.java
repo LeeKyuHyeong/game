@@ -22,8 +22,19 @@ public class AdminLoginHistoryController {
 
     private final MemberService memberService;
 
+    /**
+     * 레거시 URL → 통합 페이지로 리다이렉트
+     */
     @GetMapping
-    public String list(
+    public String redirectToMember() {
+        return "redirect:/admin/member?tab=login";
+    }
+
+    /**
+     * AJAX 로딩용 로그인 이력 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String email,
@@ -58,12 +69,14 @@ public class AdminLoginHistoryController {
 
         model.addAttribute("histories", histories);
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
+        model.addAttribute("totalPages", histories.getTotalPages());
+        model.addAttribute("totalItems", histories.getTotalElements());
         model.addAttribute("email", email);
         model.addAttribute("result", result);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-        model.addAttribute("menu", "login-history");
 
-        return "admin/login-history/list";
+        return "admin/member/fragments/login-history";
     }
 }
