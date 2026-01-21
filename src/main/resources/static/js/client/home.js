@@ -193,18 +193,18 @@ async function loadArtistChallengeRanking() {
 // 전체 랭킹 미리보기 로딩 (TOP 3)
 async function loadRankingPreview() {
     try {
-        const response = await fetch('/api/ranking/guess?page=0&size=3&period=TOTAL');
+        const response = await fetch('/api/ranking?mode=guess&type=score&period=all&limit=3');
         const data = await response.json();
 
         const preview = document.getElementById('rankingPreview');
-        if (!preview || !data.content || data.content.length === 0) {
+        if (!preview || !Array.isArray(data) || data.length === 0) {
             return;
         }
 
         const medals = ['🥇', '🥈', '🥉'];
         let html = '';
 
-        data.content.slice(0, 3).forEach((item, index) => {
+        data.slice(0, 3).forEach((item, index) => {
             html += `
                 <div class="ranking-preview-item">
                     <span class="ranking-preview-rank">${medals[index]}</span>

@@ -53,7 +53,6 @@
 
     /* ========== 상태 색상 (고정) ========== */
     --primary: #6366f1;
-    --primary-bright: #818cf8;
     --primary-light: #e0e7ff;
     --primary-dark: #4f46e5;
     --success: #22c55e;
@@ -63,13 +62,11 @@
     --danger-light: #fee2e2;
     --danger-dark: #dc2626;
     --warning: #f59e0b;
-    --warning-bright: #fbbf24;
     --warning-light: #fef3c7;
     --warning-dark: #d97706;
     --info: #3b82f6;
     --info-light: #dbeafe;
     --info-dark: #2563eb;
-    --info-bright: #93c5fd;
 
     /* ========== 뱃지 배경/텍스트 ========== */
     --badge-success-bg: #dcfce7;
@@ -88,8 +85,6 @@
     --badge-pink-text: #9d174d;
     --pink: #ec4899;
     --pink-dark: #be185d;
-    --pink-bright: #f472b6;
-    --pink-light-bright: #f9a8d4;
 
     /* ========== 보조 색상 ========== */
     --secondary-hover: #4b5563;
@@ -214,7 +209,6 @@
     --timer-warning: linear-gradient(90deg, #ffa502, #ffcc00);
     --timer-answering: linear-gradient(90deg, #8b5cf6, #a78bfa);
     --timer-critical: linear-gradient(90deg, var(--danger), #ff6b81);
-    --success-bright: #7bed9f;
     --violet: #8b5cf6;
     --violet-light: #c4b5fd;
 
@@ -309,14 +303,46 @@
     /* ========== 블루 라이트 그라디언트 (준비 완료 배경) ========== */
     --gradient-blue-light: linear-gradient(135deg, #dbeafe 0%, #c7d2fe 100%);
 
-    /* ========== 성공 색상 추가 ========== */
-    --success-bright: #4ade80;
-    --success-light-bright: #86efac;
+    /* ========== Vivid 색상 (고정값 - 다크 배경 위 텍스트/그라디언트용) ========== */
+    --primary-vivid: #818cf8;
+    --success-vivid: #4ade80;
+    --success-vivid-light: #86efac;
+    --warning-vivid: #fbbf24;
+    --info-vivid: #93c5fd;
+    --danger-vivid: #fca5a5;
+    --pink-vivid: #f472b6;
+    --pink-vivid-light: #f9a8d4;
+
+    /* ========== Subtle 배경색 (테마 적응형) ========== */
+    --primary-bg-subtle: #e0e7ff;
+    --success-bg-subtle: #dcfce7;
+    --warning-bg-subtle: #fef3c7;
+    --info-bg-subtle: #dbeafe;
+    --danger-bg-subtle: #fee2e2;
+    --pink-bg-subtle: #fce7f3;
+
+    /* ========== Readable 텍스트색 (테마 적응형) ========== */
+    --primary-text-readable: #4f46e5;
+    --success-text-readable: #16a34a;
+    --warning-text-readable: #d97706;
+    --info-text-readable: #2563eb;
+    --danger-text-readable: #dc2626;
+    --pink-text-readable: #be185d;
+
+    /* ========== Deprecated Aliases (하위 호환성) ========== */
+    --primary-bright: var(--primary-vivid);
+    --success-bright: var(--success-vivid);
+    --success-light-bright: var(--success-vivid-light);
+    --warning-bright: var(--warning-vivid);
+    --info-bright: var(--info-vivid);
+    --pink-bright: var(--pink-vivid);
+    --pink-light-bright: var(--pink-vivid-light);
 
     /* ========== 벤토 카드용 그라디언트 ========== */
     --gradient-pink-light: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
     --gradient-green-light: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
     --gradient-blue-card: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    --gradient-indigo-light: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
 }
 
 /* ========== 다크 모드 ========== */
@@ -407,6 +433,22 @@
     /* 상태 색상 투명 배경 (다크) */
     --success-bg-transparent: rgba(34, 197, 94, 0.2);
     --violet-bg-transparent: rgba(139, 92, 246, 0.2);
+
+    /* ========== Subtle 배경색 (다크 모드) ========== */
+    --primary-bg-subtle: #3730a3;
+    --success-bg-subtle: #166534;
+    --warning-bg-subtle: #92400e;
+    --info-bg-subtle: #1e40af;
+    --danger-bg-subtle: #991b1b;
+    --pink-bg-subtle: #9d174d;
+
+    /* ========== Readable 텍스트색 (다크 모드) ========== */
+    --primary-text-readable: #a5b4fc;
+    --success-text-readable: #86efac;
+    --warning-text-readable: #fcd34d;
+    --info-text-readable: #93c5fd;
+    --danger-text-readable: #fca5a5;
+    --pink-text-readable: #f9a8d4;
 }
 
 /* ========== 게임 페이지 다크 고정 ========== */
