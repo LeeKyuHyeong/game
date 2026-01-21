@@ -93,6 +93,19 @@
                             <span class="coming-soon-badge">준비 중</span>
                         </div>
 
+                        <!-- 장르 챌린지 -->
+                        <a th:if="${menuStatus == null or menuStatus['GENRE_CHALLENGE'] == null or menuStatus['GENRE_CHALLENGE']}"
+                           href="/game/genre-challenge" class="grid-item">
+                            <span class="grid-icon">🎸</span>
+                            <span class="grid-label">장르 챌린지</span>
+                        </a>
+                        <div th:if="${menuStatus != null and menuStatus['GENRE_CHALLENGE'] != null and !menuStatus['GENRE_CHALLENGE']}"
+                             class="grid-item disabled" title="10곡 이상 보유한 장르만 도전 가능">
+                            <span class="grid-icon">🎸</span>
+                            <span class="grid-label">장르 챌린지</span>
+                            <span class="coming-soon-badge">준비 중</span>
+                        </div>
+
                         <!-- 레트로 챌린지 -->
                         <a th:if="${menuStatus == null or menuStatus['RETRO'] == null or menuStatus['RETRO']}"
                            href="/game/retro" class="grid-item">

@@ -101,24 +101,31 @@ public class MenuConfigService {
     }
 
     /**
-     * 초기 데이터가 없을 때 기본 메뉴 생성
+     * 초기 데이터가 없을 때 기본 메뉴 생성 + 누락된 메뉴 추가
      */
     @Transactional
     public void initializeDefaultMenus() {
-        if (menuConfigRepository.count() == 0) {
-            // 솔로 게임 메뉴
-            save(new MenuConfig("SOLO_HOST", "게임 진행용", "TV/모니터에 띄워두고 다른 사람들이 맞추는 모드",
-                    "SOLO", "📺", "/game/solo/host", 1, true));
-            save(new MenuConfig("SOLO_GUESS", "내가 맞추기", "혼자서 노래를 듣고 맞추는 모드",
-                    "SOLO", "🎯", "/game/solo/guess", 2, true));
-            save(new MenuConfig("FAN_CHALLENGE", "아티스트 챌린지", "특정 아티스트의 20곡을 맞추는 도전 모드",
-                    "SOLO", "🏆", "/game/fan-challenge", 3, true));
-            save(new MenuConfig("RETRO", "레트로 챌린지", "추억의 노래를 맞추는 모드",
-                    "SOLO", "📻", "/game/retro", 4, true));
+        // 기본 메뉴 정의
+        List<MenuConfig> defaultMenus = List.of(
+            new MenuConfig("SOLO_HOST", "게임 진행용", "TV/모니터에 띄워두고 다른 사람들이 맞추는 모드",
+                    "SOLO", "📺", "/game/solo/host", 1, true),
+            new MenuConfig("SOLO_GUESS", "내가 맞추기", "혼자서 노래를 듣고 맞추는 모드",
+                    "SOLO", "🎯", "/game/solo/guess", 2, true),
+            new MenuConfig("FAN_CHALLENGE", "아티스트 챌린지", "특정 아티스트의 20곡을 맞추는 도전 모드",
+                    "SOLO", "🏆", "/game/fan-challenge", 3, true),
+            new MenuConfig("GENRE_CHALLENGE", "장르 챌린지", "특정 장르의 전곡을 맞추는 도전 모드",
+                    "SOLO", "🎸", "/game/genre-challenge", 4, true),
+            new MenuConfig("RETRO", "레트로 챌린지", "추억의 노래를 맞추는 모드",
+                    "SOLO", "📻", "/game/retro", 5, true),
+            new MenuConfig("MULTI_LOBBY", "로비 입장", "친구들과 함께 대결하는 멀티플레이어 모드",
+                    "MULTI", "🚪", "/game/multi", 1, true)
+        );
 
-            // 멀티 게임 메뉴
-            save(new MenuConfig("MULTI_LOBBY", "로비 입장", "친구들과 함께 대결하는 멀티플레이어 모드",
-                    "MULTI", "🚪", "/game/multi", 1, true));
+        // 누락된 메뉴만 추가 (기존 데이터 유지)
+        for (MenuConfig menu : defaultMenus) {
+            if (!menuConfigRepository.existsById(menu.getMenuId())) {
+                save(menu);
+            }
         }
     }
 }

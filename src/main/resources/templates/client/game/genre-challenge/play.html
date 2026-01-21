@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('장르 챌린지 - Song Quiz')}"></head>
+<link rel="stylesheet" th:href="@{/css/client/game-common.css}">
+<link rel="stylesheet" th:href="@{/css/client/game-genre-challenge.css}">
+<body class="client-page game-page">
+<div class="game-container genre-challenge">
+    <header class="game-header">
+        <div class="header-left">
+            <span class="difficulty-badge" th:data-difficulty="${difficulty}">
+                <span th:text="${difficultyEmoji != null ? difficultyEmoji : '⭐'}"></span>
+                <span th:text="${difficultyName}">일반</span>
+            </span>
+            <span class="genre-name" th:text="${genreName}">장르</span>
+            <span class="round-info">
+                <span id="currentRound">1</span> / <span id="totalRounds">?</span>
+            </span>
+        </div>
+        <div class="header-center">
+            <div id="livesContainer" class="lives-container">
+                <!-- 동적으로 생성됨 -->
+            </div>
+            <div id="comboContainer" class="combo-container">
+                <span class="combo-label">COMBO</span>
+                <span id="comboCount" class="combo-count">0</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="correct-count">
+                <span id="correctCount">0</span>곡 정답
+            </span>
+            <a href="/" class="btn-home"><span class="btn-icon">🏠</span> 홈</a>
+            <button type="button" class="btn btn-quit" onclick="quitGame()">포기</button>
+        </div>
+    </header>
+
+    <main class="game-main">
+        <!-- 준비 화면 -->
+        <div id="readyScreen" class="ready-screen">
+            <div class="ready-content">
+                <div class="ready-icon">&#127912;</div>
+                <h2 th:text="${genreName + ' 장르 챌린지'}">장르 챌린지</h2>
+                <p>
+                    <span th:text="${totalTimeMs / 1000}">10</span>초 안에 듣고 맞추기!
+                </p>
+                <div class="ready-difficulty">
+                    <span class="difficulty-badge" th:data-difficulty="${difficulty}">
+                        <span th:text="${difficultyEmoji != null ? difficultyEmoji : '⭐'}"></span>
+                        <span th:text="${difficultyName}">일반</span>
+                    </span>
+                    <span th:if="${!isRanked}" class="practice-label">연습 모드</span>
+                    <span th:if="${isRanked}" class="ranked-label">공식 랭킹</span>
+                </div>
+                <button type="button" class="btn btn-ready" onclick="startRound()">준비 완료!</button>
+            </div>
+        </div>
+
+        <!-- 게임 화면 -->
+        <div id="gameScreen" class="game-screen" style="display: none;">
+            <!-- 타이머 -->
+            <div class="timer-section">
+                <div class="timer-bar-container">
+                    <div id="timerBar" class="timer-bar"></div>
+                </div>
+                <div class="timer-text">
+                    <span id="timerValue">10.0</span>초
+                </div>
+                <div id="phaseText" class="phase-text playing">🎵 듣고 맞추세요!</div>
+            </div>
+
+            <!-- 콤보 표시 (큰 화면) -->
+            <div id="comboBig" class="combo-big" style="display: none;">
+                <span class="combo-big-number">0</span>
+                <span class="combo-big-label">COMBO!</span>
+            </div>
+
+            <!-- 음악 플레이어 (숨김) -->
+            <div class="player-section">
+                <div class="music-icon">&#127911;</div>
+                <p class="now-playing">노래 재생 중...</p>
+            </div>
+
+            <!-- 정답 입력 -->
+            <div class="answer-section">
+                <input type="text" id="answerInput" class="answer-input"
+                       placeholder="노래 제목을 입력하세요" autocomplete="off">
+                <button type="button" id="submitBtn" class="btn btn-submit" onclick="submitAnswer()">
+                    정답!
+                </button>
+            </div>
+        </div>
+
+        <!-- 정답 공개 모달 -->
+        <div id="answerModal" class="modal" style="display: none;">
+            <div class="modal-content answer-modal">
+                <div id="answerResult" class="answer-result"></div>
+                <div class="answer-info">
+                    <p class="correct-answer-label">정답</p>
+                    <p id="correctAnswer" class="correct-answer"></p>
+                </div>
+                <div class="modal-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">남은 라이프</span>
+                        <span id="modalLives" class="stat-value lives"></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">정답</span>
+                        <span id="modalCorrect" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item combo-stat">
+                        <span class="stat-label">콤보</span>
+                        <span id="modalCombo" class="stat-value combo">0</span>
+                    </div>
+                </div>
+                <button type="button" id="nextBtn" class="btn btn-next" onclick="nextRound()">
+                    다음 곡
+                </button>
+            </div>
+        </div>
+
+        <!-- 게임 오버 모달 -->
+        <div id="gameOverModal" class="modal" style="display: none;">
+            <div class="modal-content gameover-modal">
+                <div id="gameOverTitle" class="gameover-title"></div>
+                <div id="gameOverMessage" class="gameover-message"></div>
+                <button type="button" class="btn btn-result" onclick="goToResult()">
+                    결과 보기
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 모바일 플로팅 버튼 (모바일에서만 표시) -->
+    <div class="mobile-floating-buttons">
+        <a href="/" class="floating-btn floating-home">홈</a>
+        <button type="button" class="floating-btn floating-quit" onclick="quitGame()">포기</button>
+    </div>
+</div>
+
+<!-- YouTube Player (숨김) -->
+<div id="youtubePlayerContainer" style="position: absolute; left: -9999px;">
+    <div id="youtubePlayer"></div>
+</div>
+
+<!-- Audio Player (MP3용) -->
+<audio id="audioPlayer" style="display: none;"></audio>
+
+<script th:inline="javascript">
+    const sessionId = [[${sessionId}]];
+    const genreCode = [[${genreCode}]];
+    const genreName = [[${genreName}]];
+    const difficulty = [[${difficulty}]];
+    const initialTotalTimeMs = [[${totalTimeMs}]];
+    const initialLives = [[${initialLives}]];
+</script>
+<script th:src="@{/js/common/common.js}"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script th:src="@{/js/client/game-genre-challenge-play.js}"></script>
+</body>
+</html>

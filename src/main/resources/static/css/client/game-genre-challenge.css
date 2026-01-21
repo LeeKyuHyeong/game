@@ -1,0 +1,2244 @@
+/* 장르 챌린지 스타일 */
+
+/* ========== Setup 페이지 ========== */
+
+/* 밝은 테마 설정 카드 */
+.setup-card.genre-challenge-card {
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.genre-challenge-card .setup-step h3 {
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.genre-challenge-card .input-text {
+    background: var(--bg-surface);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    font-size: 1rem;
+}
+
+.genre-challenge-card .input-text::placeholder {
+    color: var(--text-secondary);
+}
+
+.genre-challenge-card .input-text:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.genre-challenge-card .challenge-intro {
+    text-align: center;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--ranked-gradient);
+    border-radius: 1rem;
+    margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+    padding: 2rem 1.5rem;
+}
+
+.genre-challenge-card .challenge-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.genre-challenge-card .challenge-intro h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--amber-text);
+    font-weight: 700;
+}
+
+.genre-challenge-card .challenge-desc {
+    color: var(--amber-text-dark);
+    line-height: 1.6;
+}
+
+/* 장르 선택 영역 */
+.genre-select-area {
+    animation: fadeIn 0.3s ease;
+}
+
+/* 선택 완료 영역 */
+.selected-genre-area {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 선택 완료 카드 */
+.selected-genre-card {
+    background: linear-gradient(135deg, var(--info-bg) 0%, var(--info-light) 100%);
+    border: 2px solid var(--primary-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.selected-badge {
+    display: inline-block;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.35rem 1rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+}
+
+.selected-genre-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.selected-genre-icon {
+    font-size: 2.5rem;
+}
+
+.selected-genre-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.selected-genre-count {
+    font-size: 1rem;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* 장르 랭킹 정보 (설정 화면) */
+.genre-record-info {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background: var(--bg-base);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.record-info-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    gap: 0.5rem;
+}
+
+.record-info-item + .record-info-item {
+    border-top: 1px solid var(--border-color);
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+}
+
+.record-info-item .record-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.record-info-item .record-value {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.record-info-item .record-value .nickname {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.record-info-item .record-value .score {
+    font-weight: 700;
+}
+
+.record-info-item .record-value .combo {
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.record-info-item .record-value .time {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.no-record-info {
+    text-align: center;
+}
+
+.no-record-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.btn-change-genre {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-change-genre:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-color: var(--primary-color);
+}
+
+/* 장르 목록 */
+.genre-list-container h4 {
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.genre-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.genre-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg-base);
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+}
+
+.genre-item:hover {
+    border-color: var(--primary-color);
+    background: var(--info-bg);
+}
+
+.genre-item.selected {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.genre-name {
+    font-weight: 600;
+}
+
+.song-count {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.genre-item.selected .song-count {
+    color: var(--overlay-white-text-strong);
+}
+
+/* ========== 난이도 선택 ========== */
+.difficulty-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.difficulty-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem 1.25rem;
+    background: var(--bg-surface);
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.difficulty-btn:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-base);
+}
+
+.difficulty-btn.selected {
+    border-color: var(--primary-color);
+    background: var(--info-bg);
+    box-shadow: 0 0 0 3px var(--game-focus-outline-light);
+}
+
+.difficulty-btn .diff-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.difficulty-btn .diff-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.difficulty-btn .diff-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.difficulty-btn .diff-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+}
+
+.diff-badge.practice {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+.diff-badge.ranked {
+    background: var(--ranked-gradient);
+    color: var(--amber-text);
+}
+
+/* 난이도 뱃지 (헤더/결과) */
+.difficulty-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.difficulty-badge[data-difficulty="NORMAL"] {
+    background: var(--info-bg);
+    color: var(--info-text-dark);
+}
+
+.difficulty-badge[data-difficulty="HARDCORE"] {
+    background: var(--danger-bg);
+    color: var(--danger-text-dark);
+}
+
+/* 모드 라벨 (연습/공식) */
+.mode-label {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+}
+
+.mode-label.practice {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+.mode-label.ranked {
+    background: var(--ranked-gradient);
+    color: var(--amber-text);
+}
+
+/* 준비 화면 난이도 표시 */
+.ready-difficulty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.practice-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.75rem;
+}
+
+.ranked-label {
+    font-size: 0.85rem;
+    color: var(--amber-text);
+    background: var(--ranked-gradient);
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+}
+
+/* 규칙 섹션 */
+.genre-challenge-card .rules-section {
+    background: var(--bg-base);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.genre-challenge-card .rules-section h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.rules-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.rules-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.rules-list li strong {
+    color: var(--primary-color);
+}
+
+.rule-icon {
+    font-size: 1.25rem;
+}
+
+/* ========== Play 페이지 ========== */
+.game-container.genre-challenge {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--gradient-client);
+}
+
+.game-container.genre-challenge .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--overlay-medium);
+    border-bottom: 1px solid var(--overlay-medium);
+    backdrop-filter: blur(10px);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-left .genre-name {
+    font-weight: bold;
+    color: white;
+}
+
+.game-container.genre-challenge .round-info {
+    color: var(--overlay-white-text-strong);
+}
+
+/* 라이프 표시 */
+.lives-container {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.life {
+    font-size: 1.5rem;
+    transition: all 0.3s;
+}
+
+.life.active {
+    color: var(--danger);
+}
+
+.life.lost {
+    color: var(--bg-muted);
+    opacity: 0.5;
+}
+
+/* 콤보 표시 (헤더) */
+.header-center {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.combo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    background: var(--overlay-light);
+    border-radius: 1rem;
+    transition: all 0.3s;
+}
+
+.combo-container.active {
+    background: var(--ranked-gradient);
+    transform: scale(1.05);
+}
+
+.combo-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--overlay-white-text);
+    text-transform: uppercase;
+}
+
+.combo-container.active .combo-label {
+    color: var(--amber-text-dark);
+}
+
+.combo-count {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.combo-container.active .combo-count {
+    color: var(--amber-text);
+}
+
+/* 콤보 빅 애니메이션 (화면 중앙) */
+.combo-big {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.combo-big-number {
+    font-size: 6rem;
+    font-weight: 900;
+    color: var(--tier-gold);
+    text-shadow: 0 0 30px var(--tier-gold-bg-hover), 0 4px 10px var(--overlay-black-medium);
+    line-height: 1;
+}
+
+.combo-big-label {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--tier-gold);
+    text-shadow: 0 0 20px var(--tier-gold-bg-hover);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.combo-big.animate {
+    animation: comboPop 1s ease-out forwards;
+}
+
+@keyframes comboPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    40% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.1) translateY(-20px);
+    }
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.correct-count {
+    color: var(--success-bright);
+    font-weight: bold;
+}
+
+/* 홈 버튼 */
+.game-container.genre-challenge .btn-home {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    text-decoration: none;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+}
+
+.game-container.genre-challenge .btn-home:hover {
+    background: var(--primary-hover);
+}
+
+/* 포기 버튼 */
+.game-container.genre-challenge .btn-quit {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    font-size: 0.9rem;
+    background: var(--danger);
+    color: var(--danger-light);
+    border: 1px solid var(--danger);
+}
+
+.game-container.genre-challenge .btn-quit:hover {
+    background: var(--badge-danger-bg);
+}
+
+/* 모바일 플로팅 버튼 (기본: 숨김) */
+.mobile-floating-buttons {
+    display: none;
+}
+
+/* 게임 메인 */
+.game-container.genre-challenge .game-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+/* 준비 화면 */
+.ready-screen {
+    text-align: center;
+}
+
+.ready-content {
+    background: var(--bg-surface);
+    padding: 3rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px var(--overlay-black-medium);
+}
+
+.ready-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.ready-content h2 {
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.ready-content p {
+    color: var(--badge-pink-text);
+}
+
+.btn-ready {
+    margin-top: 2rem;
+    padding: 1rem 3rem;
+    font-size: 1.25rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.btn-ready:hover {
+    transform: scale(1.05);
+    background: var(--primary-hover);
+}
+
+/* 게임 화면 */
+.game-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* 타이머 */
+.timer-section {
+    width: 100%;
+    text-align: center;
+}
+
+.timer-bar-container {
+    height: 20px;
+    background: var(--overlay-medium);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.timer-bar {
+    height: 100%;
+    background: var(--timer-success);
+    transition: width 0.1s linear;
+    border-radius: 10px;
+}
+
+.timer-bar.warning {
+    background: var(--timer-warning);
+}
+
+.timer-bar.critical {
+    background: var(--timer-critical);
+    animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Phase 표시 텍스트 */
+.phase-text {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    margin-top: 0.5rem;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.phase-text.playing {
+    background: var(--status-success-bg);
+    color: var(--success-bright);
+}
+
+.timer-text {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 2px 4px var(--overlay-black-medium);
+}
+
+/* 플레이어 섹션 */
+.player-section {
+    text-align: center;
+    padding: 2rem;
+}
+
+.music-icon {
+    font-size: 4rem;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.now-playing {
+    color: var(--overlay-white-text-strong);
+    margin-top: 0.5rem;
+}
+
+/* 정답 입력 */
+.game-container.genre-challenge .answer-section {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg-elevated);
+    border-radius: 1rem;
+}
+
+.game-container.genre-challenge .answer-input {
+    flex: 1;
+    padding: 1rem;
+    font-size: 1.25rem;
+    background: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 0.75rem;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.game-container.genre-challenge .answer-input::placeholder {
+    color: var(--input-placeholder);
+}
+
+/* .game-page는 항상 다크 모드이므로 별도 처리 */
+.game-page .game-container.genre-challenge .answer-section {
+    background: var(--overlay-medium);
+}
+
+.game-page .game-container.genre-challenge .answer-input {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.game-page .game-container.genre-challenge .answer-input::placeholder {
+    color: var(--text-muted);
+}
+
+.game-container.genre-challenge .answer-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--game-focus-outline);
+}
+
+.game-container.genre-challenge .btn-submit {
+    padding: 1rem 2rem;
+    font-size: 1.25rem;
+    background: var(--gradient-success);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 10px var(--game-correct-glow);
+}
+
+.game-container.genre-challenge .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px var(--status-success-bg-hover);
+}
+
+/* 모달 */
+.game-container.genre-challenge .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--overlay-heavy);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.game-container.genre-challenge .modal-content {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: var(--shadow-lg);
+    color: var(--text-primary);
+}
+
+/* .game-page가 --text-primary를 흰색으로 오버라이드하므로, 흰색 배경 모달에 명시적 지정 */
+.game-page .game-container.genre-challenge .modal-content {
+    color: var(--slate-800);
+}
+
+/* 정답 모달 */
+.answer-result {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+.answer-result.correct .correct {
+    color: var(--success);
+}
+
+.answer-result.wrong .wrong {
+    color: var(--danger);
+}
+
+.answer-result.timeout .timeout {
+    color: var(--warning);
+}
+
+.answer-info {
+    margin-bottom: 1.5rem;
+}
+
+.correct-answer-label {
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.game-page .correct-answer-label {
+    color: var(--slate-500);
+}
+
+.correct-answer {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.modal-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.game-container.genre-challenge .modal .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.game-container.genre-challenge .modal .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.game-page .game-container.genre-challenge .modal .stat-label {
+    color: var(--slate-500);
+}
+
+.game-container.genre-challenge .modal .stat-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.game-page .game-container.genre-challenge .modal .stat-value {
+    color: var(--badge-info-text);
+}
+
+/* 콤보 스탯 표시 */
+.modal-stats .stat-item.combo-stat .stat-value.combo {
+    color: var(--warning);
+}
+
+.stat-value.lives .life {
+    font-size: 1rem;
+}
+
+.btn-next {
+    display: block;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.btn-next:hover {
+    background: var(--primary-hover);
+}
+
+/* 게임오버 모달 */
+.gameover-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.gameover-title.completed {
+    color: var(--success);
+}
+
+.gameover-title.failed {
+    color: var(--danger);
+}
+
+.gameover-message {
+    margin-bottom: 2rem;
+    color: var(--badge-info-text);
+}
+
+.btn-result {
+    padding: 1rem 3rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.btn-result:hover {
+    background: var(--primary-hover);
+}
+
+/* ========== Result 페이지 ========== */
+.genre-challenge-result {
+    min-height: 100vh;
+    padding: 2rem;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    justify-items: center;
+}
+
+/* 결과 페이지 헤더 */
+.genre-challenge-result .result-header {
+    color: var(--text-primary);
+}
+
+.genre-challenge-result .result-header h1 {
+    color: var(--text-primary);
+}
+
+/* stats-row 내부 요소 테마 적용 */
+.genre-challenge-result .stats-row .stat-item .stat-label {
+    color: var(--text-secondary);
+}
+
+.genre-challenge-result .stats-row .stat-item .stat-value {
+    color: var(--text-primary);
+}
+
+/* 콤보 스탯 강조 */
+.genre-challenge-result .stats-row .stat-item.combo-stat .stat-value.combo {
+    color: var(--warning);
+    font-weight: 700;
+}
+
+.result-summary {
+    background: var(--bg-surface);
+    padding: 2rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.result-summary .score-display {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.score-value {
+    font-size: 4rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.score-separator {
+    font-size: 2rem;
+    color: var(--text-secondary);
+    margin: 0 0.25rem;
+}
+
+.score-total {
+    font-size: 2rem;
+    color: var(--text-secondary);
+}
+
+.score-label {
+    display: block;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+
+.stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+}
+
+/* 랭킹 섹션 */
+.genre-challenge-result .ranking-section {
+    margin: 2rem 0;
+    background: var(--bg-base);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.genre-challenge-result .ranking-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.genre-challenge-result .ranking-section h2 {
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.genre-challenge-result .ranking-subtitle {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.my-record {
+    text-align: center;
+    padding: 1rem;
+    background: var(--info-bg);
+    border: 2px solid var(--primary-color);
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.my-record-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.my-record-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.my-record-value .record-combo {
+    color: var(--warning);
+    font-size: 1rem;
+    margin-left: 0.5rem;
+}
+
+.my-record-value .record-time {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--bg-surface);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.ranking-item.my-rank {
+    border: 2px solid var(--primary-color);
+    background: var(--info-bg);
+}
+
+.ranking-item .rank {
+    width: 30px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.ranking-item .nickname {
+    flex: 1;
+    color: var(--text-primary);
+}
+
+.ranking-item .record-value {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+}
+
+.ranking-item .record-combo {
+    color: var(--warning);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.record-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.no-ranking {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+/* 결과 헤더 */
+.result-header .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+/* 랭킹 아이콘 */
+.ranking-icon {
+    margin-right: 0.25rem;
+}
+
+/* 연습 모드 알림 */
+.practice-notice {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--ranked-gradient);
+    border-radius: 0.75rem;
+    text-align: center;
+}
+
+.practice-notice .notice-content {
+    margin-bottom: 1rem;
+}
+
+.practice-notice .notice-icon {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.practice-notice p {
+    margin: 0.25rem 0;
+    color: var(--amber-text-dark);
+}
+
+.btn-hardcore {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
+    color: white;
+    border-radius: 30px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+
+.btn-hardcore:hover {
+    transform: scale(1.05);
+}
+
+/* 라운드별 기록 */
+.genre-challenge-result .rounds-section {
+    margin: 2rem 0;
+    background: var(--bg-surface);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.genre-challenge-result .rounds-section h2 {
+    margin-bottom: 1rem;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.no-rounds {
+    padding: 2rem;
+    text-align: center;
+}
+
+.no-rounds p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.rounds-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+/* ========== 라운드 카드 - PC: 2컬럼 비교 스타일 ========== */
+.round-card {
+    position: relative;
+    padding: 1rem;
+    background: var(--bg-surface);
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.round-card.correct {
+    border-color: var(--success);
+    background: var(--success-bg);
+}
+
+.round-card.wrong {
+    border-color: var(--danger);
+    background: var(--danger-bg);
+}
+
+/* 결과 뱃지 - PC: 우상단 */
+.round-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.round-badge .badge-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.round-badge .badge-icon.correct {
+    background: var(--success);
+    color: white;
+}
+
+.round-badge .badge-icon.wrong {
+    background: var(--danger);
+    color: white;
+}
+
+.round-badge .badge-icon.timeout {
+    background: var(--warning);
+    color: white;
+}
+
+.round-badge .round-number {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+/* 2컬럼 비교 영역 */
+.round-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    padding-right: 3rem; /* 뱃지 공간 확보 */
+}
+
+.compare-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--overlay-subtle);
+    border-radius: 0.5rem;
+}
+
+.compare-column .column-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.compare-column .column-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.compare-column.correct-col {
+    border-left: 2px solid var(--success);
+}
+
+.compare-column.user-col {
+    border-left: 2px solid var(--danger);
+}
+
+.compare-column.user-col .column-value {
+    color: var(--danger);
+}
+
+/* 정답인 경우 1컬럼만 표시 */
+.round-card.correct .round-compare {
+    grid-template-columns: 1fr;
+}
+
+.round-card.correct .compare-column.correct-col {
+    border-left-color: var(--success);
+}
+
+.round-card.correct .compare-column.correct-col .column-value {
+    color: var(--success);
+}
+
+/* 결과 액션 버튼 */
+.result-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.result-footer .btn-replay,
+.result-footer .btn-home,
+.result-actions .btn-replay,
+.result-actions .btn-home {
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+
+.result-footer .btn-replay,
+.result-actions .btn-replay {
+    background: var(--primary-color);
+    color: white;
+}
+
+.result-footer .btn-replay:hover,
+.result-actions .btn-replay:hover {
+    background: var(--primary-hover);
+}
+
+.result-footer .btn-home,
+.result-actions .btn-home {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.result-footer .btn-home:hover,
+.result-actions .btn-home:hover {
+    background: var(--bg-muted);
+}
+
+.result-footer .btn-replay:hover,
+.result-footer .btn-home:hover,
+.result-actions .btn-replay:hover,
+.result-actions .btn-home:hover {
+    transform: scale(1.05);
+}
+
+/* ========== 태블릿: 컴팩트 뱃지 스타일 (768px 이하) ========== */
+@media (max-width: 768px) {
+    .rounds-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .round-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    /* 뱃지를 좌측에 배치 */
+    .round-badge {
+        position: static;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.125rem;
+        min-width: 2.5rem;
+    }
+
+    .round-badge .badge-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        font-size: 0.85rem;
+    }
+
+    .round-badge .round-number {
+        font-size: 0.6rem;
+    }
+
+    /* 비교 영역을 세로로 변경 */
+    .round-compare {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding-right: 0;
+    }
+
+    .compare-column {
+        padding: 0.25rem 0;
+        background: transparent;
+        border-radius: 0;
+        border-left: none;
+    }
+
+    .compare-column.correct-col {
+        border-left: none;
+    }
+
+    .compare-column.user-col {
+        border-left: none;
+        padding-top: 0;
+    }
+
+    .compare-column .column-label {
+        display: inline;
+        font-size: 0.6rem;
+        margin-right: 0.25rem;
+    }
+
+    .compare-column .column-value {
+        display: inline;
+        font-size: 0.85rem;
+    }
+
+    /* 정답일 때 라벨 숨기기 */
+    .round-card.correct .compare-column .column-label {
+        display: none;
+    }
+
+    .round-card.correct .compare-column .column-value {
+        font-size: 0.9rem;
+    }
+
+    /* 오답일 때 내 답 스타일 */
+    .compare-column.user-col .column-label {
+        color: var(--text-muted);
+    }
+
+    .compare-column.user-col .column-value {
+        font-size: 0.8rem;
+        color: var(--danger);
+    }
+
+    /* 헤더 콤보 영역 */
+    .header-center {
+        gap: 1rem;
+    }
+
+    .combo-container {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .combo-label {
+        font-size: 0.65rem;
+    }
+
+    .combo-count {
+        font-size: 1rem;
+    }
+
+    /* 콤보 빅 애니메이션 */
+    .combo-big-number {
+        font-size: 4rem;
+    }
+
+    .combo-big-label {
+        font-size: 1.5rem;
+    }
+}
+
+/* ========== 모바일: 컴팩트 라운드 카드 (480px 이하) ========== */
+@media (max-width: 480px) {
+    /* Setup 페이지 모바일 */
+    .genre-challenge-card .challenge-intro {
+        padding: 1rem;
+        margin: -1rem -1rem 1rem -1rem;
+        border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .game-container.genre-challenge .game-main {
+        flex: 0;
+    }
+
+    .genre-challenge-card .challenge-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .genre-challenge-card .challenge-intro h2 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .genre-challenge-card .challenge-desc {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .genre-challenge-card .setup-step {
+        margin-bottom: 1rem;
+    }
+
+    .genre-challenge-card .setup-step h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .genre-list {
+        grid-template-columns: repeat(2, 1fr);
+        max-height: 200px;
+        gap: 0.375rem;
+    }
+
+    .genre-item {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    /* 선택 완료 카드 모바일 */
+    .selected-genre-card {
+        padding: 1rem;
+    }
+
+    .selected-badge {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .selected-genre-icon {
+        font-size: 2rem;
+    }
+
+    .selected-genre-name {
+        font-size: 1.25rem;
+    }
+
+    .selected-genre-count {
+        font-size: 0.9rem;
+    }
+
+    .btn-change-genre {
+        font-size: 0.85rem;
+        padding: 0.4rem 1rem;
+    }
+
+    .genre-challenge-card .rules-section {
+        padding: 1rem;
+    }
+
+    .rules-list li {
+        padding: 0.375rem 0;
+        font-size: 0.85rem;
+    }
+
+    .rule-icon {
+        font-size: 1rem;
+    }
+
+    /* Play 페이지 모바일 - 컴팩트 */
+    .game-container.genre-challenge {
+        min-height: 100dvh;
+    }
+
+    .game-container.genre-challenge .game-header {
+        padding: 0.5rem 0.75rem;
+        gap: 0.375rem;
+    }
+
+    .header-center {
+        order: -1;
+        width: 30%;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    /* 장르 이름은 준비 화면 카드에 표시되므로 모바일에서 숨김 */
+    .header-left .genre-name {
+        display: none;
+    }
+
+    .round-info {
+        font-size: 0.85rem;
+    }
+
+    .life {
+        font-size: 1.1rem;
+    }
+
+    .correct-count {
+        font-size: 0.85rem;
+    }
+
+    /* 콤보 표시 모바일 */
+    .combo-container {
+        padding: 0.2rem 0.5rem;
+    }
+
+    .combo-label {
+        font-size: 0.6rem;
+    }
+
+    .combo-count {
+        font-size: 0.9rem;
+        min-width: 1rem;
+    }
+
+    /* 콤보 빅 애니메이션 모바일 */
+    .combo-big-number {
+        font-size: 3rem;
+    }
+
+    .combo-big-label {
+        font-size: 1rem;
+    }
+
+    /* 모바일: 상단 홈/포기 버튼 숨김 */
+    .game-container.genre-challenge .btn-home,
+    .game-container.genre-challenge .btn-quit {
+        display: none;
+    }
+
+    /* 모바일: 플로팅 버튼 표시 */
+    .mobile-floating-buttons {
+        display: flex;
+        position: fixed;
+        top: 4rem;
+        left: 50%;
+        transform: translateX(-50%);
+        gap: 0.75rem;
+        z-index: 100;
+    }
+
+    .floating-btn {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        box-shadow: var(--shadow-lg);
+        text-decoration: none;
+    }
+
+    .floating-btn:active {
+        transform: scale(0.95);
+    }
+
+    .floating-home {
+        background: var(--badge-gray-text);
+        color: var(--text-inverse);
+    }
+
+    .floating-quit {
+        background: var(--danger);
+        color: var(--text-inverse);
+    }
+
+    .game-main {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    /* 준비 화면 컴팩트 */
+    .ready-content {
+        padding: 1.5rem;
+    }
+
+    .ready-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .ready-content h2 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .ready-content p {
+        font-size: 0.85rem;
+    }
+
+    .btn-ready {
+        margin-top: 1rem;
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+    }
+
+    /* 게임 화면 컴팩트 */
+    .game-screen {
+        gap: 1rem;
+    }
+
+    .timer-section {
+        margin-bottom: 0;
+    }
+
+    .timer-bar-container {
+        height: 12px;
+        margin-bottom: 0.25rem;
+    }
+
+    .timer-text {
+        font-size: 1.5rem;
+    }
+
+    .player-section {
+        padding: 1rem;
+    }
+
+    .music-icon {
+        font-size: 2.5rem;
+    }
+
+    .now-playing {
+        font-size: 0.85rem;
+    }
+
+    .answer-section {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .answer-input {
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+
+    .btn-submit {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    /* 정답 모달 컴팩트 */
+    .game-container.genre-challenge .modal {
+        padding: 1rem;
+    }
+
+    .game-container.genre-challenge .modal-content {
+        padding: 1.25rem;
+        max-width: none;
+        width: calc(100% - 2rem);
+    }
+
+    .answer-result {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .answer-info {
+        margin-bottom: 1rem;
+    }
+
+    .correct-answer {
+        font-size: 1.1rem;
+    }
+
+    .modal-stats {
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+    }
+
+    .btn-next {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+        justify-self: center;
+    }
+
+    /* 게임오버 모달 컴팩트 */
+    .gameover-title {
+        font-size: 1.5rem;
+    }
+
+    .gameover-message {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-result {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+    }
+
+    /* Result 페이지 모바일 */
+    .genre-challenge-result {
+        padding: 1rem;
+    }
+
+    .stats-row {
+        gap: 1.5rem;
+    }
+
+    /* 난이도 선택 모바일 */
+    .difficulty-selector {
+        gap: 0.5rem;
+    }
+
+    .difficulty-btn {
+        padding: 0.75rem 1rem;
+    }
+
+    .difficulty-btn .diff-icon {
+        font-size: 1.25rem;
+    }
+
+    .difficulty-btn .diff-name {
+        font-size: 1rem;
+    }
+
+    .difficulty-btn .diff-desc {
+        font-size: 0.8rem;
+    }
+
+    /* 연습 알림 모바일 */
+    .practice-notice {
+        padding: 1rem;
+        margin: 0;
+    }
+
+    .practice-notice p {
+        font-size: 0.85rem;
+    }
+
+    .genre-challenge-result .rounds-section {
+        margin: 0;
+    }
+
+    .btn-hardcore {
+        padding: 0.6rem 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    /* 결과 화면 모바일 */
+    .genre-challenge-result {
+        padding: 1rem;
+    }
+
+    .genre-challenge-result .result-header h1 {
+        font-size: 1.1rem;
+    }
+
+    .genre-challenge-result .result-summary {
+        padding: 1rem;
+        margin-bottom: 0;
+    }
+
+    .score-value {
+        font-size: 2.5rem;
+    }
+
+    .score-separator,
+    .score-total {
+        font-size: 1.5rem;
+    }
+
+    .stats-row {
+        gap: 1.5rem;
+    }
+
+    /* 라운드 카드 모바일 */
+    .rounds-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .round-card {
+        display: block;
+        padding: 0.5rem 0.625rem;
+    }
+
+    /* 라운드 번호만 카드 우상단에 표시 */
+    .round-badge {
+        position: absolute;
+        top: 0.25rem;
+        right: -1.45rem;
+        flex-direction: row;
+        min-width: auto;
+        gap: 0;
+        z-index: 1;
+    }
+
+    .round-badge .badge-icon {
+        display: none;
+    }
+
+    .round-badge .round-number {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    /* 정답/내답 한 줄 인라인 레이아웃 */
+    .round-compare {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        padding-right: 1.25rem;
+        width: 100%;
+    }
+
+    .compare-column {
+        display: flex;
+        align-items: baseline;
+        gap: 0.25rem;
+        padding: 0;
+        background: transparent;
+        width: 100%;
+    }
+
+    .compare-column .column-label {
+        font-size: 0.6rem;
+        flex-shrink: 0;
+    }
+
+    .compare-column .column-value {
+        font-size: 0.75rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .compare-column.user-col {
+        margin-top: 0;
+    }
+
+    .compare-column.user-col .column-value {
+        font-size: 0.7rem;
+    }
+
+    /* 정답일 때 라벨 숨기고 제목만 표시 */
+    .round-card.correct .compare-column .column-label {
+        display: none;
+    }
+
+    .round-card.correct .compare-column .column-value {
+        font-size: 0.8rem;
+    }
+}
+
+/* ========== 다크 테마 지원 ========== */
+[data-theme="dark"] .setup-card.genre-challenge-card {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .genre-challenge-card .input-text {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .genre-item {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .genre-item:hover {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .difficulty-btn {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .difficulty-btn:hover {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .difficulty-btn.selected {
+    background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .genre-challenge-card .rules-section {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .ready-content {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .game-container.genre-challenge .answer-section {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] .game-container.genre-challenge .answer-input {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .game-container.genre-challenge .answer-input::placeholder {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .game-container.genre-challenge .modal-content {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .genre-challenge-result {
+    background: var(--bg-base);
+}
+
+[data-theme="dark"] .result-summary {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .genre-challenge-result .ranking-section {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .ranking-item {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .ranking-item.my-rank {
+    background: var(--status-primary-bg);
+}
+
+[data-theme="dark"] .my-record {
+    background: var(--status-primary-bg);
+}
+
+[data-theme="dark"] .rounds-section {
+    background: var(--bg-surface);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .round-card {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .round-card.correct {
+    background: var(--status-success-bg);
+    border-color: var(--success);
+}
+
+[data-theme="dark"] .round-card.wrong {
+    background: var(--status-danger-bg);
+    border-color: var(--danger);
+}
+
+[data-theme="dark"] .compare-column {
+    background: var(--overlay-light);
+}
+
+[data-theme="dark"] .practice-notice {
+    background: var(--status-warning-bg);
+    border: 1px solid var(--warning);
+}
+
+[data-theme="dark"] .practice-notice p {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .no-rounds {
+    background: var(--bg-surface);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+[data-theme="dark"] .no-rounds p {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .btn-change-genre {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .btn-change-genre:hover {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .selected-genre-card {
+    background: var(--status-primary-bg);
+}
+
+[data-theme="dark"] .genre-record-info {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .result-actions .btn-home,
+[data-theme="dark"] .result-footer .btn-home {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .result-actions .btn-home:hover,
+[data-theme="dark"] .result-footer .btn-home:hover {
+    background: var(--bg-muted);
+}
+
+[data-theme="dark"] .diff-badge.practice {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .practice-label {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .mode-label.practice {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ready-content p {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .life.lost {
+    color: var(--overlay-strong);
+    opacity: 0.5;
+}
+
+[data-theme="dark"] .game-page .game-container.genre-challenge .modal .stat-value {
+    color: var(--info-color);
+}
+
+[data-theme="dark"] .gameover-message {
+    color: var(--text-secondary);
+}
+
+/* 콤보 컨테이너 다크 모드 */
+[data-theme="dark"] .combo-container {
+    background: var(--overlay-medium);
+}
+
+[data-theme="dark"] .combo-container.active {
+    background: var(--ranked-gradient);
+}

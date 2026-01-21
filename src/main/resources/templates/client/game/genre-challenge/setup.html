@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('장르 챌린지 - Song Quiz')}"></head>
+<link rel="stylesheet" th:href="@{/css/client/setup.css}">
+<link rel="stylesheet" th:href="@{/css/client/game-genre-challenge.css}">
+<body class="client-page">
+<div class="client-container">
+    <header class="client-header compact">
+        <nav class="header-nav">
+            <a href="/" class="btn-home">🏠 홈</a>
+        </nav>
+        <h1>장르 챌린지</h1>
+    </header>
+
+    <main class="setup-main">
+        <div class="setup-card genre-challenge-card">
+            <div class="challenge-intro">
+                <div class="challenge-icon">&#127912;</div>
+                <h2>이 장르를 전부 맞춰봐!</h2>
+                <p class="challenge-desc">
+                    선택한 장르의 <strong>모든 곡</strong>을 듣고 맞춰라!<br>
+                    5번 틀리면 게임 오버! 최대 콤보를 노려보자!
+                </p>
+            </div>
+
+            <div class="setup-step">
+                <h3>닉네임</h3>
+                <input type="text" id="nickname" class="input-text"
+                       th:value="${nickname}" placeholder="닉네임을 입력하세요" maxlength="20">
+            </div>
+
+            <div class="setup-step">
+                <h3>장르 선택</h3>
+
+                <!-- 선택 전 상태: 장르 목록 -->
+                <div id="genreSelectArea" class="genre-select-area">
+                    <div id="genreList" class="genre-list"></div>
+                </div>
+
+                <!-- 선택 완료 상태: 선택된 장르 강조 표시 -->
+                <div id="selectedGenreArea" class="selected-genre-area" style="display: none;">
+                    <div class="selected-genre-card">
+                        <div class="selected-badge">&#10003; 선택 완료</div>
+                        <div class="selected-genre-info">
+                            <span id="selectedGenreName" class="selected-genre-name"></span>
+                            <span id="selectedGenreCount" class="selected-genre-count"></span>
+                        </div>
+
+                        <!-- 랭킹 정보 (하드코어 기준) -->
+                        <div id="genreRecordInfo" class="genre-record-info" style="display: none;">
+                            <!-- 내 기록 (로그인 시) -->
+                            <div id="myRecordInfo" class="record-info-item my-record-info" style="display: none;">
+                                <span class="record-label">내 기록</span>
+                                <span id="myRecordValue" class="record-value"></span>
+                            </div>
+                            <!-- 1위 기록 -->
+                            <div id="topRecordInfo" class="record-info-item top-record-info" style="display: none;">
+                                <span class="record-label">🏆 1위</span>
+                                <span id="topRecordValue" class="record-value"></span>
+                            </div>
+                            <!-- 기록 없을 때 -->
+                            <div id="noRecordInfo" class="record-info-item no-record-info" style="display: none;">
+                                <span class="no-record-text">아직 도전자가 없습니다. 첫 번째 1위가 되어보세요!</span>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-change-genre" onclick="clearSelectedGenre()">
+                            다른 장르 선택
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-step">
+                <h3>난이도 선택</h3>
+                <div class="difficulty-selector">
+                    <button type="button" class="difficulty-btn selected" data-difficulty="NORMAL" onclick="selectDifficulty('NORMAL')">
+                        <span class="diff-icon">&#11088;</span>
+                        <span class="diff-name">노말</span>
+                        <span class="diff-desc">10초 (듣기+입력) | 라이프 5개</span>
+                        <span class="diff-badge practice">연습 모드</span>
+                    </button>
+                    <button type="button" class="difficulty-btn" data-difficulty="HARDCORE" onclick="selectDifficulty('HARDCORE')">
+                        <span class="diff-icon">&#128293;</span>
+                        <span class="diff-name">하드코어</span>
+                        <span class="diff-desc">5초 (듣기+입력) | 라이프 5개</span>
+                        <span class="diff-badge ranked">공식 랭킹</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="setup-step rules-section">
+                <h3>게임 규칙</h3>
+                <ul class="rules-list" id="rulesList">
+                    <li><span class="rule-icon">&#127925;</span> 해당 장르의 <strong>전곡</strong> 출제</li>
+                    <li><span class="rule-icon">&#9200;</span> 노말: <strong>10초</strong> | 하드코어: <strong>5초</strong></li>
+                    <li><span class="rule-icon">&#10084;</span> 라이프 <strong>5개</strong> (오답/시간초과 시 -1)</li>
+                    <li><span class="rule-icon">&#128293;</span> <strong>콤보</strong> 시스템! 연속 정답을 노려라</li>
+                    <li><span class="rule-icon">&#128221;</span> <strong>하드코어</strong>만 공식 랭킹 반영</li>
+                </ul>
+            </div>
+
+            <div class="login-notice" th:if="${member == null}">
+                <p>&#128274; 로그인하면 기록이 저장됩니다!</p>
+                <a th:href="@{/auth/login}" class="btn-login-link">로그인하기</a>
+            </div>
+
+            <button type="button" id="startBtn" class="btn-start" onclick="startGame()">
+                도전 시작!
+            </button>
+        </div>
+    </main>
+</div>
+
+<script th:inline="javascript">
+    const memberNickname = [[${nickname}]];
+</script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/client/game-genre-challenge-setup.js}"></script>
+</body>
+</html>

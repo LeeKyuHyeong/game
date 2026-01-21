@@ -1059,4 +1059,71 @@ public class SongService {
     public int countActiveSongsByArtist(String artist) {
         return songRepository.countActiveSongsByArtist(artist);
     }
+
+    // ========== 장르 챌린지용 메서드 ==========
+
+    /**
+     * 장르별 유효한 곡 조회 (YouTube 또는 MP3)
+     */
+    public List<Song> getAllValidatedSongsByGenreCode(String genreCode) {
+        List<Song> songs = songRepository.findByGenreCodeAndHasAudioSource(genreCode);
+
+        // YouTube 검증
+        List<Song> validSongs = new ArrayList<>();
+        for (Song song : songs) {
+            if (song.getYoutubeVideoId() != null && !song.getYoutubeVideoId().isEmpty()) {
+                YouTubeValidationService.ValidationResult result =
+                        youTubeValidationService.validateVideo(song.getYoutubeVideoId());
+                if (!result.isValid()) {
+                    continue;
+                }
+            }
+            validSongs.add(song);
+        }
+
+        // 셔플 후 반환
+        Collections.shuffle(validSongs);
+        return validSongs;
+    }
+
+    /**
+     * 장르별 곡 수 조회 (장르 챌린지 설정용)
+     */
+    public int getSongCountByGenreCode(String genreCode) {
+        return songRepository.countByGenreCodeAndHasAudioSource(genreCode);
+    }
+
+    /**
+     * 장르 목록 조회 (곡 수 포함) - 장르 챌린지용
+     */
+    public List<Map<String, Object>> getGenresWithSongCount() {
+        List<Object[]> results = songRepository.findGenresWithSongCount();
+        List<Map<String, Object>> genres = new ArrayList<>();
+
+        for (Object[] row : results) {
+            Map<String, Object> genre = new HashMap<>();
+            genre.put("code", row[0]);
+            genre.put("name", row[1]);
+            genre.put("count", ((Number) row[2]).intValue());
+            genres.add(genre);
+        }
+        return genres;
+    }
+
+    /**
+     * 장르 목록 조회 (최소 곡 수 이상) - 장르 챌린지용
+     */
+    public List<Map<String, Object>> getGenresWithSongCountMinimum(int minCount) {
+        List<Object[]> results = songRepository.findGenresWithSongCountMinimum(minCount);
+        List<Map<String, Object>> genres = new ArrayList<>();
+
+        for (Object[] row : results) {
+            Map<String, Object> genre = new HashMap<>();
+            genre.put("code", row[0]);
+            genre.put("name", row[1]);
+            genre.put("count", ((Number) row[2]).intValue());
+            genres.add(genre);
+        }
+        return genres;
+    }
 }

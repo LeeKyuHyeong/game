@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('결과 - 장르 챌린지')}"></head>
+<link rel="stylesheet" th:href="@{/css/client/result.css}">
+<link rel="stylesheet" th:href="@{/css/client/game-genre-challenge.css}">
+<body class="client-page result-page">
+
+<!-- 백업 모드: sessionStorage 데이터 사용 -->
+<div th:if="${useBackup}" id="backupResultContainer" class="result-container genre-challenge-result">
+    <header class="result-header">
+        <div class="header-top">
+            <span id="backupDifficultyBadge" class="difficulty-badge">
+                <span id="backupDifficultyEmoji"></span>
+                <span id="backupDifficultyName"></span>
+            </span>
+            <span id="backupModeLabel" class="mode-label"></span>
+        </div>
+        <h1 id="backupTitle">장르 챌린지</h1>
+    </header>
+
+    <main class="result-main">
+        <div class="result-summary">
+            <div class="score-display">
+                <span id="backupCorrectCount" class="score-value">0</span>
+                <span class="score-separator">/</span>
+                <span id="backupTotalRounds" class="score-total">0</span>
+                <span class="score-label">곡 정답</span>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-label">정답률</span>
+                    <span id="backupAccuracy" class="stat-value">0%</span>
+                </div>
+                <div class="stat-item combo-stat">
+                    <span class="stat-label">최대 콤보</span>
+                    <span id="backupMaxCombo" class="stat-value combo">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">소요 시간</span>
+                    <span id="backupPlayTime" class="stat-value">0초</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="backupPracticeNotice" class="practice-notice" style="display: none;">
+            <div class="notice-content">
+                <span class="notice-icon">💡</span>
+                <p>연습 모드에서는 랭킹에 반영되지 않습니다.</p>
+                <p><strong>하드코어 모드</strong>로 도전하여 공식 랭킹에 이름을 올려보세요!</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="result-footer">
+        <a th:href="@{/game/genre-challenge}" class="btn btn-replay">다시 도전</a>
+        <a th:href="@{/}" class="btn btn-home">홈으로</a>
+    </footer>
+</div>
+
+<script th:if="${useBackup}">
+(function() {
+    const data = sessionStorage.getItem('genreChallengeResult');
+    if (!data) {
+        window.location.href = '/game/genre-challenge';
+        return;
+    }
+
+    const result = JSON.parse(data);
+    sessionStorage.removeItem('genreChallengeResult');
+
+    document.getElementById('backupDifficultyBadge').dataset.difficulty = result.difficulty;
+    document.getElementById('backupDifficultyEmoji').textContent = result.difficultyEmoji;
+    document.getElementById('backupDifficultyName').textContent = result.difficultyName;
+    document.getElementById('backupTitle').textContent = result.genreName + ' 장르 챌린지';
+    document.getElementById('backupCorrectCount').textContent = result.correctCount;
+    document.getElementById('backupTotalRounds').textContent = result.totalRounds;
+    document.getElementById('backupMaxCombo').textContent = result.maxCombo || 0;
+
+    const accuracy = ((result.correctCount / result.totalRounds) * 100).toFixed(1) + '%';
+    document.getElementById('backupAccuracy').textContent = accuracy;
+    document.getElementById('backupPlayTime').textContent = result.playTimeSeconds + '초';
+
+    if (result.isRanked) {
+        document.getElementById('backupModeLabel').textContent = '공식 랭킹';
+        document.getElementById('backupModeLabel').classList.add('ranked');
+    } else {
+        document.getElementById('backupModeLabel').textContent = '연습 모드';
+        document.getElementById('backupModeLabel').classList.add('practice');
+        document.getElementById('backupPracticeNotice').style.display = 'block';
+    }
+})();
+</script>
+
+<!-- 정상 모드: 서버 세션 데이터 사용 -->
+<div th:if="${!useBackup}" class="result-container genre-challenge-result">
+    <header class="result-header">
+        <div class="header-top">
+            <span class="difficulty-badge" th:data-difficulty="${difficulty}">
+                <span th:text="${difficultyEmoji}">⭐</span>
+                <span th:text="${difficultyName}">일반</span>
+            </span>
+            <span th:if="${!isRanked}" class="mode-label practice">연습 모드</span>
+            <span th:if="${isRanked}" class="mode-label ranked">공식 랭킹</span>
+        </div>
+        <h1 th:text="${genreName + ' 장르 챌린지'}">장르 챌린지</h1>
+    </header>
+
+    <main class="result-main">
+        <!-- 결과 요약 -->
+        <div class="result-summary">
+            <div class="score-display">
+                <span class="score-value" th:text="${correctCount}">0</span>
+                <span class="score-separator">/</span>
+                <span class="score-total" th:text="${totalRounds}">0</span>
+                <span class="score-label">곡 정답</span>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-label">정답률</span>
+                    <span class="stat-value"
+                          th:text="${#numbers.formatDecimal(correctCount * 100.0 / totalRounds, 0, 1) + '%'}">0%</span>
+                </div>
+                <div class="stat-item combo-stat">
+                    <span class="stat-label">최대 콤보</span>
+                    <span class="stat-value combo" th:text="${maxCombo}">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">소요 시간</span>
+                    <span class="stat-value" th:text="${playTimeSeconds + '초'}">0초</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 장르 랭킹 (하드코어만 표시) -->
+        <div th:if="${isRanked}" class="ranking-section">
+            <div class="ranking-header">
+                <h2>
+                    <span class="ranking-icon">🏆</span>
+                    <span th:text="${genreName}">장르</span> 공식 랭킹
+                </h2>
+                <p class="ranking-subtitle">정답 수 기준 (동점시 클리어 시간순)</p>
+            </div>
+
+            <div th:if="${myRecord != null}" class="my-record">
+                <div class="my-record-label">내 최고 기록</div>
+                <div class="my-record-value">
+                    <span th:text="${myRecord.correctCount + '/' + myRecord.totalSongs + '곡'}">0/0곡</span>
+                    <span class="record-combo" th:text="'콤보 ' + ${myRecord.maxCombo}">콤보 0</span>
+                    <span th:if="${myRecord.bestTimeMs != null}" class="record-time"
+                          th:text="${#numbers.formatDecimal(myRecord.bestTimeMs / 1000.0, 0, 1) + '초'}">0.0초</span>
+                </div>
+            </div>
+
+            <div class="ranking-list">
+                <div th:if="${#lists.isEmpty(ranking)}" class="no-ranking">
+                    아직 기록이 없습니다. 첫 번째 도전자가 되어보세요!
+                </div>
+
+                <div th:each="record, iter : ${ranking}" class="ranking-item"
+                     th:classappend="${myRecord != null && record.member.id == myRecord.member.id} ? 'my-rank' : ''">
+                    <span class="rank" th:text="${iter.index + 1}">1</span>
+                    <span class="nickname" th:text="${record.member.nickname}">닉네임</span>
+                    <span class="record-value">
+                        <span th:text="${record.correctCount + '/' + record.totalSongs}">0/0</span>
+                        <span class="record-combo" th:text="'콤보 ' + ${record.maxCombo}">콤보 0</span>
+                        <span th:if="${record.bestTimeMs != null}" class="record-time"
+                              th:text="${#numbers.formatDecimal(record.bestTimeMs / 1000.0, 0, 1) + '초'}">0.0초</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 연습 모드일 때 하드코어 도전 유도 -->
+        <div th:if="${!isRanked}" class="practice-notice">
+            <div class="notice-content">
+                <span class="notice-icon">💡</span>
+                <p>연습 모드에서는 랭킹에 반영되지 않습니다.</p>
+                <p><strong>하드코어 모드</strong>로 도전하여 공식 랭킹에 이름을 올려보세요!</p>
+            </div>
+            <a th:href="@{/game/genre-challenge}" class="btn btn-hardcore">
+                🔥 하드코어 도전하기
+            </a>
+        </div>
+
+        <!-- 라운드별 기록 (진행한 라운드만) -->
+        <div th:if="${rounds != null && !rounds.isEmpty()}" class="rounds-section">
+            <h2>라운드별 기록</h2>
+            <div class="rounds-grid">
+                <th:block th:each="round : ${rounds}">
+                    <!-- WAITING 상태가 아닌 라운드만 표시 -->
+                    <div th:if="${round.status.name() != 'WAITING'}" class="round-card"
+                         th:classappend="${round.isCorrect()} ? 'correct' : 'wrong'">
+                        <!-- 결과 뱃지 (모바일: 좌측, PC: 우상단) -->
+                        <div class="round-badge">
+                            <span th:if="${round.isCorrect()}" class="badge-icon correct">✓</span>
+                            <span th:if="${!round.isCorrect() && round.status.name() == 'TIMEOUT'}" class="badge-icon timeout">⏱</span>
+                            <span th:if="${!round.isCorrect() && round.status.name() != 'TIMEOUT'}" class="badge-icon wrong">✗</span>
+                            <span class="round-number" th:text="'#' + ${round.roundNumber}">#1</span>
+                        </div>
+                        <!-- 2컬럼 비교 영역 -->
+                        <div class="round-compare">
+                            <div class="compare-column correct-col">
+                                <span class="column-label">정답</span>
+                                <span class="column-value" th:text="${round.song != null ? round.song.title : '알 수 없음'}">정답</span>
+                            </div>
+                            <div th:if="${!round.isCorrect() && round.userAnswer != null && !round.userAnswer.isEmpty()}" class="compare-column user-col">
+                                <span class="column-label">내 답</span>
+                                <span class="column-value" th:text="${round.userAnswer}">입력한 답</span>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+        <div th:if="${rounds == null || rounds.isEmpty()}" class="rounds-section">
+            <h2>라운드별 기록</h2>
+            <div class="no-rounds">
+                <p>라운드 기록이 없습니다.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="result-footer">
+        <a th:href="@{/game/genre-challenge}" class="btn btn-replay">다시 도전</a>
+        <a th:href="@{/}" class="btn btn-home">홈으로</a>
+    </footer>
+</div>
+
+<!-- PC 드래그 스크롤 지원 -->
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/common/drag-scroll.js}"></script>
+<script th:src="@{/js/client/game-genre-challenge-result.js}"></script>
+</body>
+</html>

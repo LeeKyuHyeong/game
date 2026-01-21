@@ -60,6 +60,16 @@ public class GameSession {
     @Column(name = "challenge_artist", length = 100)
     private String challengeArtist;
 
+    // Genre Challenge 전용 필드
+    @Column(name = "challenge_genre_code", length = 50)
+    private String challengeGenreCode;
+
+    @Column(name = "current_combo")
+    private Integer currentCombo = 0;
+
+    @Column(name = "max_combo")
+    private Integer maxCombo = 0;
+
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private GameStatus status = GameStatus.PLAYING;
@@ -90,6 +100,7 @@ public class GameSession {
         SOLO_HOST,
         SOLO_GUESS,
         FAN_CHALLENGE,
+        GENRE_CHALLENGE, // 장르 챌린지 (장르별 전곡 도전)
         RETRO_GUESS      // 레트로 게임 (2000년 이전 + RETRO 장르)
     }
 

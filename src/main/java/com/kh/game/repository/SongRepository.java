@@ -242,4 +242,45 @@ public interface SongRepository extends JpaRepository<Song, Long> {
      */
     @Query("SELECT s FROM Song s WHERE LOWER(s.artist) = LOWER(:artist) AND LOWER(s.title) = LOWER(:title)")
     Optional<Song> findByArtistAndTitleIgnoreCase(@Param("artist") String artist, @Param("title") String title);
+
+    // ========== 장르 챌린지용 쿼리 ==========
+
+    /**
+     * 장르별 유효한 곡 조회 (YouTube 또는 MP3)
+     */
+    @Query("SELECT s FROM Song s WHERE s.useYn = 'Y' " +
+           "AND s.genre.code = :genreCode " +
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL)")
+    List<Song> findByGenreCodeAndHasAudioSource(@Param("genreCode") String genreCode);
+
+    /**
+     * 장르별 유효한 곡 수 조회
+     */
+    @Query("SELECT COUNT(s) FROM Song s WHERE s.useYn = 'Y' " +
+           "AND s.genre.code = :genreCode " +
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL)")
+    int countByGenreCodeAndHasAudioSource(@Param("genreCode") String genreCode);
+
+    /**
+     * 장르 목록 조회 (곡 수 포함, YouTube 또는 MP3 있는 곡만)
+     */
+    @Query("SELECT g.code, g.name, COUNT(s) FROM Song s " +
+           "JOIN s.genre g " +
+           "WHERE s.useYn = 'Y' " +
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
+           "GROUP BY g.code, g.name " +
+           "ORDER BY g.displayOrder, g.name")
+    List<Object[]> findGenresWithSongCount();
+
+    /**
+     * 장르 목록 조회 (곡 수 포함, 특정 최소 곡 수 이상)
+     */
+    @Query("SELECT g.code, g.name, COUNT(s) as cnt FROM Song s " +
+           "JOIN s.genre g " +
+           "WHERE s.useYn = 'Y' " +
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
+           "GROUP BY g.code, g.name " +
+           "HAVING COUNT(s) >= :minCount " +
+           "ORDER BY g.displayOrder, g.name")
+    List<Object[]> findGenresWithSongCountMinimum(@Param("minCount") long minCount);
 }
