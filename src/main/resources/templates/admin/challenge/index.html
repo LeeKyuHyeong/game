@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('챌린지 관리')}"></head>
+<body class="admin-page">
+<link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+    <main class="main-content">
+        <header class="content-header">
+            <h1>챌린지 관리</h1>
+        </header>
+
+        <!-- 통합 통계 카드 -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${fanTotalCount + genreTotalCount}">0</div>
+                <div class="stat-label">전체 기록</div>
+            </div>
+            <div class="stat-card fan">
+                <div class="stat-value" th:text="${fanTotalCount}">0</div>
+                <div class="stat-label">팬 챌린지</div>
+            </div>
+            <div class="stat-card genre">
+                <div class="stat-value" th:text="${genreTotalCount}">0</div>
+                <div class="stat-label">장르 챌린지</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${fanTodayCount + genreTodayCount}">0</div>
+                <div class="stat-label">오늘 도전</div>
+            </div>
+        </div>
+
+        <!-- 탭 네비게이션 -->
+        <div class="tab-navigation">
+            <button class="tab-btn" th:classappend="${activeTab == 'fan'} ? 'active'"
+                    onclick="switchTab('fan')">
+                <span class="tab-icon">🎤</span>
+                <span class="tab-text">팬 챌린지</span>
+                <span class="tab-badge" th:text="${fanTotalCount}">0</span>
+            </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'genre'} ? 'active'"
+                    onclick="switchTab('genre')">
+                <span class="tab-icon">🎸</span>
+                <span class="tab-text">장르 챌린지</span>
+                <span class="tab-badge" th:text="${genreTotalCount}">0</span>
+            </button>
+        </div>
+
+        <!-- 탭 콘텐츠 -->
+        <div class="tab-content" id="tabContent">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <span>로딩 중...</span>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- 기록 상세 모달 -->
+<div id="detailModal" class="modal">
+    <div class="modal-content modal-md">
+        <div class="modal-header">
+            <h2 id="detailModalTitle">기록 상세</h2>
+            <button class="close-btn" onclick="closeModal('detailModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="detailContent">
+            <!-- 동적으로 채워짐 -->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" onclick="closeModal('detailModal')">닫기</button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script th:inline="javascript">
+const activeTab = [[${activeTab}]];
+const genres = [[${genres}]];
+let currentTab = activeTab;
+
+// 초기 로드
+document.addEventListener('DOMContentLoaded', () => {
+    loadTabContent(currentTab);
+});
+
+function switchTab(tab) {
+    if (currentTab === tab) return;
+
+    currentTab = tab;
+
+    // URL 업데이트
+    const url = new URL(window.location);
+    url.searchParams.set('tab', tab);
+    window.history.pushState({}, '', url);
+
+    // 탭 버튼 상태 업데이트
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.tab-btn:nth-child(${tab === 'fan' ? 1 : 2})`).classList.add('active');
+
+    // 콘텐츠 로드
+    loadTabContent(tab);
+}
+
+async function loadTabContent(tab, params = '') {
+    const tabContent = document.getElementById('tabContent');
+    tabContent.innerHTML = `
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <span>로딩 중...</span>
+        </div>
+    `;
+
+    try {
+        const url = tab === 'fan'
+            ? `/admin/fan-challenge/content${params ? '?' + params : ''}`
+            : `/admin/genre-challenge/content${params ? '?' + params : ''}`;
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to load content');
+
+        const html = await response.text();
+        tabContent.innerHTML = html;
+
+        // 스크립트 초기화
+        initTabScripts();
+    } catch (error) {
+        tabContent.innerHTML = `
+            <div class="error-message">
+                <p>콘텐츠를 불러오는데 실패했습니다.</p>
+                <button class="btn btn-primary" onclick="loadTabContent('${tab}')">다시 시도</button>
+            </div>
+        `;
+    }
+}
+
+function initTabScripts() {
+    // 검색 폼 이벤트 바인딩
+    const searchForm = document.querySelector('.tab-content .search-form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(searchForm);
+            const params = new URLSearchParams(formData).toString();
+            loadTabContent(currentTab, params);
+        });
+    }
+
+    // 초기화 버튼
+    const resetBtn = document.querySelector('.tab-content .btn-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadTabContent(currentTab);
+        });
+    }
+}
+
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+
+function sortBy(column, baseUrl) {
+    const params = new URLSearchParams(window.location.search);
+    const currentSort = params.get('sort');
+    const currentDirection = params.get('direction') || 'desc';
+
+    if (currentSort === column) {
+        params.set('direction', currentDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+        params.set('sort', column);
+        params.set('direction', 'desc');
+    }
+    params.set('page', '0');
+    params.delete('tab');
+
+    loadTabContent(currentTab, params.toString());
+}
+
+function goToPage(page) {
+    const params = new URLSearchParams();
+    const form = document.querySelector('.tab-content .search-form');
+    if (form) {
+        new FormData(form).forEach((value, key) => {
+            if (value) params.set(key, value);
+        });
+    }
+    params.set('page', page);
+    loadTabContent(currentTab, params.toString());
+}
+
+async function viewDetail(id, type) {
+    try {
+        const url = type === 'fan'
+            ? `/admin/fan-challenge/detail/${id}`
+            : `/admin/genre-challenge/detail/${id}`;
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('기록을 찾을 수 없습니다.');
+
+        const data = await response.json();
+
+        document.getElementById('detailModalTitle').textContent =
+            type === 'fan' ? '팬 챌린지 기록 상세' : '장르 챌린지 기록 상세';
+
+        renderDetailContent(data, type);
+        openModal('detailModal');
+    } catch (error) {
+        showToast('기록을 불러오는데 실패했습니다.', 'error');
+    }
+}
+
+function renderDetailContent(data, type) {
+    const detailContent = document.getElementById('detailContent');
+    detailContent.textContent = '';
+
+    const grid = document.createElement('div');
+    grid.className = 'detail-grid';
+
+    function createDetailItem(label, value) {
+        const item = document.createElement('div');
+        item.className = 'detail-item';
+
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'detail-label';
+        labelDiv.textContent = label;
+
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'detail-value';
+        valueDiv.textContent = value;
+
+        item.appendChild(labelDiv);
+        item.appendChild(valueDiv);
+        return item;
+    }
+
+    const bestTime = data.bestTimeMs ? `${(data.bestTimeMs / 1000).toFixed(1)}초` : '-';
+    const achievedAt = data.achievedAt ? new Date(data.achievedAt).toLocaleString('ko-KR') : '-';
+
+    grid.appendChild(createDetailItem('회원', data.memberNickname));
+    grid.appendChild(createDetailItem('이메일', data.memberEmail));
+
+    if (type === 'fan') {
+        grid.appendChild(createDetailItem('아티스트', data.artist));
+    } else {
+        grid.appendChild(createDetailItem('장르', data.genreName));
+    }
+
+    grid.appendChild(createDetailItem('난이도', data.difficultyDisplayName));
+    grid.appendChild(createDetailItem('달성 시점 정답/전체', `${data.correctCount}/${data.totalSongs} (${data.clearRate}%)`));
+    grid.appendChild(createDetailItem('현재 시점 정답/전체', `${data.correctCount}/${data.currentSongCount} (${data.currentClearRate}%)`));
+
+    if (type === 'fan') {
+        // 퍼펙트 상태
+        const perfectItem = document.createElement('div');
+        perfectItem.className = 'detail-item';
+
+        const perfectLabel = document.createElement('div');
+        perfectLabel.className = 'detail-label';
+        perfectLabel.textContent = '퍼펙트 상태';
+
+        const perfectValue = document.createElement('div');
+        perfectValue.className = 'detail-value';
+
+        if (data.isPerfectClear) {
+            if (data.isCurrentPerfect) {
+                perfectValue.innerHTML = '<span class="perfect-badge achieved">✅ 현재 유효</span>';
+            } else {
+                perfectValue.innerHTML = '<span class="perfect-badge invalid">⭐ 곡 추가로 무효화</span>';
+            }
+        } else {
+            perfectValue.textContent = '미달성';
+        }
+
+        perfectItem.appendChild(perfectLabel);
+        perfectItem.appendChild(perfectValue);
+        grid.appendChild(perfectItem);
+    } else {
+        grid.appendChild(createDetailItem('최대 콤보', data.maxCombo));
+    }
+
+    grid.appendChild(createDetailItem('최고 클리어 시간', bestTime));
+    grid.appendChild(createDetailItem('달성일', achievedAt));
+
+    detailContent.appendChild(grid);
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+    document.body.style.overflow = '';
+}
+</script>
+
+<style>
+/* 탭 네비게이션 */
+.tab-navigation {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.tab-icon {
+    font-size: 1.1rem;
+}
+
+.tab-badge {
+    background: var(--bg-elevated);
+    padding: 0.15rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.tab-btn.active .tab-badge {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* 탭 콘텐츠 */
+.tab-content {
+    min-height: 400px;
+}
+
+/* 로딩 스피너 */
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 에러 메시지 */
+.error-message {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+.error-message p {
+    margin-bottom: 1rem;
+}
+
+/* 통계 카드 색상 */
+.stat-card.fan {
+    border-left: 3px solid #ec4899;
+}
+
+.stat-card.genre {
+    border-left: 3px solid #8b5cf6;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .tab-navigation {
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 120px;
+    }
+
+    .tab-text {
+        display: none;
+    }
+
+    .tab-icon {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .tab-btn {
+        padding: 0.6rem 0.8rem;
+    }
+}
+</style>
+</body>
+</html>

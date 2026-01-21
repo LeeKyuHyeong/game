@@ -34,18 +34,26 @@ public class AdminChatController {
     private final MemberRepository memberRepository;
 
     /**
-     * 채팅 내역 목록 페이지
+     * 레거시 URL → 통합 페이지로 리다이렉트
      */
     @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "50") int size,
-                       @RequestParam(required = false) String keyword,
-                       @RequestParam(required = false) String roomCode,
-                       @RequestParam(required = false) String nickname,
-                       @RequestParam(required = false) String messageType,
-                       @RequestParam(required = false) String startDate,
-                       @RequestParam(required = false) String endDate,
-                       Model model) {
+    public String redirectToMulti() {
+        return "redirect:/admin/multi?tab=chat";
+    }
+
+    /**
+     * AJAX 로딩용 채팅 내역 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "50") int size,
+                              @RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String roomCode,
+                              @RequestParam(required = false) String nickname,
+                              @RequestParam(required = false) String messageType,
+                              @RequestParam(required = false) String startDate,
+                              @RequestParam(required = false) String endDate,
+                              Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<GameRoomChat> chatPage = chatRepository.findAllWithFilters(
@@ -53,19 +61,23 @@ public class AdminChatController {
                 parseDate(startDate, true), parseDate(endDate, false),
                 pageable);
 
+        // 오늘 채팅 수
+        long todayChats = chatRepository.countTodayChats();
+
         model.addAttribute("chats", chatPage.getContent());
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
         model.addAttribute("totalPages", chatPage.getTotalPages());
         model.addAttribute("totalItems", chatPage.getTotalElements());
+        model.addAttribute("todayChats", todayChats);
         model.addAttribute("keyword", keyword);
         model.addAttribute("roomCode", roomCode);
         model.addAttribute("nickname", nickname);
         model.addAttribute("messageType", messageType);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-        model.addAttribute("menu", "chat");
 
-        return "admin/chat/list";
+        return "admin/multi/fragments/chat";
     }
 
     /**

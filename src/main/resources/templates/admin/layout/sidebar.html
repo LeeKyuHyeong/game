@@ -38,13 +38,9 @@
                 <span class="nav-icon">🏷️</span>
                 <span class="nav-text">장르 관리</span>
             </a>
-            <a href="/admin/room" class="nav-item" th:classappend="${menu == 'room'} ? 'active'">
-                <span class="nav-icon">🚪</span>
-                <span class="nav-text">방 관리</span>
-            </a>
-            <a href="/admin/chat" class="nav-item" th:classappend="${menu == 'chat'} ? 'active'">
-                <span class="nav-icon">💬</span>
-                <span class="nav-text">채팅 내역</span>
+            <a href="/admin/multi" class="nav-item" th:classappend="${menu == 'multi' or menu == 'room' or menu == 'chat'} ? 'active'">
+                <span class="nav-icon">🎮</span>
+                <span class="nav-text">멀티게임 관리</span>
             </a>
             <a href="/admin/badword" class="nav-item" th:classappend="${menu == 'badword'} ? 'active'">
                 <span class="nav-icon">🚫</span>
@@ -62,21 +58,13 @@
                 <span class="nav-icon">🏆</span>
                 <span class="nav-text">랭킹</span>
             </a>
-            <a href="/admin/fan-challenge" class="nav-item" th:classappend="${menu == 'fan-challenge'} ? 'active'">
-                <span class="nav-icon">🎤</span>
-                <span class="nav-text">팬 챌린지</span>
+            <a href="/admin/challenge" class="nav-item" th:classappend="${menu == 'challenge' or menu == 'fan-challenge' or menu == 'genre-challenge'} ? 'active'">
+                <span class="nav-icon">⭐</span>
+                <span class="nav-text">챌린지 관리</span>
             </a>
-            <a href="/admin/genre-challenge" class="nav-item" th:classappend="${menu == 'genre-challenge'} ? 'active'">
-                <span class="nav-icon">🎸</span>
-                <span class="nav-text">장르 챌린지</span>
-            </a>
-            <a href="/admin/stats/wrong-answers" class="nav-item" th:classappend="${menu == 'wrong-stats'} ? 'active'">
-                <span class="nav-icon">❌</span>
-                <span class="nav-text">오답 통계</span>
-            </a>
-            <a href="/admin/stats/popularity" class="nav-item" th:classappend="${menu == 'popularity-stats'} ? 'active'">
-                <span class="nav-icon">📊</span>
-                <span class="nav-text">대중성 통계</span>
+            <a href="/admin/stats" class="nav-item" th:classappend="${menu == 'stats'} ? 'active'">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">통계 분석</span>
             </a>
             <a href="/admin/login-history" class="nav-item" th:classappend="${menu == 'login-history'} ? 'active'">
                 <span class="nav-icon">🔐</span>

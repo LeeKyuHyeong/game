@@ -1,0 +1,214 @@
+<!-- 채팅 내역 탭 콘텐츠 (프래그먼트) -->
+<div class="multi-tab-content" xmlns:th="http://www.thymeleaf.org">
+    <!-- 서브 통계 -->
+    <div class="sub-stats">
+        <div class="sub-stat">
+            <span class="sub-stat-value" th:text="${totalItems}">0</span>
+            <span class="sub-stat-label">전체 채팅</span>
+        </div>
+        <div class="sub-stat">
+            <span class="sub-stat-value" th:text="${todayChats}">0</span>
+            <span class="sub-stat-label">오늘 채팅</span>
+        </div>
+    </div>
+
+    <!-- 검색 -->
+    <div class="search-bar">
+        <form class="search-form chat-filter-form">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="메시지 검색">
+            <input type="text" name="roomCode" th:value="${roomCode}" placeholder="방 코드">
+            <input type="text" name="nickname" th:value="${nickname}" placeholder="닉네임">
+            <select name="messageType" class="form-select">
+                <option value="">전체 타입</option>
+                <option value="CHAT" th:selected="${messageType == 'CHAT'}">일반 채팅</option>
+                <option value="CORRECT_ANSWER" th:selected="${messageType == 'CORRECT_ANSWER'}">정답</option>
+                <option value="SYSTEM" th:selected="${messageType == 'SYSTEM'}">시스템</option>
+            </select>
+            <button type="submit" class="btn btn-search">검색</button>
+            <a th:if="${keyword != null or roomCode != null or nickname != null or messageType != null}"
+               href="#" class="btn btn-reset">초기화</a>
+        </form>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th>방 코드</th>
+                <th>닉네임</th>
+                <th>메시지</th>
+                <th>타입</th>
+                <th>일시</th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="chat, iterStat : ${chats}"
+                th:classappend="${chat.messageType.name() == 'CORRECT_ANSWER'} ? 'correct-row'"
+                onclick="toggleRowExpand(this)">
+                <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
+                <td data-label="방 코드"><code th:text="${chat.gameRoom?.roomCode ?: '-'}"></code></td>
+                <td data-label="닉네임" th:text="${chat.member?.nickname ?: '-'}"></td>
+                <td data-label="메시지" class="message-cell">
+                    <span th:text="${chat.message}"></span>
+                </td>
+                <td data-label="타입">
+                    <span class="message-type"
+                          th:classappend="${chat.messageType.name()}"
+                          th:text="${chat.messageType.name() == 'CHAT'} ? '채팅' : (${chat.messageType.name() == 'CORRECT_ANSWER'} ? '정답' : '시스템')"></span>
+                </td>
+                <td data-label="일시" th:text="${#temporals.format(chat.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                    <button class="btn btn-sm btn-delete" th:data-id="${chat.id}" onclick="deleteChatFromList(this.dataset.id)">삭제</button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(chats)}">
+                <td colspan="7" class="empty-row">채팅 내역이 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination" th:if="${totalPages > 0}">
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(0); return false;'">«</a>
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(' + ${currentPage - 1} + '); return false;'">‹</a>
+
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+               href="#" th:text="${i + 1}"
+               th:classappend="${i == currentPage} ? 'active'" class="page-link"
+               th:onclick="'goToPage(' + ${i} + '); return false;'"></a>
+        </th:block>
+
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(' + ${currentPage + 1} + '); return false;'">›</a>
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(' + ${totalPages - 1} + '); return false;'">»</a>
+    </div>
+
+    <div class="page-info" th:if="${totalItems > 0}">
+        총 <strong th:text="${totalItems}">0</strong>개의 채팅
+    </div>
+</div>
+
+<style>
+/* 서브 통계 */
+.sub-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.sub-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-elevated);
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.sub-stat-value {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.sub-stat-label {
+    color: var(--text-secondary);
+}
+
+/* 채팅 필터 폼 */
+.chat-filter-form {
+    flex-wrap: wrap;
+}
+
+.chat-filter-form input[type="text"] {
+    min-width: 120px;
+}
+
+/* 메시지 타입 배지 */
+.message-type {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.message-type.CHAT {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.message-type.CORRECT_ANSWER {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.message-type.SYSTEM {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* 정답 행 */
+.correct-row {
+    background: #fefce8 !important;
+}
+
+[data-theme="dark"] .correct-row {
+    background: rgba(254, 252, 232, 0.1) !important;
+}
+
+/* 메시지 셀 */
+.message-cell {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 페이지 정보 */
+.page-info {
+    text-align: center;
+    margin-top: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* 방 코드 */
+code {
+    background: var(--bg-elevated);
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+    .sub-stats {
+        gap: 0.5rem;
+    }
+
+    .sub-stat {
+        flex: 1;
+        min-width: calc(50% - 0.5rem);
+        justify-content: center;
+        padding: 0.4rem 0.75rem;
+    }
+
+    .chat-filter-form input[type="text"] {
+        width: 100%;
+    }
+
+    .message-cell {
+        max-width: 200px;
+    }
+}
+</style>

@@ -28,15 +28,26 @@ public class AdminFanChallengeController {
     private final FanChallengeService fanChallengeService;
     private final SongService songService;
 
+    /**
+     * 레거시 URL → 통합 페이지로 리다이렉트
+     */
     @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "20") int size,
-                       @RequestParam(required = false) String keyword,
-                       @RequestParam(required = false) String difficulty,
-                       @RequestParam(required = false) String perfect,
-                       @RequestParam(defaultValue = "achievedAt") String sort,
-                       @RequestParam(defaultValue = "desc") String direction,
-                       Model model) {
+    public String redirectToChallenge() {
+        return "redirect:/admin/challenge?tab=fan";
+    }
+
+    /**
+     * AJAX 로딩용 팬 챌린지 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "20") int size,
+                              @RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String difficulty,
+                              @RequestParam(required = false) String perfect,
+                              @RequestParam(defaultValue = "achievedAt") String sort,
+                              @RequestParam(defaultValue = "desc") String direction,
+                              Model model) {
 
         Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
@@ -63,9 +74,8 @@ public class AdminFanChallengeController {
         model.addAttribute("perfect", perfect);
         model.addAttribute("sort", sort);
         model.addAttribute("direction", direction);
-        model.addAttribute("menu", "fan-challenge");
 
-        return "admin/fan-challenge/list";
+        return "admin/challenge/fragments/fan-challenge";
     }
 
     @GetMapping("/detail/{id}")

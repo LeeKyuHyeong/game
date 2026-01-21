@@ -29,15 +29,26 @@ public class AdminGenreChallengeController {
     private final GenreService genreService;
     private final SongService songService;
 
+    /**
+     * 레거시 URL → 통합 페이지로 리다이렉트
+     */
     @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "20") int size,
-                       @RequestParam(required = false) String keyword,
-                       @RequestParam(required = false) String genreCode,
-                       @RequestParam(required = false) String difficulty,
-                       @RequestParam(defaultValue = "achievedAt") String sort,
-                       @RequestParam(defaultValue = "desc") String direction,
-                       Model model) {
+    public String redirectToChallenge() {
+        return "redirect:/admin/challenge?tab=genre";
+    }
+
+    /**
+     * AJAX 로딩용 장르 챌린지 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "20") int size,
+                              @RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String genreCode,
+                              @RequestParam(required = false) String difficulty,
+                              @RequestParam(defaultValue = "achievedAt") String sort,
+                              @RequestParam(defaultValue = "desc") String direction,
+                              Model model) {
 
         Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
@@ -77,9 +88,8 @@ public class AdminGenreChallengeController {
         model.addAttribute("difficulty", difficulty);
         model.addAttribute("sort", sort);
         model.addAttribute("direction", direction);
-        model.addAttribute("menu", "genre-challenge");
 
-        return "admin/genre-challenge/list";
+        return "admin/challenge/fragments/genre-challenge";
     }
 
     @GetMapping("/detail/{id}")

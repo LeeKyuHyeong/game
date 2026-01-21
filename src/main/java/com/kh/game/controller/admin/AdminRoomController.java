@@ -32,14 +32,22 @@ public class AdminRoomController {
     private final GameRoomService gameRoomService;
 
     /**
-     * 방 목록 페이지
+     * 레거시 URL → 통합 페이지로 리다이렉트
      */
     @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "10") int size,
-                       @RequestParam(required = false) String keyword,
-                       @RequestParam(required = false) String status,
-                       Model model) {
+    public String redirectToMulti() {
+        return "redirect:/admin/multi?tab=room";
+    }
+
+    /**
+     * AJAX 로딩용 방 목록 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "20") int size,
+                              @RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String status,
+                              Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<GameRoom> roomPage;
@@ -67,15 +75,15 @@ public class AdminRoomController {
 
         model.addAttribute("rooms", roomPage.getContent());
         model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
         model.addAttribute("totalPages", roomPage.getTotalPages());
         model.addAttribute("totalItems", roomPage.getTotalElements());
         model.addAttribute("totalRooms", totalRooms);
         model.addAttribute("waitingCount", waitingCount);
         model.addAttribute("playingCount", playingCount);
         model.addAttribute("finishedCount", finishedCount);
-        model.addAttribute("menu", "room");
 
-        return "admin/room/list";
+        return "admin/multi/fragments/room";
     }
 
     /**

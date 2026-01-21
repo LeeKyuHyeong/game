@@ -1,0 +1,195 @@
+<!-- 팬 챌린지 탭 콘텐츠 (프래그먼트) -->
+<div class="challenge-tab-content" xmlns:th="http://www.thymeleaf.org">
+    <!-- 서브 통계 -->
+    <div class="sub-stats">
+        <div class="sub-stat">
+            <span class="sub-stat-value" th:text="${totalCount}">0</span>
+            <span class="sub-stat-label">총 기록</span>
+        </div>
+        <div class="sub-stat">
+            <span class="sub-stat-value" th:text="${perfectCount}">0</span>
+            <span class="sub-stat-label">퍼펙트</span>
+        </div>
+        <div class="sub-stat">
+            <span class="sub-stat-value" th:text="${artistCount}">0</span>
+            <span class="sub-stat-label">아티스트</span>
+        </div>
+        <div class="sub-stat">
+            <span class="sub-stat-value" th:text="${todayCount}">0</span>
+            <span class="sub-stat-label">오늘</span>
+        </div>
+    </div>
+
+    <!-- 검색 -->
+    <div class="search-bar">
+        <form class="search-form">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="아티스트 검색">
+            <select name="difficulty" class="form-select">
+                <option value="">전체 난이도</option>
+                <option value="NORMAL" th:selected="${difficulty == 'NORMAL'}">노말</option>
+                <option value="HARDCORE" th:selected="${difficulty == 'HARDCORE'}">하드코어</option>
+            </select>
+            <select name="perfect" class="form-select">
+                <option value="">전체 상태</option>
+                <option value="true" th:selected="${perfect == 'true'}">퍼펙트만</option>
+                <option value="false" th:selected="${perfect == 'false'}">미클리어</option>
+            </select>
+            <button type="submit" class="btn btn-search">검색</button>
+            <a th:if="${keyword != null or difficulty != null or perfect != null}" href="#" class="btn btn-reset">초기화</a>
+        </form>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-container">
+        <table class="data-table sortable-table">
+            <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th class="sortable" th:classappend="${sort == 'member.nickname'} ? ('sorted-' + ${direction})"
+                    onclick="sortBy('member.nickname', '/admin/fan-challenge')">회원 <span class="sort-icon"></span></th>
+                <th class="sortable" th:classappend="${sort == 'artist'} ? ('sorted-' + ${direction})"
+                    onclick="sortBy('artist', '/admin/fan-challenge')">아티스트 <span class="sort-icon"></span></th>
+                <th>난이도</th>
+                <th class="sortable" th:classappend="${sort == 'correctCount'} ? ('sorted-' + ${direction})"
+                    onclick="sortBy('correctCount', '/admin/fan-challenge')">정답/전체 <span class="sort-icon"></span></th>
+                <th>퍼펙트</th>
+                <th class="sortable" th:classappend="${sort == 'bestTimeMs'} ? ('sorted-' + ${direction})"
+                    onclick="sortBy('bestTimeMs', '/admin/fan-challenge')">최고 시간 <span class="sort-icon"></span></th>
+                <th class="sortable" th:classappend="${sort == 'achievedAt'} ? ('sorted-' + ${direction})"
+                    onclick="sortBy('achievedAt', '/admin/fan-challenge')">달성일 <span class="sort-icon"></span></th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="record, iterStat : ${records}" onclick="toggleRowExpand(this)">
+                <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
+                <td data-label="회원" th:text="${record.member.nickname}"></td>
+                <td data-label="아티스트" th:text="${record.artist}"></td>
+                <td data-label="난이도">
+                    <span class="difficulty-badge" th:classappend="${record.difficulty.name()}"
+                          th:text="${record.difficulty.displayName}"></span>
+                </td>
+                <td data-label="정답/전체">
+                    <span th:text="${record.correctCount} + '/' + ${record.totalSongs}"></span>
+                    <span class="clear-rate" th:text="'(' + ${#numbers.formatDecimal(record.clearRate, 1, 1)} + '%)'"></span>
+                </td>
+                <td data-label="퍼펙트">
+                    <span th:if="${record.isPerfectClear}" class="perfect-badge achieved">
+                        <span th:if="${record.isCurrentPerfect}" title="현재 시점에서도 유효">✅</span>
+                        <span th:unless="${record.isCurrentPerfect}" title="곡 추가로 무효화됨">⭐</span>
+                    </span>
+                    <span th:unless="${record.isPerfectClear}" class="perfect-badge not-achieved">-</span>
+                </td>
+                <td data-label="최고 시간">
+                    <span th:if="${record.bestTimeMs != null}" th:text="${#numbers.formatDecimal(record.bestTimeMs / 1000.0, 1, 1)} + 's'"></span>
+                    <span th:unless="${record.bestTimeMs != null}">-</span>
+                </td>
+                <td data-label="달성일" th:text="${record.achievedAt != null} ? ${#temporals.format(record.achievedAt, 'yyyy-MM-dd HH:mm')} : '-'"></td>
+                <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                    <button class="btn btn-sm btn-info" th:data-id="${record.id}" onclick="viewDetail(this.dataset.id, 'fan')">상세</button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(records)}">
+                <td colspan="9" class="empty-row">등록된 기록이 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination" th:if="${totalPages > 0}">
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(0); return false;'">«</a>
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(' + ${currentPage - 1} + '); return false;'">‹</a>
+
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+               href="#" th:text="${i + 1}"
+               th:classappend="${i == currentPage} ? 'active'" class="page-link"
+               th:onclick="'goToPage(' + ${i} + '); return false;'"></a>
+        </th:block>
+
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(' + ${currentPage + 1} + '); return false;'">›</a>
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(' + ${totalPages - 1} + '); return false;'">»</a>
+    </div>
+</div>
+
+<style>
+/* 서브 통계 */
+.sub-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.sub-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-elevated);
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.sub-stat-value {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.sub-stat-label {
+    color: var(--text-secondary);
+}
+
+/* 난이도 배지 */
+.difficulty-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.difficulty-badge.NORMAL {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.difficulty-badge.HARDCORE {
+    background: #fce7f3;
+    color: #be185d;
+}
+
+/* 퍼펙트 배지 */
+.perfect-badge.achieved {
+    font-size: 1.1rem;
+}
+
+.perfect-badge.not-achieved {
+    color: var(--text-muted);
+}
+
+/* 클리어율 */
+.clear-rate {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-left: 0.25rem;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+    .sub-stats {
+        gap: 0.5rem;
+    }
+
+    .sub-stat {
+        flex: 1;
+        min-width: calc(50% - 0.5rem);
+        justify-content: center;
+        padding: 0.4rem 0.75rem;
+    }
+}
+</style>
