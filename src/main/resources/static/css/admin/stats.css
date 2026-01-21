@@ -283,10 +283,74 @@
 }
 
 /* ========================================
+   Primary Tabs (1차 탭: 오답/대중성 전환)
+   ======================================== */
+
+.primary-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 0.25rem;
+    background: var(--bg-elevated);
+    border-radius: 0.75rem;
+    width: fit-content;
+}
+
+.primary-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.primary-tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-surface);
+}
+
+.primary-tab.active {
+    background: var(--gradient-client);
+    color: var(--text-on-gradient);
+    box-shadow: var(--shadow);
+}
+
+.primary-tab .tab-icon {
+    font-size: 1.1rem;
+}
+
+.primary-tab .tab-text {
+    font-weight: 600;
+}
+
+/* Primary Content */
+.primary-content {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(0.25rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
    Wrong Answers Stats Specific Styles
    ======================================== */
 
-/* Stats Tabs */
+/* Stats Tabs (2차 탭) */
 .stats-tabs {
     display: flex;
     gap: 0.5rem;
@@ -638,6 +702,17 @@
 
 /* ========== Responsive ========== */
 @media (max-width: 768px) {
+    /* Primary Tabs Tablet */
+    .primary-tabs {
+        width: 100%;
+    }
+
+    .primary-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 0.625rem 1rem;
+    }
+
     .stats-cards {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -923,5 +998,26 @@
     .empty-state {
         padding: 1.5rem;
         font-size: 0.85rem;
+    }
+
+    /* Primary Tabs Mobile */
+    .primary-tabs {
+        width: 100%;
+        padding: 0.25rem;
+    }
+
+    .primary-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .primary-tab .tab-icon {
+        font-size: 1rem;
+    }
+
+    .primary-tab .tab-text {
+        font-size: 0.8rem;
     }
 }

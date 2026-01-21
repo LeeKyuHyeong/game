@@ -19,8 +19,38 @@ public class AdminStatsController {
     private final WrongAnswerStatsService wrongAnswerStatsService;
     private final SongService songService;
 
+    /**
+     * 통합 통계 페이지 진입점
+     */
+    @GetMapping({"", "/"})
+    public String statsIndex(@RequestParam(defaultValue = "wrong-answers") String tab,
+                             @RequestParam(defaultValue = "10") int minPlays,
+                             @RequestParam(defaultValue = "false") boolean filterJunk,
+                             Model model) {
+        model.addAttribute("activeTab", tab);
+        model.addAttribute("menu", "stats");
+
+        // 오답 통계 데이터
+        loadWrongAnswerStats(model);
+
+        // 대중성 통계 데이터
+        loadPopularityStats(model, minPlays, filterJunk);
+
+        return "admin/stats/index";
+    }
+
+    /**
+     * 오답 통계 페이지 (레거시 URL → 리다이렉트)
+     */
     @GetMapping("/wrong-answers")
-    public String wrongAnswerStats(Model model) {
+    public String wrongAnswerStats() {
+        return "redirect:/admin/stats?tab=wrong-answers";
+    }
+
+    /**
+     * 오답 통계 데이터 로드
+     */
+    private void loadWrongAnswerStats(Model model) {
         // 요약 정보
         Map<String, Object> summary = wrongAnswerStatsService.getStatsSummary();
 
@@ -37,9 +67,6 @@ public class AdminStatsController {
         model.addAttribute("commonWrongAnswers", commonWrongAnswers);
         model.addAttribute("hardestSongs", hardestSongs);
         model.addAttribute("recentWrongAnswers", recentWrongAnswers);
-        model.addAttribute("menu", "wrong-stats");
-
-        return "admin/stats/wrong-answers";
     }
 
     @GetMapping("/wrong-answers/song/{songId}")
@@ -55,12 +82,20 @@ public class AdminStatsController {
     // 곡 대중성 통계 페이지
     // ========================================
 
+    /**
+     * 대중성 통계 페이지 (레거시 URL → 리다이렉트)
+     */
     @GetMapping("/popularity")
     public String songPopularityStats(
             @RequestParam(defaultValue = "10") int minPlays,
-            @RequestParam(defaultValue = "false") boolean filterJunk,
-            Model model) {
+            @RequestParam(defaultValue = "false") boolean filterJunk) {
+        return "redirect:/admin/stats?tab=popularity&minPlays=" + minPlays + "&filterJunk=" + filterJunk;
+    }
 
+    /**
+     * 대중성 통계 데이터 로드
+     */
+    private void loadPopularityStats(Model model, int minPlays, boolean filterJunk) {
         // 정크 데이터 요약
         Map<String, Object> junkSummary = wrongAnswerStatsService.getJunkDataSummary();
 
@@ -81,9 +116,6 @@ public class AdminStatsController {
         model.addAttribute("filteredWrongAnswers", filteredWrongAnswers);
         model.addAttribute("minPlays", minPlays);
         model.addAttribute("filterJunk", filterJunk);
-        model.addAttribute("menu", "popularity-stats");
-
-        return "admin/stats/popularity";
     }
 
     @PostMapping("/popularity/update/{songId}")
