@@ -2,6 +2,35 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+---
+
+## ⚠️ 필수 준수 사항 (Quick Reference)
+
+**모든 작업 완료 전 반드시 확인할 것!**
+
+### CSS 작업 시
+| 규칙 | ❌ 금지 | ✅ 필수 |
+|------|--------|--------|
+| 색상 | `#1e293b`, `rgba(0,0,0,0.5)` | `var(--text-primary)`, `var(--overlay-medium)` |
+| 테마 | 라이트 모드만 작성 | 라이트 + 다크 모드 + `.game-page` 모두 정의 |
+| 반응형 | PC만 작성, 임의 브레이크포인트 | PC + 태블릿(768px) + 모바일(480px) 3단계 |
+| 단위 | `width: 350px` | `width: 100%`, `max-width: 24rem` |
+| z-index | `9999`, `99999` | 정해진 계층값 사용 (모달=1000, 토스트=5000) |
+
+### 보안 (모든 기능 구현 시)
+| 규칙 | ❌ 금지 | ✅ 필수 |
+|------|--------|--------|
+| SQL | `"SELECT * FROM song WHERE title = '" + title + "'"` | `@Param` 바인딩, JPA 메서드 쿼리 |
+| XSS | `th:utext="${userInput}"`, `innerHTML = userInput` | `th:text`, `textContent` |
+| 인증 | API에 세션 검증 없음 | 모든 POST/PUT/DELETE에 인증+권한 검증 |
+| IDOR | ID만으로 리소스 접근 | 소유권 검증 (`member.getId().equals(...)`) |
+
+### 빌드
+- `mvn` ❌ → `./mvnw` ✅
+- Java 17 필수 (`JAVA_HOME` 설정)
+
+---
+
 ## Build & Run Commands
 
 **IMPORTANT:**
