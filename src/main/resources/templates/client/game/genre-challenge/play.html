@@ -41,7 +41,8 @@
                 <div class="ready-icon">&#127912;</div>
                 <h2 th:text="${genreName + ' 장르 챌린지'}">장르 챌린지</h2>
                 <p>
-                    <span th:text="${totalTimeMs / 1000}">10</span>초 안에 듣고 맞추기!
+                    <span th:text="${playTimeMs / 1000}">7</span>초 듣기 +
+                    <span th:text="${answerTimeMs / 1000}">6</span>초 입력 시간!
                 </p>
                 <div class="ready-difficulty">
                     <span class="difficulty-badge" th:data-difficulty="${difficulty}">
@@ -65,7 +66,7 @@
                 <div class="timer-text">
                     <span id="timerValue">10.0</span>초
                 </div>
-                <div id="phaseText" class="phase-text playing">🎵 듣고 맞추세요!</div>
+                <div id="phaseText" class="phase-text playing">🎵 듣는 중...</div>
             </div>
 
             <!-- 콤보 표시 (큰 화면) -->
@@ -150,7 +151,8 @@
     const genreCode = [[${genreCode}]];
     const genreName = [[${genreName}]];
     const difficulty = [[${difficulty}]];
-    const initialTotalTimeMs = [[${totalTimeMs}]];
+    const initialPlayTimeMs = [[${playTimeMs}]];
+    const initialAnswerTimeMs = [[${answerTimeMs}]];
     const initialLives = [[${initialLives}]];
 </script>
 <script th:src="@{/js/common/common.js}"></script>

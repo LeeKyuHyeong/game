@@ -132,6 +132,8 @@ public class GameGenreChallengeController {
 
             // 난이도 설정 정보 추가
             result.put("difficulty", difficulty.name());
+            result.put("playTimeMs", difficulty.getPlayTimeMs());
+            result.put("answerTimeMs", difficulty.getAnswerTimeMs());
             result.put("totalTimeMs", difficulty.getTotalTimeMs());
             result.put("initialLives", difficulty.getInitialLives());
             result.put("isRanked", difficulty.isRanked());
@@ -170,6 +172,8 @@ public class GameGenreChallengeController {
         // 난이도 정보 추가
         model.addAttribute("difficulty", difficulty.name());
         model.addAttribute("difficultyName", difficulty.getDisplayName());
+        model.addAttribute("playTimeMs", difficulty.getPlayTimeMs());
+        model.addAttribute("answerTimeMs", difficulty.getAnswerTimeMs());
         model.addAttribute("totalTimeMs", difficulty.getTotalTimeMs());
         model.addAttribute("initialLives", difficulty.getInitialLives());
         model.addAttribute("isRanked", difficulty.isRanked());
@@ -227,6 +231,8 @@ public class GameGenreChallengeController {
             result.put("initialLives", difficulty.getInitialLives());
 
             // 난이도 설정
+            result.put("playTimeMs", difficulty.getPlayTimeMs());
+            result.put("answerTimeMs", difficulty.getAnswerTimeMs());
             result.put("totalTimeMs", difficulty.getTotalTimeMs());
 
             // 노래 정보

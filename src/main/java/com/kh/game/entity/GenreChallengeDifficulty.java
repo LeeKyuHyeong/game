@@ -2,23 +2,25 @@ package com.kh.game.entity;
 
 /**
  * Genre Challenge (장르 챌린지) 난이도 설정
- * - 듣기+입력 시간이 합산된 단일 타이머 방식
+ * - 듣기 시간 + 입력 시간 분리 방식 (아티스트 챌린지와 동일)
  * - 라이프 5개로 팬 챌린지보다 여유로움 (장르당 곡 수가 많음)
  */
 public enum GenreChallengeDifficulty {
-    NORMAL("노말", 10000, 5, false, "⭐"),
-    HARDCORE("하드코어", 5000, 5, true, "🔥");
+    NORMAL("노말", 7000, 6000, 5, false, "⭐"),
+    HARDCORE("하드코어", 5000, 5000, 5, true, "🔥");
 
     private final String displayName;
-    private final int totalTimeMs;      // 듣기+입력 합산 시간 (ms)
+    private final int playTimeMs;       // 듣기 시간 (ms)
+    private final int answerTimeMs;     // 입력 시간 (ms)
     private final int initialLives;     // 초기 라이프 개수
     private final boolean isRanked;     // 공식 랭킹 대상 여부
     private final String badgeEmoji;    // 뱃지 이모지
 
-    GenreChallengeDifficulty(String displayName, int totalTimeMs,
+    GenreChallengeDifficulty(String displayName, int playTimeMs, int answerTimeMs,
                              int initialLives, boolean isRanked, String badgeEmoji) {
         this.displayName = displayName;
-        this.totalTimeMs = totalTimeMs;
+        this.playTimeMs = playTimeMs;
+        this.answerTimeMs = answerTimeMs;
         this.initialLives = initialLives;
         this.isRanked = isRanked;
         this.badgeEmoji = badgeEmoji;
@@ -28,8 +30,19 @@ public enum GenreChallengeDifficulty {
         return displayName;
     }
 
+    public int getPlayTimeMs() {
+        return playTimeMs;
+    }
+
+    public int getAnswerTimeMs() {
+        return answerTimeMs;
+    }
+
+    /**
+     * 총 제한 시간 (듣기 + 입력)
+     */
     public int getTotalTimeMs() {
-        return totalTimeMs;
+        return playTimeMs + answerTimeMs;
     }
 
     public int getInitialLives() {

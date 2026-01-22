@@ -4,10 +4,10 @@ let selectedGenre = null;
 let genreList = [];
 let selectedDifficulty = 'NORMAL';
 
-// 난이도별 설정
+// 난이도별 설정 (듣기 시간 + 입력 시간)
 const DIFFICULTY_CONFIG = {
-    NORMAL: { totalTime: 10, lives: 5, ranked: false, icon: '⭐' },
-    HARDCORE: { totalTime: 5, lives: 5, ranked: true, icon: '🔥' }
+    NORMAL: { playTime: 7, answerTime: 6, lives: 5, ranked: false, icon: '⭐' },
+    HARDCORE: { playTime: 5, answerTime: 5, lives: 5, ranked: true, icon: '🔥' }
 };
 
 // 최소 곡 수 (서버와 동일하게 10곡)
@@ -172,10 +172,11 @@ function selectDifficulty(difficulty) {
 function updateRulesDisplay() {
     const config = DIFFICULTY_CONFIG[selectedDifficulty];
     const rulesList = document.getElementById('rulesList');
+    const totalTime = config.playTime + config.answerTime;
 
     let rulesHtml = `
         <li><span class="rule-icon">🎵</span> 해당 장르의 <strong>전곡</strong> 출제</li>
-        <li><span class="rule-icon">⏱</span> <strong>${config.totalTime}초</strong> 안에 듣고 맞추기</li>
+        <li><span class="rule-icon">⏱</span> <strong>${config.playTime}초</strong> 듣기 + <strong>${config.answerTime}초</strong> 입력 (총 ${totalTime}초)</li>
         <li><span class="rule-icon">❤</span> 라이프 <strong>${config.lives}개</strong> (오답/시간초과 시 -1)</li>
         <li><span class="rule-icon">🔥</span> <strong>콤보</strong> 시스템! 연속 정답을 노려라</li>
     `;
