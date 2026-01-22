@@ -25,6 +25,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 인증 | API에 세션 검증 없음 | 모든 POST/PUT/DELETE에 인증+권한 검증 |
 | IDOR | ID만으로 리소스 접근 | 소유권 검증 (`member.getId().equals(...)`) |
 
+### Thymeleaf 작업 시
+| 규칙 | ❌ 금지 | ✅ 필수 |
+|------|--------|--------|
+| 이벤트 핸들러 | `th:onclick="'fn(\'' + ${var} + '\')'"` | `th:data-x="${var}"` + `onclick="fn(this.dataset.x)"` |
+| 문자열 출력 | `th:utext="${userInput}"` | `th:text="${userInput}"` |
+| URL 파라미터 | `th:href="'/path?id=' + ${id}"` | `th:href="@{/path(id=${id})}"` |
+
+> **이유**: Thymeleaf 보안 정책상 `onclick`, `onload` 등 이벤트 핸들러에서 문자열 변수 직접 삽입 금지 (XSS 방지)
+
 ### 빌드
 - `mvn` ❌ → `./mvnw` ✅
 - Java 17 필수 (`JAVA_HOME` 설정)

@@ -291,4 +291,15 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
           AND m.status = 'ACTIVE'
         """, nativeQuery = true)
     Long countAllTimeBest30Participants();
+
+    // ========== 관리자 회원관리용 - 실시간 게임 수 집계 ==========
+
+    /**
+     * 여러 회원의 GameSession 게임 수를 한 번에 조회 (N+1 방지)
+     * @return List of [memberId, count]
+     */
+    @Query("SELECT gs.member.id, COUNT(gs) FROM GameSession gs " +
+           "WHERE gs.member.id IN :memberIds AND gs.status = 'COMPLETED' " +
+           "GROUP BY gs.member.id")
+    List<Object[]> countGamesByMemberIds(@Param("memberIds") List<Long> memberIds);
 }

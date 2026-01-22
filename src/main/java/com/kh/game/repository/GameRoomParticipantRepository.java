@@ -60,4 +60,16 @@ public interface GameRoomParticipantRepository extends JpaRepository<GameRoomPar
 
     // 회원이 해당 방에 참가중인지
     boolean existsByGameRoomAndMemberAndStatus(GameRoom gameRoom, Member member, GameRoomParticipant.ParticipantStatus status);
+
+    // ========== 관리자 회원관리용 - 실시간 게임 수 집계 ==========
+
+    /**
+     * 여러 회원의 완료된 멀티게임 참여 수를 한 번에 조회 (N+1 방지)
+     * FINISHED 상태인 방의 참여만 카운트
+     * @return List of [memberId, count]
+     */
+    @Query("SELECT p.member.id, COUNT(p) FROM GameRoomParticipant p " +
+           "WHERE p.member.id IN :memberIds AND p.gameRoom.status = 'FINISHED' " +
+           "GROUP BY p.member.id")
+    List<Object[]> countFinishedGamesByMemberIds(@Param("memberIds") List<Long> memberIds);
 }

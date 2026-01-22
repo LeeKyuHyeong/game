@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/admin/member")
@@ -76,6 +77,13 @@ public class AdminMemberController {
             memberPage = memberService.findAll(pageable);
         }
 
+        // 실시간 게임 수 집계 (N+1 방지 - 한 번의 쿼리로 조회)
+        List<Long> memberIds = memberPage.getContent().stream()
+                .map(Member::getId)
+                .collect(Collectors.toList());
+        Map<Long, Long> gameCountMap = memberService.getRealTimeGameCounts(memberIds);
+        model.addAttribute("gameCountMap", gameCountMap);
+
         // 통계
         long totalCount = memberService.count();
         long activeCount = memberService.countByStatus(Member.MemberStatus.ACTIVE);
@@ -112,7 +120,9 @@ public class AdminMemberController {
                     result.put("username", member.getUsername());
                     result.put("role", member.getRole().name());
                     result.put("status", member.getStatus().name());
-                    result.put("totalGames", member.getTotalGames());
+                    // 실시간 게임 수 집계
+                    Map<Long, Long> gameCountMap = memberService.getRealTimeGameCounts(List.of(id));
+                    result.put("totalGames", gameCountMap.getOrDefault(id, 0L));
                     result.put("totalScore", member.getTotalScore());
                     result.put("accuracyRate", String.format("%.1f", member.getAccuracyRate()));
                     result.put("guessGames", member.getGuessGames());

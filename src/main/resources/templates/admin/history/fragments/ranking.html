@@ -249,7 +249,8 @@
             <th:block th:each="stat, idx : ${fanArtistStats}">
                 <a href="#"
                    class="artist-card" th:classappend="${selectedArtist == stat['artist']} ? 'selected' : ''"
-                   th:onclick="'changeRankType(\'fan\', \'' + ${stat['artist']} + '\'); return false;'">
+                   th:data-artist="${stat['artist']}"
+                   onclick="changeRankType('fan', this.dataset.artist); return false;">
                     <div class="artist-rank" th:text="${idx.index + 1}">1</div>
                     <div class="artist-name" th:text="${stat['artist']}">아티스트</div>
                     <div class="artist-count" th:text="'도전 ' + ${stat['challengeCount']} + '회'">도전 0회</div>

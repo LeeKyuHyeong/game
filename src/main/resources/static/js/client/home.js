@@ -157,6 +157,18 @@ async function loadArtistChallengeRanking() {
 
         section.classList.remove('hidden');
 
+        // 점수 높은 순 → 같은 점수면 시간 빠른 순으로 정렬
+        data.sort((a, b) => {
+            // 1. 정답 수 높은 순
+            if (b.correctCount !== a.correctCount) {
+                return b.correctCount - a.correctCount;
+            }
+            // 2. 같은 점수면 시간 빠른 순 (null은 뒤로)
+            const timeA = a.bestTimeMs ?? Infinity;
+            const timeB = b.bestTimeMs ?? Infinity;
+            return timeA - timeB;
+        });
+
         let html = '';
         data.forEach(item => {
             const scoreText = `${item.correctCount}/${item.totalSongs}`;

@@ -51,7 +51,7 @@
                 <td data-label="이메일" th:text="${member.email}"></td>
                 <td data-label="닉네임" th:text="${member.nickname}"></td>
                 <td data-label="티어"><span class="tier-badge" th:style="'background-color:' + ${member.multiTierColor}" th:text="${member.multiTierDisplayName}"></span></td>
-                <td data-label="게임 수" th:text="${member.totalGames}"></td>
+                <td data-label="게임 수" th:text="${gameCountMap[member.id]}"></td>
                 <td data-label="권한"><span class="role-badge" th:classappend="${member.role.name()}" th:text="${member.role.name() == 'ADMIN'} ? '관리자' : '사용자'"></span></td>
                 <td data-label="상태"><span class="status" th:classappend="${member.status.name()}" th:text="${member.status.name() == 'ACTIVE'} ? '활성' : (${member.status.name() == 'BANNED'} ? '정지' : '비활성')"></span></td>
                 <td data-label="가입일" th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd')}"></td>

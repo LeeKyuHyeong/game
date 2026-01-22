@@ -5,6 +5,7 @@ import com.kh.game.entity.GameRoomParticipant;
 import com.kh.game.entity.Member;
 import com.kh.game.entity.MemberLoginHistory;
 import com.kh.game.repository.GameRoomParticipantRepository;
+import com.kh.game.repository.GameSessionRepository;
 import com.kh.game.repository.MemberLoginHistoryRepository;
 import com.kh.game.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +31,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final MemberLoginHistoryRepository loginHistoryRepository;
     private final GameRoomParticipantRepository participantRepository;
+    private final GameSessionRepository gameSessionRepository;
     private final PasswordEncoder passwordEncoder;
 
     // ========== 회원 관리 ==========
@@ -625,4 +629,44 @@ public class MemberService {
     }
 
     public record LoginAttemptResult(LoginAttemptStatus status, boolean hasExistingSession) {}
+
+    // ========== 관리자 회원관리용 - 실시간 게임 수 집계 ==========
+
+    /**
+     * 여러 회원의 실시간 게임 수를 한 번에 조회 (N+1 방지)
+     * GameSession(솔로) + GameRoomParticipant(멀티) 합산
+     *
+     * @param memberIds 조회할 회원 ID 목록
+     * @return Map<memberId, totalGameCount>
+     */
+    public Map<Long, Long> getRealTimeGameCounts(List<Long> memberIds) {
+        if (memberIds == null || memberIds.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        Map<Long, Long> result = new HashMap<>();
+
+        // 1. GameSession에서 솔로 게임 수 조회 (COMPLETED 상태)
+        List<Object[]> sessionCounts = gameSessionRepository.countGamesByMemberIds(memberIds);
+        for (Object[] row : sessionCounts) {
+            Long memberId = (Long) row[0];
+            Long count = (Long) row[1];
+            result.put(memberId, count);
+        }
+
+        // 2. GameRoomParticipant에서 멀티게임 수 조회 (FINISHED 상태 방)
+        List<Object[]> multiCounts = participantRepository.countFinishedGamesByMemberIds(memberIds);
+        for (Object[] row : multiCounts) {
+            Long memberId = (Long) row[0];
+            Long count = (Long) row[1];
+            result.merge(memberId, count, Long::sum);
+        }
+
+        // 3. 조회되지 않은 회원은 0으로 초기화
+        for (Long memberId : memberIds) {
+            result.putIfAbsent(memberId, 0L);
+        }
+
+        return result;
+    }
 }

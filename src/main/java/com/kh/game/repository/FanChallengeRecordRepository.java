@@ -27,20 +27,20 @@ public interface FanChallengeRecordRepository extends JpaRepository<FanChallenge
             Member member, String artist, FanChallengeDifficulty difficulty, Integer stageLevel);
 
     // 아티스트별 퍼펙트 클리어 랭킹 (시간순) - 하드코어만
-    @Query("SELECT r FROM FanChallengeRecord r WHERE r.artist = :artist AND r.isPerfectClear = true AND r.difficulty = 'HARDCORE' ORDER BY r.bestTimeMs ASC")
+    @Query("SELECT r FROM FanChallengeRecord r JOIN FETCH r.member WHERE r.artist = :artist AND r.isPerfectClear = true AND r.difficulty = 'HARDCORE' ORDER BY r.bestTimeMs ASC")
     List<FanChallengeRecord> findPerfectClearsByArtist(@Param("artist") String artist, Pageable pageable);
 
     // 아티스트별 전체 랭킹 (정답 수 > 시간순) - 하드코어만 (공식 랭킹)
     // COALESCE: 시간 미기록(NULL)은 뒤로 밀림
-    @Query("SELECT r FROM FanChallengeRecord r WHERE r.artist = :artist AND r.difficulty = 'HARDCORE' ORDER BY r.correctCount DESC, COALESCE(r.bestTimeMs, 999999999) ASC")
+    @Query("SELECT r FROM FanChallengeRecord r JOIN FETCH r.member WHERE r.artist = :artist AND r.difficulty = 'HARDCORE' ORDER BY r.correctCount DESC, COALESCE(r.bestTimeMs, 999999999) ASC")
     List<FanChallengeRecord> findTopByArtist(@Param("artist") String artist, Pageable pageable);
 
     // 난이도별 아티스트 랭킹
-    @Query("SELECT r FROM FanChallengeRecord r WHERE r.artist = :artist AND r.difficulty = :difficulty ORDER BY r.correctCount DESC, COALESCE(r.bestTimeMs, 999999999) ASC")
+    @Query("SELECT r FROM FanChallengeRecord r JOIN FETCH r.member WHERE r.artist = :artist AND r.difficulty = :difficulty ORDER BY r.correctCount DESC, COALESCE(r.bestTimeMs, 999999999) ASC")
     List<FanChallengeRecord> findTopByArtistAndDifficulty(@Param("artist") String artist, @Param("difficulty") FanChallengeDifficulty difficulty, Pageable pageable);
 
     // 아티스트 + 단계별 랭킹 (HARDCORE 전용)
-    @Query("SELECT r FROM FanChallengeRecord r WHERE r.artist = :artist AND r.difficulty = 'HARDCORE' AND r.stageLevel = :stageLevel ORDER BY r.correctCount DESC, COALESCE(r.bestTimeMs, 999999999) ASC")
+    @Query("SELECT r FROM FanChallengeRecord r JOIN FETCH r.member WHERE r.artist = :artist AND r.difficulty = 'HARDCORE' AND r.stageLevel = :stageLevel ORDER BY r.correctCount DESC, COALESCE(r.bestTimeMs, 999999999) ASC")
     List<FanChallengeRecord> findTopByArtistAndStage(@Param("artist") String artist, @Param("stageLevel") int stageLevel, Pageable pageable);
 
     // 회원의 특정 아티스트 전체 단계 기록 조회
@@ -154,4 +154,15 @@ public interface FanChallengeRecordRepository extends JpaRepository<FanChallenge
            "WHERE r.difficulty = 'HARDCORE' " +
            "GROUP BY r.member.id ORDER BY cnt DESC")
     List<Object[]> findArtistClearCountRanking(Pageable pageable);
+
+    // ========== 관리자 회원관리용 - 실시간 게임 수 집계 ==========
+
+    /**
+     * 여러 회원의 FanChallengeRecord 기록 수를 한 번에 조회 (N+1 방지)
+     * @return List of [memberId, count]
+     */
+    @Query("SELECT r.member.id, COUNT(r) FROM FanChallengeRecord r " +
+           "WHERE r.member.id IN :memberIds " +
+           "GROUP BY r.member.id")
+    List<Object[]> countRecordsByMemberIds(@Param("memberIds") List<Long> memberIds);
 }

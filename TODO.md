@@ -123,9 +123,10 @@
 [O] css 다크/라이트 가시성, 밝기 전체확인
 [O] 노래 관리 화면 검색 파라미터 유지하기
 [] 유튜브 및 노래 중복 배치 후 변경된 목록 볼 수 있는 관리자화면 필요
-[] 관리자 랭킹 '팬챌린지' 오류 - tymeleaf 문법 오류일듯
-[] 사용자 관리 접근안됐음
-[] client 쪽 아티스트 챌린지 랭킹 보여줄때, score 높은 순서로 보여줘야겠음
+[O] 관리자 랭킹 '팬챌린지' 오류 - tymeleaf 문법 오류일듯
+[O] 사용자 관리 접근안됐음
+[O] client 쪽 아티스트 챌린지 랭킹 보여줄때, score 높은 순서로 보여줘야겠음
+[] 사용자 관리 에서 게임 수 는 뭐로 체크?
 
 0. 몸으로 말해요 (전체) - 친목도모
 1. <주크박스 게임>   (3vs3) - 총 3라운드 진행 2라운드를 먼저 모든 인원이 통과하면 승!
@@ -208,8 +209,6 @@ Cold As Hell
 
 
 -블랙핑크-
-Love To Hate Me / Don't Know What To Do / Pretty Savage / Forever Young / 붐바야 / Stay / Ice Cream / Shut Down / 불장난 /
-휘파람 / 마지막처럼 / Pink Venom / Lovesick Girls / How You Like That / Kill This Love / 뚜두뚜두
 Typa Girl
 The girls
 Ready For Love
