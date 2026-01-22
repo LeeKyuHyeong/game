@@ -116,17 +116,16 @@
 [O] 아티스트 챌린지 결과화면에서 진행한 곡의 '대중성' / '매니악' 투표(번호 선택 1~5) 가능하게 팝업 + 투표 버튼 추가 (로그인 ID로 체크할지 그냥 매번 cnt올릴지)
 [O] 관리자의 노래관리 목록에는 해당 아티스트옆의 숫자는 전체곡을 나타내야될거같아(이게 client쪽 게임 진행할때 뜨는 아티스트 목록의 노래개수에는 영향주면안됨)
 [O] 장르 챌린지 추가 구현
-
-[]아티스트 챌린지 결과에서 투표한 대중성 정도 볼 수 있는 관리자화면 필요
-
 [O] 관리자화면 메뉴 통합 가능한 곳 통합하기
 [O] css 다크/라이트 가시성, 밝기 전체확인
 [O] 노래 관리 화면 검색 파라미터 유지하기
-[] 유튜브 및 노래 중복 배치 후 변경된 목록 볼 수 있는 관리자화면 필요
 [O] 관리자 랭킹 '팬챌린지' 오류 - tymeleaf 문법 오류일듯
 [O] 사용자 관리 접근안됐음
 [O] client 쪽 아티스트 챌린지 랭킹 보여줄때, score 높은 순서로 보여줘야겠음
-[] 사용자 관리 에서 게임 수 는 뭐로 체크?
+[O] 사용자 관리 에서 게임 수 는 뭐로 - 전체게임
+[O] 아티스트 챌린지 결과에서 투표한 대중성 정도 볼 수 있는 관리자화면 필요
+[O] 유튜브 및 노래 중복 배치 후 변경된 목록 볼 수 있는 관리자화면 필요
+[] 메인화면 아티스트챌린지 TOP 목록 이상
 
 0. 몸으로 말해요 (전체) - 친목도모
 1. <주크박스 게임>   (3vs3) - 총 3라운드 진행 2라운드를 먼저 모든 인원이 통과하면 승!
@@ -139,86 +138,3 @@
 의사 1
 스파이 1
 시민 6
-
--NCT 127-
-favorite
-simon says
-cherry bomb
-lemonade
-touch
-highway to heaven
-ay-yo
-back 2 u
-우산 love song
-윤슬 gold dust
-소방차
-무량적아
-superhuman
-punch
-love on the floor
-sit down
-road trip
-whiplash
-angel eyes
-summer 127
-
--NCT DREAM-
-Smoothie
-Beatbox
-yougurt shake
-boom
-hello future
-오르골 life is still going on
-ISTJ
-고래 dive into you
-북극성
-Moonlight
-버퍼링
-GO
-We Go Up
-Ridin`
-like we just met
-broken melodies
-poison 모래성
-주인공
-graduation
-Drippin`
-
--태연-
-날개
-I Got Love
-Sweet Love
-When I Was Young
-수채화
-Fire
-Eraser
-기억을 걷는 시간
-Lonely Night
-Find Me
-Love You Like Crazy
-Wine
-Blue
-내게 들려주고 싶은 말(Dear Me)
-월식
-Here I Am
-그런 밤(Some Night)
-어른아이(Toddler)
-Siren
-Cold As Hell
-쌍둥이자리(Gemini)
-
-
--블랙핑크-
-Typa Girl
-The girls
-Ready For Love
-Tally
-Hard to Love
-Crazy Over You
-Kick It
-You Never Know
-See U Later
-Sour Candy
-Yeah Yeah Yeah
-Really
-아니길(Hope Not)
