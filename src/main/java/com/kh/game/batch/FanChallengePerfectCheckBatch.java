@@ -55,10 +55,20 @@ public class FanChallengePerfectCheckBatch {
             log.info("퍼펙트 기록 수: {}개", perfectRecords.size());
 
             // 3. 각 퍼펙트 기록 검사
+            int skippedStageCount = 0;
             for (FanChallengeRecord record : perfectRecords) {
                 checkedCount++;
                 String artist = record.getArtist();
                 Integer currentCount = currentSongCounts.get(artist);
+
+                // 단계별 기록(1단계/2단계/3단계)은 고정 곡 수이므로 무효화 검사 스킵
+                // 단계 기록: HARDCORE 모드 + stageLevel 존재 + totalSongs가 단계별 곡 수(20/25/30)
+                if (record.getStageLevel() != null && record.getStageLevel() >= 1) {
+                    log.debug("단계 기록 스킵: {} {}단계 (회원: {})",
+                        artist, record.getStageLevel(), record.getMember().getNickname());
+                    skippedStageCount++;
+                    continue;
+                }
 
                 if (currentCount == null) {
                     // 아티스트가 더 이상 존재하지 않음 (모든 곡이 삭제됨)
@@ -68,7 +78,7 @@ public class FanChallengePerfectCheckBatch {
                     fanChallengeRecordRepository.save(record);
                     invalidatedCount++;
                 } else if (record.getTotalSongs() < currentCount) {
-                    // 곡이 추가되어 퍼펙트가 아님
+                    // 곡이 추가되어 퍼펙트가 아님 (단계가 아닌 전체 챌린지만 해당)
                     log.debug("곡 추가로 퍼펙트 무효화: {} (기존: {}곡, 현재: {}곡, 회원: {})",
                         artist, record.getTotalSongs(), currentCount, record.getMember().getNickname());
                     record.setIsPerfectClear(false);
@@ -76,10 +86,11 @@ public class FanChallengePerfectCheckBatch {
                     invalidatedCount++;
                 }
             }
+            log.info("단계 기록 스킵: {}건", skippedStageCount);
 
             resultMessage.append(String.format(
-                "퍼펙트 검사 완료. 검사: %d건, 무효화: %d건",
-                checkedCount, invalidatedCount
+                "퍼펙트 검사 완료. 검사: %d건, 단계기록 스킵: %d건, 무효화: %d건",
+                checkedCount, skippedStageCount, invalidatedCount
             ));
 
             long executionTime = System.currentTimeMillis() - startTime;
