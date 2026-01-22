@@ -77,13 +77,13 @@
                     <button type="button" class="difficulty-btn selected" data-difficulty="NORMAL" onclick="selectDifficulty('NORMAL')">
                         <span class="diff-icon">&#11088;</span>
                         <span class="diff-name">노말</span>
-                        <span class="diff-desc">10초 (듣기+입력) | 라이프 5개</span>
+                        <span class="diff-desc" th:text="'듣기 ' + ${normalPlaySec} + '초 + 입력 ' + ${normalAnswerSec} + '초 | 라이프 ' + ${normalLives} + '개'">듣기 7초 + 입력 6초 | 라이프 5개</span>
                         <span class="diff-badge practice">연습 모드</span>
                     </button>
                     <button type="button" class="difficulty-btn" data-difficulty="HARDCORE" onclick="selectDifficulty('HARDCORE')">
                         <span class="diff-icon">&#128293;</span>
                         <span class="diff-name">하드코어</span>
-                        <span class="diff-desc">5초 (듣기+입력) | 라이프 5개</span>
+                        <span class="diff-desc" th:text="'듣기 ' + ${hardcorePlaySec} + '초 + 입력 ' + ${hardcoreAnswerSec} + '초 | 라이프 ' + ${hardcoreLives} + '개'">듣기 5초 + 입력 5초 | 라이프 5개</span>
                         <span class="diff-badge ranked">공식 랭킹</span>
                     </button>
                 </div>
@@ -93,8 +93,8 @@
                 <h3>게임 규칙</h3>
                 <ul class="rules-list" id="rulesList">
                     <li><span class="rule-icon">&#127925;</span> 해당 장르의 <strong>전곡</strong> 출제</li>
-                    <li><span class="rule-icon">&#9200;</span> 노말: <strong>10초</strong> | 하드코어: <strong>5초</strong></li>
-                    <li><span class="rule-icon">&#10084;</span> 라이프 <strong>5개</strong> (오답/시간초과 시 -1)</li>
+                    <li><span class="rule-icon">&#9200;</span> 노말: <strong th:text="'듣기 ' + ${normalPlaySec} + '초 + 입력 ' + ${normalAnswerSec} + '초'">듣기 7초 + 입력 6초</strong> | 하드코어: <strong th:text="'듣기 ' + ${hardcorePlaySec} + '초 + 입력 ' + ${hardcoreAnswerSec} + '초'">듣기 5초 + 입력 5초</strong></li>
+                    <li><span class="rule-icon">&#10084;</span> 라이프 <strong th:text="${normalLives} + '개'">5개</strong> (오답/시간초과 시 -1)</li>
                     <li><span class="rule-icon">&#128293;</span> <strong>콤보</strong> 시스템! 연속 정답을 노려라</li>
                     <li><span class="rule-icon">&#128221;</span> <strong>하드코어</strong>만 공식 랭킹 반영</li>
                 </ul>

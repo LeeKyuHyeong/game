@@ -45,6 +45,18 @@ public class GameGenreChallengeController {
             });
         }
 
+        // 난이도 정보 전달 (설정-UI 동기화)
+        GenreChallengeDifficulty normal = GenreChallengeDifficulty.NORMAL;
+        GenreChallengeDifficulty hardcore = GenreChallengeDifficulty.HARDCORE;
+
+        model.addAttribute("normalPlaySec", normal.getPlayTimeMs() / 1000);
+        model.addAttribute("normalAnswerSec", normal.getAnswerTimeMs() / 1000);
+        model.addAttribute("normalLives", normal.getInitialLives());
+
+        model.addAttribute("hardcorePlaySec", hardcore.getPlayTimeMs() / 1000);
+        model.addAttribute("hardcoreAnswerSec", hardcore.getAnswerTimeMs() / 1000);
+        model.addAttribute("hardcoreLives", hardcore.getInitialLives());
+
         return "client/game/genre-challenge/setup";
     }
 
