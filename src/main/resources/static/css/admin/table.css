@@ -32,6 +32,7 @@
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
 }
 
 .data-table th {
@@ -60,6 +61,8 @@
 .action-buttons {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 /* Small Button */

@@ -45,7 +45,7 @@ public class SongAnswerGenerationBatch {
 
             // 활성화된 곡 중 SongAnswer가 없는 곡 조회
             List<Song> songsWithoutAnswers = songRepository.findAll().stream()
-                    .filter(Song::getIsActive)
+                    .filter(song -> "Y".equals(song.getUseYn()))
                     .filter(song -> !songAnswerRepository.existsBySongId(song.getId()))
                     .toList();
 

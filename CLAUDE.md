@@ -92,7 +92,7 @@ Controller (MVC + REST) → Service (Business Logic) → Repository (JPA) → Ma
 - **service/** - Business logic: `GameSessionService`, `MultiGameService`, `SongService`, `MemberService`, `GameRoomService`, `AnswerValidationService`, `YouTubeValidationService`, `BoardService`, `WrongAnswerStatsService`, `BatchService`, `GenreMigrationService`, `GenreService`, `MultiTierService`, `FanChallengeService`, `BadgeService`, `MenuConfigService`
 - **entity/** - JPA entities: `Member`, `MemberLoginHistory`, `Song`, `SongAnswer`, `Genre`, `GameSession`, `GameRound`, `GameRoundAttempt`, `GameRoom`, `GameRoomParticipant`, `GameRoomChat`, `BadWord`, `SongReport`, `BatchConfig`, `BatchExecutionHistory`, `DailyStats`, `Board`, `BoardComment`, `BoardLike`, `Badge`, `MemberBadge`, `MultiTier`, `FanChallengeDifficulty`, `FanChallengeRecord`, `RankingHistory`, `MenuConfig`
 - **repository/** - Spring Data JPA repositories
-- **batch/** - 23 scheduled batch jobs managed by `BatchScheduler`
+- **batch/** - 26 scheduled batch jobs managed by `BatchScheduler`
 - **config/** - `SecurityConfig` (BCrypt), `WebConfig` (interceptors, file upload), `SchedulerConfig`, `DataInitializer`
 - **util/** - `AnswerGeneratorUtil` (English→Korean phonetic conversion for song titles)
 - **dto/** - `GameSettings` (multiplayer room configuration)
@@ -158,8 +158,8 @@ Achievement badges with categories and rarities:
 All batches are DB-configurable via `BatchConfig` table with cron expressions:
 - **Cleanup:** `SessionCleanupBatch`, `GameSessionCleanupBatch`, `RoomCleanupBatch`, `ChatCleanupBatch`, `BoardCleanupBatch`, `LoginHistoryCleanupBatch`, `BatchExecutionHistoryCleanupBatch`, `GameRoundAttemptCleanupBatch`, `SongReportCleanupBatch`
 - **Stats & Rankings:** `DailyStatsBatch`, `RankingUpdateBatch`, `RankingSnapshotBatch`, `WeeklyRankingResetBatch`, `MonthlyRankingResetBatch`
-- **Member Management:** `InactiveMemberBatch`, `BadgeAwardBatch`
-- **Song Integrity:** `SongFileCheckBatch`, `SongAnalyticsBatch`, `YouTubeVideoCheckBatch`, `DuplicateSongCheckBatch`
+- **Member Management:** `InactiveMemberBatch`, `BadgeAwardBatch`, `LpDecayBatch`, `LoginStreakBatch`
+- **Song Integrity:** `SongFileCheckBatch`, `SongAnalyticsBatch`, `YouTubeVideoCheckBatch`, `DuplicateSongCheckBatch`, `SongAnswerGenerationBatch`
 - **Fan Challenge:** `FanChallengePerfectCheckBatch`, `WeeklyPerfectRefreshBatch`
 - **System:** `SystemReportBatch`
 
