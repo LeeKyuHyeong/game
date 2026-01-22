@@ -62,7 +62,7 @@ public class AdminBatchController {
                     result.put("enabled", config.getEnabled());
                     result.put("implemented", config.getImplemented());
                     result.put("targetEntity", config.getTargetEntity());
-                    result.put("priority", config.getPriority().name());
+                    result.put("priority", config.getPriority() != null ? config.getPriority().name() : "MEDIUM");
                     result.put("lastExecutedAt", config.getLastExecutedAt());
                     result.put("lastResult", config.getLastResult() != null ? config.getLastResult().name() : null);
                     result.put("lastResultMessage", config.getLastResultMessage());
