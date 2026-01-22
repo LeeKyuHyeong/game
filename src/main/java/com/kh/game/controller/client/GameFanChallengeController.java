@@ -572,12 +572,12 @@ public class GameFanChallengeController {
     }
 
     /**
-     * 홈 페이지용 인기 아티스트 TOP1 기록 조회
+     * 홈 페이지용 아티스트 TOP1 기록 조회 (HARDCORE stageLevel=1 모든 아티스트)
      */
     @GetMapping("/top-artists")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getTopArtistsRanking() {
-        List<Map<String, Object>> result = fanChallengeService.getTopArtistsWithTopRecord(10);
+        List<Map<String, Object>> result = fanChallengeService.getTopArtistsWithTopRecord();
         return ResponseEntity.ok(result);
     }
 

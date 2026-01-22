@@ -32,7 +32,9 @@ async function checkLoginStatus() {
 
         if (result.isLoggedIn) {
             isUserLoggedIn = true;
+            const mafiaBtn = result.role === 'ADMIN' ? '<a href="/mafia" class="btn btn-mafia">마피아</a>' : '';
             const adminBtn = result.role === 'ADMIN' ? '<a href="/admin/login" class="btn btn-admin">관리자</a>' : '';
+            const mafiaBtnMobile = result.role === 'ADMIN' ? '<a href="/mafia" class="mobile-menu-link mafia">🎭 마피아</a>' : '';
             const adminBtnMobile = result.role === 'ADMIN' ? '<a href="/admin/login" class="mobile-menu-link admin">🛠️ 관리자</a>' : '';
 
             // 데스크탑 UI
@@ -40,6 +42,7 @@ async function checkLoginStatus() {
                 <span class="user-greeting">안녕하세요, <strong>${result.nickname}</strong>님!</span>
                 <a href="/mypage" class="btn btn-mypage">마이페이지</a>
                 <button class="btn btn-logout" onclick="logout()">로그아웃</button>
+                ${mafiaBtn}
                 ${adminBtn}
             `;
 
@@ -48,6 +51,7 @@ async function checkLoginStatus() {
                 <div class="mobile-user-greeting">안녕하세요, <strong>${result.nickname}</strong>님!</div>
                 <a href="/mypage" class="mobile-menu-link">👤 마이페이지</a>
                 <button class="mobile-menu-link" onclick="logout()">🚪 로그아웃</button>
+                ${mafiaBtnMobile}
                 ${adminBtnMobile}
             `;
 
@@ -157,17 +161,7 @@ async function loadArtistChallengeRanking() {
 
         section.classList.remove('hidden');
 
-        // 점수 높은 순 → 같은 점수면 시간 빠른 순으로 정렬
-        data.sort((a, b) => {
-            // 1. 정답 수 높은 순
-            if (b.correctCount !== a.correctCount) {
-                return b.correctCount - a.correctCount;
-            }
-            // 2. 같은 점수면 시간 빠른 순 (null은 뒤로)
-            const timeA = a.bestTimeMs ?? Infinity;
-            const timeB = b.bestTimeMs ?? Infinity;
-            return timeA - timeB;
-        });
+        // 서버에서 이미 정렬됨: correctCount DESC → bestTimeMs ASC
 
         let html = '';
         data.forEach(item => {

@@ -516,17 +516,13 @@ public class FanChallengeService {
     }
 
     /**
-     * 홈 페이지용 인기 아티스트 TOP1 기록 조회 (기록이 있는 아티스트, 도전자 수 순)
+     * 홈 페이지용 아티스트 TOP1 기록 조회 (HARDCORE stageLevel=1 기록이 있는 모든 아티스트)
+     * 정렬: correctCount DESC → bestTimeMs ASC
      */
-    public List<Map<String, Object>> getTopArtistsWithTopRecord(int limit) {
-        // 1. 기록이 있는 아티스트 목록 (도전자 수 기준 인기순, HARDCORE만)
-        List<Object[]> popularArtists = fanChallengeRecordRepository.findPopularArtists(PageRequest.of(0, limit * 2));
-
-        // [DEBUG] 조회된 인기 아티스트 목록 로그
-        log.info("[ArtistTop] findPopularArtists 조회 결과: {}개", popularArtists.size());
-        for (Object[] row : popularArtists) {
-            log.info("[ArtistTop] - 아티스트: {}, 기록수: {}", row[0], row[1]);
-        }
+    public List<Map<String, Object>> getTopArtistsWithTopRecord() {
+        // 1. HARDCORE stageLevel=1 기록이 있는 모든 아티스트 목록
+        List<String> allArtists = fanChallengeRecordRepository.findAllArtistsWithStage1Records();
+        log.info("[ArtistTop] stageLevel=1 기록이 있는 아티스트: {}개", allArtists.size());
 
         // 2. 아티스트별 곡 수 맵 (표시용)
         Map<String, Integer> artistSongCountMap = new HashMap<>();
@@ -534,23 +530,10 @@ public class FanChallengeService {
             artistSongCountMap.put((String) artistInfo.get("name"), (Integer) artistInfo.get("count"));
         }
 
+        // 3. 각 아티스트별 1위 기록 조회
         List<Map<String, Object>> result = new ArrayList<>();
-        for (Object[] row : popularArtists) {
-            if (result.size() >= limit) break;
-
-            String artist = (String) row[0];
-
-            // 해당 아티스트의 1위 기록 조회
-            List<FanChallengeRecord> topRecords = fanChallengeRecordRepository.findTopByArtist(artist, PageRequest.of(0, 1));
-
-            // [DEBUG] 각 아티스트별 TOP 기록 조회 결과
-            if (topRecords.isEmpty()) {
-                log.warn("[ArtistTop] {} 아티스트의 TOP 기록 없음!", artist);
-            } else {
-                FanChallengeRecord top = topRecords.get(0);
-                log.info("[ArtistTop] {} TOP 기록: {}/{}, 퍼펙트={}",
-                    artist, top.getCorrectCount(), top.getTotalSongs(), top.getIsPerfectClear());
-            }
+        for (String artist : allArtists) {
+            List<FanChallengeRecord> topRecords = fanChallengeRecordRepository.findTopByArtistAndStage(artist, 1, PageRequest.of(0, 1));
 
             if (!topRecords.isEmpty()) {
                 FanChallengeRecord top = topRecords.get(0);
@@ -566,9 +549,22 @@ public class FanChallengeService {
             }
         }
 
-        // [DEBUG] 최종 결과 로그
-        log.info("[ArtistTop] 최종 결과: {}개 아티스트 반환", result.size());
+        // 4. 정렬: correctCount DESC → bestTimeMs ASC (null은 뒤로)
+        result.sort((a, b) -> {
+            int countA = (Integer) a.get("correctCount");
+            int countB = (Integer) b.get("correctCount");
+            if (countB != countA) {
+                return countB - countA;  // DESC
+            }
+            Long timeA = (Long) a.get("bestTimeMs");
+            Long timeB = (Long) b.get("bestTimeMs");
+            if (timeA == null && timeB == null) return 0;
+            if (timeA == null) return 1;  // null은 뒤로
+            if (timeB == null) return -1;
+            return Long.compare(timeA, timeB);  // ASC
+        });
 
+        log.info("[ArtistTop] 최종 결과: {}개 아티스트 반환", result.size());
         return result;
     }
 
