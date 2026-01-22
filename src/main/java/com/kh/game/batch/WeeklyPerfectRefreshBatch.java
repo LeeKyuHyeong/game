@@ -3,7 +3,6 @@ package com.kh.game.batch;
 import com.kh.game.entity.BatchConfig;
 import com.kh.game.entity.BatchExecutionHistory;
 import com.kh.game.entity.FanChallengeRecord;
-import com.kh.game.entity.FanChallengeStageConfig;
 import com.kh.game.repository.FanChallengeRecordRepository;
 import com.kh.game.service.BatchService;
 import com.kh.game.service.FanChallengeStageService;
@@ -164,14 +163,7 @@ public class WeeklyPerfectRefreshBatch {
      * 단계별 필요 곡 수 조회
      */
     private int getRequiredSongsForStage(int stageLevel) {
-        try {
-            FanChallengeStageConfig config = stageService.getStageConfig(stageLevel);
-            return config.getRequiredSongs();
-        } catch (Exception e) {
-            // 단계 설정이 없으면 기본값 20 반환
-            log.warn("단계 {} 설정 조회 실패, 기본값 20 사용: {}", stageLevel, e.getMessage());
-            return 20;
-        }
+        return stageService.getRequiredSongsForStage(stageLevel);
     }
 
     /**

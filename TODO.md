@@ -110,25 +110,6 @@
 - [O] 멀티게임 방 만들 때 '로비로' 버튼 -> '홈'과 동일하게 변경
 - [O] 커뮤니티 디테일에서 '목록으로' 버튼 -> '홈'과 동일하게 변경
 
-## 추가한 곡
-
-### 데이식스
-### 한로로
-### 로이킴
-### 10cm
-### 소녀시대
-### 빅뱅
-### 권진아
-### 원더걸스
-### 오마이걸
-### 엔믹스
-
-## 추가해야할 곡
-
-### 비스트
-### 씨스타
-### 백예린
-
 
 [O] 곡신고에서  상태변경 버튼이 안먹힘
 [O] 랭킹화면 리뉴얼(client) - 6탭 구성 완료
@@ -140,8 +121,11 @@
 
 [O] 관리자화면 메뉴 통합 가능한 곳 통합하기
 [O] css 다크/라이트 가시성, 밝기 전체확인
-[] 노래 관리 화면 검색 파라미터 유지하기
+[O] 노래 관리 화면 검색 파라미터 유지하기
 [] 유튜브 및 노래 중복 배치 후 변경된 목록 볼 수 있는 관리자화면 필요
+[] 관리자 랭킹 '팬챌린지' 오류 - tymeleaf 문법 오류일듯
+[] 사용자 관리 접근안됐음
+[] client 쪽 아티스트 챌린지 랭킹 보여줄때, score 높은 순서로 보여줘야겠음
 
 0. 몸으로 말해요 (전체) - 친목도모
 1. <주크박스 게임>   (3vs3) - 총 3라운드 진행 2라운드를 먼저 모든 인원이 통과하면 승!
@@ -154,3 +138,88 @@
 의사 1
 스파이 1
 시민 6
+
+-NCT 127-
+favorite
+simon says
+cherry bomb
+lemonade
+touch
+highway to heaven
+ay-yo
+back 2 u
+우산 love song
+윤슬 gold dust
+소방차
+무량적아
+superhuman
+punch
+love on the floor
+sit down
+road trip
+whiplash
+angel eyes
+summer 127
+
+-NCT DREAM-
+Smoothie
+Beatbox
+yougurt shake
+boom
+hello future
+오르골 life is still going on
+ISTJ
+고래 dive into you
+북극성
+Moonlight
+버퍼링
+GO
+We Go Up
+Ridin`
+like we just met
+broken melodies
+poison 모래성
+주인공
+graduation
+Drippin`
+
+-태연-
+날개
+I Got Love
+Sweet Love
+When I Was Young
+수채화
+Fire
+Eraser
+기억을 걷는 시간
+Lonely Night
+Find Me
+Love You Like Crazy
+Wine
+Blue
+내게 들려주고 싶은 말(Dear Me)
+월식
+Here I Am
+그런 밤(Some Night)
+어른아이(Toddler)
+Siren
+Cold As Hell
+쌍둥이자리(Gemini)
+
+
+-블랙핑크-
+Love To Hate Me / Don't Know What To Do / Pretty Savage / Forever Young / 붐바야 / Stay / Ice Cream / Shut Down / 불장난 /
+휘파람 / 마지막처럼 / Pink Venom / Lovesick Girls / How You Like That / Kill This Love / 뚜두뚜두
+Typa Girl
+The girls
+Ready For Love
+Tally
+Hard to Love
+Crazy Over You
+Kick It
+You Never Know
+See U Later
+Sour Candy
+Yeah Yeah Yeah
+Really
+아니길(Hope Not)
