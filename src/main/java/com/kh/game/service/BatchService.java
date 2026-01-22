@@ -73,19 +73,7 @@ public class BatchService {
                 true  // 구현됨
         ));
 
-        // 4. 랭킹 갱신
-        batchConfigRepository.save(new BatchConfig(
-                "BATCH_RANKING_UPDATE",
-                "랭킹 스냅샷 갱신",
-                "주간/월간 랭킹 스냅샷을 생성하여 랭킹 조회 성능을 개선합니다.",
-                "0 0 * * * *",
-                "매시간",
-                "MemberRanking",
-                BatchConfig.Priority.MEDIUM,
-                true  // 구현됨
-        ));
-
-        // 5. 로그인 이력 정리
+        // 4. 로그인 이력 정리
         batchConfigRepository.save(new BatchConfig(
                 "BATCH_LOGIN_HISTORY_CLEANUP",
                 "로그인 이력 정리",
@@ -253,7 +241,7 @@ public class BatchService {
                 true  // 구현됨
         ));
 
-        log.info("배치 설정 초기 데이터 생성 완료: 18개");
+        log.info("배치 설정 초기 데이터 생성 완료: 17개");
     }
 
     /**
@@ -268,13 +256,14 @@ public class BatchService {
                 "BATCH_ROOM_CLEANUP",
                 "BATCH_CHAT_CLEANUP",
                 "BATCH_DAILY_STATS",
-                "BATCH_RANKING_UPDATE",
                 "BATCH_LOGIN_HISTORY_CLEANUP",
                 "BATCH_INACTIVE_MEMBER",
                 "BATCH_SONG_FILE_CHECK",
                 "BATCH_SONG_ANALYTICS",
                 "BATCH_SYSTEM_REPORT",
                 "BATCH_WEEKLY_RANKING_RESET",
+                "BATCH_MONTHLY_RANKING_RESET",
+                "BATCH_RANKING_SNAPSHOT",
                 "BATCH_BOARD_CLEANUP",
                 "BATCH_EXECUTION_HISTORY_CLEANUP",
                 "BATCH_GAME_ROUND_ATTEMPT_CLEANUP",
@@ -284,7 +273,10 @@ public class BatchService {
                 "BATCH_SONG_REPORT_CLEANUP",
                 "BATCH_BADGE_AWARD",
                 "BATCH_FAN_CHALLENGE_PERFECT_CHECK",
-                "BATCH_WEEKLY_PERFECT_REFRESH"
+                "BATCH_WEEKLY_PERFECT_REFRESH",
+                "BATCH_LP_DECAY",
+                "BATCH_SONG_ANSWER_GENERATION",
+                "BATCH_LOGIN_STREAK"
         );
 
         int updatedCount = 0;
@@ -500,6 +492,87 @@ public class BatchService {
                     true  // 구현됨
             ));
             log.info("BATCH_WEEKLY_PERFECT_REFRESH 배치 설정 추가 완료");
+        }
+
+        // BATCH_MONTHLY_RANKING_RESET: 월간 랭킹 리셋 배치
+        if (!batchConfigRepository.existsById("BATCH_MONTHLY_RANKING_RESET")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_MONTHLY_RANKING_RESET",
+                    "월간 랭킹 리셋",
+                    "매월 1일 00:00에 월간 30곡 최고점 통계를 초기화합니다.",
+                    "0 0 0 1 * *",
+                    "매월 1일 00:00",
+                    "Member",
+                    BatchConfig.Priority.HIGH,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_MONTHLY_RANKING_RESET 배치 설정 추가 완료");
+        }
+
+        // BATCH_RANKING_SNAPSHOT: 랭킹 스냅샷 배치 (RankingUpdateBatch 대체)
+        if (!batchConfigRepository.existsById("BATCH_RANKING_SNAPSHOT")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_RANKING_SNAPSHOT",
+                    "랭킹 스냅샷 저장",
+                    "주간/월간 랭킹 리셋 전 Top 100 기록을 RankingHistory 테이블에 보관합니다.",
+                    "0 50 5 * * MON",
+                    "매주 월요일 05:50",
+                    "RankingHistory",
+                    BatchConfig.Priority.HIGH,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_RANKING_SNAPSHOT 배치 설정 추가 완료");
+        }
+
+        // 기존 BATCH_RANKING_UPDATE 설정이 있으면 삭제 (deprecated)
+        if (batchConfigRepository.existsById("BATCH_RANKING_UPDATE")) {
+            batchConfigRepository.deleteById("BATCH_RANKING_UPDATE");
+            log.info("BATCH_RANKING_UPDATE 배치 설정 삭제 완료 (BATCH_RANKING_SNAPSHOT으로 대체됨)");
+        }
+
+        // BATCH_LP_DECAY: LP Decay 배치 (장기 미접속 유저 LP 감소)
+        if (!batchConfigRepository.existsById("BATCH_LP_DECAY")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_LP_DECAY",
+                    "LP Decay",
+                    "30일 이상 멀티게임을 하지 않은 회원의 LP를 감소시킵니다. (7 LP/주)",
+                    "0 0 5 * * MON",
+                    "매주 월요일 05:00",
+                    "Member",
+                    BatchConfig.Priority.MEDIUM,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_LP_DECAY 배치 설정 추가 완료");
+        }
+
+        // BATCH_SONG_ANSWER_GENERATION: 곡 정답 자동 생성 배치
+        if (!batchConfigRepository.existsById("BATCH_SONG_ANSWER_GENERATION")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_SONG_ANSWER_GENERATION",
+                    "곡 정답 자동 생성",
+                    "SongAnswer가 없는 곡에 정답 변형(원본, 괄호제거, 한글발음 등)을 자동 생성합니다.",
+                    "0 0 6 * * *",
+                    "매일 06:00",
+                    "SongAnswer",
+                    BatchConfig.Priority.MEDIUM,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_SONG_ANSWER_GENERATION 배치 설정 추가 완료");
+        }
+
+        // BATCH_LOGIN_STREAK: 연속 로그인 스트릭 리셋 배치
+        if (!batchConfigRepository.existsById("BATCH_LOGIN_STREAK")) {
+            batchConfigRepository.save(new BatchConfig(
+                    "BATCH_LOGIN_STREAK",
+                    "연속 로그인 스트릭 리셋",
+                    "어제 로그인하지 않은 회원의 연속 로그인 스트릭을 리셋합니다.",
+                    "0 30 0 * * *",
+                    "매일 00:30",
+                    "Member",
+                    BatchConfig.Priority.MEDIUM,
+                    true  // 구현됨
+            ));
+            log.info("BATCH_LOGIN_STREAK 배치 설정 추가 완료");
         }
     }
 

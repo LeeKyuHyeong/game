@@ -236,6 +236,22 @@ public class Member {
     @Column(name = "max_correct_streak")
     private Integer maxCorrectStreak = 0;  // 최대 연속 정답 기록
 
+    // ========== 연속 로그인 시스템 ==========
+
+    @Column(name = "login_streak")
+    private Integer loginStreak = 0;  // 현재 연속 로그인 일수
+
+    @Column(name = "max_login_streak")
+    private Integer maxLoginStreak = 0;  // 최대 연속 로그인 기록
+
+    @Column(name = "last_login_date")
+    private java.time.LocalDate lastLoginDate;  // 마지막 로그인 날짜 (연속 로그인 계산용)
+
+    // ========== LP Decay 시스템 ==========
+
+    @Column(name = "last_game_played_at")
+    private LocalDateTime lastGamePlayedAt;  // 마지막 게임 플레이 시간 (LP Decay용)
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private MemberRole role = MemberRole.USER;
@@ -644,5 +660,73 @@ public class Member {
         } else {
             this.currentCorrectStreak = 0;
         }
+    }
+
+    // ========== 연속 로그인 메서드 ==========
+
+    /**
+     * 로그인 시 연속 로그인 스트릭 업데이트
+     * @return 스트릭 상태 ("NEW_STREAK", "CONTINUED", "RESET")
+     */
+    public String updateLoginStreak() {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        String result;
+
+        if (this.lastLoginDate == null) {
+            // 첫 로그인
+            this.loginStreak = 1;
+            result = "NEW_STREAK";
+        } else if (this.lastLoginDate.equals(today)) {
+            // 오늘 이미 로그인함 - 변경 없음
+            return "SAME_DAY";
+        } else if (this.lastLoginDate.plusDays(1).equals(today)) {
+            // 어제 로그인 -> 연속
+            this.loginStreak = (this.loginStreak == null ? 0 : this.loginStreak) + 1;
+            result = "CONTINUED";
+        } else {
+            // 연속 끊김 -> 리셋
+            this.loginStreak = 1;
+            result = "RESET";
+        }
+
+        this.lastLoginDate = today;
+
+        // 최대 연속 기록 갱신
+        if (this.loginStreak > (this.maxLoginStreak == null ? 0 : this.maxLoginStreak)) {
+            this.maxLoginStreak = this.loginStreak;
+        }
+
+        return result;
+    }
+
+    /**
+     * 연속 로그인 끊김 처리 (배치용)
+     */
+    public void resetLoginStreak() {
+        this.loginStreak = 0;
+    }
+
+    // ========== 마지막 게임 플레이 시간 메서드 ==========
+
+    /**
+     * 게임 플레이 시간 업데이트
+     */
+    public void updateLastGamePlayedAt() {
+        this.lastGamePlayedAt = LocalDateTime.now();
+    }
+
+    /**
+     * LP Decay 적용 (장기 미접속 시 LP 감소)
+     * @param decayAmount 감소할 LP 양
+     * @return 티어 변동 여부 ("DEMOTED" 또는 null)
+     */
+    public String applyLpDecay(int decayAmount) {
+        if (this.multiLp == null || this.multiLp == 0) {
+            // LP가 0이면 더 이상 감소 안함 (브론즈 0 LP 보호)
+            if (this.multiTier == MultiTier.BRONZE) {
+                return null;
+            }
+        }
+        return applyLpChange(-decayAmount);
     }
 }

@@ -280,4 +280,16 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // 권한별 회원 수
     long countByRole(Member.MemberRole role);
+
+    // ========== 배치용 조회 ==========
+
+    // LP Decay 대상: 활성 회원 중 멀티게임 참여 이력이 있고, 마지막 게임이 특정 날짜 이전인 회원
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.multiGames > 0 " +
+           "AND m.lastGamePlayedAt IS NOT NULL AND m.lastGamePlayedAt < :threshold")
+    List<Member> findMembersForLpDecay(@org.springframework.data.repository.query.Param("threshold") java.time.LocalDateTime threshold);
+
+    // 연속 로그인 리셋 대상: 마지막 로그인 날짜가 어제가 아닌 회원 (스트릭 끊김)
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.loginStreak > 0 " +
+           "AND (m.lastLoginDate IS NULL OR m.lastLoginDate < :yesterday)")
+    List<Member> findMembersToResetLoginStreak(@org.springframework.data.repository.query.Param("yesterday") java.time.LocalDate yesterday);
 }

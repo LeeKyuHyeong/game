@@ -28,7 +28,6 @@ public class BatchScheduler {
     private final RoomCleanupBatch roomCleanupBatch;
     private final ChatCleanupBatch chatCleanupBatch;
     private final DailyStatsBatch dailyStatsBatch;
-    private final RankingUpdateBatch rankingUpdateBatch;
     private final LoginHistoryCleanupBatch loginHistoryCleanupBatch;
     private final InactiveMemberBatch inactiveMemberBatch;
     private final SongFileCheckBatch songFileCheckBatch;
@@ -47,6 +46,9 @@ public class BatchScheduler {
     private final FanChallengePerfectCheckBatch fanChallengePerfectCheckBatch;
     private final RankingSnapshotBatch rankingSnapshotBatch;
     private final WeeklyPerfectRefreshBatch weeklyPerfectRefreshBatch;
+    private final LpDecayBatch lpDecayBatch;
+    private final SongAnswerGenerationBatch songAnswerGenerationBatch;
+    private final LoginStreakBatch loginStreakBatch;
 
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
@@ -138,14 +140,6 @@ public class BatchScheduler {
                 return () -> {
                     try {
                         dailyStatsBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
-                    } catch (Exception e) {
-                        log.error("배치 실행 중 오류: {}", batchId, e);
-                    }
-                };
-            case RankingUpdateBatch.BATCH_ID:
-                return () -> {
-                    try {
-                        rankingUpdateBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
                     } catch (Exception e) {
                         log.error("배치 실행 중 오류: {}", batchId, e);
                     }
@@ -294,6 +288,30 @@ public class BatchScheduler {
                         log.error("배치 실행 중 오류: {}", batchId, e);
                     }
                 };
+            case LpDecayBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        lpDecayBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case SongAnswerGenerationBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        songAnswerGenerationBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
+            case LoginStreakBatch.BATCH_ID:
+                return () -> {
+                    try {
+                        loginStreakBatch.execute(BatchExecutionHistory.ExecutionType.SCHEDULED);
+                    } catch (Exception e) {
+                        log.error("배치 실행 중 오류: {}", batchId, e);
+                    }
+                };
             default:
                 return null;
         }
@@ -314,9 +332,6 @@ public class BatchScheduler {
                 break;
             case DailyStatsBatch.BATCH_ID:
                 dailyStatsBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
-                break;
-            case RankingUpdateBatch.BATCH_ID:
-                rankingUpdateBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
                 break;
             case LoginHistoryCleanupBatch.BATCH_ID:
                 loginHistoryCleanupBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
@@ -371,6 +386,15 @@ public class BatchScheduler {
                 break;
             case WeeklyPerfectRefreshBatch.BATCH_ID:
                 weeklyPerfectRefreshBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case LpDecayBatch.BATCH_ID:
+                lpDecayBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case SongAnswerGenerationBatch.BATCH_ID:
+                songAnswerGenerationBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+                break;
+            case LoginStreakBatch.BATCH_ID:
+                loginStreakBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
                 break;
             default:
                 throw new IllegalArgumentException("실행할 수 없는 배치입니다: " + batchId);

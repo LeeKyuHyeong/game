@@ -217,6 +217,7 @@ public class MemberService {
 
         // 로그인 성공
         member.setLastLoginAt(LocalDateTime.now());
+        member.updateLoginStreak();  // 연속 로그인 스트릭 업데이트
         memberRepository.save(member);
 
         loginHistoryRepository.save(MemberLoginHistory.success(member, ipAddress, userAgent));
@@ -247,6 +248,7 @@ public class MemberService {
     public void addMultiGameResult(Long memberId, int score, int correct, int rounds) {
         Member member = memberRepository.findById(memberId).orElseThrow();
         member.addMultiGameResult(score, correct, rounds);
+        member.updateLastGamePlayedAt();  // LP Decay용 마지막 게임 시간 기록
         memberRepository.save(member);
     }
 
