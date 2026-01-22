@@ -118,8 +118,23 @@ code {
 }
 
 .type-badge.SOLO_GUESS {
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
+}
+
+.type-badge.FAN_CHALLENGE {
     background: var(--badge-warning-bg);
     color: var(--badge-warning-text);
+}
+
+.type-badge.GENRE_CHALLENGE {
+    background: var(--badge-indigo-bg);
+    color: var(--badge-indigo-text);
+}
+
+.type-badge.RETRO_GUESS {
+    background: var(--badge-pink-bg);
+    color: var(--badge-pink-text);
 }
 
 .type-badge.small {

@@ -24,7 +24,14 @@
                     <div class="info-item">
                         <label>게임유형</label>
                         <span class="type-badge" th:classappend="${gameSession.gameType.name()}"
-                              th:text="${gameSession.gameType.name() == 'SOLO_HOST'} ? '게임진행용' : '내가맞추기'"></span>
+                              th:switch="${gameSession.gameType.name()}">
+                            <span th:case="'SOLO_HOST'">게임진행용</span>
+                            <span th:case="'SOLO_GUESS'">내가맞추기</span>
+                            <span th:case="'FAN_CHALLENGE'">아티스트 챌린지</span>
+                            <span th:case="'GENRE_CHALLENGE'">장르 챌린지</span>
+                            <span th:case="'RETRO_GUESS'">레트로 게임</span>
+                            <span th:case="*">기타</span>
+                        </span>
                     </div>
                     <div class="info-item">
                         <label>게임모드</label>

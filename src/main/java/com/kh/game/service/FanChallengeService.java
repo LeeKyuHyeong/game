@@ -522,6 +522,12 @@ public class FanChallengeService {
         // 1. 기록이 있는 아티스트 목록 (도전자 수 기준 인기순, HARDCORE만)
         List<Object[]> popularArtists = fanChallengeRecordRepository.findPopularArtists(PageRequest.of(0, limit * 2));
 
+        // [DEBUG] 조회된 인기 아티스트 목록 로그
+        log.info("[ArtistTop] findPopularArtists 조회 결과: {}개", popularArtists.size());
+        for (Object[] row : popularArtists) {
+            log.info("[ArtistTop] - 아티스트: {}, 기록수: {}", row[0], row[1]);
+        }
+
         // 2. 아티스트별 곡 수 맵 (표시용)
         Map<String, Integer> artistSongCountMap = new HashMap<>();
         for (Map<String, Object> artistInfo : songService.getArtistsWithCountForFanChallenge()) {
@@ -536,6 +542,16 @@ public class FanChallengeService {
 
             // 해당 아티스트의 1위 기록 조회
             List<FanChallengeRecord> topRecords = fanChallengeRecordRepository.findTopByArtist(artist, PageRequest.of(0, 1));
+
+            // [DEBUG] 각 아티스트별 TOP 기록 조회 결과
+            if (topRecords.isEmpty()) {
+                log.warn("[ArtistTop] {} 아티스트의 TOP 기록 없음!", artist);
+            } else {
+                FanChallengeRecord top = topRecords.get(0);
+                log.info("[ArtistTop] {} TOP 기록: {}/{}, 퍼펙트={}",
+                    artist, top.getCorrectCount(), top.getTotalSongs(), top.getIsPerfectClear());
+            }
+
             if (!topRecords.isEmpty()) {
                 FanChallengeRecord top = topRecords.get(0);
                 Map<String, Object> item = new HashMap<>();
@@ -549,6 +565,10 @@ public class FanChallengeService {
                 result.add(item);
             }
         }
+
+        // [DEBUG] 최종 결과 로그
+        log.info("[ArtistTop] 최종 결과: {}개 아티스트 반환", result.size());
+
         return result;
     }
 

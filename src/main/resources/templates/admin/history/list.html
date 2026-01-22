@@ -44,6 +44,8 @@
                     <option value="SOLO_HOST" th:selected="${gameType == 'SOLO_HOST'}">게임진행용</option>
                     <option value="SOLO_GUESS" th:selected="${gameType == 'SOLO_GUESS'}">내가맞추기</option>
                     <option value="FAN_CHALLENGE" th:selected="${gameType == 'FAN_CHALLENGE'}">아티스트 챌린지</option>
+                    <option value="GENRE_CHALLENGE" th:selected="${gameType == 'GENRE_CHALLENGE'}">장르 챌린지</option>
+                    <option value="RETRO_GUESS" th:selected="${gameType == 'RETRO_GUESS'}">레트로 게임</option>
                 </select>
                 <select name="status">
                     <option value="">상태 전체</option>
@@ -82,6 +84,8 @@
                             <span th:case="'SOLO_HOST'">게임진행용</span>
                             <span th:case="'SOLO_GUESS'">내가맞추기</span>
                             <span th:case="'FAN_CHALLENGE'">아티스트 챌린지</span>
+                            <span th:case="'GENRE_CHALLENGE'">장르 챌린지</span>
+                            <span th:case="'RETRO_GUESS'">레트로 게임</span>
                             <span th:case="*">기타</span>
                         </span>
                     </td>

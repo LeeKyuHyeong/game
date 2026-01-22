@@ -14,6 +14,8 @@
                 <option value="SOLO_HOST" th:selected="${gameType == 'SOLO_HOST'}">게임진행용</option>
                 <option value="SOLO_GUESS" th:selected="${gameType == 'SOLO_GUESS'}">내가맞추기</option>
                 <option value="FAN_CHALLENGE" th:selected="${gameType == 'FAN_CHALLENGE'}">아티스트 챌린지</option>
+                <option value="GENRE_CHALLENGE" th:selected="${gameType == 'GENRE_CHALLENGE'}">장르 챌린지</option>
+                <option value="RETRO_GUESS" th:selected="${gameType == 'RETRO_GUESS'}">레트로 게임</option>
             </select>
             <select name="status">
                 <option value="">상태 전체</option>
@@ -52,6 +54,8 @@
                         <span th:case="'SOLO_HOST'">게임진행용</span>
                         <span th:case="'SOLO_GUESS'">내가맞추기</span>
                         <span th:case="'FAN_CHALLENGE'">아티스트 챌린지</span>
+                        <span th:case="'GENRE_CHALLENGE'">장르 챌린지</span>
+                        <span th:case="'RETRO_GUESS'">레트로 게임</span>
                         <span th:case="*">기타</span>
                     </span>
                 </td>
@@ -113,14 +117,6 @@
 .sub-stat-label { color: var(--text-secondary); }
 .filter-bar { margin-bottom: 1rem; }
 .filter-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-.type-badge { padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.8rem; }
-.type-badge.SOLO_HOST { background: #dbeafe; color: #1e40af; }
-.type-badge.SOLO_GUESS { background: #d1fae5; color: #065f46; }
-.type-badge.FAN_CHALLENGE { background: #fef3c7; color: #92400e; }
-.game-status { font-weight: 500; }
-.game-status.PLAYING { color: #3b82f6; }
-.game-status.COMPLETED { color: #10b981; }
-.game-status.ABANDONED { color: #6b7280; }
 .score-cell { font-weight: 600; color: var(--primary-color); }
 .accuracy { color: var(--text-secondary); }
 @media (max-width: 768px) { .filter-form { flex-direction: column; } .filter-form input, .filter-form select { width: 100%; } }
