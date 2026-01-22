@@ -343,6 +343,26 @@
     --gradient-green-light: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
     --gradient-blue-card: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
     --gradient-indigo-light: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+
+    /* ========== 대중성 평점 색상 (1=대중적 ~ 5=매니악) ========== */
+    --rating-1: #22c55e;        /* 매우 대중적 - 녹색 */
+    --rating-2: #84cc16;        /* 대중적 - 연두 */
+    --rating-3: #f59e0b;        /* 보통 - 노랑 */
+    --rating-4: #f97316;        /* 매니악 - 주황 */
+    --rating-5: #ef4444;        /* 매우 매니악 - 빨강 */
+    --rating-star: #f59e0b;     /* 별 채워진 색상 */
+
+    /* 라이트 모드 - 평점 배지 배경/텍스트 */
+    --rating-1-bg: #dcfce7;
+    --rating-1-text: #166534;
+    --rating-2-bg: #ecfccb;
+    --rating-2-text: #3f6212;
+    --rating-3-bg: #fef3c7;
+    --rating-3-text: #92400e;
+    --rating-4-bg: #ffedd5;
+    --rating-4-text: #9a3412;
+    --rating-5-bg: #fee2e2;
+    --rating-5-text: #991b1b;
 }
 
 /* ========== 다크 모드 ========== */
@@ -449,6 +469,18 @@
     --info-text-readable: #93c5fd;
     --danger-text-readable: #fca5a5;
     --pink-text-readable: #f9a8d4;
+
+    /* ========== 대중성 평점 배지 (다크 모드) ========== */
+    --rating-1-bg: rgba(34, 197, 94, 0.2);
+    --rating-1-text: #86efac;
+    --rating-2-bg: rgba(132, 204, 22, 0.2);
+    --rating-2-text: #bef264;
+    --rating-3-bg: rgba(245, 158, 11, 0.2);
+    --rating-3-text: #fcd34d;
+    --rating-4-bg: rgba(249, 115, 22, 0.2);
+    --rating-4-text: #fdba74;
+    --rating-5-bg: rgba(239, 68, 68, 0.2);
+    --rating-5-text: #fca5a5;
 }
 
 /* ========== 게임 페이지 다크 고정 ========== */

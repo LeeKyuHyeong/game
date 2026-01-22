@@ -1,0 +1,92 @@
+<!-- 투표 내역 탭 콘텐츠 (프래그먼트) -->
+<div class="popularity-tab-content" xmlns:th="http://www.thymeleaf.org">
+    <!-- 서브 통계 -->
+    <div class="sub-stats">
+        <div class="sub-stat">
+            <span class="sub-stat-value" th:text="${totalItems}">0</span>
+            <span class="sub-stat-label">전체 투표</span>
+        </div>
+    </div>
+
+    <!-- 검색 -->
+    <div class="search-bar">
+        <form class="search-form">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="곡명/아티스트 검색">
+            <button type="submit" class="btn btn-search">검색</button>
+            <a th:if="${keyword != null}" href="#" class="btn btn-reset" onclick="resetSearch()">초기화</a>
+        </form>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-container">
+        <table class="data-table sortable-table">
+            <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th class="sortable" th:classappend="${sort == 'member.nickname'} ? ('sorted-' + ${direction})"
+                    data-sort="member.nickname">회원 <span class="sort-icon"></span></th>
+                <th class="sortable" th:classappend="${sort == 'song.title'} ? ('sorted-' + ${direction})"
+                    data-sort="song.title">곡명 <span class="sort-icon"></span></th>
+                <th class="sortable" th:classappend="${sort == 'song.artist'} ? ('sorted-' + ${direction})"
+                    data-sort="song.artist">아티스트 <span class="sort-icon"></span></th>
+                <th class="sortable" th:classappend="${sort == 'rating'} ? ('sorted-' + ${direction})"
+                    data-sort="rating">평점 <span class="sort-icon"></span></th>
+                <th>평가</th>
+                <th class="sortable" th:classappend="${sort == 'createdAt'} ? ('sorted-' + ${direction})"
+                    data-sort="createdAt">투표일 <span class="sort-icon"></span></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="vote, iterStat : ${votes}" onclick="toggleRowExpand(this)">
+                <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
+                <td data-label="회원" th:text="${vote.member.nickname}"></td>
+                <td data-label="곡명" th:text="${vote.song.title}"></td>
+                <td data-label="아티스트" th:text="${vote.song.artist}"></td>
+                <td data-label="평점">
+                    <div class="rating-display compact">
+                        <span class="rating-stars" th:attr="data-rating=${vote.rating}">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                  th:classappend="${i <= vote.rating} ? 'filled' : 'empty'"
+                                  class="star">★</span>
+                        </span>
+                    </div>
+                </td>
+                <td data-label="평가">
+                    <span class="rating-label"
+                          th:classappend="'rating-' + ${vote.rating}">
+                        <th:block th:if="${vote.rating == 1}">매우 대중적</th:block>
+                        <th:block th:if="${vote.rating == 2}">대중적</th:block>
+                        <th:block th:if="${vote.rating == 3}">보통</th:block>
+                        <th:block th:if="${vote.rating == 4}">매니악</th:block>
+                        <th:block th:if="${vote.rating == 5}">매우 매니악</th:block>
+                    </span>
+                </td>
+                <td data-label="투표일" th:text="${#temporals.format(vote.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(votes)}">
+                <td colspan="7" class="empty-row">투표 데이터가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination" th:if="${totalPages > 0}">
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(0); return false;'">«</a>
+        <a href="#" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(' + ${currentPage - 1} + '); return false;'">‹</a>
+
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+               href="#" th:text="${i + 1}"
+               th:classappend="${i == currentPage} ? 'active'" class="page-link"
+               th:onclick="'goToPage(' + ${i} + '); return false;'"></a>
+        </th:block>
+
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(' + ${currentPage + 1} + '); return false;'">›</a>
+        <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link"
+           th:onclick="'goToPage(' + ${totalPages - 1} + '); return false;'">»</a>
+    </div>
+</div>

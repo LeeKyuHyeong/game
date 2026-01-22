@@ -1,0 +1,346 @@
+/* ========================================
+   Song Popularity Admin Page - Vote Statistics
+   ======================================== */
+
+/* Tab Navigation */
+.tab-navigation {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.tab-icon {
+    font-size: 1.1rem;
+}
+
+/* Tab Content */
+.tab-content {
+    min-height: 400px;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Error Message */
+.error-message {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+.error-message p {
+    margin-bottom: 1rem;
+}
+
+/* Stats Card Colors */
+.stat-card.today {
+    border-left: 3px solid var(--success-color);
+}
+
+.stat-card.rating {
+    border-left: 3px solid var(--rating-star);
+}
+
+/* Sub Stats */
+.sub-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.sub-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-elevated);
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.sub-stat-value {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.sub-stat-label {
+    color: var(--text-secondary);
+}
+
+/* Rating Display */
+.rating-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rating-display.compact {
+    gap: 0.25rem;
+}
+
+.rating-stars {
+    display: inline-flex;
+    font-size: 0.85rem;
+    letter-spacing: -2px;
+}
+
+.rating-stars .star {
+    color: var(--border-color);
+}
+
+.rating-stars .star.filled {
+    color: var(--rating-star);
+}
+
+.rating-value {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+/* Rating Distribution Bar */
+.rating-distribution {
+    display: flex;
+    width: 100%;
+    max-width: 120px;
+    height: 8px;
+    background: var(--bg-elevated);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dist-bar {
+    height: 100%;
+    min-width: 2px;
+    transition: width 0.3s ease;
+}
+
+.dist-bar.r1 { background: var(--rating-1); } /* 매우 대중적 - 녹색 */
+.dist-bar.r2 { background: var(--rating-2); } /* 대중적 - 연두 */
+.dist-bar.r3 { background: var(--rating-3); } /* 보통 - 노랑 */
+.dist-bar.r4 { background: var(--rating-4); } /* 매니악 - 주황 */
+.dist-bar.r5 { background: var(--rating-5); } /* 매우 매니악 - 빨강 */
+
+/* Popularity Grade */
+.popularity-grade {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.popularity-grade.very-popular {
+    background: var(--rating-1-bg);
+    color: var(--rating-1-text);
+}
+
+.popularity-grade.popular {
+    background: var(--rating-2-bg);
+    color: var(--rating-2-text);
+}
+
+.popularity-grade.normal {
+    background: var(--rating-3-bg);
+    color: var(--rating-3-text);
+}
+
+.popularity-grade.maniac {
+    background: var(--rating-4-bg);
+    color: var(--rating-4-text);
+}
+
+.popularity-grade.very-maniac {
+    background: var(--rating-5-bg);
+    color: var(--rating-5-text);
+}
+
+/* Rating Label */
+.rating-label {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.rating-label.rating-1 {
+    background: var(--rating-1-bg);
+    color: var(--rating-1-text);
+}
+
+.rating-label.rating-2 {
+    background: var(--rating-2-bg);
+    color: var(--rating-2-text);
+}
+
+.rating-label.rating-3 {
+    background: var(--rating-3-bg);
+    color: var(--rating-3-text);
+}
+
+.rating-label.rating-4 {
+    background: var(--rating-4-bg);
+    color: var(--rating-4-text);
+}
+
+.rating-label.rating-5 {
+    background: var(--rating-5-bg);
+    color: var(--rating-5-text);
+}
+
+/* Vote Detail Table (Modal) */
+.vote-detail-table {
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+.vote-detail-table th,
+.vote-detail-table td {
+    padding: 0.75rem;
+}
+
+.vote-detail-table .rating-stars {
+    color: var(--rating-star);
+    letter-spacing: 0;
+}
+
+.empty-message {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+}
+
+.page-info {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 1rem;
+}
+
+/* Distribution Cell */
+.distribution-cell {
+    min-width: 120px;
+}
+
+/* ========================================
+   Dark Mode - CSS 변수로 자동 처리됨
+   (common.css의 [data-theme="dark"]에서 --rating-*-bg/text 재정의)
+   ======================================== */
+
+/* ========================================
+   Responsive - Tablet (768px)
+   ======================================== */
+@media (max-width: 768px) {
+    .tab-navigation {
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 100px;
+    }
+
+    .tab-text {
+        display: none;
+    }
+
+    .tab-icon {
+        font-size: 1.3rem;
+    }
+
+    .sub-stats {
+        gap: 0.5rem;
+    }
+
+    .sub-stat {
+        flex: 1;
+        min-width: calc(50% - 0.5rem);
+        justify-content: center;
+        padding: 0.4rem 0.75rem;
+    }
+
+    .rating-distribution {
+        max-width: 80px;
+    }
+
+    .distribution-cell {
+        min-width: 80px;
+    }
+}
+
+/* ========================================
+   Responsive - Mobile (480px)
+   ======================================== */
+@media (max-width: 480px) {
+    .tab-btn {
+        padding: 0.6rem 0.8rem;
+    }
+
+    .rating-display {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .rating-value {
+        font-size: 0.85rem;
+    }
+
+    .vote-detail-table th,
+    .vote-detail-table td {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+}
