@@ -5,6 +5,7 @@
 <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
 <link rel="stylesheet" th:href="@{/css/admin/mobile-stats.css}">
 <link rel="stylesheet" th:href="@{/css/admin/ranking-tier.css}">
+<link rel="stylesheet" th:href="@{/css/admin/history-index.css}">
 <div class="admin-container">
     <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
 
@@ -67,94 +68,6 @@
 <script th:src="@{/js/admin/admin-history.js}"></script>
 <script th:inline="javascript">
 const activeTab = [[${activeTab}]];
-let currentTab = activeTab;
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadTabContent(currentTab);
-});
-
-function switchTab(tab) {
-    if (currentTab === tab) return;
-    currentTab = tab;
-
-    const url = new URL(window.location);
-    url.searchParams.set('tab', tab);
-    window.history.pushState({}, '', url);
-
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.tab-btn:nth-child(${tab === 'history' ? 1 : 2})`).classList.add('active');
-
-    loadTabContent(tab);
-}
-
-async function loadTabContent(tab, params = '') {
-    const tabContent = document.getElementById('tabContent');
-    tabContent.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
-
-    try {
-        const url = tab === 'history'
-            ? `/admin/history/content${params ? '?' + params : ''}`
-            : `/admin/history/ranking/content${params ? '?' + params : ''}`;
-
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to load content');
-
-        tabContent.innerHTML = await response.text();
-        initTabScripts();
-    } catch (error) {
-        tabContent.innerHTML = `<div class="error-message"><p>콘텐츠를 불러오는데 실패했습니다.</p><button class="btn btn-primary" onclick="loadTabContent('${tab}')">다시 시도</button></div>`;
-    }
-}
-
-function initTabScripts() {
-    const filterForm = document.querySelector('.tab-content .filter-form');
-    if (filterForm) {
-        filterForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const params = new URLSearchParams(new FormData(filterForm)).toString();
-            loadTabContent(currentTab, params);
-        });
-    }
-
-    const resetBtn = document.querySelector('.tab-content .btn-reset');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            loadTabContent(currentTab);
-        });
-    }
-}
-
-function toggleRowExpand(row) {
-    if (window.innerWidth <= 768) row.classList.toggle('expanded');
-}
-
-function goToPage(page) {
-    const form = document.querySelector('.tab-content .filter-form');
-    const params = new URLSearchParams();
-    if (form) new FormData(form).forEach((v, k) => { if (v) params.set(k, v); });
-    params.set('page', page);
-    loadTabContent(currentTab, params.toString());
-}
-
-function changeRankType(rankType, artist = '') {
-    const params = new URLSearchParams();
-    params.set('rankType', rankType);
-    if (artist) params.set('artist', artist);
-    loadTabContent('ranking', params.toString());
-}
 </script>
-
-<style>
-.tab-navigation { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); }
-.tab-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: transparent; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; font-size: 0.95rem; color: var(--text-secondary); transition: all 0.2s; }
-.tab-btn:hover { color: var(--text-primary); background: var(--bg-elevated); }
-.tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
-.tab-content { min-height: 400px; }
-.loading-spinner { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; gap: 1rem; color: var(--text-secondary); }
-.spinner { width: 40px; height: 40px; border: 3px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-@media (max-width: 768px) { .tab-btn { flex: 1; justify-content: center; } .tab-text { display: none; } }
-</style>
 </body>
 </html>

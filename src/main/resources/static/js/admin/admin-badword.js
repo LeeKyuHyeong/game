@@ -193,3 +193,26 @@ document.addEventListener('keydown', function(e) {
         });
     }
 });
+
+// 행 펼치기/접기 (모바일)
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+
+// 정렬
+function sortBy(column) {
+    const params = new URLSearchParams(window.location.search);
+    const currentSort = params.get('sort');
+    const currentDirection = params.get('direction') || 'desc';
+
+    if (currentSort === column) {
+        params.set('direction', currentDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+        params.set('sort', column);
+        params.set('direction', 'desc');
+    }
+    params.set('page', '0');
+    window.location.href = '/admin/badword?' + params.toString();
+}

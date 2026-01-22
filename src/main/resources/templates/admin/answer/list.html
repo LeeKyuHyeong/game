@@ -214,24 +214,6 @@
 <script th:inline="javascript">
 const currentSort = [[${sort}]];
 const currentDirection = [[${direction}]];
-
-function toggleRowExpand(row) {
-    if (window.innerWidth <= 768) {
-        row.classList.toggle('expanded');
-    }
-}
-
-function sortBy(column) {
-    const params = new URLSearchParams(window.location.search);
-    if (currentSort === column) {
-        params.set('direction', currentDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-        params.set('sort', column);
-        params.set('direction', 'desc');
-    }
-    params.set('page', '0');
-    window.location.href = '/admin/answer?' + params.toString();
-}
 </script>
 </body>
 </html>

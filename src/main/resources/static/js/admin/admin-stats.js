@@ -65,3 +65,29 @@ function switchPrimaryTab(tab) {
     });
     document.getElementById(tab + '-content').style.display = 'block';
 }
+
+/**
+ * 대중성 설정 업데이트
+ */
+function updatePopularity(songId, isPopular) {
+    if (!confirm(isPopular ? '대중적으로 변경하시겠습니까?' : '매니악으로 변경하시겠습니까?')) {
+        return;
+    }
+
+    fetch('/admin/stats/popularity/update/' + songId + '?isPopular=' + isPopular, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('변경되었습니다.');
+            location.reload();
+        } else {
+            alert('변경 실패: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('오류가 발생했습니다.');
+        console.error(error);
+    });
+}

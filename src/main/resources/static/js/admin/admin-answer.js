@@ -254,7 +254,7 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         const answerModal = document.getElementById('answerModal');
         const editModal = document.getElementById('editAnswerModal');
-        
+
         if (editModal && editModal.classList.contains('show')) {
             closeEditModal();
         } else if (answerModal && answerModal.classList.contains('show')) {
@@ -262,3 +262,23 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+// 행 펼치기/접기 (모바일)
+function toggleRowExpand(row) {
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+    }
+}
+
+// 정렬
+function sortBy(column) {
+    const params = new URLSearchParams(window.location.search);
+    if (typeof currentSort !== 'undefined' && currentSort === column) {
+        params.set('direction', (typeof currentDirection !== 'undefined' && currentDirection === 'asc') ? 'desc' : 'asc');
+    } else {
+        params.set('sort', column);
+        params.set('direction', 'desc');
+    }
+    params.set('page', '0');
+    window.location.href = '/admin/answer?' + params.toString();
+}
