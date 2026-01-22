@@ -66,7 +66,7 @@ async function deleteSong(id) {
 
         if (result.success) {
             showToast(result.message);
-            location.reload();
+            refreshSongList();
         } else {
             showToast(result.message);
         }
@@ -81,7 +81,7 @@ async function toggleStatus(id) {
         const result = await response.json();
 
         if (result.success) {
-            location.reload();
+            refreshSongList();
         } else {
             showToast(result.message);
         }
@@ -150,7 +150,7 @@ songForm.addEventListener('submit', async function(e) {
         if (result.success) {
             showToast(result.message);
             closeModal();
-            location.reload();
+            refreshSongList();
         } else {
             showToast(result.message);
         }

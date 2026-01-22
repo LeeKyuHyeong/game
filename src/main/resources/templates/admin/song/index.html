@@ -254,6 +254,17 @@ function initTabScripts(tab) {
     }
 }
 
+// 검색 조건을 유지하면서 노래 목록 새로고침
+function refreshSongList() {
+    const form = document.getElementById('filterForm');
+    if (form) {
+        const params = new URLSearchParams(new FormData(form)).toString();
+        loadTabContent('song', params);
+    } else {
+        loadTabContent('song');
+    }
+}
+
 function initSongTabScripts() {
     // 폼 이벤트 바인딩
     const filterForm = document.getElementById('filterForm');

@@ -322,7 +322,7 @@ code {
     border-radius: 0.75rem;
     font-weight: 600;
     font-size: 1rem;
-    z-index: 9999;
+    z-index: 5000;
     opacity: 0;
     transition: all 0.3s ease;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);

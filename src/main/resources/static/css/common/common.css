@@ -593,12 +593,12 @@ button {
     padding: 16px 20px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
     box-shadow: var(--shadow-xl);
     transform: translateX(120%);
     transition: transform 0.3s ease;
     z-index: 10000;
-    max-width: 320px;
+    max-width: 20rem;
 }
 
 .badge-toast.show {

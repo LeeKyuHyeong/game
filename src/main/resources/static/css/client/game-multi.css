@@ -1954,8 +1954,8 @@
     }
 }
 
-/* 키보드 표시 시 처리 - 작은 화면 */
-@media (max-width: 768px) and (max-height: 600px) {
+/* 태블릿/모바일 - 컴팩트 레이아웃 */
+@media (max-width: 768px) {
     .multi-main.chat-layout {
         height: calc(100dvh - 50px);
     }
@@ -2829,7 +2829,7 @@
     border-radius: 0.75rem;
     font-weight: 600;
     font-size: 1rem;
-    z-index: 9999;
+    z-index: 5000;
     opacity: 0;
     transition: all 0.3s ease;
     box-shadow: 0 4px 20px var(--overlay-black-strong);

@@ -1324,8 +1324,8 @@
 
 /* ========== Ultra Compact Mobile Styles ========== */
 
-/* Small height handling (keyboard visible or very small screens) */
-@media (max-width: 480px) and (max-height: 700px) {
+/* 모바일 - 컴팩트 레이아웃 */
+@media (max-width: 480px) {
     .result-container {
         padding: 0.5rem;
         min-height: 100dvh;
@@ -1510,8 +1510,8 @@
     }
 }
 
-/* Very small height - extreme compact */
-@media (max-width: 480px) and (max-height: 550px) {
+/* 모바일 - 극소형 화면 */
+@media (max-width: 480px) {
     .result-container {
         padding: 0.25rem;
     }
@@ -1632,8 +1632,8 @@
     }
 }
 
-/* Horizontal podium layout for very small heights */
-@media (max-width: 480px) and (max-height: 600px) {
+/* 모바일 - 수평 포디엄 레이아웃 */
+@media (max-width: 480px) {
     .podium {
         flex-direction: row;
         align-items: flex-end;
