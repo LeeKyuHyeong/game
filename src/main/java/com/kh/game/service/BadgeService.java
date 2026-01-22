@@ -2,11 +2,13 @@ package com.kh.game.service;
 
 import com.kh.game.entity.Badge;
 import com.kh.game.entity.FanChallengeDifficulty;
+import com.kh.game.entity.FanChallengeStageConfig;
 import com.kh.game.entity.Member;
 import com.kh.game.entity.MemberBadge;
 import com.kh.game.entity.MultiTier;
 import com.kh.game.repository.BadgeRepository;
 import com.kh.game.repository.FanChallengeRecordRepository;
+import com.kh.game.repository.FanChallengeStageConfigRepository;
 import com.kh.game.repository.MemberBadgeRepository;
 import com.kh.game.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class BadgeService {
     private final MemberBadgeRepository memberBadgeRepository;
     private final MemberRepository memberRepository;
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
+    private final FanChallengeStageConfigRepository stageConfigRepository;
 
     // ========== 뱃지 획득 체크 메서드 ==========
 
@@ -274,6 +277,83 @@ public class BadgeService {
 
         log.info("뱃지 획득: {} -> {} ({})", member.getNickname(), badge.getName(), badgeCode);
         return Optional.of(badge);
+    }
+
+    /**
+     * 아티스트별 단계 뱃지 지급 (HARDCORE 퍼펙트 클리어 시)
+     * - 뱃지가 없으면 동적으로 생성
+     * - "BTS 1단계", "아이유 2단계" 등
+     */
+    @Transactional
+    public Badge awardStageBadge(Member member, String artist, int stageLevel) {
+        String badgeCode = "FAN_STAGE_" + normalizeArtistCode(artist) + "_" + stageLevel;
+
+        // 뱃지가 없으면 동적 생성
+        Badge badge = badgeRepository.findByCode(badgeCode)
+                .orElseGet(() -> createStageBadge(artist, stageLevel, badgeCode));
+
+        // 이미 보유 중인지 확인
+        if (memberBadgeRepository.existsByMemberAndBadge(member, badge)) {
+            return null;
+        }
+
+        // 뱃지 지급
+        MemberBadge memberBadge = new MemberBadge(member, badge);
+        memberBadgeRepository.save(memberBadge);
+
+        log.info("단계 뱃지 획득: {} -> {} {} ({})",
+                member.getNickname(), artist, stageLevel + "단계", badgeCode);
+        return badge;
+    }
+
+    /**
+     * 단계 뱃지 동적 생성
+     */
+    private Badge createStageBadge(String artist, int stageLevel, String badgeCode) {
+        // 단계 설정 조회
+        FanChallengeStageConfig config = stageConfigRepository.findByStageLevel(stageLevel)
+                .orElse(null);
+
+        String stageName = config != null ? config.getStageName() : stageLevel + "단계";
+        String stageEmoji = config != null ? config.getStageEmoji() : "🏆";
+
+        Badge badge = new Badge();
+        badge.setCode(badgeCode);
+        badge.setName(artist + " " + stageName);
+        badge.setDescription(artist + " 팬 챌린지 " + stageName + " 퍼펙트 클리어");
+        badge.setEmoji(stageEmoji);
+        badge.setBadgeType("FAN_STAGE");
+        badge.setArtistName(artist);
+        badge.setFanStageLevel(stageLevel);
+        badge.setCategory(Badge.BadgeCategory.SPECIAL);
+
+        // 단계별 희귀도 설정
+        if (stageLevel >= 3) {
+            badge.setRarity(Badge.BadgeRarity.LEGENDARY);
+        } else if (stageLevel == 2) {
+            badge.setRarity(Badge.BadgeRarity.EPIC);
+        } else {
+            badge.setRarity(Badge.BadgeRarity.RARE);
+        }
+
+        badge.setIsActive(true);
+        badge.setSortOrder(100 + stageLevel); // 단계 뱃지는 100번대
+
+        log.info("새 단계 뱃지 생성: {} ({}, {})",
+                badge.getName(), badge.getCode(), badge.getRarity().getDisplayName());
+        return badgeRepository.save(badge);
+    }
+
+    /**
+     * 아티스트명을 뱃지 코드용으로 정규화
+     * - 공백, 특수문자 제거
+     * - 영문은 대문자로
+     */
+    private String normalizeArtistCode(String artist) {
+        if (artist == null) return "UNKNOWN";
+        return artist.toUpperCase()
+                .replaceAll("[^A-Z0-9가-힣]", "")
+                .replace(" ", "");
     }
 
     // ========== 뱃지 선택 ==========

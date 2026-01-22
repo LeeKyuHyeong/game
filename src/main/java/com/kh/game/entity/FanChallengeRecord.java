@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "fan_challenge_record",
         uniqueConstraints = @UniqueConstraint(
-                name = "UK_member_artist_difficulty",
-                columnNames = {"member_id", "artist", "difficulty"}))
+                name = "UK_member_artist_difficulty_stage",
+                columnNames = {"member_id", "artist", "difficulty", "stage_level"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,6 +31,14 @@ public class FanChallengeRecord {
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private FanChallengeDifficulty difficulty = FanChallengeDifficulty.HARDCORE;
+
+    /**
+     * 단계 레벨 (HARDCORE 모드에서만 사용)
+     * - 1단계(20곡), 2단계(25곡), 3단계(30곡) 등
+     * - NORMAL 모드는 항상 1
+     */
+    @Column(name = "stage_level")
+    private Integer stageLevel = 1;
 
     @Column(name = "total_songs")
     private Integer totalSongs;
@@ -84,6 +92,7 @@ public class FanChallengeRecord {
         this.artist = artist;
         this.totalSongs = totalSongs;
         this.difficulty = FanChallengeDifficulty.HARDCORE;
+        this.stageLevel = 1;
     }
 
     public FanChallengeRecord(Member member, String artist, Integer totalSongs, FanChallengeDifficulty difficulty) {
@@ -91,6 +100,15 @@ public class FanChallengeRecord {
         this.artist = artist;
         this.totalSongs = totalSongs;
         this.difficulty = difficulty;
+        this.stageLevel = 1;
+    }
+
+    public FanChallengeRecord(Member member, String artist, Integer totalSongs, FanChallengeDifficulty difficulty, Integer stageLevel) {
+        this.member = member;
+        this.artist = artist;
+        this.totalSongs = totalSongs;
+        this.difficulty = difficulty;
+        this.stageLevel = stageLevel != null ? stageLevel : 1;
     }
 
     public double getClearRate() {

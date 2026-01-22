@@ -47,6 +47,25 @@ public class Badge {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
+    /**
+     * 뱃지 타입 (FAN_STAGE, TIER, ACHIEVEMENT 등)
+     * - FAN_STAGE: 아티스트별 단계 퍼펙트 클리어 뱃지
+     */
+    @Column(name = "badge_type", length = 30)
+    private String badgeType;
+
+    /**
+     * 아티스트명 (FAN_STAGE 뱃지용)
+     */
+    @Column(name = "artist_name", length = 100)
+    private String artistName;
+
+    /**
+     * 팬 챌린지 단계 레벨 (FAN_STAGE 뱃지용)
+     */
+    @Column(name = "fan_stage_level")
+    private Integer fanStageLevel;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

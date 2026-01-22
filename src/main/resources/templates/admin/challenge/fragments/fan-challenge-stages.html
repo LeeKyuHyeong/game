@@ -1,0 +1,423 @@
+<!-- 팬 챌린지 단계 설정 탭 콘텐츠 (프래그먼트) -->
+<div class="challenge-tab-content" xmlns:th="http://www.thymeleaf.org">
+    <!-- 헤더 -->
+    <div class="stage-header">
+        <h3>🏆 단계 설정</h3>
+        <p class="stage-description">HARDCORE 모드에서만 단계 시스템이 적용됩니다. 관리자가 순차적으로 단계를 개방할 수 있습니다.</p>
+    </div>
+
+    <!-- 단계 카드 목록 -->
+    <div class="stage-cards">
+        <div th:each="stage : ${stages}" class="stage-card" th:classappend="${stage.isActive} ? 'active' : 'inactive'"
+             th:data-level="${stage.stageLevel}">
+            <div class="stage-card-header">
+                <span class="stage-emoji" th:text="${stage.stageEmoji}">🥉</span>
+                <span class="stage-name" th:text="${stage.stageName}">1단계</span>
+                <span class="stage-status" th:if="${stage.isActive}">✅ 활성</span>
+                <span class="stage-status locked" th:unless="${stage.isActive}">🔒 비활성</span>
+            </div>
+            <div class="stage-card-body">
+                <div class="stage-info">
+                    <span class="info-label">필요 곡 수</span>
+                    <span class="info-value" th:text="${stage.requiredSongs} + '곡'">20곡</span>
+                </div>
+                <div class="stage-info" th:if="${stage.activatedAt}">
+                    <span class="info-label">활성화 일시</span>
+                    <span class="info-value" th:text="${#temporals.format(stage.activatedAt, 'yyyy-MM-dd HH:mm')}">-</span>
+                </div>
+            </div>
+            <div class="stage-card-actions">
+                <button class="btn btn-sm btn-edit" th:data-level="${stage.stageLevel}"
+                        onclick="openEditModal(this.dataset.level)">수정</button>
+                <button class="btn btn-sm" th:classappend="${stage.isActive} ? 'btn-warning' : 'btn-success'"
+                        th:data-level="${stage.stageLevel}"
+                        th:disabled="${stage.stageLevel == 1 and stage.isActive}"
+                        th:title="${stage.stageLevel == 1 and stage.isActive} ? '1단계는 비활성화할 수 없습니다' : ''"
+                        onclick="toggleStageActive(this.dataset.level)">
+                    <span th:if="${stage.isActive}">비활성화</span>
+                    <span th:unless="${stage.isActive}">활성화</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 새 단계 추가 카드 -->
+        <div class="stage-card add-card" onclick="openAddModal()">
+            <div class="add-icon">➕</div>
+            <span class="add-text">새 단계 추가</span>
+        </div>
+    </div>
+
+    <!-- 안내 메시지 -->
+    <div class="stage-notes">
+        <h4>📌 단계 시스템 안내</h4>
+        <ul>
+            <li><strong>NORMAL 모드:</strong> 항상 20곡 고정 (연습용, 랭킹 미반영)</li>
+            <li><strong>HARDCORE 모드:</strong> 단계별 곡 수 적용 (공식 랭킹)</li>
+            <li><strong>순차 개방:</strong> 이전 단계가 활성화되어야 다음 단계 활성화 가능</li>
+            <li><strong>뱃지 지급:</strong> HARDCORE 퍼펙트 클리어 시 "아티스트 N단계" 뱃지 지급</li>
+        </ul>
+    </div>
+</div>
+
+<!-- 단계 수정 모달 -->
+<div id="stageEditModal" class="modal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h2>단계 설정 수정</h2>
+            <button class="close-btn" onclick="closeModal('stageEditModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="stageEditForm">
+                <input type="hidden" id="editStageLevel" name="stageLevel">
+                <div class="form-group">
+                    <label for="editStageName">단계 이름</label>
+                    <input type="text" id="editStageName" name="stageName" class="form-input" placeholder="예: 1단계">
+                </div>
+                <div class="form-group">
+                    <label for="editRequiredSongs">필요 곡 수</label>
+                    <input type="number" id="editRequiredSongs" name="requiredSongs" class="form-input" min="1" placeholder="20">
+                </div>
+                <div class="form-group">
+                    <label for="editEmoji">이모지</label>
+                    <input type="text" id="editEmoji" name="emoji" class="form-input" placeholder="🥉">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" onclick="closeModal('stageEditModal')">취소</button>
+            <button type="button" class="btn btn-primary" onclick="saveStageEdit()">저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- 새 단계 추가 모달 -->
+<div id="stageAddModal" class="modal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h2>새 단계 추가</h2>
+            <button class="close-btn" onclick="closeModal('stageAddModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="stageAddForm">
+                <div class="form-group">
+                    <label for="addStageName">단계 이름</label>
+                    <input type="text" id="addStageName" name="stageName" class="form-input" placeholder="예: 4단계" required>
+                </div>
+                <div class="form-group">
+                    <label for="addRequiredSongs">필요 곡 수</label>
+                    <input type="number" id="addRequiredSongs" name="requiredSongs" class="form-input" min="1" placeholder="35" required>
+                </div>
+                <div class="form-group">
+                    <label for="addEmoji">이모지</label>
+                    <input type="text" id="addEmoji" name="emoji" class="form-input" placeholder="👑">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" onclick="closeModal('stageAddModal')">취소</button>
+            <button type="button" class="btn btn-primary" onclick="addNewStage()">추가</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 헤더 */
+.stage-header {
+    margin-bottom: 1.5rem;
+}
+
+.stage-header h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.stage-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* 단계 카드 그리드 */
+.stage-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stage-card {
+    background: var(--bg-surface);
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: all 0.2s ease;
+}
+
+.stage-card.active {
+    border-color: var(--success-color, #10b981);
+    background: var(--bg-elevated);
+}
+
+.stage-card.inactive {
+    opacity: 0.7;
+}
+
+.stage-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 카드 헤더 */
+.stage-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stage-emoji {
+    font-size: 1.5rem;
+}
+
+.stage-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    flex: 1;
+}
+
+.stage-status {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--success-bg, #d1fae5);
+    color: var(--success-color, #065f46);
+}
+
+.stage-status.locked {
+    background: var(--warning-bg, #fef3c7);
+    color: var(--warning-color, #92400e);
+}
+
+/* 카드 바디 */
+.stage-card-body {
+    margin-bottom: 1rem;
+}
+
+.stage-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.stage-info:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.info-value {
+    font-weight: 500;
+}
+
+/* 카드 액션 */
+.stage-card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.stage-card-actions .btn {
+    flex: 1;
+}
+
+/* 새 단계 추가 카드 */
+.stage-card.add-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    border-style: dashed;
+    cursor: pointer;
+    background: transparent;
+}
+
+.stage-card.add-card:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-elevated);
+}
+
+.add-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.add-text {
+    color: var(--text-secondary);
+}
+
+/* 안내 메시지 */
+.stage-notes {
+    background: var(--bg-elevated);
+    border-radius: 0.5rem;
+    padding: 1rem 1.5rem;
+    margin-top: 1rem;
+}
+
+.stage-notes h4 {
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.stage-notes ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.stage-notes li {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.stage-notes li strong {
+    color: var(--text-primary);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .stage-cards {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// 단계 활성화 토글
+async function toggleStageActive(level) {
+    if (level == 1) {
+        showToast('1단계는 비활성화할 수 없습니다.', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/fan-challenge/stages/${level}/toggle`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            showToast(result.message, 'success');
+            loadStagesTab(); // 탭 새로고침
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        showToast('오류가 발생했습니다.', 'error');
+    }
+}
+
+// 수정 모달 열기
+function openEditModal(level) {
+    const card = document.querySelector(`.stage-card[data-level="${level}"]`);
+    if (!card) return;
+
+    document.getElementById('editStageLevel').value = level;
+    document.getElementById('editStageName').value = card.querySelector('.stage-name').textContent;
+    document.getElementById('editRequiredSongs').value = card.querySelector('.info-value').textContent.replace('곡', '');
+    document.getElementById('editEmoji').value = card.querySelector('.stage-emoji').textContent;
+
+    openModal('stageEditModal');
+}
+
+// 단계 수정 저장
+async function saveStageEdit() {
+    const level = document.getElementById('editStageLevel').value;
+    const data = {
+        stageName: document.getElementById('editStageName').value,
+        requiredSongs: parseInt(document.getElementById('editRequiredSongs').value),
+        emoji: document.getElementById('editEmoji').value
+    };
+
+    try {
+        const response = await fetch(`/admin/fan-challenge/stages/${level}/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            showToast(result.message, 'success');
+            closeModal('stageEditModal');
+            loadStagesTab();
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        showToast('오류가 발생했습니다.', 'error');
+    }
+}
+
+// 새 단계 추가 모달 열기
+function openAddModal() {
+    document.getElementById('stageAddForm').reset();
+    openModal('stageAddModal');
+}
+
+// 새 단계 추가
+async function addNewStage() {
+    const data = {
+        stageName: document.getElementById('addStageName').value,
+        requiredSongs: parseInt(document.getElementById('addRequiredSongs').value),
+        emoji: document.getElementById('addEmoji').value
+    };
+
+    if (!data.stageName || !data.requiredSongs) {
+        showToast('단계 이름과 필요 곡 수를 입력해주세요.', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch('/admin/fan-challenge/stages/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            showToast(result.message, 'success');
+            closeModal('stageAddModal');
+            loadStagesTab();
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        showToast('오류가 발생했습니다.', 'error');
+    }
+}
+
+// 단계 탭 로드 함수 (admin-challenge-index.js에서 호출)
+function loadStagesTab() {
+    const tabContent = document.getElementById('tabContent');
+    if (!tabContent) return;
+
+    tabContent.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
+
+    fetch('/admin/fan-challenge/stages/content')
+        .then(response => response.text())
+        .then(html => {
+            tabContent.innerHTML = html;
+        })
+        .catch(error => {
+            tabContent.innerHTML = '<div class="error-message">로딩 실패</div>';
+        });
+}
+</script>

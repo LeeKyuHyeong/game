@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kh.game.entity.*;
 import com.kh.game.repository.FanChallengeRecordRepository;
+import com.kh.game.repository.FanChallengeStageConfigRepository;
 import com.kh.game.repository.GameSessionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class FanChallengeService {
     private final SongService songService;
     private final GameSessionRepository gameSessionRepository;
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
+    private final FanChallengeStageConfigRepository stageConfigRepository;
     private final ObjectMapper objectMapper;
     private final BadgeService badgeService;
 
@@ -48,19 +50,54 @@ public class FanChallengeService {
      */
     @Transactional
     public GameSession startChallenge(Member member, String nickname, String artist, FanChallengeDifficulty difficulty) {
+        // NORMAL 모드는 항상 1단계 (20곡)
+        return startChallenge(member, nickname, artist, difficulty, 1);
+    }
+
+    /**
+     * 팬 챌린지 게임 시작 (난이도 + 단계 지정)
+     * - HARDCORE 모드에서만 단계 시스템 적용
+     * - NORMAL 모드는 stageLevel 무시하고 항상 20곡
+     */
+    @Transactional
+    public GameSession startChallenge(Member member, String nickname, String artist,
+                                       FanChallengeDifficulty difficulty, Integer stageLevel) {
+        // NORMAL 모드는 항상 20곡 고정
+        int requiredSongs;
+        int effectiveStageLevel;
+
+        if (difficulty == FanChallengeDifficulty.NORMAL) {
+            requiredSongs = CHALLENGE_SONG_COUNT;
+            effectiveStageLevel = 1;
+        } else {
+            // HARDCORE 모드: 단계별 곡 수 적용
+            effectiveStageLevel = (stageLevel != null && stageLevel > 0) ? stageLevel : 1;
+
+            // 단계 설정 조회
+            FanChallengeStageConfig stageConfig = stageConfigRepository.findByStageLevel(effectiveStageLevel)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 단계입니다: " + effectiveStageLevel));
+
+            // 단계 활성화 확인
+            if (!Boolean.TRUE.equals(stageConfig.getIsActive())) {
+                throw new IllegalArgumentException("아직 개방되지 않은 단계입니다: " + effectiveStageLevel + "단계");
+            }
+
+            requiredSongs = stageConfig.getRequiredSongs();
+        }
+
         // 아티스트의 모든 곡 가져오기 (YouTube 검증 포함)
         List<Song> allSongs = songService.getAllValidatedSongsByArtist(artist);
 
-        if (allSongs.size() < CHALLENGE_SONG_COUNT) {
+        if (allSongs.size() < requiredSongs) {
             throw new IllegalArgumentException(
-                String.format("아티스트 챌린지는 %d곡 이상의 아티스트만 가능합니다. (현재 %d곡)",
-                    CHALLENGE_SONG_COUNT, allSongs.size()));
+                String.format("이 아티스트는 %d단계(%d곡)에 도전할 수 없습니다. (현재 %d곡)",
+                    effectiveStageLevel, requiredSongs, allSongs.size()));
         }
 
-        // 20곡 랜덤 선택
+        // requiredSongs 곡 랜덤 선택
         List<Song> songs = new ArrayList<>(allSongs);
         Collections.shuffle(songs);
-        songs = songs.subList(0, CHALLENGE_SONG_COUNT);
+        songs = songs.subList(0, requiredSongs);
 
         // 게임 세션 생성
         GameSession session = new GameSession();
@@ -69,7 +106,7 @@ public class FanChallengeService {
         session.setNickname(nickname);
         session.setGameType(GameSession.GameType.FAN_CHALLENGE);
         session.setGameMode(GameSession.GameMode.FIXED_ARTIST);
-        session.setTotalRounds(CHALLENGE_SONG_COUNT);
+        session.setTotalRounds(requiredSongs);
         session.setCompletedRounds(0);
         session.setTotalScore(0);
         session.setCorrectCount(0);
@@ -78,7 +115,7 @@ public class FanChallengeService {
         session.setChallengeArtist(artist);
         session.setStatus(GameSession.GameStatus.PLAYING);
 
-        // 난이도 설정을 JSON으로 저장
+        // 난이도 설정을 JSON으로 저장 (stageLevel 포함)
         try {
             Map<String, Object> settings = new HashMap<>();
             settings.put("difficulty", difficulty.name());
@@ -86,6 +123,8 @@ public class FanChallengeService {
             settings.put("answerTimeMs", difficulty.getAnswerTimeMs());
             settings.put("initialLives", difficulty.getInitialLives());
             settings.put("showChosungHint", difficulty.isShowChosungHint());
+            settings.put("stageLevel", effectiveStageLevel);
+            settings.put("requiredSongs", requiredSongs);
             session.setSettings(objectMapper.writeValueAsString(settings));
         } catch (JsonProcessingException e) {
             log.warn("게임 설정 JSON 변환 실패", e);
@@ -230,6 +269,16 @@ public class FanChallengeService {
      */
     @Transactional
     public FanChallengeRecord updateRecord(GameSession session, FanChallengeDifficulty difficulty) {
+        // 세션에서 stageLevel 추출
+        int stageLevel = getStageLevelFromSession(session);
+        return updateRecord(session, difficulty, stageLevel);
+    }
+
+    /**
+     * 기록 업데이트 (난이도 + 단계별)
+     */
+    @Transactional
+    public FanChallengeRecord updateRecord(GameSession session, FanChallengeDifficulty difficulty, int stageLevel) {
         if (session.getMember() == null) {
             return null;
         }
@@ -237,9 +286,10 @@ public class FanChallengeService {
         String artist = session.getChallengeArtist();
         Member member = session.getMember();
 
-        // 난이도별 기록 조회
+        // 난이도 + 단계별 기록 조회
         Optional<FanChallengeRecord> existingRecord =
-                fanChallengeRecordRepository.findByMemberAndArtistAndDifficulty(member, artist, difficulty);
+                fanChallengeRecordRepository.findByMemberAndArtistAndDifficultyAndStageLevel(
+                        member, artist, difficulty, stageLevel);
 
         FanChallengeRecord record;
         boolean isNewPerfectClear = false;
@@ -254,7 +304,7 @@ public class FanChallengeService {
             if (session.getCorrectCount() > record.getCorrectCount()) {
                 record.setCorrectCount(session.getCorrectCount());
                 record.setTotalSongs(session.getTotalRounds());
-                record.setBestTimeMs(currentTimeMs);  // 항상 시간 기록
+                record.setBestTimeMs(currentTimeMs);
                 record.setAchievedAt(LocalDateTime.now());
 
                 // 퍼펙트 클리어 체크
@@ -266,16 +316,16 @@ public class FanChallengeService {
                     }
                 }
             } else if (session.getCorrectCount().equals(record.getCorrectCount())) {
-                // 동점일 때 시간이 더 빠르면 갱신 (퍼펙트 여부 무관)
+                // 동점일 때 시간이 더 빠르면 갱신
                 if (record.getBestTimeMs() == null || currentTimeMs < record.getBestTimeMs()) {
                     record.setBestTimeMs(currentTimeMs);
                     record.setAchievedAt(LocalDateTime.now());
                 }
             }
         } else {
-            record = new FanChallengeRecord(member, artist, session.getTotalRounds(), difficulty);
+            record = new FanChallengeRecord(member, artist, session.getTotalRounds(), difficulty, stageLevel);
             record.setCorrectCount(session.getCorrectCount());
-            record.setBestTimeMs(currentTimeMs);  // 항상 시간 기록
+            record.setBestTimeMs(currentTimeMs);
             record.setAchievedAt(LocalDateTime.now());
 
             if (session.getCorrectCount().equals(session.getTotalRounds())) {
@@ -289,7 +339,17 @@ public class FanChallengeService {
 
         // 퍼펙트 클리어 시 뱃지 체크
         if (isNewPerfectClear) {
+            // 기존 마일스톤 뱃지
             List<Badge> newBadges = badgeService.checkBadgesAfterFanChallengePerfect(member, difficulty);
+
+            // 아티스트별 단계 뱃지 (HARDCORE만)
+            if (difficulty == FanChallengeDifficulty.HARDCORE) {
+                Badge stageBadge = badgeService.awardStageBadge(member, artist, stageLevel);
+                if (stageBadge != null) {
+                    newBadges.add(stageBadge);
+                }
+            }
+
             if (!newBadges.isEmpty()) {
                 log.info("팬챌린지 퍼펙트 뱃지 획득: {} -> {}",
                     member.getNickname(),
@@ -298,6 +358,25 @@ public class FanChallengeService {
         }
 
         return savedRecord;
+    }
+
+    /**
+     * 세션에서 단계 레벨 추출
+     */
+    public int getStageLevelFromSession(GameSession session) {
+        if (session.getSettings() == null || session.getSettings().isEmpty()) {
+            return 1;
+        }
+        try {
+            Map<String, Object> settings = objectMapper.readValue(session.getSettings(), Map.class);
+            Object stageLevel = settings.get("stageLevel");
+            if (stageLevel instanceof Number) {
+                return ((Number) stageLevel).intValue();
+            }
+        } catch (Exception e) {
+            log.warn("stageLevel 파싱 실패", e);
+        }
+        return 1;
     }
 
     /**
@@ -366,6 +445,29 @@ public class FanChallengeService {
      */
     public Optional<FanChallengeRecord> getMemberRecord(Member member, String artist, FanChallengeDifficulty difficulty) {
         return fanChallengeRecordRepository.findByMemberAndArtistAndDifficulty(member, artist, difficulty);
+    }
+
+    /**
+     * 회원의 특정 아티스트 난이도+단계별 기록 조회
+     */
+    public Optional<FanChallengeRecord> getMemberRecord(Member member, String artist,
+                                                         FanChallengeDifficulty difficulty, int stageLevel) {
+        return fanChallengeRecordRepository.findByMemberAndArtistAndDifficultyAndStageLevel(
+                member, artist, difficulty, stageLevel);
+    }
+
+    /**
+     * 회원의 특정 아티스트 전체 단계 기록 조회 (HARDCORE)
+     */
+    public List<FanChallengeRecord> getMemberRecordAllStages(Member member, String artist) {
+        return fanChallengeRecordRepository.findByMemberAndArtistAllStages(member, artist);
+    }
+
+    /**
+     * 아티스트 + 단계별 랭킹 조회 (HARDCORE 전용)
+     */
+    public List<FanChallengeRecord> getArtistStageRanking(String artist, int stageLevel, int limit) {
+        return fanChallengeRecordRepository.findTopByArtistAndStage(artist, stageLevel, PageRequest.of(0, limit));
     }
 
     /**

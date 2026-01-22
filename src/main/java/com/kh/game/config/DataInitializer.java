@@ -4,10 +4,12 @@ import com.kh.game.entity.Badge;
 import com.kh.game.entity.BadWord;
 import com.kh.game.entity.FanChallengeDifficulty;
 import com.kh.game.entity.FanChallengeRecord;
+import com.kh.game.entity.FanChallengeStageConfig;
 import com.kh.game.entity.Member;
 import com.kh.game.repository.BadgeRepository;
 import com.kh.game.repository.BadWordRepository;
 import com.kh.game.repository.FanChallengeRecordRepository;
+import com.kh.game.repository.FanChallengeStageConfigRepository;
 import com.kh.game.repository.MemberRepository;
 import com.kh.game.service.BadWordService;
 import com.kh.game.service.MenuConfigService;
@@ -33,6 +35,7 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final BadgeRepository badgeRepository;
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
+    private final FanChallengeStageConfigRepository fanChallengeStageConfigRepository;
     private final SongService songService;
     private final MenuConfigService menuConfigService;
 
@@ -42,6 +45,7 @@ public class DataInitializer implements CommandLineRunner {
         initBadWords();
         initBadges();
         initMenuConfig();
+        initFanChallengeStageConfig();
         initFanChallengeTestData();
     }
 
@@ -209,6 +213,47 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         log.info("뱃지 초기 데이터 등록 완료: {}개", count);
+    }
+
+    /**
+     * 팬 챌린지 단계 설정 초기화
+     */
+    private void initFanChallengeStageConfig() {
+        if (fanChallengeStageConfigRepository.count() > 0) {
+            log.info("팬 챌린지 단계 설정이 이미 존재합니다. 초기화 건너뜀.");
+            return;
+        }
+
+        log.info("팬 챌린지 단계 설정 초기화 시작...");
+
+        // 기본 단계 설정 (1단계만 활성화)
+        List<Object[]> stages = Arrays.asList(
+            new Object[]{1, 20, "1단계", "🥉", true},
+            new Object[]{2, 25, "2단계", "🥈", false},
+            new Object[]{3, 30, "3단계", "🥇", false}
+        );
+
+        int count = 0;
+        for (Object[] stageData : stages) {
+            try {
+                FanChallengeStageConfig config = new FanChallengeStageConfig();
+                config.setStageLevel((Integer) stageData[0]);
+                config.setRequiredSongs((Integer) stageData[1]);
+                config.setStageName((String) stageData[2]);
+                config.setStageEmoji((String) stageData[3]);
+                config.setIsActive((Boolean) stageData[4]);
+                if ((Boolean) stageData[4]) {
+                    config.setActivatedAt(java.time.LocalDateTime.now());
+                }
+
+                fanChallengeStageConfigRepository.save(config);
+                count++;
+            } catch (Exception e) {
+                log.warn("단계 설정 등록 실패: {} - {}", stageData[0], e.getMessage());
+            }
+        }
+
+        log.info("팬 챌린지 단계 설정 초기화 완료: {}개", count);
     }
 
     /**

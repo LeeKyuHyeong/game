@@ -2,10 +2,12 @@ package com.kh.game.controller.client;
 
 import com.kh.game.entity.FanChallengeDifficulty;
 import com.kh.game.entity.FanChallengeRecord;
+import com.kh.game.entity.FanChallengeStageConfig;
 import com.kh.game.entity.GameRound;
 import com.kh.game.entity.GameSession;
 import com.kh.game.entity.Member;
 import com.kh.game.service.FanChallengeService;
+import com.kh.game.service.FanChallengeStageService;
 import com.kh.game.service.MemberService;
 import com.kh.game.service.SongPopularityVoteService;
 import com.kh.game.service.SongService;
@@ -26,6 +28,7 @@ import java.util.*;
 public class GameFanChallengeController {
 
     private final FanChallengeService fanChallengeService;
+    private final FanChallengeStageService stageService;
     private final SongService songService;
     private final MemberService memberService;
     private final SongPopularityVoteService songPopularityVoteService;
@@ -70,6 +73,30 @@ public class GameFanChallengeController {
     }
 
     /**
+     * 아티스트별 도전 가능한 단계 조회 (HARDCORE 모드용)
+     */
+    @GetMapping("/stages/{artist}")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getArtistStages(@PathVariable String artist) {
+        int songCount = songService.getSongCountByArtist(artist);
+        List<FanChallengeStageConfig> allActiveStages = stageService.getActiveStages();
+
+        List<Map<String, Object>> result = allActiveStages.stream()
+                .map(stage -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("level", stage.getStageLevel());
+                    item.put("name", stage.getStageName());
+                    item.put("emoji", stage.getStageEmoji());
+                    item.put("requiredSongs", stage.getRequiredSongs());
+                    item.put("available", songCount >= stage.getRequiredSongs());
+                    return item;
+                })
+                .toList();
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * 게임 시작
      */
     @PostMapping("/start")
@@ -84,6 +111,8 @@ public class GameFanChallengeController {
             String nickname = (String) request.get("nickname");
             String artist = (String) request.get("artist");
             String difficultyStr = (String) request.get("difficulty");
+            Integer stageLevel = request.get("stageLevel") != null
+                    ? ((Number) request.get("stageLevel")).intValue() : 1;
 
             // 난이도 파싱 (기본값: NORMAL)
             FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
@@ -100,12 +129,31 @@ public class GameFanChallengeController {
                 return ResponseEntity.badRequest().body(result);
             }
 
-            // 곡 수 확인 (최소 30곡 필요)
+            // 곡 수 확인
             int songCount = songService.getSongCountByArtist(artist);
-            if (songCount < FanChallengeService.CHALLENGE_SONG_COUNT) {
+
+            // NORMAL 모드: 20곡 고정
+            // HARDCORE 모드: 단계별 곡 수 확인
+            int requiredSongs;
+            if (difficulty == FanChallengeDifficulty.NORMAL) {
+                requiredSongs = FanChallengeService.CHALLENGE_SONG_COUNT;
+                stageLevel = 1; // NORMAL은 항상 1단계
+            } else {
+                // 단계 설정 조회
+                FanChallengeStageConfig stageConfig = stageService.getStageConfig(stageLevel)
+                        .orElse(null);
+                if (stageConfig == null || !Boolean.TRUE.equals(stageConfig.getIsActive())) {
+                    result.put("success", false);
+                    result.put("message", "유효하지 않은 단계입니다.");
+                    return ResponseEntity.badRequest().body(result);
+                }
+                requiredSongs = stageConfig.getRequiredSongs();
+            }
+
+            if (songCount < requiredSongs) {
                 result.put("success", false);
-                result.put("message", String.format("아티스트 챌린지는 %d곡 이상의 아티스트만 가능합니다 (현재 %d곡)",
-                    FanChallengeService.CHALLENGE_SONG_COUNT, songCount));
+                result.put("message", String.format("이 아티스트는 %d단계(%d곡)에 도전할 수 없습니다 (현재 %d곡)",
+                        stageLevel, requiredSongs, songCount));
                 return ResponseEntity.badRequest().body(result);
             }
 
@@ -116,14 +164,15 @@ public class GameFanChallengeController {
                 member = memberService.findById(memberId).orElse(null);
             }
 
-            // 게임 세션 생성 (난이도 포함)
-            GameSession session = fanChallengeService.startChallenge(member, nickname.trim(), artist, difficulty);
+            // 게임 세션 생성 (난이도 + 단계 포함)
+            GameSession session = fanChallengeService.startChallenge(member, nickname.trim(), artist, difficulty, stageLevel);
 
             // HTTP 세션에 저장
             httpSession.setAttribute("fanChallengeSessionId", session.getId());
             httpSession.setAttribute("fanChallengeNickname", nickname.trim());
             httpSession.setAttribute("fanChallengeArtist", artist);
             httpSession.setAttribute("fanChallengeDifficulty", difficulty.name());
+            httpSession.setAttribute("fanChallengeStageLevel", stageLevel);
 
             result.put("success", true);
             result.put("sessionId", session.getId());
@@ -138,6 +187,7 @@ public class GameFanChallengeController {
             result.put("initialLives", difficulty.getInitialLives());
             result.put("showChosungHint", difficulty.isShowChosungHint());
             result.put("isRanked", difficulty.isRanked());
+            result.put("stageLevel", stageLevel);
 
             return ResponseEntity.ok(result);
 
@@ -540,12 +590,14 @@ public class GameFanChallengeController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getArtistChallengeInfo(
             @PathVariable String artist,
+            @RequestParam(required = false, defaultValue = "1") Integer stageLevel,
             HttpSession httpSession) {
 
         Map<String, Object> result = new HashMap<>();
+        result.put("stageLevel", stageLevel);
 
-        // 1위 기록 조회
-        List<FanChallengeRecord> topRecords = fanChallengeService.getArtistRanking(artist, 1);
+        // 1위 기록 조회 (단계별)
+        List<FanChallengeRecord> topRecords = fanChallengeService.getArtistStageRanking(artist, stageLevel, 1);
         if (!topRecords.isEmpty()) {
             FanChallengeRecord top = topRecords.get(0);
             Map<String, Object> topInfo = new HashMap<>();
@@ -554,20 +606,22 @@ public class GameFanChallengeController {
             topInfo.put("totalSongs", top.getTotalSongs());
             topInfo.put("isPerfectClear", top.getIsPerfectClear());
             topInfo.put("bestTimeMs", top.getBestTimeMs());
+            topInfo.put("stageLevel", top.getStageLevel());
             result.put("topRecord", topInfo);
         }
 
-        // 내 기록 조회 (로그인 시, 하드코어 기록)
+        // 내 기록 조회 (로그인 시, 하드코어 기록 - 단계별)
         Long memberId = (Long) httpSession.getAttribute("memberId");
         if (memberId != null) {
             memberService.findById(memberId).ifPresent(member -> {
-                fanChallengeService.getMemberRecord(member, artist, FanChallengeDifficulty.HARDCORE)
+                fanChallengeService.getMemberRecord(member, artist, FanChallengeDifficulty.HARDCORE, stageLevel)
                         .ifPresent(record -> {
                             Map<String, Object> myInfo = new HashMap<>();
                             myInfo.put("correctCount", record.getCorrectCount());
                             myInfo.put("totalSongs", record.getTotalSongs());
                             myInfo.put("isPerfectClear", record.getIsPerfectClear());
                             myInfo.put("bestTimeMs", record.getBestTimeMs());
+                            myInfo.put("stageLevel", record.getStageLevel());
                             result.put("myRecord", myInfo);
                         });
             });

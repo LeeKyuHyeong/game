@@ -4,6 +4,8 @@ let selectedArtist = null;
 let artistList = [];
 let searchTimeout = null;
 let selectedDifficulty = 'NORMAL';
+let selectedStage = 1;
+let availableStages = [];
 
 // 난이도별 설정
 const DIFFICULTY_CONFIG = {
@@ -127,7 +129,7 @@ function selectArtist(name, count) {
 
     // 선택된 아티스트 정보 표시
     document.getElementById('selectedArtistName').textContent = name;
-    document.getElementById('selectedArtistCount').textContent = `${CHALLENGE_SONG_COUNT}곡 도전 (보유 ${count}곡)`;
+    document.getElementById('selectedArtistCount').textContent = `보유 ${count}곡`;
 
     // 선택 영역 숨기고 선택 완료 영역 표시
     document.getElementById('artistSelectArea').style.display = 'none';
@@ -137,14 +139,20 @@ function selectArtist(name, count) {
     document.getElementById('artistSearchResults').style.display = 'none';
     document.getElementById('artistSearch').value = '';
 
-    // 아티스트 챌린지 정보 로드 (내 기록 + 1위 기록)
-    loadArtistChallengeInfo(name);
+    // HARDCORE일 경우 단계 로드
+    if (selectedDifficulty === 'HARDCORE') {
+        loadStagesForArtist(name, count);
+        document.getElementById('stageSelectArea').style.display = 'block';
+    }
+
+    // 아티스트 챌린지 정보 로드 (내 기록 + 1위 기록) - 현재 선택된 단계 기준
+    loadArtistChallengeInfo(name, selectedStage);
 
     updateStartButton();
 }
 
-// 아티스트 챌린지 정보 로드 (하드코어 기준)
-async function loadArtistChallengeInfo(artist) {
+// 아티스트 챌린지 정보 로드 (하드코어 기준, 단계별)
+async function loadArtistChallengeInfo(artist, stageLevel = 1) {
     const infoContainer = document.getElementById('artistRecordInfo');
     const myRecordInfo = document.getElementById('myRecordInfo');
     const topRecordInfo = document.getElementById('topRecordInfo');
@@ -156,7 +164,7 @@ async function loadArtistChallengeInfo(artist) {
     noRecordInfo.style.display = 'none';
 
     try {
-        const response = await fetch(`/game/fan-challenge/info/${encodeURIComponent(artist)}`);
+        const response = await fetch(`/game/fan-challenge/info/${encodeURIComponent(artist)}?stageLevel=${stageLevel}`);
         if (!response.ok) throw new Error('정보 로드 실패');
 
         const data = await response.json();
@@ -212,7 +220,19 @@ function updateStartButton() {
     if (selectedArtist) {
         const config = DIFFICULTY_CONFIG[selectedDifficulty];
         const modeText = config.ranked ? '🏆 공식' : '📝 연습';
-        startBtn.textContent = `${selectedArtist.name} 도전 시작! (${CHALLENGE_SONG_COUNT}곡) ${modeText}`;
+
+        // 현재 선택된 단계의 곡 수 결정
+        let songCount = CHALLENGE_SONG_COUNT;
+        let stageText = '';
+        if (selectedDifficulty === 'HARDCORE' && availableStages.length > 0) {
+            const currentStage = availableStages.find(s => s.level === selectedStage);
+            if (currentStage) {
+                songCount = currentStage.requiredSongs;
+                stageText = ` ${currentStage.emoji}${currentStage.name}`;
+            }
+        }
+
+        startBtn.textContent = `${selectedArtist.name}${stageText} 도전 시작! (${songCount}곡) ${modeText}`;
     } else {
         startBtn.textContent = '도전 시작!';
     }
@@ -230,6 +250,77 @@ function selectDifficulty(difficulty) {
         }
     });
 
+    // HARDCORE 선택 시 단계 선택 영역 표시
+    const stageSelectArea = document.getElementById('stageSelectArea');
+    if (difficulty === 'HARDCORE' && selectedArtist) {
+        loadStagesForArtist(selectedArtist.name, selectedArtist.count);
+        stageSelectArea.style.display = 'block';
+    } else {
+        stageSelectArea.style.display = 'none';
+        selectedStage = 1; // NORMAL은 항상 1단계
+    }
+
+    // 규칙 표시 업데이트
+    updateRulesDisplay();
+    updateStartButton();
+}
+
+// 아티스트별 도전 가능한 단계 로드
+async function loadStagesForArtist(artist, songCount) {
+    document.getElementById('artistSongCount').textContent = songCount;
+    const stageList = document.getElementById('stageList');
+    stageList.innerHTML = '<div class="loading">단계 정보 로딩 중...</div>';
+
+    try {
+        const response = await fetch(`/game/fan-challenge/stages/${encodeURIComponent(artist)}`);
+        if (!response.ok) throw new Error('단계 정보 로드 실패');
+
+        availableStages = await response.json();
+
+        if (availableStages.length === 0) {
+            stageList.innerHTML = '<div class="no-stages">활성화된 단계가 없습니다.</div>';
+            return;
+        }
+
+        stageList.innerHTML = availableStages.map(stage => `
+            <button type="button" class="stage-btn ${stage.level === selectedStage ? 'selected' : ''} ${stage.available ? '' : 'disabled'}"
+                    data-level="${stage.level}"
+                    ${stage.available ? `onclick="selectStage(${stage.level})"` : 'disabled'}>
+                <span class="stage-emoji">${stage.emoji}</span>
+                <span class="stage-name">${stage.name}</span>
+                <span class="stage-songs">${stage.requiredSongs}곡</span>
+                ${stage.available ? '' : '<span class="stage-locked">🔒 곡 부족</span>'}
+            </button>
+        `).join('');
+
+        // 도전 가능한 최대 단계 자동 선택
+        const maxAvailable = availableStages.filter(s => s.available).pop();
+        if (maxAvailable && !availableStages.find(s => s.level === selectedStage && s.available)) {
+            selectStage(maxAvailable.level);
+        }
+
+    } catch (error) {
+        stageList.innerHTML = '<div class="error">단계 정보 로드 실패</div>';
+    }
+}
+
+// 단계 선택
+function selectStage(level) {
+    selectedStage = level;
+
+    // 버튼 상태 업데이트
+    document.querySelectorAll('.stage-btn').forEach(btn => {
+        btn.classList.remove('selected');
+        if (parseInt(btn.dataset.level) === level) {
+            btn.classList.add('selected');
+        }
+    });
+
+    // 해당 단계의 랭킹 정보 다시 로드
+    if (selectedArtist) {
+        loadArtistChallengeInfo(selectedArtist.name, level);
+    }
+
     // 규칙 표시 업데이트
     updateRulesDisplay();
     updateStartButton();
@@ -240,8 +331,17 @@ function updateRulesDisplay() {
     const config = DIFFICULTY_CONFIG[selectedDifficulty];
     const rulesList = document.getElementById('rulesList');
 
+    // 현재 선택된 단계의 곡 수 결정
+    let songCount = CHALLENGE_SONG_COUNT;
+    if (selectedDifficulty === 'HARDCORE' && availableStages.length > 0) {
+        const currentStage = availableStages.find(s => s.level === selectedStage);
+        if (currentStage) {
+            songCount = currentStage.requiredSongs;
+        }
+    }
+
     let rulesHtml = `
-        <li><span class="rule-icon">🎵</span> 해당 아티스트의 <strong>랜덤 ${CHALLENGE_SONG_COUNT}곡</strong> 출제</li>
+        <li><span class="rule-icon">🎵</span> 해당 아티스트의 <strong>랜덤 ${songCount}곡</strong> 출제</li>
         <li><span class="rule-icon">⏱</span> <strong>${config.playTime}초</strong> 듣기 + <strong>${config.answerTime}초</strong> 입력</li>
         <li><span class="rule-icon">❤</span> 라이프 <strong>${config.lives}개</strong> (오답/시간초과 시 -1)</li>
         <li><span class="rule-icon">🚫</span> 스킵 <strong>불가능</strong></li>
@@ -277,16 +377,23 @@ async function startGame() {
     startBtn.textContent = '게임 시작 중...';
 
     try {
+        const requestBody = {
+            nickname: nickname,
+            artist: selectedArtist.name,
+            difficulty: selectedDifficulty
+        };
+
+        // HARDCORE 모드일 때만 stageLevel 전송
+        if (selectedDifficulty === 'HARDCORE') {
+            requestBody.stageLevel = selectedStage;
+        }
+
         const response = await fetch('/game/fan-challenge/start', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                nickname: nickname,
-                artist: selectedArtist.name,
-                difficulty: selectedDifficulty
-            })
+            body: JSON.stringify(requestBody)
         });
 
         const result = await response.json();

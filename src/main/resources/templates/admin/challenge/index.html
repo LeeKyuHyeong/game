@@ -40,6 +40,11 @@
                 <span class="tab-text">팬 챌린지</span>
                 <span class="tab-badge" th:text="${fanTotalCount}">0</span>
             </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'stages'} ? 'active'"
+                    onclick="switchTab('stages')">
+                <span class="tab-icon">🏆</span>
+                <span class="tab-text">단계 설정</span>
+            </button>
             <button class="tab-btn" th:classappend="${activeTab == 'genre'} ? 'active'"
                     onclick="switchTab('genre')">
                 <span class="tab-icon">🎸</span>

@@ -23,7 +23,8 @@ function switchTab(tab) {
     window.history.pushState({}, '', url);
 
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.tab-btn:nth-child(${tab === 'fan' ? 1 : 2})`).classList.add('active');
+    const tabIndex = tab === 'fan' ? 1 : tab === 'stages' ? 2 : 3;
+    document.querySelector(`.tab-btn:nth-child(${tabIndex})`).classList.add('active');
 
     loadTabContent(tab);
 }
@@ -38,9 +39,14 @@ async function loadTabContent(tab, params = '') {
     `;
 
     try {
-        const url = tab === 'fan'
-            ? `/admin/fan-challenge/content${params ? '?' + params : ''}`
-            : `/admin/genre-challenge/content${params ? '?' + params : ''}`;
+        let url;
+        if (tab === 'fan') {
+            url = `/admin/fan-challenge/content${params ? '?' + params : ''}`;
+        } else if (tab === 'stages') {
+            url = `/admin/fan-challenge/stages/content`;
+        } else {
+            url = `/admin/genre-challenge/content${params ? '?' + params : ''}`;
+        }
 
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to load content');
@@ -57,6 +63,11 @@ async function loadTabContent(tab, params = '') {
             </div>
         `;
     }
+}
+
+// 단계 탭 로드 (fragments에서 호출)
+function loadStagesTab() {
+    loadTabContent('stages');
 }
 
 function initTabScripts() {

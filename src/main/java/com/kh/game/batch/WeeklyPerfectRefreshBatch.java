@@ -3,8 +3,10 @@ package com.kh.game.batch;
 import com.kh.game.entity.BatchConfig;
 import com.kh.game.entity.BatchExecutionHistory;
 import com.kh.game.entity.FanChallengeRecord;
+import com.kh.game.entity.FanChallengeStageConfig;
 import com.kh.game.repository.FanChallengeRecordRepository;
 import com.kh.game.service.BatchService;
+import com.kh.game.service.FanChallengeStageService;
 import com.kh.game.service.SongService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class WeeklyPerfectRefreshBatch {
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
     private final SongService songService;
     private final BatchService batchService;
+    private final FanChallengeStageService stageService;
 
     @Transactional
     public BatchResult execute() {
@@ -90,18 +93,30 @@ public class WeeklyPerfectRefreshBatch {
                     continue;
                 }
 
-                // 케이스 2: 곡 수가 변경됨 (추가 또는 삭제)
-                if (!currentCount.equals(recordedTotalSongs)) {
+                // 케이스 2: 곡 수가 변경됨 (추가 또는 삭제) 또는 단계 요구사항 미달
+                Integer stageLevel = record.getStageLevel() != null ? record.getStageLevel() : 1;
+                int requiredSongs = getRequiredSongsForStage(stageLevel);
+
+                boolean songCountChanged = !currentCount.equals(recordedTotalSongs);
+                boolean belowStageRequirement = currentCount < requiredSongs;
+
+                if (songCountChanged || belowStageRequirement) {
                     if (Boolean.TRUE.equals(record.getIsCurrentPerfect())) {
-                        log.debug("곡 수 변경으로 현재시점 퍼펙트 무효화: {} (기존: {}곡, 현재: {}곡, 회원: {})",
-                                artist, recordedTotalSongs, currentCount, record.getMember().getNickname());
+                        String reason = belowStageRequirement
+                                ? String.format("단계 요구사항 미달 (%d단계 필요: %d곡, 현재: %d곡)",
+                                        stageLevel, requiredSongs, currentCount)
+                                : String.format("곡 수 변경 (기존: %d곡, 현재: %d곡)",
+                                        recordedTotalSongs, currentCount);
+
+                        log.debug("현재시점 퍼펙트 무효화: {} - {} (회원: {})",
+                                artist, reason, record.getMember().getNickname());
                         record.setIsCurrentPerfect(false);
                         record.setLastCheckedAt(LocalDateTime.now());
                         fanChallengeRecordRepository.save(record);
                         invalidatedCount++;
                     }
                 } else {
-                    // 곡 수가 같으면 lastCheckedAt만 갱신
+                    // 곡 수가 같고 단계 요구사항도 충족하면 lastCheckedAt만 갱신
                     record.setLastCheckedAt(LocalDateTime.now());
                     fanChallengeRecordRepository.save(record);
                 }
@@ -142,6 +157,20 @@ public class WeeklyPerfectRefreshBatch {
 
             log.error("[{}] 배치 실행 실패", BATCH_ID, e);
             throw new RuntimeException("배치 실행 실패: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 단계별 필요 곡 수 조회
+     */
+    private int getRequiredSongsForStage(int stageLevel) {
+        try {
+            FanChallengeStageConfig config = stageService.getStageConfig(stageLevel);
+            return config.getRequiredSongs();
+        } catch (Exception e) {
+            // 단계 설정이 없으면 기본값 20 반환
+            log.warn("단계 {} 설정 조회 실패, 기본값 20 사용: {}", stageLevel, e.getMessage());
+            return 20;
         }
     }
 

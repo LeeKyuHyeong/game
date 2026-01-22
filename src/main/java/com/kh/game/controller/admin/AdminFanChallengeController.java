@@ -2,8 +2,10 @@ package com.kh.game.controller.admin;
 
 import com.kh.game.entity.FanChallengeDifficulty;
 import com.kh.game.entity.FanChallengeRecord;
+import com.kh.game.entity.FanChallengeStageConfig;
 import com.kh.game.repository.FanChallengeRecordRepository;
 import com.kh.game.service.FanChallengeService;
+import com.kh.game.service.FanChallengeStageService;
 import com.kh.game.service.SongService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +28,7 @@ public class AdminFanChallengeController {
 
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
     private final FanChallengeService fanChallengeService;
+    private final FanChallengeStageService stageService;
     private final SongService songService;
 
     /**
@@ -201,6 +204,147 @@ public class AdminFanChallengeController {
             return fanChallengeRecordRepository.findByIsPerfectClear(isPerfect, pageable);
         } else {
             return fanChallengeRecordRepository.findAllWithMember(pageable);
+        }
+    }
+
+    // ========== 단계 설정 관리 ==========
+
+    /**
+     * 단계 설정 목록 (AJAX 로딩용 fragment)
+     */
+    @GetMapping("/stages/content")
+    public String listStagesContent(Model model) {
+        List<FanChallengeStageConfig> stages = stageService.getAllStages();
+
+        // 각 단계별 통계 (퍼펙트 클리어 수)
+        List<Map<String, Object>> stageStats = stages.stream()
+                .map(stage -> {
+                    Map<String, Object> stat = new HashMap<>();
+                    stat.put("stageLevel", stage.getStageLevel());
+                    stat.put("stageName", stage.getStageName());
+                    stat.put("stageEmoji", stage.getStageEmoji());
+                    stat.put("requiredSongs", stage.getRequiredSongs());
+                    stat.put("isActive", stage.getIsActive());
+                    stat.put("activatedAt", stage.getActivatedAt());
+                    // TODO: 단계별 퍼펙트 달성 수 조회 (추후 추가)
+                    return stat;
+                })
+                .toList();
+
+        model.addAttribute("stages", stages);
+        model.addAttribute("stageStats", stageStats);
+
+        return "admin/challenge/fragments/fan-challenge-stages";
+    }
+
+    /**
+     * 단계 설정 목록 조회 (JSON)
+     */
+    @GetMapping("/stages")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getStages() {
+        List<FanChallengeStageConfig> stages = stageService.getAllStages();
+
+        List<Map<String, Object>> result = stages.stream()
+                .map(stage -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("id", stage.getId());
+                    item.put("stageLevel", stage.getStageLevel());
+                    item.put("stageName", stage.getStageName());
+                    item.put("stageEmoji", stage.getStageEmoji());
+                    item.put("requiredSongs", stage.getRequiredSongs());
+                    item.put("isActive", stage.getIsActive());
+                    item.put("activatedAt", stage.getActivatedAt());
+                    return item;
+                })
+                .toList();
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 단계 활성화 토글
+     */
+    @PostMapping("/stages/{level}/toggle")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> toggleStage(@PathVariable int level) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            FanChallengeStageConfig config = stageService.toggleStageActive(level);
+            result.put("success", true);
+            result.put("isActive", config.getIsActive());
+            result.put("message", config.getIsActive() ? level + "단계가 활성화되었습니다." : level + "단계가 비활성화되었습니다.");
+            return ResponseEntity.ok(result);
+        } catch (IllegalStateException e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(result);
+        }
+    }
+
+    /**
+     * 단계 설정 수정
+     */
+    @PostMapping("/stages/{level}/update")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateStage(
+            @PathVariable int level,
+            @RequestBody Map<String, Object> config) {
+
+        Map<String, Object> result = new HashMap<>();
+        try {
+            Integer requiredSongs = config.get("requiredSongs") != null
+                    ? ((Number) config.get("requiredSongs")).intValue() : null;
+            String stageName = (String) config.get("stageName");
+            String emoji = (String) config.get("emoji");
+
+            FanChallengeStageConfig updated = stageService.updateStageConfig(level, requiredSongs, stageName, emoji);
+
+            result.put("success", true);
+            result.put("message", level + "단계 설정이 수정되었습니다.");
+            result.put("stage", Map.of(
+                    "stageLevel", updated.getStageLevel(),
+                    "stageName", updated.getStageName(),
+                    "stageEmoji", updated.getStageEmoji(),
+                    "requiredSongs", updated.getRequiredSongs()
+            ));
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(result);
+        }
+    }
+
+    /**
+     * 새 단계 추가
+     */
+    @PostMapping("/stages/add")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> addStage(@RequestBody Map<String, Object> config) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            int requiredSongs = ((Number) config.get("requiredSongs")).intValue();
+            String stageName = (String) config.get("stageName");
+            String emoji = (String) config.get("emoji");
+
+            FanChallengeStageConfig newStage = stageService.addStage(requiredSongs, stageName, emoji);
+
+            result.put("success", true);
+            result.put("message", newStage.getStageLevel() + "단계가 추가되었습니다.");
+            result.put("stage", Map.of(
+                    "id", newStage.getId(),
+                    "stageLevel", newStage.getStageLevel(),
+                    "stageName", newStage.getStageName(),
+                    "stageEmoji", newStage.getStageEmoji(),
+                    "requiredSongs", newStage.getRequiredSongs(),
+                    "isActive", newStage.getIsActive()
+            ));
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(result);
         }
     }
 }

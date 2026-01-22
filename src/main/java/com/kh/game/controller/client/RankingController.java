@@ -504,6 +504,39 @@ public class RankingController {
         return ResponseEntity.ok(result);
     }
 
+    // 팬 챌린지 아티스트 + 단계별 랭킹 API
+    @GetMapping("/api/ranking/fan-challenge/artist")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getFanChallengeArtistRanking(
+            @RequestParam String artist,
+            @RequestParam(defaultValue = "1") int stageLevel,
+            @RequestParam(defaultValue = "20") int limit) {
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 아티스트 + 단계별 랭킹 조회
+        var records = fanChallengeService.getArtistStageRanking(artist, stageLevel, limit);
+
+        for (var record : records) {
+            Member member = record.getMember();
+            Map<String, Object> memberInfo = new HashMap<>();
+            memberInfo.put("id", member.getId());
+            memberInfo.put("nickname", member.getNickname());
+            memberInfo.put("correctCount", record.getCorrectCount());
+            memberInfo.put("totalSongs", record.getTotalSongs());
+            memberInfo.put("isPerfectClear", record.getIsPerfectClear());
+            memberInfo.put("bestTimeMs", record.getBestTimeMs());
+            memberInfo.put("bestTimeFormatted", record.getBestTimeMs() != null
+                    ? String.format("%.1f초", record.getBestTimeMs() / 1000.0) : "-");
+            memberInfo.put("achievedAt", record.getAchievedAt());
+            memberInfo.put("stageLevel", record.getStageLevel());
+            addBadgeInfo(memberInfo, member);
+            result.add(memberInfo);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
     // 장르 챌린지 글로벌 랭킹 API
     @GetMapping("/api/ranking/genre-challenge")
     @ResponseBody
