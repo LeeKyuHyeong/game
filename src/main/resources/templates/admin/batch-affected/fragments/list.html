@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="list">
+    <!-- 결과 요약 -->
+    <div class="result-summary">
+        <span>총 <strong th:text="${totalItems}">0</strong>건</span>
+        <span th:if="${batchId != null}"> | 배치: <strong th:text="${batchId == 'BATCH_YOUTUBE_VIDEO_CHECK'} ? 'YouTube 검증' : (${batchId == 'BATCH_DUPLICATE_SONG_CHECK'} ? '중복 검사' : ${batchId})">-</strong></span>
+        <span th:if="${isRestored != null}"> | 상태: <strong th:text="${isRestored} ? '복구됨' : '미복구'">-</strong></span>
+        <span th:if="${keyword != null}"> | 검색: <strong th:text="${keyword}">-</strong></span>
+    </div>
+
+    <!-- 데이터 테이블 -->
+    <div class="table-container">
+        <table class="data-table collapse-table">
+            <thead>
+                <tr>
+                    <th class="col-checkbox">
+                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
+                    </th>
+                    <th class="col-id">ID</th>
+                    <th class="col-artist">아티스트</th>
+                    <th class="col-title">제목</th>
+                    <th class="col-reason">사유</th>
+                    <th class="col-date">일시</th>
+                    <th class="col-status">상태</th>
+                    <th class="col-actions">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(affectedList)}">
+                    <td colspan="8" class="empty-text">데이터가 없습니다.</td>
+                </tr>
+                <tr th:each="item : ${affectedList}"
+                    th:classappend="${item.isRestored} ? 'restored-row' : ''"
+                    th:data-id="${item.id}"
+                    th:data-song-id="${item.song.id}">
+                    <td class="col-checkbox" data-label="">
+                        <input type="checkbox" class="row-checkbox" th:value="${item.id}"
+                               th:disabled="${item.isRestored}">
+                    </td>
+                    <td class="col-id" data-label="ID">
+                        <span class="song-id" th:text="${item.song.id}">123</span>
+                    </td>
+                    <td class="col-artist" data-label="아티스트">
+                        <span th:text="${item.song.artist}">Artist</span>
+                    </td>
+                    <td class="col-title" data-label="제목">
+                        <span th:text="${item.song.title}">Title</span>
+                        <span class="youtube-id" th:if="${item.song.youtubeVideoId != null}"
+                              th:text="'(' + ${item.song.youtubeVideoId} + ')'"></span>
+                    </td>
+                    <td class="col-reason" data-label="사유">
+                        <span class="reason-badge" th:classappend="${item.reason.badgeClass}"
+                              th:text="${item.reason.displayName}">사유</span>
+                        <span class="reason-detail" th:if="${item.reasonDetail != null}"
+                              th:title="${item.reasonDetail}">상세</span>
+                    </td>
+                    <td class="col-date" data-label="일시">
+                        <span th:text="${#temporals.format(item.createdAt, 'MM-dd HH:mm')}">01-01 00:00</span>
+                    </td>
+                    <td class="col-status" data-label="상태">
+                        <span class="status-badge" th:if="${item.isRestored}"
+                              th:classappend="'restored'">복구됨</span>
+                        <span class="status-badge" th:unless="${item.isRestored}"
+                              th:classappend="'unrestored'">미복구</span>
+                    </td>
+                    <td class="col-actions" data-label="관리">
+                        <div class="action-buttons">
+                            <button class="btn btn-xs btn-info"
+                                    th:data-song-id="${item.song.id}"
+                                    onclick="viewSongDetail(this.dataset.songId)">상세</button>
+                            <button class="btn btn-xs btn-success"
+                                    th:disabled="${item.isRestored}"
+                                    th:data-affected-id="${item.id}"
+                                    onclick="restoreSong(this.dataset.affectedId)"
+                                    th:text="${item.isRestored} ? '복구됨' : '복구'">복구</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination" th:if="${totalPages > 1}">
+        <button class="page-btn"
+                th:disabled="${currentPage == 0}"
+                th:data-page="${currentPage - 1}"
+                onclick="loadContent(this.dataset.page)">이전</button>
+
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <button class="page-btn"
+                    th:classappend="${i == currentPage} ? 'active'"
+                    th:if="${i < 3 or i >= totalPages - 2 or (i >= currentPage - 1 and i <= currentPage + 1)}"
+                    th:data-page="${i}"
+                    onclick="loadContent(this.dataset.page)"
+                    th:text="${i + 1}">1</button>
+            <span class="page-ellipsis"
+                  th:if="${i == 2 and currentPage > 3}">...</span>
+            <span class="page-ellipsis"
+                  th:if="${i == totalPages - 3 and currentPage < totalPages - 4}">...</span>
+        </th:block>
+
+        <button class="page-btn"
+                th:disabled="${currentPage >= totalPages - 1}"
+                th:data-page="${currentPage + 1}"
+                onclick="loadContent(this.dataset.page)">다음</button>
+    </div>
+</th:block>
+</html>

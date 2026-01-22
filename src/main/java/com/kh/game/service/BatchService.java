@@ -1,16 +1,28 @@
 package com.kh.game.service;
 
+import com.kh.game.entity.BatchAffectedSong;
+import com.kh.game.entity.BatchAffectedSong.ActionType;
+import com.kh.game.entity.BatchAffectedSong.AffectedReason;
 import com.kh.game.entity.BatchConfig;
 import com.kh.game.entity.BatchExecutionHistory;
+import com.kh.game.entity.Member;
+import com.kh.game.entity.Song;
+import com.kh.game.repository.BatchAffectedSongRepository;
 import com.kh.game.repository.BatchConfigRepository;
 import com.kh.game.repository.BatchExecutionHistoryRepository;
+import com.kh.game.repository.SongRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -21,6 +33,8 @@ public class BatchService {
 
     private final BatchConfigRepository batchConfigRepository;
     private final BatchExecutionHistoryRepository historyRepository;
+    private final BatchAffectedSongRepository affectedSongRepository;
+    private final SongRepository songRepository;
 
     /**
      * 초기 배치 설정 데이터 생성 및 업데이트
@@ -673,5 +687,171 @@ public class BatchService {
 
     public long countEnabled() {
         return batchConfigRepository.findByEnabledTrue().size();
+    }
+
+    // ========== 배치 영향 곡 관리 메서드 ==========
+
+    /**
+     * 배치 실행 이력 생성 (배치 시작 시 호출)
+     * - 새로운 트랜잭션으로 즉시 커밋하여 ID 할당
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public BatchExecutionHistory createExecutionHistory(String batchId, BatchExecutionHistory.ExecutionType executionType) {
+        BatchConfig config = batchConfigRepository.findById(batchId).orElse(null);
+        String batchName = config != null ? config.getName() : batchId;
+
+        BatchExecutionHistory history = new BatchExecutionHistory(batchId, batchName, executionType);
+        // 임시로 결과 설정 (나중에 완료 시 업데이트)
+        history.complete(BatchConfig.ExecutionResult.SUCCESS, "실행 중...", 0, 0L);
+        return historyRepository.save(history);
+    }
+
+    /**
+     * 영향받은 곡 기록
+     */
+    @Transactional
+    public BatchAffectedSong recordAffectedSong(BatchExecutionHistory history, Song song,
+                                                 ActionType actionType, AffectedReason reason, String reasonDetail) {
+        BatchAffectedSong affected = new BatchAffectedSong(history, song, actionType, reason, reasonDetail);
+        return affectedSongRepository.save(affected);
+    }
+
+    /**
+     * 배치 실행 완료 처리
+     */
+    @Transactional
+    public void completeExecution(BatchExecutionHistory history, BatchConfig.ExecutionResult result,
+                                   String message, int affectedCount, long executionTimeMs) {
+        history.complete(result, message, affectedCount, executionTimeMs);
+        historyRepository.save(history);
+
+        // BatchConfig도 업데이트
+        batchConfigRepository.findById(history.getBatchId()).ifPresent(config -> {
+            config.recordExecution(result, message, affectedCount, executionTimeMs);
+        });
+
+        log.info("배치 실행 완료 기록: {} - result={}, affected={}, time={}ms",
+                history.getBatchId(), result, affectedCount, executionTimeMs);
+    }
+
+    /**
+     * 영향받은 곡 목록 조회 (필터 포함)
+     */
+    public Page<BatchAffectedSong> getAffectedSongs(String batchId, Boolean isRestored, String keyword, Pageable pageable) {
+        return affectedSongRepository.searchWithFilters(batchId, isRestored, keyword, pageable);
+    }
+
+    /**
+     * 영향받은 곡 통계
+     */
+    public Map<String, Object> getAffectedSongStats() {
+        Map<String, Object> stats = new HashMap<>();
+
+        long total = affectedSongRepository.count();
+        long unrestored = affectedSongRepository.countByIsRestoredFalse();
+        long restored = affectedSongRepository.countByIsRestoredTrue();
+
+        stats.put("total", total);
+        stats.put("unrestored", unrestored);
+        stats.put("restored", restored);
+
+        // YouTube 배치 관련
+        long youtubeTotal = affectedSongRepository.countByBatchId("BATCH_YOUTUBE_VIDEO_CHECK");
+        long youtubeUnrestored = affectedSongRepository.countByBatchIdAndIsRestoredFalse("BATCH_YOUTUBE_VIDEO_CHECK");
+        stats.put("youtubeTotal", youtubeTotal);
+        stats.put("youtubeUnrestored", youtubeUnrestored);
+
+        // 중복 검사 배치 관련
+        long duplicateTotal = affectedSongRepository.countByBatchId("BATCH_DUPLICATE_SONG_CHECK");
+        long duplicateUnrestored = affectedSongRepository.countByBatchIdAndIsRestoredFalse("BATCH_DUPLICATE_SONG_CHECK");
+        stats.put("duplicateTotal", duplicateTotal);
+        stats.put("duplicateUnrestored", duplicateUnrestored);
+
+        return stats;
+    }
+
+    /**
+     * 개별 곡 복구
+     */
+    @Transactional
+    public boolean restoreSong(Long affectedId, Member admin) {
+        BatchAffectedSong affected = affectedSongRepository.findById(affectedId).orElse(null);
+        if (affected == null) {
+            log.warn("영향받은 곡 기록을 찾을 수 없음: id={}", affectedId);
+            return false;
+        }
+
+        if (affected.getIsRestored()) {
+            log.warn("이미 복구된 곡: id={}", affectedId);
+            return false;
+        }
+
+        // 곡 활성화
+        Song song = affected.getSong();
+        song.setUseYn("Y");
+        songRepository.save(song);
+
+        // 복구 기록
+        affected.restore(admin);
+        affectedSongRepository.save(affected);
+
+        log.info("곡 복구 완료: affectedId={}, songId={}, admin={}",
+                affectedId, song.getId(), admin.getNickname());
+        return true;
+    }
+
+    /**
+     * 일괄 복구 (배치 실행 이력 기준)
+     */
+    @Transactional
+    public int restoreAllByHistory(Long historyId, Member admin) {
+        List<BatchAffectedSong> affectedList = affectedSongRepository.findByHistoryIdOrderByIdDesc(historyId);
+        int restoredCount = 0;
+
+        for (BatchAffectedSong affected : affectedList) {
+            if (!affected.getIsRestored()) {
+                Song song = affected.getSong();
+                song.setUseYn("Y");
+                songRepository.save(song);
+
+                affected.restore(admin);
+                affectedSongRepository.save(affected);
+                restoredCount++;
+            }
+        }
+
+        log.info("일괄 복구 완료: historyId={}, restoredCount={}, admin={}",
+                historyId, restoredCount, admin.getNickname());
+        return restoredCount;
+    }
+
+    /**
+     * 일괄 복구 (배치 ID 기준 - 미복구 전체)
+     */
+    @Transactional
+    public int restoreAllByBatchId(String batchId, Member admin) {
+        List<BatchAffectedSong> unrestoredList = affectedSongRepository.findUnrestoredByBatchId(batchId);
+        int restoredCount = 0;
+
+        for (BatchAffectedSong affected : unrestoredList) {
+            Song song = affected.getSong();
+            song.setUseYn("Y");
+            songRepository.save(song);
+
+            affected.restore(admin);
+            affectedSongRepository.save(affected);
+            restoredCount++;
+        }
+
+        log.info("배치 ID 기준 일괄 복구 완료: batchId={}, restoredCount={}, admin={}",
+                batchId, restoredCount, admin.getNickname());
+        return restoredCount;
+    }
+
+    /**
+     * 영향받은 곡 단건 조회
+     */
+    public Optional<BatchAffectedSong> findAffectedSongById(Long id) {
+        return affectedSongRepository.findById(id);
     }
 }

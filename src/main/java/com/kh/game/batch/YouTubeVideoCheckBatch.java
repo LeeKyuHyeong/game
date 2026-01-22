@@ -1,5 +1,8 @@
 package com.kh.game.batch;
 
+import com.kh.game.entity.BatchAffectedSong;
+import com.kh.game.entity.BatchAffectedSong.ActionType;
+import com.kh.game.entity.BatchAffectedSong.AffectedReason;
 import com.kh.game.entity.BatchConfig;
 import com.kh.game.entity.BatchExecutionHistory;
 import com.kh.game.entity.Song;
@@ -43,9 +46,15 @@ public class YouTubeVideoCheckBatch {
         int deletedCount = 0;
         int embedDisabledCount = 0;
         StringBuilder resultMessage = new StringBuilder();
+        BatchExecutionHistory history = null;
 
         try {
             log.info("[{}] 배치 실행 시작", BATCH_ID);
+
+            // 배치 실행 이력 먼저 생성 (영향받은 곡 기록용)
+            if (batchService != null && executionType != null) {
+                history = batchService.createExecutionHistory(BATCH_ID, executionType);
+            }
 
             // YouTube ID가 있는 활성 노래만 조회
             List<Song> songsWithYoutube = songRepository.findByUseYnAndYoutubeVideoIdIsNotNull("Y");
@@ -62,15 +71,28 @@ public class YouTubeVideoCheckBatch {
                     song.setUseYn("N");
                     songRepository.save(song);
 
+                    // 영향받은 곡 기록
+                    AffectedReason reason;
+                    String reasonDetail;
+
                     if (result.isEmbedDisabled()) {
                         embedDisabledCount++;
+                        reason = AffectedReason.YOUTUBE_EMBED_DISABLED;
+                        reasonDetail = "임베드 불가";
                         log.warn("임베드 불가로 비활성화: [ID:{}] {} - {} (videoId: {})",
                                 song.getId(), song.getArtist(), song.getTitle(), videoId);
                     } else {
                         deletedCount++;
-                        log.warn("삭제된 영상으로 비활성화: [ID:{}] {} - {} (videoId: {}) - oEmbed: {}, 썸네일: {}",
-                                song.getId(), song.getArtist(), song.getTitle(), videoId,
+                        reason = AffectedReason.YOUTUBE_DELETED;
+                        reasonDetail = String.format("oEmbed: %s, 썸네일: %s",
                                 result.getOEmbedError(), result.getThumbnailError());
+                        log.warn("삭제된 영상으로 비활성화: [ID:{}] {} - {} (videoId: {}) - {}",
+                                song.getId(), song.getArtist(), song.getTitle(), videoId, reasonDetail);
+                    }
+
+                    // 영향받은 곡 기록 저장
+                    if (history != null && batchService != null) {
+                        batchService.recordAffectedSong(history, song, ActionType.DEACTIVATED, reason, reasonDetail);
                     }
                 }
             }
@@ -99,11 +121,10 @@ public class YouTubeVideoCheckBatch {
 
             long executionTime = System.currentTimeMillis() - startTime;
 
-            // 배치 실행 기록
-            if (batchService != null && executionType != null) {
-                batchService.recordExecution(
-                        BATCH_ID,
-                        executionType,
+            // 배치 실행 완료 기록
+            if (history != null && batchService != null) {
+                batchService.completeExecution(
+                        history,
                         BatchConfig.ExecutionResult.SUCCESS,
                         resultMessage.toString().trim(),
                         totalDisabled,
@@ -119,10 +140,9 @@ public class YouTubeVideoCheckBatch {
         } catch (Exception e) {
             long executionTime = System.currentTimeMillis() - startTime;
 
-            if (batchService != null && executionType != null) {
-                batchService.recordExecution(
-                        BATCH_ID,
-                        executionType,
+            if (history != null && batchService != null) {
+                batchService.completeExecution(
+                        history,
                         BatchConfig.ExecutionResult.FAIL,
                         "오류 발생: " + e.getMessage(),
                         deletedCount + embedDisabledCount,
