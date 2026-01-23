@@ -24,10 +24,18 @@ public class AdminSongPopularityController {
     private final SongPopularityVoteService voteService;
 
     /**
-     * 메인 페이지 (탭 구조)
+     * 기존 URL → 통합 콘텐츠 페이지로 리다이렉트
      */
-    @GetMapping
-    public String index(@RequestParam(defaultValue = "songs") String tab,
+    @GetMapping({"", "/"})
+    public String redirectToContent() {
+        return "redirect:/admin/content?tab=popularity";
+    }
+
+    /**
+     * AJAX 로딩용 대중성 투표 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String popularityContent(@RequestParam(defaultValue = "songs") String subTab,
                         Model model) {
         // 전체 통계
         Map<String, Object> stats = voteService.getTotalStats();
@@ -36,10 +44,10 @@ public class AdminSongPopularityController {
         model.addAttribute("avgRating", stats.get("avgRating"));
         model.addAttribute("votedSongCount", stats.get("votedSongCount"));
 
-        model.addAttribute("activeTab", tab);
-        model.addAttribute("menu", "song-popularity");
+        model.addAttribute("activeSubTab", subTab);
+        model.addAttribute("menu", "content");
 
-        return "admin/song-popularity/index";
+        return "admin/song-popularity/fragments/popularity";
     }
 
     /**

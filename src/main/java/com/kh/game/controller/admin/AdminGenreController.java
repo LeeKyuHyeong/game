@@ -23,8 +23,19 @@ public class AdminGenreController {
 
     private final GenreService genreService;
 
-    @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page,
+    /**
+     * 기존 URL → 통합 콘텐츠 페이지로 리다이렉트
+     */
+    @GetMapping({"", "/"})
+    public String redirectToContent() {
+        return "redirect:/admin/content?tab=genre";
+    }
+
+    /**
+     * AJAX 로딩용 장르 목록 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(@RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "20") int size,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(defaultValue = "displayOrder") String sort,
@@ -48,9 +59,9 @@ public class AdminGenreController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("sort", sort);
         model.addAttribute("direction", direction);
-        model.addAttribute("menu", "genre");
+        model.addAttribute("menu", "content");
 
-        return "admin/genre/list";
+        return "admin/genre/fragments/genre";
     }
 
     @GetMapping("/detail/{id}")

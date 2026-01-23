@@ -2,13 +2,17 @@
  * Admin Song Popularity Page - Vote Statistics Management
  */
 
-let currentTab = 'songs';
-let currentSort = '';
-let currentDirection = 'desc';
+var currentTab = currentTab || 'songs';
+var currentSort = currentSort || '';
+var currentDirection = currentDirection || 'desc';
 
 // ========== Initialization ==========
 
 document.addEventListener('DOMContentLoaded', () => {
+    // admin/content 페이지에서는 admin-content-index.js가 초기화를 담당
+    if (window.location.pathname.includes('/admin/content')) {
+        return;
+    }
     loadTabContent(currentTab);
 });
 

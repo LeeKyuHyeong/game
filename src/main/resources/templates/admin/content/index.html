@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('콘텐츠 관리')}"></head>
+<body class="admin-page">
+<link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+<link rel="stylesheet" th:href="@{/css/admin/member-index.css}">
+<link rel="stylesheet" th:href="@{/css/admin/song-grid.css}">
+<link rel="stylesheet" th:href="@{/css/admin/song-index.css}">
+<link rel="stylesheet" th:href="@{/css/admin/song-popularity.css}">
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+    <main class="main-content">
+        <header class="content-header">
+            <h1>콘텐츠 관리</h1>
+        </header>
+
+        <!-- 통합 통계 카드 -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${totalSongs}">0</div>
+                <div class="stat-label">전체 노래</div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-value" th:text="${activeSongs}">0</div>
+                <div class="stat-label">활성 노래</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${activeGenres}">0</div>
+                <div class="stat-label">활성 장르</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${totalVotes}">0</div>
+                <div class="stat-label">투표 수</div>
+            </div>
+        </div>
+
+        <!-- 탭 네비게이션 -->
+        <div class="tab-navigation">
+            <button class="tab-btn" th:classappend="${activeTab == 'song'} ? 'active'"
+                    data-tab="song" onclick="switchTab('song')">
+                <span class="tab-icon">🎶</span>
+                <span class="tab-text">노래 관리</span>
+            </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'answer'} ? 'active'"
+                    data-tab="answer" onclick="switchTab('answer')">
+                <span class="tab-icon">🎯</span>
+                <span class="tab-text">정답 관리</span>
+            </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'genre'} ? 'active'"
+                    data-tab="genre" onclick="switchTab('genre')">
+                <span class="tab-icon">🏷️</span>
+                <span class="tab-text">장르 관리</span>
+            </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'popularity'} ? 'active'"
+                    data-tab="popularity" onclick="switchTab('popularity')">
+                <span class="tab-icon">🗳️</span>
+                <span class="tab-text">대중성 투표</span>
+            </button>
+        </div>
+
+        <!-- 탭 콘텐츠 -->
+        <div class="tab-content" id="tabContent">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <span>로딩 중...</span>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- 노래 추가/수정 모달 -->
+<div id="songModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">노래 추가</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="songForm" class="modal-form">
+            <input type="hidden" id="songId" name="id">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title">제목 *</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="artist">아티스트 *</label>
+                    <input type="text" id="artist" name="artist" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="youtubeUrl">YouTube URL</label>
+                <input type="text" id="youtubeUrl" name="youtubeUrl"
+                       placeholder="https://www.youtube.com/watch?v=... 또는 https://youtu.be/...">
+                <div id="currentYoutubeId" class="current-file"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startTime">시작 시간 (초)</label>
+                    <input type="number" id="startTime" name="startTime" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="playDuration">재생 시간 (초)</label>
+                    <input type="number" id="playDuration" name="playDuration" min="1" value="10">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="genreId">장르</label>
+                    <select id="genreId" name="genreId">
+                        <option value="">선택하세요</option>
+                        <option th:each="genre : ${genres}"
+                                th:value="${genre.id}"
+                                th:text="${genre.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="releaseYear">발매연도</label>
+                    <input type="number" id="releaseYear" name="releaseYear" min="1900" max="2099" placeholder="예: 2024">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>솔로여부</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="isSolo" value="true"> 솔로
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="isSolo" value="false" checked> 그룹
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>대중곡</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="isPopular" value="true" checked> 대중곡
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="isPopular" value="false"> 매니악
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>사용여부</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="useYn" value="Y" checked> 사용
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="useYn" value="N"> 미사용
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" onclick="closeModal()">취소</button>
+                <button type="submit" class="btn btn-primary">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- YouTube 미리보기 모달 -->
+<div id="youtubePreviewModal" class="modal">
+    <div class="modal-content modal-lg">
+        <div class="modal-header">
+            <h2 id="youtubePreviewTitle">YouTube 미리보기</h2>
+            <button class="close-btn" onclick="closeYoutubePreview()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="youtube-preview-info">
+                <span id="previewSongInfo"></span>
+                <span id="previewTimeInfo" class="time-info"></span>
+            </div>
+            <div class="youtube-player-container">
+                <div id="youtubePlayer"></div>
+            </div>
+            <div class="youtube-preview-status">
+                <span id="previewStatus"></span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeYoutubePreview()">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 장르 추가/수정 모달 -->
+<div id="genreModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="genreModalTitle">장르 추가</h2>
+            <button class="close-btn" onclick="closeGenreModal()">&times;</button>
+        </div>
+        <form id="genreForm" class="modal-form">
+            <input type="hidden" id="genreIdInput" name="id">
+            <div class="form-group">
+                <label for="genreCode">장르 코드 *</label>
+                <input type="text" id="genreCode" name="code" required placeholder="KPOP_BALLAD">
+            </div>
+            <div class="form-group">
+                <label for="genreName">장르명 *</label>
+                <input type="text" id="genreName" name="name" required placeholder="K-POP 발라드">
+            </div>
+            <div class="form-group">
+                <label>사용여부</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="genreUseYn" value="Y" checked> 사용
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="genreUseYn" value="N"> 미사용
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" onclick="closeGenreModal()">취소</button>
+                <button type="submit" class="btn btn-primary">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 곡 상세 모달 (대중성 투표) -->
+<div id="songDetailModal" class="modal">
+    <div class="modal-content modal-md">
+        <div class="modal-header">
+            <h2 id="songDetailTitle">곡 투표 상세</h2>
+            <button class="close-btn" onclick="closeModal('songDetailModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="songDetailContent">
+            <!-- 동적으로 채워짐 -->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" onclick="closeModal('songDetailModal')">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 장르 목록 (노래 폼에서 사용) -->
+<script th:inline="javascript">
+    var genres = /*[[${genres}]]*/ [];
+</script>
+
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/admin/admin-song.js}"></script>
+<script th:src="@{/js/admin/admin-song-index.js}"></script>
+<script th:src="@{/js/admin/admin-song-popularity.js}"></script>
+<script th:src="@{/js/admin/admin-content-index.js}"></script>
+<script th:inline="javascript">
+    currentTab = [[${activeTab}]];
+</script>
+</body>
+</html>

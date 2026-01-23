@@ -16,4 +16,6 @@ public interface MenuConfigRepository extends JpaRepository<MenuConfig, String> 
     List<MenuConfig> findAllByOrderByDisplayOrderAsc();
 
     List<MenuConfig> findByCategoryAndEnabledTrueOrderByDisplayOrderAsc(String category);
+
+    long countByEnabledTrue();
 }

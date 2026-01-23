@@ -18,11 +18,22 @@ public class AdminMenuController {
 
     private final MenuConfigService menuConfigService;
 
-    @GetMapping
-    public String list(Model model) {
+    /**
+     * 기존 URL → 통합 시스템 설정 페이지로 리다이렉트
+     */
+    @GetMapping({"", "/"})
+    public String redirectToSystem() {
+        return "redirect:/admin/system?tab=menu";
+    }
+
+    /**
+     * AJAX 로딩용 메뉴 목록 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(Model model) {
         model.addAttribute("menus", menuConfigService.findAll());
-        model.addAttribute("menu", "menu");
-        return "admin/menu/list";
+        model.addAttribute("menu", "system");
+        return "admin/menu/fragments/menu";
     }
 
     @GetMapping("/detail/{menuId}")

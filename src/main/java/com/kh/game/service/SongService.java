@@ -390,6 +390,14 @@ public class SongService {
         return songRepository.countRetroSongsForGame("Y");
     }
 
+    public long count() {
+        return songRepository.count();
+    }
+
+    public long countByUseYn(String useYn) {
+        return songRepository.countByUseYn(useYn);
+    }
+
     // 아티스트 목록 조회 (곡 수 포함) - 게임용 (레트로 제외, 대중곡만)
     public List<Map<String, Object>> getArtistsWithCount() {
         List<Song> allSongs = findSongsForGame();

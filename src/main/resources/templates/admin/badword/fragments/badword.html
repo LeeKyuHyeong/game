@@ -1,0 +1,174 @@
+<!-- 비속어 관리 탭 콘텐츠 (AJAX 로딩용) -->
+<div class="tab-panel badword-panel" xmlns:th="http://www.thymeleaf.org">
+    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+
+    <div class="panel-header">
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openBadWordModal()">+ 비속어 추가</button>
+            <button class="btn btn-secondary" onclick="openBulkAddModal()">일괄 등록</button>
+            <button class="btn btn-info" onclick="openTestModal()">필터 테스트</button>
+            <button class="btn btn-warning" onclick="reloadBadWordCache()">캐시 갱신</button>
+        </div>
+    </div>
+
+    <!-- 필터 -->
+    <div class="filter-section">
+        <form id="badwordFilterForm" class="filter-row">
+            <div class="filter-group">
+                <label>검색</label>
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="비속어 검색">
+            </div>
+            <div class="filter-group">
+                <label>상태</label>
+                <select name="active">
+                    <option value="">전체</option>
+                    <option value="Y" th:selected="${active == 'Y'}">활성</option>
+                    <option value="N" th:selected="${active == 'N'}">비활성</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-search">검색</button>
+                <button type="button" class="btn btn-reset" onclick="resetBadWordFilter()">초기화</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 통계 -->
+    <div class="stats-row">
+        <span>전체: <strong th:text="${totalItems}">0</strong>개</span>
+        <span>활성: <strong th:text="${activeCount}">0</strong>개</span>
+    </div>
+
+    <!-- 목록 -->
+    <div class="table-container">
+        <table class="data-table sortable-table">
+            <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th class="sortable" th:classappend="${sort == 'word'} ? ('sorted-' + ${direction})"
+                    onclick="sortBadWordBy('word')">비속어 <span class="sort-icon"></span></th>
+                <th>대체어</th>
+                <th>상태</th>
+                <th class="sortable" th:classappend="${sort == 'createdAt'} ? ('sorted-' + ${direction})"
+                    onclick="sortBadWordBy('createdAt')">등록일 <span class="sort-icon"></span></th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="badWord, iterStat : ${badWords}" onclick="toggleRowExpand(this)">
+                <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
+                <td data-label="비속어"><code th:text="${badWord.word}"></code></td>
+                <td data-label="대체어" th:text="${badWord.replacement} ?: '***'"></td>
+                <td data-label="상태">
+                    <span class="status" th:classappend="${badWord.isActive} ? 'active' : 'inactive'"
+                          th:text="${badWord.isActive} ? '활성' : '비활성'"></span>
+                </td>
+                <td data-label="등록일" th:text="${#temporals.format(badWord.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                    <button class="btn btn-sm btn-edit" th:data-id="${badWord.id}" onclick="editBadWord(this.dataset.id)">수정</button>
+                    <button class="btn btn-sm btn-toggle" th:data-id="${badWord.id}" onclick="toggleBadWord(this.dataset.id)">상태변경</button>
+                    <button class="btn btn-sm btn-delete" th:data-id="${badWord.id}" onclick="deleteBadWord(this.dataset.id)">삭제</button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(badWords)}">
+                <td colspan="6" class="empty-row">등록된 비속어가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이징 -->
+    <div class="pagination" th:if="${totalPages > 0}">
+        <a href="javascript:void(0)" onclick="loadBadWordPage(0)" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
+        <a href="javascript:void(0)" th:onclick="'loadBadWordPage(' + ${currentPage - 1} + ')'" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
+
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+               href="javascript:void(0)"
+               th:onclick="'loadBadWordPage(' + ${i} + ')'"
+               th:text="${i + 1}"
+               th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
+        </th:block>
+
+        <a href="javascript:void(0)" th:onclick="'loadBadWordPage(' + ${currentPage + 1} + ')'" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
+        <a href="javascript:void(0)" th:onclick="'loadBadWordPage(' + ${totalPages - 1} + ')'" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
+    </div>
+
+    <!-- 비속어 추가/수정 모달 -->
+    <div id="badWordModal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2 id="badWordModalTitle">비속어 추가</h2>
+                <button class="close-btn" onclick="closeBadWordModal()">&times;</button>
+            </div>
+            <form id="badWordForm" class="modal-form">
+                <input type="hidden" id="badWordId">
+                <div class="form-group">
+                    <label for="word">비속어 *</label>
+                    <input type="text" id="word" name="word" required placeholder="필터링할 단어">
+                </div>
+                <div class="form-group">
+                    <label for="replacement">대체어</label>
+                    <input type="text" id="replacement" name="replacement" placeholder="*** (기본값)">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="isActive" name="isActive" checked> 활성화
+                    </label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeBadWordModal()">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 일괄 등록 모달 -->
+    <div id="bulkAddModal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>비속어 일괄 등록</h2>
+                <button class="close-btn" onclick="closeBulkAddModal()">&times;</button>
+            </div>
+            <form id="bulkAddForm" class="modal-form">
+                <div class="form-group">
+                    <label for="bulkWords">비속어 목록 (줄바꿈으로 구분)</label>
+                    <textarea id="bulkWords" name="words" rows="10" placeholder="비속어1&#10;비속어2&#10;비속어3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeBulkAddModal()">취소</button>
+                    <button type="submit" class="btn btn-primary">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 필터 테스트 모달 -->
+    <div id="testModal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>필터 테스트</h2>
+                <button class="close-btn" onclick="closeTestModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="testMessage">테스트 메시지</label>
+                    <textarea id="testMessage" rows="3" placeholder="테스트할 메시지 입력"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="testBadWordFilter()">테스트</button>
+                <div id="testResult" class="test-result" style="margin-top: 1rem; display: none;">
+                    <div><strong>원본:</strong> <span id="testOriginal"></span></div>
+                    <div><strong>결과:</strong> <span id="testFiltered"></span></div>
+                    <div><strong>발견:</strong> <span id="testFound"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/admin/admin-badword.js}"></script>
+    <script th:inline="javascript">
+    var badwordSort = /*[[${sort}]]*/ 'createdAt';
+    var badwordDirection = /*[[${direction}]]*/ 'desc';
+    </script>
+</div>

@@ -24,4 +24,6 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
     Optional<Genre> findByCode(String code);
 
     boolean existsByCode(String code);
+
+    long countByUseYn(String useYn);
 }

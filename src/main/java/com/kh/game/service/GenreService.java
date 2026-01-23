@@ -73,4 +73,12 @@ public class GenreService {
             genreRepository.save(genre);
         });
     }
+
+    public long count() {
+        return genreRepository.count();
+    }
+
+    public long countActive() {
+        return genreRepository.countByUseYn("Y");
+    }
 }

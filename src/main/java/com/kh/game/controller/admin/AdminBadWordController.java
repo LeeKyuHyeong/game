@@ -23,10 +23,18 @@ public class AdminBadWordController {
     private final BadWordService badWordService;
 
     /**
-     * 비속어 목록 페이지
+     * 기존 URL → 통합 회원 관리 페이지로 리다이렉트
      */
-    @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page,
+    @GetMapping({"", "/"})
+    public String redirectToMember() {
+        return "redirect:/admin/member?tab=badword";
+    }
+
+    /**
+     * AJAX 로딩용 비속어 목록 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(@RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "20") int size,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String active,
@@ -57,9 +65,9 @@ public class AdminBadWordController {
         model.addAttribute("active", active);
         model.addAttribute("sort", sort);
         model.addAttribute("direction", direction);
-        model.addAttribute("menu", "badword");
+        model.addAttribute("menu", "member");
 
-        return "admin/badword/list";
+        return "admin/badword/fragments/badword";
     }
 
     /**

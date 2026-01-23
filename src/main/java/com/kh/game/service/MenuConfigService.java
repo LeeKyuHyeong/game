@@ -128,4 +128,12 @@ public class MenuConfigService {
             }
         }
     }
+
+    public long count() {
+        return menuConfigRepository.count();
+    }
+
+    public long countEnabled() {
+        return menuConfigRepository.countByEnabledTrue();
+    }
 }

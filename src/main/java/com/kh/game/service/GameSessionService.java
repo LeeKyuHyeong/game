@@ -105,6 +105,10 @@ public class GameSessionService {
         return gameSessionRepository.getAverageScore();
     }
 
+    public long countAll() {
+        return gameSessionRepository.count();
+    }
+
     public GameSettings parseSettings(String settingsJson) {
         if (settingsJson == null || settingsJson.isEmpty()) {
             return new GameSettings();

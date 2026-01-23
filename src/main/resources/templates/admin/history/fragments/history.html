@@ -1,5 +1,19 @@
 <!-- 게임 이력 탭 콘텐츠 (프래그먼트) -->
 <div class="history-tab-content" xmlns:th="http://www.thymeleaf.org">
+    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+
+    <style>
+    .sub-stats { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .sub-stat { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-elevated); border-radius: 0.5rem; font-size: 0.9rem; }
+    .sub-stat-value { font-weight: 600; color: var(--primary-color); }
+    .sub-stat-label { color: var(--text-secondary); }
+    .filter-bar { margin-bottom: 1rem; }
+    .filter-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .score-cell { font-weight: 600; color: var(--primary-color); }
+    .accuracy { color: var(--text-secondary); }
+    @media (max-width: 768px) { .filter-form { flex-direction: column; } .filter-form input, .filter-form select { width: 100%; } }
+    </style>
+
     <div class="sub-stats">
         <div class="sub-stat"><span class="sub-stat-value" th:text="${todayCount} ?: 0">0</span><span class="sub-stat-label">오늘 게임</span></div>
         <div class="sub-stat"><span class="sub-stat-value" th:text="${#numbers.formatDecimal(avgScore ?: 0, 0, 1)}">0</span><span class="sub-stat-label">평균 점수</span></div>
@@ -108,16 +122,6 @@
         <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${currentPage + 1} + '); return false;'">›</a>
         <a href="#" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link" th:onclick="'goToPage(' + ${totalPages - 1} + '); return false;'">»</a>
     </div>
-</div>
 
-<style>
-.sub-stats { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
-.sub-stat { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-elevated); border-radius: 0.5rem; font-size: 0.9rem; }
-.sub-stat-value { font-weight: 600; color: var(--primary-color); }
-.sub-stat-label { color: var(--text-secondary); }
-.filter-bar { margin-bottom: 1rem; }
-.filter-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-.score-cell { font-weight: 600; color: var(--primary-color); }
-.accuracy { color: var(--text-secondary); }
-@media (max-width: 768px) { .filter-form { flex-direction: column; } .filter-form input, .filter-form select { width: 100%; } }
-</style>
+    <script th:src="@{/js/admin/admin-history.js}"></script>
+</div>

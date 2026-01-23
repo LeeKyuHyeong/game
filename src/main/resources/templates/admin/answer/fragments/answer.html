@@ -1,0 +1,185 @@
+<!-- 정답 관리 탭 콘텐츠 (AJAX 로딩용) -->
+<div class="tab-panel answer-panel" xmlns:th="http://www.thymeleaf.org">
+    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+
+    <!-- 필터 -->
+    <div class="filter-section">
+        <form id="answerFilterForm" class="filter-row">
+            <div class="filter-group">
+                <label>검색</label>
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 아티스트">
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-search">검색</button>
+                <button type="button" class="btn btn-reset" onclick="resetAnswerFilter()">초기화</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 목록 -->
+    <div class="table-container">
+        <table class="data-table sortable-table">
+            <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th class="col-id sortable" th:classappend="${sort == 'id'} ? ('sorted-' + ${direction})"
+                    onclick="sortAnswerBy('id')">ID <span class="sort-icon"></span></th>
+                <th class="sortable" th:classappend="${sort == 'title'} ? ('sorted-' + ${direction})"
+                    onclick="sortAnswerBy('title')">제목 <span class="sort-icon"></span></th>
+                <th class="sortable" th:classappend="${sort == 'artist'} ? ('sorted-' + ${direction})"
+                    onclick="sortAnswerBy('artist')">아티스트 <span class="sort-icon"></span></th>
+                <th class="hide-mobile">장르</th>
+                <th class="hide-mobile sortable" th:classappend="${sort == 'releaseYear'} ? ('sorted-' + ${direction})"
+                    onclick="sortAnswerBy('releaseYear')">연도 <span class="sort-icon"></span></th>
+                <th class="answer-preview-th">정답 목록</th>
+                <th>상태</th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="song, iterStat : ${songs.content}"
+                th:classappend="${answerCounts[song.id] == 0} ? 'no-answer-row'"
+                onclick="toggleRowExpand(this)">
+                <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
+                <td data-label="ID" th:text="${song.id}"></td>
+                <td data-label="제목">
+                    <span class="song-title" th:text="${song.title}"></span>
+                </td>
+                <td data-label="아티스트" th:text="${song.artist}"></td>
+                <td data-label="장르" class="hide-mobile" th:text="${song.genre != null} ? ${song.genre.name} : '-'"></td>
+                <td data-label="연도" class="hide-mobile" th:text="${song.releaseYear} ?: '-'"></td>
+                <td data-label="정답 목록" class="answer-preview-td">
+                    <div class="answer-preview-wrapper" th:if="${songAnswersMap[song.id] != null and !songAnswersMap[song.id].isEmpty()}">
+                        <span class="answer-tag primary" th:if="${primaryAnswerMap[song.id] != null}" th:text="${primaryAnswerMap[song.id].answer}"></span>
+                        <span class="answer-more-count" th:if="${songAnswersMap[song.id].size() > 1}" th:text="'+' + (${songAnswersMap[song.id].size()} - 1)"></span>
+                        <div class="answer-tooltip">
+                            <span class="answer-tag" th:each="answer : ${songAnswersMap[song.id]}"
+                                  th:classappend="${answer.isPrimary} ? 'primary'"
+                                  th:text="${answer.answer}"></span>
+                        </div>
+                    </div>
+                    <span class="no-answer-text" th:if="${songAnswersMap[song.id] == null or songAnswersMap[song.id].isEmpty()}">-</span>
+                </td>
+                <td data-label="상태">
+                    <span class="status" th:classappend="${song.useYn == 'Y'} ? 'active' : 'inactive'"
+                          th:text="${song.useYn == 'Y'} ? '사용' : '미사용'"></span>
+                </td>
+                <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                    <button class="btn btn-sm btn-primary"
+                            th:data-song-id="${song.id}"
+                            th:data-song-title="${song.title}"
+                            th:data-song-artist="${song.artist}"
+                            onclick="openAnswerModal(this)">
+                        정답 관리
+                    </button>
+                </td>
+            </tr>
+            <tr th:if="${songs.content.isEmpty()}">
+                <td colspan="9" class="empty-row">등록된 노래가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이징 -->
+    <div class="pagination" th:if="${totalPages > 0}">
+        <a href="javascript:void(0)" onclick="loadAnswerPage(0)" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
+        <a href="javascript:void(0)" th:onclick="'loadAnswerPage(' + ${currentPage - 1} + ')'" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
+
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+               href="javascript:void(0)"
+               th:onclick="'loadAnswerPage(' + ${i} + ')'"
+               th:text="${i + 1}"
+               th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
+        </th:block>
+
+        <a href="javascript:void(0)" th:onclick="'loadAnswerPage(' + ${currentPage + 1} + ')'" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
+        <a href="javascript:void(0)" th:onclick="'loadAnswerPage(' + ${totalPages - 1} + ')'" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
+    </div>
+
+    <!-- 안내 -->
+    <div class="info-box">
+        <h4>정답 관리 안내</h4>
+        <ul>
+            <li>정답이 없는 노래는 제목으로 정답 체크가 됩니다.</li>
+            <li>별명, 약어, 영어/한글 표기 등 다양한 정답을 등록하면 정답 인정률이 높아집니다.</li>
+            <li><strong>대표 정답</strong>은 정답 공개 시 표시됩니다.</li>
+        </ul>
+    </div>
+
+    <!-- 정답 관리 모달 -->
+    <div id="answerModal" class="modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2 id="answerModalTitle">정답 관리</h2>
+                <button class="close-btn" onclick="closeAnswerModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="currentSongId">
+                <div class="song-info-card">
+                    <div class="song-info-row">
+                        <span class="info-label">제목</span>
+                        <span id="modalSongTitle" class="info-value"></span>
+                    </div>
+                    <div class="song-info-row">
+                        <span class="info-label">아티스트</span>
+                        <span id="modalSongArtist" class="info-value"></span>
+                    </div>
+                </div>
+                <div class="answer-section">
+                    <div class="section-header">
+                        <h4>등록된 정답</h4>
+                        <button class="btn btn-sm btn-secondary" onclick="autoGenerateAnswers()">자동생성</button>
+                    </div>
+                    <div id="answerList" class="answer-list"></div>
+                </div>
+                <div class="add-answer-section">
+                    <h4>정답 추가</h4>
+                    <div class="add-answer-form">
+                        <input type="text" id="newAnswer" placeholder="새 정답 입력">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="newAnswerPrimary"> 대표 정답
+                        </label>
+                        <button class="btn btn-primary" onclick="addAnswer()">추가</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeAnswerModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 정답 수정 모달 -->
+    <div id="editAnswerModal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>정답 수정</h2>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editAnswerId">
+                <div class="form-group">
+                    <label for="editAnswerText">정답</label>
+                    <input type="text" id="editAnswerText" placeholder="정답 입력">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="editAnswerPrimary"> 대표 정답으로 설정
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeEditModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveEditAnswer()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/admin/admin-answer.js}"></script>
+    <script th:inline="javascript">
+    var answerSort = /*[[${sort}]]*/ 'id';
+    var answerDirection = /*[[${direction}]]*/ 'desc';
+    </script>
+</div>

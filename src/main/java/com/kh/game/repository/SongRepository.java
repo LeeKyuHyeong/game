@@ -283,4 +283,6 @@ public interface SongRepository extends JpaRepository<Song, Long> {
            "HAVING COUNT(s) >= :minCount " +
            "ORDER BY g.displayOrder, g.name")
     List<Object[]> findGenresWithSongCountMinimum(@Param("minCount") long minCount);
+
+    long countByUseYn(String useYn);
 }

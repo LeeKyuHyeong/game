@@ -1,0 +1,61 @@
+<!-- 메뉴 관리 탭 콘텐츠 (AJAX 로딩용) -->
+<div class="tab-panel menu-panel" xmlns:th="http://www.thymeleaf.org">
+    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th>아이콘</th>
+                <th>메뉴명</th>
+                <th>설명</th>
+                <th>카테고리</th>
+                <th>URL</th>
+                <th>상태</th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="menu, iterStat : ${menus}" onclick="toggleRowExpand(this)">
+                <td data-label="No" th:text="${iterStat.index + 1}"></td>
+                <td data-label="아이콘" th:text="${menu.icon}"></td>
+                <td data-label="메뉴명" th:text="${menu.name}"></td>
+                <td data-label="설명" th:text="${menu.description}"></td>
+                <td data-label="카테고리">
+                    <span class="badge" th:classappend="${menu.category == 'SOLO'} ? 'badge-solo' : 'badge-multi'"
+                          th:text="${menu.category}"></span>
+                </td>
+                <td data-label="URL"><code th:text="${menu.url}"></code></td>
+                <td data-label="상태">
+                    <span class="status" th:classappend="${menu.enabled} ? 'active' : 'inactive'"
+                          th:text="${menu.enabled} ? '활성' : '비활성'"></span>
+                </td>
+                <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                    <button class="btn btn-sm"
+                            th:classappend="${menu.enabled} ? 'btn-toggle-off' : 'btn-toggle-on'"
+                            th:data-id="${menu.menuId}"
+                            th:data-enabled="${menu.enabled}"
+                            onclick="toggleMenu(this.dataset.id)">
+                        <span th:text="${menu.enabled} ? '비활성화' : '활성화'"></span>
+                    </button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(menus)}">
+                <td colspan="8" class="empty-row">등록된 메뉴가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-box">
+        <h3>안내</h3>
+        <ul>
+            <li>메뉴를 <strong>비활성화</strong>하면 홈 화면에서 해당 버튼이 비활성 상태로 표시됩니다.</li>
+            <li><strong>준비 중</strong> 배지가 표시되며 클릭할 수 없게 됩니다.</li>
+            <li>메뉴 설정은 즉시 반영됩니다.</li>
+        </ul>
+    </div>
+
+    <script th:src="@{/js/admin/admin-menu.js}"></script>
+</div>

@@ -2,14 +2,17 @@
  * Admin Song Index Page - Tab Management & YouTube Preview
  */
 
-let currentTab = 'song';
-let ytPlayer = null;
-let ytApiReady = false;
+var currentTab = currentTab || 'song';
+var ytPlayer = ytPlayer || null;
+var ytApiReady = ytApiReady || false;
 
 // ========== Initialization ==========
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadTabContent(currentTab);
+    // admin/content 페이지에서는 admin-content-index.js가 초기화를 담당
+    if (!window.location.pathname.includes('/admin/content')) {
+        loadTabContent(currentTab);
+    }
     loadYouTubeAPI();
 });
 

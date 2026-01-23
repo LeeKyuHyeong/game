@@ -1,0 +1,129 @@
+<!-- 장르 관리 탭 콘텐츠 (AJAX 로딩용) -->
+<div class="tab-panel genre-panel" xmlns:th="http://www.thymeleaf.org">
+    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+
+    <div class="panel-header">
+        <button class="btn btn-primary" onclick="openGenreModal()">+ 장르 추가</button>
+    </div>
+
+    <div class="filter-section">
+        <form id="genreFilterForm" class="filter-row">
+            <div class="filter-group">
+                <label>검색</label>
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="장르명 또는 코드 검색">
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-search">검색</button>
+                <button type="button" class="btn btn-reset" onclick="resetGenreFilter()">초기화</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table sortable-table">
+            <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th class="col-id sortable" th:classappend="${sort == 'id'} ? ('sorted-' + ${direction})"
+                    onclick="sortGenreBy('id')">ID <span class="sort-icon"></span></th>
+                <th class="sortable" th:classappend="${sort == 'code'} ? ('sorted-' + ${direction})"
+                    onclick="sortGenreBy('code')">코드 <span class="sort-icon"></span></th>
+                <th class="sortable" th:classappend="${sort == 'name'} ? ('sorted-' + ${direction})"
+                    onclick="sortGenreBy('name')">장르명 <span class="sort-icon"></span></th>
+                <th class="sortable" th:classappend="${sort == 'displayOrder'} ? ('sorted-' + ${direction})"
+                    onclick="sortGenreBy('displayOrder')">정렬순서 <span class="sort-icon"></span></th>
+                <th>사용여부</th>
+                <th class="sortable" th:classappend="${sort == 'createdAt'} ? ('sorted-' + ${direction})"
+                    onclick="sortGenreBy('createdAt')">등록일 <span class="sort-icon"></span></th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="genre, iterStat : ${genres}" onclick="toggleRowExpand(this)">
+                <td data-label="No" th:text="${currentPage * size + iterStat.index + 1}"></td>
+                <td data-label="ID" th:text="${genre.id}"></td>
+                <td data-label="코드"><code th:text="${genre.code}"></code></td>
+                <td data-label="장르명" th:text="${genre.name}"></td>
+                <td data-label="정렬순서" th:text="${genre.displayOrder}"></td>
+                <td data-label="사용여부">
+                    <span class="status" th:classappend="${genre.useYn == 'Y'} ? 'active' : 'inactive'"
+                          th:text="${genre.useYn == 'Y'} ? '사용' : '미사용'"></span>
+                </td>
+                <td data-label="등록일" th:text="${#temporals.format(genre.createdAt, 'yyyy-MM-dd')}"></td>
+                <td class="action-buttons" data-label="" onclick="event.stopPropagation()">
+                    <button class="btn btn-sm btn-edit" th:data-id="${genre.id}" onclick="editGenre(this.dataset.id)">수정</button>
+                    <button class="btn btn-sm btn-toggle" th:data-id="${genre.id}" onclick="toggleGenreStatus(this.dataset.id)">상태변경</button>
+                    <button class="btn btn-sm btn-delete" th:data-id="${genre.id}" onclick="deleteGenre(this.dataset.id)">삭제</button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(genres)}">
+                <td colspan="8" class="empty-row">등록된 장르가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이징 -->
+    <div class="pagination" th:if="${totalPages > 0}">
+        <a href="javascript:void(0)" onclick="loadGenrePage(0)" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">«</a>
+        <a href="javascript:void(0)" th:onclick="'loadGenrePage(' + ${currentPage - 1} + ')'" th:classappend="${currentPage == 0} ? 'disabled'" class="page-link">‹</a>
+
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+               href="javascript:void(0)"
+               th:onclick="'loadGenrePage(' + ${i} + ')'"
+               th:text="${i + 1}"
+               th:classappend="${i == currentPage} ? 'active'" class="page-link"></a>
+        </th:block>
+
+        <a href="javascript:void(0)" th:onclick="'loadGenrePage(' + ${currentPage + 1} + ')'" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">›</a>
+        <a href="javascript:void(0)" th:onclick="'loadGenrePage(' + ${totalPages - 1} + ')'" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'" class="page-link">»</a>
+    </div>
+
+    <!-- 장르 모달 -->
+    <div id="genreModal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2 id="genreModalTitle">장르 추가</h2>
+                <button class="close-btn" onclick="closeGenreModal()">&times;</button>
+            </div>
+            <form id="genreForm" class="modal-form">
+                <input type="hidden" id="genreId" name="id">
+                <div class="form-group">
+                    <label for="code">코드 *</label>
+                    <input type="text" id="code" name="code" required placeholder="예: KPOP" maxlength="30">
+                    <small class="form-hint">영문 대문자, 숫자, 언더스코어 사용</small>
+                </div>
+                <div class="form-group">
+                    <label for="name">장르명 *</label>
+                    <input type="text" id="name" name="name" required placeholder="예: K-POP">
+                </div>
+                <div class="form-group">
+                    <label for="displayOrder">정렬순서</label>
+                    <input type="number" id="displayOrder" name="displayOrder" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>사용여부</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="useYn" value="Y" checked> 사용
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="useYn" value="N"> 미사용
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeGenreModal()">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:src="@{/js/admin/admin-genre.js}"></script>
+    <script th:inline="javascript">
+    var genreSort = /*[[${sort}]]*/ 'displayOrder';
+    var genreDirection = /*[[${direction}]]*/ 'asc';
+    </script>
+</div>

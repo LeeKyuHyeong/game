@@ -24,10 +24,18 @@ public class AdminBatchController {
     private final BatchScheduler batchScheduler;
 
     /**
-     * 배치 목록 페이지
+     * 기존 URL → 통합 시스템 설정 페이지로 리다이렉트
      */
-    @GetMapping
-    public String list(Model model) {
+    @GetMapping({"", "/"})
+    public String redirectToSystem() {
+        return "redirect:/admin/system?tab=batch";
+    }
+
+    /**
+     * AJAX 로딩용 배치 목록 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String listContent(Model model) {
         List<BatchConfig> batches = batchService.findAll();
 
         long totalCount = batches.size();
@@ -40,9 +48,9 @@ public class AdminBatchController {
         model.addAttribute("implementedCount", implementedCount);
         model.addAttribute("enabledCount", enabledCount);
         model.addAttribute("scheduledCount", scheduledCount);
-        model.addAttribute("menu", "batch");
+        model.addAttribute("menu", "system");
 
-        return "admin/batch/list";
+        return "admin/batch/fragments/batch";
     }
 
     /**

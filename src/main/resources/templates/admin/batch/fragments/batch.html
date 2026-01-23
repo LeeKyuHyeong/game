@@ -1,0 +1,238 @@
+<!-- 배치 관리 탭 콘텐츠 (AJAX 로딩용) -->
+<div class="tab-panel batch-panel batch-stats" xmlns:th="http://www.thymeleaf.org">
+    <link rel="stylesheet" th:href="@{/css/admin/mobile-stats.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/batch.css}">
+
+    <div class="panel-header">
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="refreshBatchSchedules()">스케줄 새로고침</button>
+            <button class="btn btn-primary" onclick="runAllBatches()">전체 수동 실행</button>
+        </div>
+    </div>
+
+    <!-- 통계 카드 -->
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="stat-icon">설정</div>
+            <div class="stat-info">
+                <span class="stat-value" th:text="${totalCount}">0</span>
+                <span class="stat-label">전체 배치</span>
+            </div>
+        </div>
+        <div class="stat-card implemented">
+            <div class="stat-icon">완료</div>
+            <div class="stat-info">
+                <span class="stat-value" th:text="${implementedCount}">0</span>
+                <span class="stat-label">구현 완료</span>
+            </div>
+        </div>
+        <div class="stat-card enabled">
+            <div class="stat-icon">실행</div>
+            <div class="stat-info">
+                <span class="stat-value" th:text="${enabledCount}">0</span>
+                <span class="stat-label">활성화</span>
+            </div>
+        </div>
+        <div class="stat-card scheduled">
+            <div class="stat-icon">예약</div>
+            <div class="stat-info">
+                <span class="stat-value" th:text="${scheduledCount}">0</span>
+                <span class="stat-label">스케줄 등록</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 필터 -->
+    <div class="batch-filters">
+        <div class="filter-group">
+            <label>우선순위</label>
+            <select id="filterPriority" onchange="filterBatches()">
+                <option value="">전체</option>
+                <option value="HIGH">HIGH</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="LOW">LOW</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>상태</label>
+            <select id="filterStatus" onchange="filterBatches()">
+                <option value="">전체</option>
+                <option value="enabled">활성화</option>
+                <option value="disabled">비활성화</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>실행 결과</label>
+            <select id="filterResult" onchange="filterBatches()">
+                <option value="">전체</option>
+                <option value="SUCCESS">성공</option>
+                <option value="FAIL">실패</option>
+                <option value="never">미실행</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 배치 그리드 -->
+    <div class="batch-grid">
+        <div th:each="batch : ${batches}" class="batch-card"
+             th:classappend="${!batch.implemented} ? 'not-implemented' : (${!batch.enabled} ? 'disabled' : '')"
+             th:data-batch-id="${batch.batchId}"
+             th:data-batch-name="${batch.name}"
+             th:data-priority="${batch.priority}"
+             th:data-enabled="${batch.enabled}"
+             th:data-result="${batch.lastResult}">
+            <div class="batch-header">
+                <div class="batch-title-row">
+                    <h3 class="batch-name" th:text="${batch.name}">배치명</h3>
+                    <div class="batch-badges">
+                        <span class="batch-status"
+                              th:classappend="${batch.implemented} ? 'implemented' : 'not-implemented'"
+                              th:text="${batch.implemented} ? '구현됨' : '미구현'">구현됨</span>
+                        <span class="batch-enabled"
+                              th:classappend="${batch.enabled} ? 'on' : 'off'"
+                              th:text="${batch.enabled} ? 'ON' : 'OFF'">ON</span>
+                    </div>
+                </div>
+                <span class="batch-priority" th:classappend="${batch.priority != null ? batch.priority.name().toLowerCase() : 'medium'}" th:text="${batch.priority != null ? batch.priority : 'MEDIUM'}">HIGH</span>
+            </div>
+
+            <p class="batch-description" th:text="${batch.description}">배치 설명</p>
+
+            <div class="batch-info">
+                <div class="info-row">
+                    <span class="info-label">실행 주기</span>
+                    <span class="info-value" th:text="${batch.scheduleText}">매시간</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">대상</span>
+                    <span class="info-value"><code th:text="${batch.targetEntity}">Entity</code></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Cron</span>
+                    <span class="info-value"><code class="cron-expr" th:text="${batch.cronExpression}">0 0 * * * *</code></span>
+                </div>
+            </div>
+
+            <div class="batch-execution">
+                <div class="execution-info">
+                    <div class="exec-item">
+                        <span class="exec-label">마지막 실행</span>
+                        <span class="exec-value" th:text="${batch.lastExecutedAt != null} ? ${#temporals.format(batch.lastExecutedAt, 'MM-dd HH:mm')} : '-'">-</span>
+                    </div>
+                    <div class="exec-item">
+                        <span class="exec-label">결과</span>
+                        <span class="exec-value" th:if="${batch.lastResult != null}"
+                              th:classappend="${batch.lastResult.name() == 'SUCCESS'} ? 'success' : 'fail'"
+                              th:text="${batch.lastResult}">-</span>
+                        <span class="exec-value" th:if="${batch.lastResult == null}">-</span>
+                    </div>
+                    <div class="exec-item" th:if="${batch.lastAffectedCount != null}">
+                        <span class="exec-label">처리</span>
+                        <span class="exec-value" th:text="${batch.lastAffectedCount} + '건'">0건</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="batch-actions">
+                <button class="btn btn-sm btn-info btn-detail">상세</button>
+                <button class="btn btn-sm btn-secondary btn-edit">설정</button>
+                <button class="btn btn-sm btn-toggle"
+                        th:classappend="${batch.enabled} ? 'btn-warning' : 'btn-success'"
+                        th:text="${batch.enabled} ? '비활성화' : '활성화'">비활성화</button>
+                <button class="btn btn-sm btn-primary btn-run"
+                        th:disabled="${!batch.implemented}"
+                        th:data-implemented="${batch.implemented}">
+                    <span th:if="${batch.implemented}">수동 실행</span>
+                    <span th:if="${!batch.implemented}">미구현</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 범례 -->
+    <div class="batch-legend">
+        <h4>범례</h4>
+        <div class="legend-items">
+            <div class="legend-group">
+                <span class="legend-title">우선순위</span>
+                <span class="legend-item"><span class="priority-dot high"></span> HIGH - 핵심 운영</span>
+                <span class="legend-item"><span class="priority-dot medium"></span> MEDIUM - 성능/품질</span>
+                <span class="legend-item"><span class="priority-dot low"></span> LOW - 부가 기능</span>
+            </div>
+            <div class="legend-group">
+                <span class="legend-title">상태</span>
+                <span class="legend-item"><span class="status-dot implemented"></span> 구현됨</span>
+                <span class="legend-item"><span class="status-dot not-implemented"></span> 미구현</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 배치 상세 모달 -->
+    <div id="batchDetailModal" class="modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2 id="batchDetailTitle">배치 상세</h2>
+                <button class="close-btn" onclick="closeBatchModal('batchDetailModal')">X</button>
+            </div>
+            <div class="modal-body" id="batchDetailContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeBatchModal('batchDetailModal')">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 배치 설정 수정 모달 -->
+    <div id="batchEditModal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>배치 설정 수정</h2>
+                <button class="close-btn" onclick="closeBatchModal('batchEditModal')">X</button>
+            </div>
+            <form id="batchEditForm" class="modal-form">
+                <input type="hidden" id="editBatchId" name="batchId">
+                <div class="form-group">
+                    <label>배치명</label>
+                    <input type="text" id="editBatchName" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="editCronExpression">Cron 표현식 *</label>
+                    <input type="text" id="editCronExpression" name="cronExpression" required placeholder="예: 0 30 * * * *">
+                    <small class="form-hint">초 분 시 일 월 요일 형식 (Spring 6자리)</small>
+                </div>
+                <div class="form-group">
+                    <label for="editScheduleText">실행 주기 설명</label>
+                    <input type="text" id="editScheduleText" name="scheduleText" placeholder="예: 매시간 30분">
+                </div>
+                <div class="cron-presets">
+                    <label>빠른 설정:</label>
+                    <div class="preset-buttons">
+                        <button type="button" class="btn btn-xs" onclick="setCronPreset('0 0 * * * *', '매시간')">매시간</button>
+                        <button type="button" class="btn btn-xs" onclick="setCronPreset('0 30 * * * *', '매시간 30분')">매시간 30분</button>
+                        <button type="button" class="btn btn-xs" onclick="setCronPreset('0 0 3 * * *', '매일 03:00')">매일 03시</button>
+                        <button type="button" class="btn btn-xs" onclick="setCronPreset('0 0 0 * * *', '매일 00:00')">매일 자정</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeBatchModal('batchEditModal')">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 실행 중 모달 -->
+    <div id="runningModal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>배치 실행 중</h2>
+            </div>
+            <div class="modal-body running-modal-body">
+                <div class="running-spinner"></div>
+                <p id="runningBatchName">배치를 실행하고 있습니다...</p>
+                <div id="runningProgress" class="running-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/admin/admin-batch.js}"></script>
+</div>

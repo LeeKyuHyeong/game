@@ -1,0 +1,151 @@
+<!-- 랭킹 탭 콘텐츠 (AJAX 로딩용) -->
+<div class="tab-panel ranking-panel" xmlns:th="http://www.thymeleaf.org">
+    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/history-index.css}">
+
+    <!-- 랭킹 타입 선택 -->
+    <div class="ranking-type-selector">
+        <select id="rankingType" onchange="changeRankingType(this.value)">
+            <option value="guess" th:selected="${rankType == 'guess'}">솔로 전체 점수</option>
+            <option value="weekly" th:selected="${rankType == 'weekly'}">솔로 주간 점수</option>
+            <option value="best" th:selected="${rankType == 'best'}">솔로 30곡 챌린지</option>
+            <option value="multi" th:selected="${rankType == 'multi'}">멀티 티어 랭킹</option>
+            <option value="weeklyMulti" th:selected="${rankType == 'weeklyMulti'}">멀티 주간 점수</option>
+            <option value="retro" th:selected="${rankType == 'retro'}">레트로 전체 점수</option>
+            <option value="retroWeekly" th:selected="${rankType == 'retroWeekly'}">레트로 주간 점수</option>
+            <option value="retroBest" th:selected="${rankType == 'retroBest'}">레트로 30곡 챌린지</option>
+            <option value="fan" th:selected="${rankType == 'fan'}">팬 챌린지</option>
+            <option value="fanPerfect" th:selected="${rankType == 'fanPerfect'}">퍼펙트 클리어</option>
+        </select>
+    </div>
+
+    <!-- 아티스트 선택 (팬 챌린지용) -->
+    <div id="artistSelector" class="filter-section" th:if="${rankType == 'fan'}" style="display: none;">
+        <div class="filter-group">
+            <label>아티스트 선택</label>
+            <select id="fanArtist" onchange="loadFanArtistRanking(this.value)">
+                <option value="">아티스트를 선택하세요</option>
+                <th:block th:each="stat : ${fanArtistStats}">
+                    <option th:value="${stat.artist}"
+                            th:text="${stat.artist} + ' (' + ${stat.challengeCount} + '명)'"
+                            th:selected="${selectedArtist == stat.artist}"></option>
+                </th:block>
+            </select>
+        </div>
+    </div>
+
+    <!-- 멀티 티어 분포 (멀티 랭킹용) -->
+    <div id="tierDistribution" class="tier-distribution" th:if="${rankType == 'multi'}">
+        <h4>티어 분포</h4>
+        <div class="tier-bars">
+            <th:block th:each="entry : ${multiTierDistribution}">
+                <div class="tier-bar">
+                    <span class="tier-name" th:text="${entry.key}"></span>
+                    <div class="tier-bar-fill"
+                         th:style="'width: ' + (${totalMultiPlayers > 0 ? (entry.value * 100 / totalMultiPlayers) : 0}) + '%'"></div>
+                    <span class="tier-count" th:text="${entry.value}"></span>
+                </div>
+            </th:block>
+        </div>
+    </div>
+
+    <!-- 랭킹 테이블 -->
+    <div class="table-container">
+        <table class="data-table ranking-table">
+            <thead>
+            <tr>
+                <th class="col-rank">순위</th>
+                <th>닉네임</th>
+                <th th:if="${rankType != 'multi'}">점수</th>
+                <th th:if="${rankType == 'multi'}">티어</th>
+                <th th:if="${rankType == 'multi'}">LP</th>
+                <th th:if="${rankType == 'fan' or rankType == 'fanPerfect'}">아티스트</th>
+                <th th:if="${rankType == 'fan' or rankType == 'fanPerfect'}">난이도</th>
+                <th>달성일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- 회원 랭킹 (솔로/멀티/레트로) -->
+            <tr th:each="member, iterStat : ${memberRankings}" th:if="${memberRankings != null}">
+                <td data-label="순위" class="rank-cell">
+                    <span class="rank-badge"
+                          th:classappend="${iterStat.index < 3} ? ('rank-' + (${iterStat.index + 1}))">
+                        <span th:text="${iterStat.index + 1}"></span>
+                    </span>
+                </td>
+                <td data-label="닉네임" th:text="${member.nickname}"></td>
+                <td data-label="점수" th:if="${rankType != 'multi'}"
+                    th:text="${rankType.contains('retro')} ? ${member.retroTotalScore} : ${member.guessTotalScore}"></td>
+                <td data-label="티어" th:if="${rankType == 'multi'}">
+                    <span class="tier-badge" th:classappend="${member.multiTier != null ? member.multiTier.name().toLowerCase() : 'bronze'}"
+                          th:text="${member.multiTier != null ? member.multiTier.name() : 'BRONZE'}"></span>
+                </td>
+                <td data-label="LP" th:if="${rankType == 'multi'}" th:text="${member.multiLp}"></td>
+                <td data-label="달성일" th:text="${member.lastLoginAt != null ? #temporals.format(member.lastLoginAt, 'yyyy-MM-dd') : '-'}"></td>
+            </tr>
+
+            <!-- 팬 챌린지 랭킹 -->
+            <tr th:each="record, iterStat : ${fanRankings}" th:if="${fanRankings != null}">
+                <td data-label="순위" class="rank-cell">
+                    <span class="rank-badge"
+                          th:classappend="${iterStat.index < 3} ? ('rank-' + (${iterStat.index + 1}))">
+                        <span th:text="${iterStat.index + 1}"></span>
+                    </span>
+                </td>
+                <td data-label="닉네임" th:text="${record.member.nickname}"></td>
+                <td data-label="점수" th:text="${record.correctCount} + '/' + ${record.totalSongs}"></td>
+                <td data-label="아티스트" th:text="${record.artist}"></td>
+                <td data-label="난이도" th:text="${record.difficulty.displayName}"></td>
+                <td data-label="달성일" th:text="${#temporals.format(record.achievedAt, 'yyyy-MM-dd')}"></td>
+            </tr>
+
+            <tr th:if="${(memberRankings == null or memberRankings.isEmpty()) and (fanRankings == null or fanRankings.isEmpty())}">
+                <td colspan="6" class="empty-row">랭킹 데이터가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    function changeRankingType(type) {
+        const container = document.getElementById('tabContent');
+        container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
+
+        fetch('/admin/ranking/content?rankType=' + type)
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                // 팬 챌린지일 때 아티스트 선택기 표시
+                const artistSelector = document.getElementById('artistSelector');
+                if (type === 'fan' && artistSelector) {
+                    artistSelector.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                container.innerHTML = '<div class="error-message">콘텐츠를 불러오는데 실패했습니다.</div>';
+                console.error('Error loading ranking:', error);
+            });
+    }
+
+    function loadFanArtistRanking(artist) {
+        if (!artist) return;
+
+        const container = document.getElementById('tabContent');
+        container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
+
+        fetch('/admin/ranking/content?rankType=fan&artist=' + encodeURIComponent(artist))
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                const artistSelector = document.getElementById('artistSelector');
+                if (artistSelector) {
+                    artistSelector.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                container.innerHTML = '<div class="error-message">콘텐츠를 불러오는데 실패했습니다.</div>';
+                console.error('Error loading fan ranking:', error);
+            });
+    }
+    </script>
+</div>

@@ -28,17 +28,11 @@ public class AdminSongController {
     private final GenreService genreService;
 
     /**
-     * 통합 노래 관리 페이지 (노래 목록 + 곡 신고)
+     * 기존 URL → 통합 콘텐츠 페이지로 리다이렉트
      */
     @GetMapping({"", "/"})
-    public String songIndex(@RequestParam(defaultValue = "song") String tab, Model model) {
-        model.addAttribute("activeTab", tab);
-        model.addAttribute("menu", "song");
-
-        // 노래 폼에 필요한 장르 목록
-        model.addAttribute("genres", genreService.findActiveGenres());
-
-        return "admin/song/index";
+    public String redirectToContent(@RequestParam(defaultValue = "song") String tab) {
+        return "redirect:/admin/content?tab=" + tab;
     }
 
     /**
@@ -74,7 +68,7 @@ public class AdminSongController {
         model.addAttribute("size", size);
         model.addAttribute("totalPages", songPage.getTotalPages());
         model.addAttribute("totalItems", songPage.getTotalElements());
-        model.addAttribute("menu", "song");
+        model.addAttribute("menu", "content");
 
         // Filter parameters
         model.addAttribute("keyword", keyword);

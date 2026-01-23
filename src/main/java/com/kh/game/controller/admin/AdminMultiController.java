@@ -23,12 +23,20 @@ public class AdminMultiController {
     private final GameRoomChatRepository gameRoomChatRepository;
 
     /**
-     * 통합 멀티게임 관리 페이지
+     * 기존 URL → 통합 게임 관리 페이지로 리다이렉트
      */
     @GetMapping({"", "/"})
-    public String multiIndex(@RequestParam(defaultValue = "room") String tab, Model model) {
-        model.addAttribute("activeTab", tab);
-        model.addAttribute("menu", "multi");
+    public String redirectToGame(@RequestParam(defaultValue = "multi") String tab) {
+        return "redirect:/admin/game?tab=" + tab;
+    }
+
+    /**
+     * AJAX 로딩용 멀티게임 콘텐츠 (fragment)
+     */
+    @GetMapping("/content")
+    public String multiContent(@RequestParam(defaultValue = "room") String subTab, Model model) {
+        model.addAttribute("activeSubTab", subTab);
+        model.addAttribute("menu", "game");
 
         // 방 통계
         long totalRooms = gameRoomRepository.count();
@@ -48,6 +56,6 @@ public class AdminMultiController {
         model.addAttribute("totalChats", totalChats);
         model.addAttribute("todayChats", todayChats);
 
-        return "admin/multi/index";
+        return "admin/multi/fragments/multi";
     }
 }

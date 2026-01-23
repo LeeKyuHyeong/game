@@ -1,0 +1,77 @@
+<!-- 멀티게임 관리 탭 콘텐츠 (AJAX 로딩용) -->
+<div class="tab-panel multi-panel" xmlns:th="http://www.thymeleaf.org">
+    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+
+    <!-- 통계 카드 -->
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="stat-value" th:text="${totalRooms}">0</div>
+            <div class="stat-label">전체 방</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" th:text="${waitingCount}">0</div>
+            <div class="stat-label">대기 중</div>
+        </div>
+        <div class="stat-card active">
+            <div class="stat-value" th:text="${playingCount}">0</div>
+            <div class="stat-label">게임 중</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" th:text="${finishedCount}">0</div>
+            <div class="stat-label">종료</div>
+        </div>
+    </div>
+
+    <!-- 서브탭 네비게이션 -->
+    <div class="sub-tab-navigation">
+        <button class="sub-tab-btn" th:classappend="${activeSubTab == 'room'} ? 'active'"
+                data-subtab="room" onclick="loadMultiSubTab('room')">
+            방 관리
+        </button>
+        <button class="sub-tab-btn" th:classappend="${activeSubTab == 'chat'} ? 'active'"
+                data-subtab="chat" onclick="loadMultiSubTab('chat')">
+            채팅 내역
+        </button>
+    </div>
+
+    <!-- 서브탭 콘텐츠 -->
+    <div class="sub-tab-content" id="multiSubTabContent">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <span>로딩 중...</span>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+    var multiActiveSubTab = /*[[${activeSubTab}]]*/ 'room';
+
+    function loadMultiSubTab(subTab) {
+        multiActiveSubTab = subTab;
+        document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector('[data-subtab="' + subTab + '"]').classList.add('active');
+
+        const container = document.getElementById('multiSubTabContent');
+        container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
+
+        let url = '';
+        if (subTab === 'room') {
+            url = '/admin/room/content';
+        } else if (subTab === 'chat') {
+            url = '/admin/chat/content';
+        }
+
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                container.innerHTML = '<div class="error-message">콘텐츠를 불러오는데 실패했습니다.</div>';
+                console.error('Error loading sub tab:', error);
+            });
+    }
+
+    // 초기 로드 - AJAX 동적 로드이므로 바로 실행
+    loadMultiSubTab(multiActiveSubTab);
+    </script>
+</div>

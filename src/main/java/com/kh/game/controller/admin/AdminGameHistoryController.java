@@ -35,20 +35,11 @@ public class AdminGameHistoryController {
     private final FanChallengeService fanChallengeService;
 
     /**
-     * 통합 게임 관리 페이지 (게임 이력 + 랭킹)
+     * 기존 URL → 통합 게임 관리 페이지로 리다이렉트
      */
     @GetMapping({"", "/"})
-    public String historyIndex(@RequestParam(defaultValue = "history") String tab, Model model) {
-        model.addAttribute("activeTab", tab);
-        model.addAttribute("menu", "history");
-
-        // 통계
-        model.addAttribute("todayCount", gameSessionService.getTodayGameCount());
-        model.addAttribute("avgScore", gameSessionService.getAverageScore());
-        // 전체 게임 수는 페이지 로딩 시 첫 content 로드에서 표시
-        model.addAttribute("totalGames", gameSessionService.findAll(PageRequest.of(0, 1)).getTotalElements());
-
-        return "admin/history/index";
+    public String redirectToGame(@RequestParam(defaultValue = "history") String tab) {
+        return "redirect:/admin/game?tab=" + tab;
     }
 
     /**
@@ -87,6 +78,7 @@ public class AdminGameHistoryController {
         model.addAttribute("totalItems", sessionPage.getTotalElements());
         model.addAttribute("todayCount", gameSessionService.getTodayGameCount());
         model.addAttribute("avgScore", gameSessionService.getAverageScore());
+        model.addAttribute("menu", "game");
 
         return "admin/history/fragments/history";
     }
