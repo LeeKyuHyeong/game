@@ -307,7 +307,7 @@
    ======================================== */
 .bento-challenge-top {
     grid-column: span 4;
-    overflow: visible;
+    overflow: hidden;
 }
 
 .bento-challenge-top .bento-card-header {
@@ -352,6 +352,9 @@
 /* 탭 콘텐츠 */
 .challenge-content {
     display: none;
+    min-width: 0;
+    overflow: hidden;
+    width: 100%;
 }
 
 .challenge-content.active {
@@ -369,6 +372,7 @@
     cursor: grab;
     margin-top: 0.5rem;
     width: 100%;
+    min-width: 0;
     touch-action: pan-x;
 }
 
@@ -1130,7 +1134,7 @@
         grid-column: span 2;
         text-align: left;
         align-items: flex-start;
-        overflow: visible;
+        overflow: hidden;
     }
 
     .bento-challenge-top .bento-card-header {
@@ -1153,8 +1157,17 @@
         gap: 0.5rem;
         width: 100%;
         overflow-x: auto;
+        overflow-y: hidden;
         touch-action: pan-x;
         -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 0.5rem;
+        margin-bottom: -0.25rem;
+    }
+
+    .artist-scroll .artist-card {
+        scroll-snap-align: start;
+        flex-shrink: 0;
     }
 
     .artist-card {
