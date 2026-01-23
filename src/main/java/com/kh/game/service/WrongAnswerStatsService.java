@@ -8,12 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -232,37 +230,6 @@ public class WrongAnswerStatsService {
         return stats;
     }
 
-    // ========================================
-    // 정크 데이터 필터링 적용 메서드들
-    // ========================================
-
-    /**
-     * 정크 데이터를 제외한 가장 흔한 오답 (필터링 적용)
-     */
-    public List<Map<String, Object>> getMostCommonWrongAnswersFiltered(int limit) {
-        List<Object[]> results = attemptRepository.findMostCommonWrongAnswers();
-        List<Map<String, Object>> wrongAnswers = new ArrayList<>();
-
-        int count = 0;
-        for (Object[] row : results) {
-            if (count >= limit) break;
-
-            String answer = (String) row[0];
-            // 정크 데이터 제외
-            if (JunkInputFilter.isJunkInput(answer)) {
-                continue;
-            }
-
-            Map<String, Object> item = new HashMap<>();
-            item.put("answer", answer);
-            item.put("count", row[1]);
-            wrongAnswers.add(item);
-            count++;
-        }
-
-        return wrongAnswers;
-    }
-
     /**
      * 정크 데이터를 제외한 오답+곡 쌍 (필터링 적용)
      */
@@ -286,63 +253,6 @@ public class WrongAnswerStatsService {
             item.put("songTitle", row[2]);
             item.put("artist", row[3]);
             item.put("count", row[4]);
-            wrongAnswers.add(item);
-            count++;
-        }
-
-        return wrongAnswers;
-    }
-
-    /**
-     * 최근 오답 (정크 데이터 제외)
-     */
-    public List<Map<String, Object>> getRecentWrongAnswersFiltered(int limit) {
-        List<Object[]> results = attemptRepository.findRecentWrongAnswers();
-        List<Map<String, Object>> recentWrong = new ArrayList<>();
-
-        int count = 0;
-        for (Object[] row : results) {
-            if (count >= limit) break;
-
-            String userAnswer = (String) row[0];
-            // 정크 데이터 제외
-            if (JunkInputFilter.isJunkInput(userAnswer)) {
-                continue;
-            }
-
-            Map<String, Object> item = new HashMap<>();
-            item.put("userAnswer", userAnswer);
-            item.put("songTitle", row[1]);
-            item.put("artist", row[2]);
-            item.put("createdAt", row[3]);
-
-            recentWrong.add(item);
-            count++;
-        }
-
-        return recentWrong;
-    }
-
-    /**
-     * 특정 곡에 대한 오답 (정크 데이터 제외)
-     */
-    public List<Map<String, Object>> getWrongAnswersForSongFiltered(Long songId, int limit) {
-        List<Object[]> results = attemptRepository.findMostCommonWrongAnswersBySong(songId);
-        List<Map<String, Object>> wrongAnswers = new ArrayList<>();
-
-        int count = 0;
-        for (Object[] row : results) {
-            if (count >= limit) break;
-
-            String answer = (String) row[0];
-            // 정크 데이터 제외
-            if (JunkInputFilter.isJunkInput(answer)) {
-                continue;
-            }
-
-            Map<String, Object> item = new HashMap<>();
-            item.put("answer", answer);
-            item.put("count", row[1]);
             wrongAnswers.add(item);
             count++;
         }
@@ -452,7 +362,6 @@ public class WrongAnswerStatsService {
 
         long totalCount = 0;
         long junkCount = 0;
-        Map<String, Long> junkTypeCount = new HashMap<>();
 
         for (Object[] row : allWrong) {
             String answer = (String) row[0];
@@ -461,8 +370,6 @@ public class WrongAnswerStatsService {
 
             if (JunkInputFilter.isJunkInput(answer)) {
                 junkCount += count;
-                String junkType = JunkInputFilter.getJunkType(answer);
-                junkTypeCount.merge(junkType, count, Long::sum);
             }
         }
 
@@ -470,7 +377,6 @@ public class WrongAnswerStatsService {
         summary.put("junkCount", junkCount);
         summary.put("validCount", totalCount - junkCount);
         summary.put("junkRate", totalCount > 0 ? Math.round(junkCount * 1000.0 / totalCount) / 10.0 : 0);
-        summary.put("junkTypeBreakdown", junkTypeCount);
 
         return summary;
     }

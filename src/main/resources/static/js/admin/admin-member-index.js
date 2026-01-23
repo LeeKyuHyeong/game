@@ -2,8 +2,8 @@
  * Admin Member Index Page - Tab Management & Member Functions
  */
 
-let currentTab = 'member';
-let currentMemberId = null;
+var currentTab = currentTab || 'member';
+var currentMemberId = currentMemberId || null;
 
 // ========== Initialization ==========
 
@@ -23,7 +23,8 @@ function switchTab(tab) {
     window.history.pushState({}, '', url);
 
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.tab-btn:nth-child(${tab === 'member' ? 1 : 2})`).classList.add('active');
+    const tabIndex = tab === 'member' ? 1 : tab === 'login' ? 2 : 3;
+    document.querySelector(`.tab-btn:nth-child(${tabIndex})`).classList.add('active');
 
     loadTabContent(tab);
 }
@@ -33,9 +34,14 @@ async function loadTabContent(tab, params = '') {
     tabContent.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
 
     try {
-        const url = tab === 'member'
-            ? `/admin/member/content${params ? '?' + params : ''}`
-            : `/admin/login-history/content${params ? '?' + params : ''}`;
+        let url;
+        if (tab === 'member') {
+            url = `/admin/member/content${params ? '?' + params : ''}`;
+        } else if (tab === 'login') {
+            url = `/admin/login-history/content${params ? '?' + params : ''}`;
+        } else {
+            url = `/admin/badword/content${params ? '?' + params : ''}`;
+        }
 
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to load content');

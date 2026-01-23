@@ -54,6 +54,42 @@
     color: white;
 }
 
+/* Sub-Tab Navigation (Fan/Genre/Stages) */
+.sub-tab-navigation {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sub-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.sub-tab-btn:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--primary-color);
+}
+
+.sub-tab-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    font-weight: 600;
+}
+
 /* Tab Content */
 .tab-content {
     min-height: 400px;
@@ -143,6 +179,18 @@
     .tab-icon {
         font-size: 1.3rem;
     }
+
+    .sub-tab-navigation {
+        flex-wrap: wrap;
+    }
+
+    .sub-tab-btn {
+        flex: 1;
+        min-width: 80px;
+        justify-content: center;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
 }
 
 /* ========================================
@@ -151,5 +199,10 @@
 @media (max-width: 480px) {
     .tab-btn {
         padding: 0.6rem 0.8rem;
+    }
+
+    .sub-tab-btn {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.8rem;
     }
 }

@@ -44,6 +44,11 @@
                 <span class="tab-icon">🔐</span>
                 <span class="tab-text">로그인 이력</span>
             </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'badword'} ? 'active'"
+                    onclick="switchTab('badword')">
+                <span class="tab-icon">🚫</span>
+                <span class="tab-text">비속어 필터</span>
+            </button>
         </div>
 
         <!-- 탭 콘텐츠 -->

@@ -2,8 +2,8 @@
  * Admin Multi Index Page - Room & Chat Management
  */
 
-let currentTab = 'room';
-let currentRoomId = null;
+var currentTab = currentTab || 'room';
+var currentRoomId = currentRoomId || null;
 
 // ========== Initialization ==========
 

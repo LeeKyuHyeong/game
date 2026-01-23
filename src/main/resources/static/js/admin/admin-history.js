@@ -1,6 +1,6 @@
 // admin-history.js - 게임 관리 페이지
 
-let currentTab = 'history';
+var currentTab = currentTab || 'history';
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', () => {

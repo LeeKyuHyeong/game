@@ -1,8 +1,15 @@
-const modal = document.getElementById('songModal');
-const modalTitle = document.getElementById('modalTitle');
-const songForm = document.getElementById('songForm');
+/**
+ * Admin Song Management - Modal and CRUD operations
+ * DOM 요소는 함수 내부에서 조회하여 로드 시점 문제 방지
+ */
 
 function openModal() {
+    const modal = document.getElementById('songModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const songForm = document.getElementById('songForm');
+
+    if (!modal || !modalTitle || !songForm) return;
+
     modalTitle.textContent = '노래 추가';
     songForm.reset();
     document.getElementById('songId').value = '';
@@ -14,12 +21,27 @@ function openModal() {
 }
 
 function closeModal() {
-    modal.classList.remove('show');
-    songForm.reset();
-    document.getElementById('currentYoutubeId').textContent = '';
+    const modal = document.getElementById('songModal');
+    const songForm = document.getElementById('songForm');
+
+    if (modal) {
+        modal.classList.remove('show');
+    }
+    if (songForm) {
+        songForm.reset();
+    }
+    const currentYoutubeId = document.getElementById('currentYoutubeId');
+    if (currentYoutubeId) {
+        currentYoutubeId.textContent = '';
+    }
 }
 
 async function editSong(id) {
+    const modal = document.getElementById('songModal');
+    const modalTitle = document.getElementById('modalTitle');
+
+    if (!modal || !modalTitle) return;
+
     try {
         const response = await fetch(`/admin/song/detail/${id}`);
         if (!response.ok) throw new Error('노래 정보를 불러올 수 없습니다.');
@@ -113,56 +135,71 @@ async function togglePopular(id) {
     }
 }
 
-songForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
+// 폼 제출 이벤트 - DOMContentLoaded 후 바인딩
+document.addEventListener('DOMContentLoaded', function() {
+    const songForm = document.getElementById('songForm');
+    const modal = document.getElementById('songModal');
 
-    const formData = new FormData();
+    if (songForm) {
+        songForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-    const songId = document.getElementById('songId').value;
-    if (songId) formData.append('id', songId);
+            const formData = new FormData();
 
-    formData.append('title', document.getElementById('title').value);
-    formData.append('artist', document.getElementById('artist').value);
-    formData.append('startTime', document.getElementById('startTime').value || 0);
-    formData.append('playDuration', document.getElementById('playDuration').value || 10);
+            const songId = document.getElementById('songId').value;
+            if (songId) formData.append('id', songId);
 
-    const genreId = document.getElementById('genreId').value;
-    if (genreId) formData.append('genreId', genreId);
+            formData.append('title', document.getElementById('title').value);
+            formData.append('artist', document.getElementById('artist').value);
+            formData.append('startTime', document.getElementById('startTime').value || 0);
+            formData.append('playDuration', document.getElementById('playDuration').value || 10);
 
-    const releaseYear = document.getElementById('releaseYear').value;
-    if (releaseYear) formData.append('releaseYear', releaseYear);
+            const genreId = document.getElementById('genreId').value;
+            if (genreId) formData.append('genreId', genreId);
 
-    formData.append('isSolo', document.querySelector('input[name="isSolo"]:checked').value);
-    formData.append('isPopular', document.querySelector('input[name="isPopular"]:checked').value);
-    formData.append('useYn', document.querySelector('input[name="useYn"]:checked').value);
+            const releaseYear = document.getElementById('releaseYear').value;
+            if (releaseYear) formData.append('releaseYear', releaseYear);
 
-    const youtubeUrl = document.getElementById('youtubeUrl').value;
-    if (youtubeUrl) formData.append('youtubeUrl', youtubeUrl);
+            formData.append('isSolo', document.querySelector('input[name="isSolo"]:checked').value);
+            formData.append('isPopular', document.querySelector('input[name="isPopular"]:checked').value);
+            formData.append('useYn', document.querySelector('input[name="useYn"]:checked').value);
 
-    try {
-        const response = await fetch('/admin/song/save', {
-            method: 'POST',
-            body: formData
+            const youtubeUrl = document.getElementById('youtubeUrl').value;
+            if (youtubeUrl) formData.append('youtubeUrl', youtubeUrl);
+
+            try {
+                const response = await fetch('/admin/song/save', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message);
+                    closeModal();
+                    refreshSongList();
+                } else {
+                    showToast(result.message);
+                }
+            } catch (error) {
+                showToast('저장 중 오류가 발생했습니다.');
+            }
         });
-
-        const result = await response.json();
-
-        if (result.success) {
-            showToast(result.message);
-            closeModal();
-            refreshSongList();
-        } else {
-            showToast(result.message);
-        }
-    } catch (error) {
-        showToast('저장 중 오류가 발생했습니다.');
     }
-});
 
-modal.addEventListener('click', function(e) {
-    if (e.target === modal) closeModal();
-});
+    // 모달 바깥 클릭 시 닫기
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeModal();
+        });
+    }
 
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
+    // ESC 키로 모달 닫기 (songModal 전용)
+    document.addEventListener('keydown', function(e) {
+        const songModal = document.getElementById('songModal');
+        if (e.key === 'Escape' && songModal && songModal.classList.contains('show')) {
+            closeModal();
+        }
+    });
 });

@@ -91,42 +91,4 @@ public class JunkInputFilter {
         return !isJunkInput(input);
     }
 
-    /**
-     * 정크 데이터 유형 반환 (디버깅/통계용)
-     */
-    public static String getJunkType(String input) {
-        if (input == null || input.isBlank()) {
-            return "EMPTY";
-        }
-
-        String normalized = input.trim().toLowerCase();
-
-        if (normalized.length() < MIN_INPUT_LENGTH) {
-            return "TOO_SHORT";
-        }
-
-        if (MEANINGLESS_INPUTS.contains(normalized)) {
-            return "MEANINGLESS";
-        }
-
-        if (SPECIAL_ONLY_PATTERN.matcher(normalized).matches()) {
-            return "SPECIAL_ONLY";
-        }
-
-        if (JAMO_ONLY_PATTERN.matcher(normalized).matches()) {
-            return "JAMO_ONLY";
-        }
-
-        if (REPEATED_CHAR_PATTERN.matcher(normalized).matches()) {
-            return "REPEATED_CHAR";
-        }
-
-        for (String pattern : KEYBOARD_SMASH_PATTERNS) {
-            if (normalized.contains(pattern)) {
-                return "KEYBOARD_SMASH";
-            }
-        }
-
-        return "VALID";
-    }
 }

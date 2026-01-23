@@ -2,8 +2,8 @@
  * Admin Challenge Index Page - Fan & Genre Challenge Management
  */
 
-let currentTab = 'fan';
-let genres = [];
+var currentTab = currentTab || 'fan';
+var genres = genres || [];
 
 // ========== Initialization ==========
 

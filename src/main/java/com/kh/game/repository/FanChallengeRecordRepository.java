@@ -75,6 +75,10 @@ public interface FanChallengeRecordRepository extends JpaRepository<FanChallenge
     @Query("SELECT DISTINCT r.artist FROM FanChallengeRecord r WHERE r.difficulty = 'HARDCORE' AND r.stageLevel = 1")
     List<String> findAllArtistsWithStage1Records();
 
+    // 기록이 있는 모든 아티스트 목록 (하드코어, 단계별)
+    @Query("SELECT DISTINCT r.artist FROM FanChallengeRecord r WHERE r.difficulty = 'HARDCORE' AND r.stageLevel = :stageLevel")
+    List<String> findAllArtistsWithStageRecords(@Param("stageLevel") int stageLevel);
+
     // 회원의 퍼펙트 클리어 고유 아티스트 수 (전체 난이도)
     @Query("SELECT COUNT(DISTINCT r.artist) FROM FanChallengeRecord r WHERE r.member = :member AND r.isPerfectClear = true")
     long countDistinctPerfectArtistsByMember(@Param("member") Member member);

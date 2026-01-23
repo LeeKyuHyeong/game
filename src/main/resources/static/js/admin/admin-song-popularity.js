@@ -173,7 +173,7 @@ async function viewSongDetail(button) {
         </div>
     `;
 
-    openModal('songDetailModal');
+    openPopularityModal('songDetailModal');
 
     try {
         const response = await fetch(`/admin/song-popularity/song/${songId}/votes`);
@@ -245,32 +245,38 @@ function renderSongVotes(data, container) {
     }
 }
 
-// ========== Modal Functions ==========
+// ========== Modal Functions (Popularity 전용) ==========
 
-function openModal(modalId) {
-    document.getElementById(modalId).classList.add('show');
-    document.body.style.overflow = 'hidden';
+function openPopularityModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('show');
-    document.body.style.overflow = '';
+function closePopularityModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
 }
 
-// ESC 키로 모달 닫기
+// ESC 키로 모달 닫기 (songDetailModal 전용)
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        const openModal = document.querySelector('.modal.show');
-        if (openModal) {
-            closeModal(openModal.id);
+        const songDetailModal = document.getElementById('songDetailModal');
+        if (songDetailModal && songDetailModal.classList.contains('show')) {
+            closePopularityModal('songDetailModal');
         }
     }
 });
 
-// 모달 바깥 클릭 시 닫기
+// 모달 바깥 클릭 시 닫기 (songDetailModal 전용)
 document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal')) {
-        closeModal(e.target.id);
+    if (e.target.id === 'songDetailModal' && e.target.classList.contains('modal')) {
+        closePopularityModal('songDetailModal');
     }
 });
 

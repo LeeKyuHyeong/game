@@ -3,7 +3,7 @@ let isUserLoggedIn = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
-    loadArtistChallengeRanking();
+    loadActiveStagesAndRanking();
     loadGenreChallengeRanking();
     loadRankingPreview();
 });
@@ -151,16 +151,90 @@ async function loadMyRanking() {
 // 챌린지 데이터 로드 상태
 let artistDataLoaded = false;
 let genreDataLoaded = false;
+let activeStages = [];
+let currentStageLevel = 1;
 
-async function loadArtistChallengeRanking() {
+// 활성화된 단계 목록 로드 후 랭킹 로드
+async function loadActiveStagesAndRanking() {
     try {
-        const response = await fetch('/game/fan-challenge/top-artists');
+        const response = await fetch('/game/fan-challenge/active-stages');
+        activeStages = await response.json();
+
+        // 단계 탭 렌더링 (2개 이상일 때만 표시)
+        renderStageTabs();
+
+        // 첫 번째 단계의 랭킹 로드
+        if (activeStages.length > 0) {
+            currentStageLevel = activeStages[0].level;
+            loadArtistChallengeRanking(currentStageLevel);
+        } else {
+            // 활성화된 단계가 없으면 기본값으로 로드
+            loadArtistChallengeRanking(1);
+        }
+    } catch (error) {
+        // 에러 시 기본값으로 로드
+        loadArtistChallengeRanking(1);
+    }
+}
+
+// 단계 탭 렌더링
+function renderStageTabs() {
+    const tabsContainer = document.getElementById('stageTabs');
+    if (!tabsContainer) return;
+
+    // 단계가 1개 이하면 탭 숨김
+    if (activeStages.length <= 1) {
+        tabsContainer.style.display = 'none';
+        return;
+    }
+
+    tabsContainer.style.display = 'flex';
+    let html = '';
+    activeStages.forEach((stage, index) => {
+        const activeClass = index === 0 ? 'active' : '';
+        html += `<button class="stage-tab ${activeClass}" data-level="${stage.level}" onclick="switchStageTab(${stage.level})">
+            ${stage.emoji || ''} ${stage.name || stage.level + '단계'}
+        </button>`;
+    });
+
+    tabsContainer.innerHTML = html;
+}
+
+// 단계 탭 전환
+function switchStageTab(stageLevel) {
+    currentStageLevel = stageLevel;
+
+    // 탭 버튼 활성화 상태 변경
+    const tabs = document.querySelectorAll('#stageTabs .stage-tab');
+    tabs.forEach(tab => {
+        if (parseInt(tab.dataset.level) === stageLevel) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+
+    // 해당 단계 랭킹 로드
+    loadArtistChallengeRanking(stageLevel);
+}
+
+async function loadArtistChallengeRanking(stageLevel = 1) {
+    try {
+        const response = await fetch(`/game/fan-challenge/top-artists?stageLevel=${stageLevel}`);
         const data = await response.json();
 
         const section = document.getElementById('bentoChallengeTop');
         const scroll = document.getElementById('artistRankingScroll');
 
-        if (!data || data.length === 0 || !section || !scroll) {
+        if (!section || !scroll) {
+            return;
+        }
+
+        // 데이터가 없어도 섹션은 표시 (탭은 보여야 함)
+        if (!data || data.length === 0) {
+            scroll.innerHTML = '<div class="artist-scroll-empty">아직 기록이 없습니다</div>';
+            section.classList.remove('hidden');
+            artistDataLoaded = true;
             return;
         }
 

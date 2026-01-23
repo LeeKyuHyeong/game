@@ -572,12 +572,35 @@ public class GameFanChallengeController {
     }
 
     /**
-     * 홈 페이지용 아티스트 TOP1 기록 조회 (HARDCORE stageLevel=1 모든 아티스트)
+     * 홈 페이지용 아티스트 TOP1 기록 조회 (HARDCORE 단계별)
      */
     @GetMapping("/top-artists")
     @ResponseBody
-    public ResponseEntity<List<Map<String, Object>>> getTopArtistsRanking() {
-        List<Map<String, Object>> result = fanChallengeService.getTopArtistsWithTopRecord();
+    public ResponseEntity<List<Map<String, Object>>> getTopArtistsRanking(
+            @RequestParam(required = false, defaultValue = "1") Integer stageLevel) {
+        List<Map<String, Object>> result = fanChallengeService.getTopArtistsWithTopRecord(stageLevel);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 홈 페이지용 활성화된 단계 목록 조회
+     */
+    @GetMapping("/active-stages")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getActiveStages() {
+        List<FanChallengeStageConfig> activeStages = stageService.getActiveStages();
+
+        List<Map<String, Object>> result = activeStages.stream()
+                .map(stage -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("level", stage.getStageLevel());
+                    item.put("name", stage.getStageName());
+                    item.put("emoji", stage.getStageEmoji());
+                    item.put("requiredSongs", stage.getRequiredSongs());
+                    return item;
+                })
+                .toList();
+
         return ResponseEntity.ok(result);
     }
 
