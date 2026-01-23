@@ -522,7 +522,6 @@ public class FanChallengeService {
     public List<Map<String, Object>> getTopArtistsWithTopRecord() {
         // 1. HARDCORE stageLevel=1 기록이 있는 모든 아티스트 목록
         List<String> allArtists = fanChallengeRecordRepository.findAllArtistsWithStage1Records();
-        log.info("[ArtistTop] stageLevel=1 기록이 있는 아티스트: {}개", allArtists.size());
 
         // 2. 아티스트별 곡 수 맵 (표시용)
         Map<String, Integer> artistSongCountMap = new HashMap<>();
@@ -564,7 +563,6 @@ public class FanChallengeService {
             return Long.compare(timeA, timeB);  // ASC
         });
 
-        log.info("[ArtistTop] 최종 결과: {}개 아티스트 반환", result.size());
         return result;
     }
 
