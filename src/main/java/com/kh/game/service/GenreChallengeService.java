@@ -382,6 +382,60 @@ public class GenreChallengeService {
     }
 
     /**
+     * 홈 페이지용 장르 TOP1 기록 조회 (HARDCORE 기록이 있는 모든 장르)
+     * 정렬: correctCount DESC → bestTimeMs ASC
+     */
+    public List<Map<String, Object>> getTopGenresWithTopRecord() {
+        // 1. HARDCORE 기록이 있는 모든 장르 코드 목록
+        List<String> allGenreCodes = genreChallengeRecordRepository.findAllGenreCodesWithHardcoreRecords();
+        log.info("[GenreTop] HARDCORE 기록이 있는 장르: {}개", allGenreCodes.size());
+
+        // 2. 장르 코드 → 이름 맵
+        Map<String, String> genreNameMap = new HashMap<>();
+        for (Genre g : genreRepository.findAll()) {
+            genreNameMap.put(g.getCode(), g.getName());
+        }
+
+        // 3. 각 장르별 1위 기록 조회
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (String genreCode : allGenreCodes) {
+            List<GenreChallengeRecord> topRecords = genreChallengeRecordRepository
+                    .findTopByGenreCodeAndHardcore(genreCode, org.springframework.data.domain.PageRequest.of(0, 1));
+
+            if (!topRecords.isEmpty()) {
+                GenreChallengeRecord top = topRecords.get(0);
+                Map<String, Object> item = new HashMap<>();
+                item.put("genreCode", genreCode);
+                item.put("genreName", genreNameMap.getOrDefault(genreCode, genreCode));
+                item.put("nickname", top.getMember().getNickname());
+                item.put("correctCount", top.getCorrectCount());
+                item.put("totalSongs", top.getTotalSongs());
+                item.put("maxCombo", top.getMaxCombo());
+                item.put("bestTimeMs", top.getBestTimeMs());
+                result.add(item);
+            }
+        }
+
+        // 4. 정렬: correctCount DESC → bestTimeMs ASC (null은 뒤로)
+        result.sort((a, b) -> {
+            int countA = (Integer) a.get("correctCount");
+            int countB = (Integer) b.get("correctCount");
+            if (countB != countA) {
+                return countB - countA;  // DESC
+            }
+            Long timeA = (Long) a.get("bestTimeMs");
+            Long timeB = (Long) b.get("bestTimeMs");
+            if (timeA == null && timeB == null) return 0;
+            if (timeA == null) return 1;  // null은 뒤로
+            if (timeB == null) return -1;
+            return Long.compare(timeA, timeB);  // ASC
+        });
+
+        log.info("[GenreTop] 최종 결과: {}개 장르 반환", result.size());
+        return result;
+    }
+
+    /**
      * 정답 결과 DTO
      */
     public record AnswerResult(

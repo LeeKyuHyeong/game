@@ -581,4 +581,15 @@ public class GameGenreChallengeController {
         result.put("success", true);
         return ResponseEntity.ok(result);
     }
+
+    /**
+     * 홈 페이지용 장르별 TOP1 기록 조회 API
+     * 정렬: correctCount DESC → bestTimeMs ASC
+     */
+    @GetMapping("/top-genres")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getTopGenresRanking() {
+        List<Map<String, Object>> result = genreChallengeService.getTopGenresWithTopRecord();
+        return ResponseEntity.ok(result);
+    }
 }

@@ -4,6 +4,7 @@ let isUserLoggedIn = false;
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
     loadArtistChallengeRanking();
+    loadGenreChallengeRanking();
     loadRankingPreview();
 });
 
@@ -147,12 +148,16 @@ async function loadMyRanking() {
     }
 }
 
+// 챌린지 데이터 로드 상태
+let artistDataLoaded = false;
+let genreDataLoaded = false;
+
 async function loadArtistChallengeRanking() {
     try {
         const response = await fetch('/game/fan-challenge/top-artists');
         const data = await response.json();
 
-        const section = document.getElementById('bentoArtistTop');
+        const section = document.getElementById('bentoChallengeTop');
         const scroll = document.getElementById('artistRankingScroll');
 
         if (!data || data.length === 0 || !section || !scroll) {
@@ -160,6 +165,7 @@ async function loadArtistChallengeRanking() {
         }
 
         section.classList.remove('hidden');
+        artistDataLoaded = true;
 
         // 서버에서 이미 정렬됨: correctCount DESC → bestTimeMs ASC
 
@@ -193,6 +199,80 @@ async function loadArtistChallengeRanking() {
         }
     } catch (error) {
         // console.error('아티스트 챌린지 랭킹 로딩 오류:', error);
+    }
+}
+
+async function loadGenreChallengeRanking() {
+    try {
+        const response = await fetch('/game/genre-challenge/top-genres');
+        const data = await response.json();
+
+        const section = document.getElementById('bentoChallengeTop');
+        const scroll = document.getElementById('genreRankingScroll');
+
+        if (!data || data.length === 0 || !section || !scroll) {
+            return;
+        }
+
+        // 아티스트 데이터가 없으면 장르 데이터로 섹션 표시
+        if (!artistDataLoaded) {
+            section.classList.remove('hidden');
+        }
+        genreDataLoaded = true;
+
+        // 서버에서 이미 정렬됨: correctCount DESC → bestTimeMs ASC
+
+        let html = '';
+        data.forEach(item => {
+            const scoreText = `${item.correctCount}/${item.totalSongs}`;
+            const timeHtml = item.bestTimeMs
+                ? `<div class="artist-card-time">${(item.bestTimeMs / 1000).toFixed(1)}s</div>`
+                : '';
+
+            html += `
+                <div class="artist-card">
+                    <div class="artist-card-icon">🎸</div>
+                    <div class="artist-card-name" title="${item.genreName}">${item.genreName}</div>
+                    <div class="artist-card-user">${item.nickname}</div>
+                    <div class="artist-card-score">${scoreText}</div>
+                    ${timeHtml}
+                </div>
+            `;
+        });
+
+        scroll.innerHTML = html;
+
+        // PC 드래그 스크롤 활성화
+        if (typeof enableDragScroll === 'function') {
+            enableDragScroll(scroll);
+        }
+    } catch (error) {
+        // console.error('장르 챌린지 랭킹 로딩 오류:', error);
+    }
+}
+
+// 탭 전환 함수
+function switchChallengeTab(tabType) {
+    // 탭 버튼 활성화 상태 변경
+    const tabs = document.querySelectorAll('.challenge-tab');
+    tabs.forEach(tab => {
+        if (tab.dataset.tab === tabType) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+
+    // 콘텐츠 표시 변경
+    const artistContent = document.getElementById('artistContent');
+    const genreContent = document.getElementById('genreContent');
+
+    if (tabType === 'artist') {
+        artistContent.classList.add('active');
+        genreContent.classList.remove('active');
+    } else {
+        artistContent.classList.remove('active');
+        genreContent.classList.add('active');
     }
 }
 

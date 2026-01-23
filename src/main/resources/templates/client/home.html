@@ -175,14 +175,27 @@
                 <span class="bento-action">바로가기 →</span>
             </a>
 
-            <!-- 7. 아티스트 챌린지 TOP (전체 너비) -->
-            <div class="bento-card bento-artist-top hidden" id="bentoArtistTop">
+            <!-- 7. 챌린지 TOP (탭: 아티스트 / 장르) -->
+            <div class="bento-card bento-challenge-top hidden" id="bentoChallengeTop">
                 <div class="bento-card-header">
                     <span class="bento-icon">🏆</span>
-                    <h2>아티스트 챌린지 TOP</h2>
+                    <h2>챌린지 TOP</h2>
+                    <div class="challenge-tabs">
+                        <button class="challenge-tab active" data-tab="artist" onclick="switchChallengeTab('artist')">아티스트</button>
+                        <button class="challenge-tab" data-tab="genre" onclick="switchChallengeTab('genre')">장르</button>
+                    </div>
                 </div>
-                <div class="artist-scroll" id="artistRankingScroll">
-                    <!-- JS에서 로딩 -->
+                <!-- 아티스트 챌린지 -->
+                <div class="challenge-content active" id="artistContent">
+                    <div class="artist-scroll" id="artistRankingScroll">
+                        <!-- JS에서 로딩 -->
+                    </div>
+                </div>
+                <!-- 장르 챌린지 -->
+                <div class="challenge-content" id="genreContent">
+                    <div class="artist-scroll" id="genreRankingScroll">
+                        <!-- JS에서 로딩 -->
+                    </div>
                 </div>
             </div>
         </div>

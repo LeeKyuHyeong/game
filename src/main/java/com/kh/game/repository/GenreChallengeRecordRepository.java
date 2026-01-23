@@ -120,6 +120,20 @@ public interface GenreChallengeRecordRepository extends JpaRepository<GenreChall
            "GROUP BY r.member.id ORDER BY maxCombo DESC")
     List<Object[]> findMaxComboRanking(Pageable pageable);
 
+    // ========== 홈 페이지용 쿼리 ==========
+
+    // HARDCORE 기록이 있는 모든 장르 코드 목록
+    @Query("SELECT DISTINCT r.genre.code FROM GenreChallengeRecord r " +
+           "WHERE r.difficulty = 'HARDCORE'")
+    List<String> findAllGenreCodesWithHardcoreRecords();
+
+    // 장르 코드로 1위 기록 조회 (정답수 DESC > 시간 ASC)
+    @Query("SELECT r FROM GenreChallengeRecord r " +
+           "WHERE r.genre.code = :genreCode AND r.difficulty = 'HARDCORE' " +
+           "ORDER BY r.correctCount DESC, COALESCE(r.bestTimeMs, 999999999) ASC")
+    List<GenreChallengeRecord> findTopByGenreCodeAndHardcore(
+            @Param("genreCode") String genreCode, Pageable pageable);
+
     // ========== 관리자 복합 필터 쿼리 ==========
 
     // 장르 + 난이도 필터
