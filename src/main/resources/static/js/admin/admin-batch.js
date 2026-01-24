@@ -1,6 +1,10 @@
-// 이벤트 바인딩
-document.addEventListener('DOMContentLoaded', function() {
+// 이벤트 바인딩 - AJAX 로드 후에도 동작하도록 즉시 실행
+(function initBatchEvents() {
     document.querySelectorAll('.batch-card').forEach(function(card) {
+        // 이미 바인딩되었으면 스킵
+        if (card.dataset.bound) return;
+        card.dataset.bound = 'true';
+
         var batchId = card.dataset.batchId;
         var batchName = card.dataset.batchName;
 
@@ -24,11 +28,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('batchEditForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        saveBatchConfig();
-    });
-});
+    var editForm = document.getElementById('batchEditForm');
+    if (editForm && !editForm.dataset.bound) {
+        editForm.dataset.bound = 'true';
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveBatchConfig();
+        });
+    }
+})();
 
 // 필터링 기능
 function filterBatches() {
@@ -138,7 +146,7 @@ function viewBatchDetail(batchId) {
             html += data.enabled ? '<span class="status-badge active">활성화</span>' : '<span class="status-badge inactive">비활성화</span>';
             if (data.isScheduled) html += '<span class="status-badge scheduled">스케줄됨</span>';
             html += '</span></div>';
-            html += '<div class="detail-item full-width"><span class="detail-label">설명</span><span class="detail-value">' + data.description + '</span></div>';
+            html += '<div class="detail-item full-width"><span class="detail-label">설명</span><span class="detail-value">' + escapeHtml(data.description) + '</span></div>';
             html += '</div>';
 
             if (data.lastExecutedAt) {
@@ -148,7 +156,7 @@ function viewBatchDetail(batchId) {
                 html += '<div class="detail-item"><span class="detail-label">처리 건수</span><span class="detail-value">' + (data.lastAffectedCount !== null ? data.lastAffectedCount + '건' : '-') + '</span></div>';
                 html += '<div class="detail-item"><span class="detail-label">소요 시간</span><span class="detail-value">' + (data.lastExecutionTimeMs !== null ? data.lastExecutionTimeMs + 'ms' : '-') + '</span></div>';
                 if (data.lastResultMessage) {
-                    html += '<div class="detail-item full-width"><span class="detail-label">메시지</span><span class="detail-value result-message">' + data.lastResultMessage + '</span></div>';
+                    html += '<div class="detail-item full-width"><span class="detail-label">메시지</span><span class="detail-value result-message">' + escapeHtml(data.lastResultMessage) + '</span></div>';
                 }
                 html += '</div></div>';
             }
@@ -163,7 +171,7 @@ function viewBatchDetail(batchId) {
                     html += '<td><span class="result-badge ' + (h.result === 'SUCCESS' ? 'success' : 'fail') + '">' + h.result + '</span></td>';
                     html += '<td>' + (h.affectedCount !== null ? h.affectedCount + '건' : '-') + '</td>';
                     html += '<td>' + (h.executionTimeMs !== null ? h.executionTimeMs + 'ms' : '-') + '</td>';
-                    html += '<td class="message-cell">' + (h.message || '-') + '</td>';
+                    html += '<td class="message-cell">' + escapeHtml(h.message || '-') + '</td>';
                     html += '</tr>';
                 });
                 html += '</tbody></table></div></div>';
@@ -315,6 +323,16 @@ function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('show');
 }
 
+// HTML에서 closeBatchModal로 호출하므로 별칭 추가
+function closeBatchModal(modalId) {
+    closeModal(modalId);
+}
+
+// HTML에서 refreshBatchSchedules로 호출하므로 별칭 추가
+function refreshBatchSchedules() {
+    refreshSchedules();
+}
+
 document.querySelectorAll('.modal').forEach(function(modal) {
     modal.addEventListener('click', function(e) {
         if (e.target === this && this.id !== 'runningModal') {
@@ -335,4 +353,12 @@ function formatDateTime(dateStr) {
         minute: '2-digit',
         second: '2-digit'
     });
+}
+
+// HTML 이스케이프 (XSS 방지)
+function escapeHtml(text) {
+    if (text == null) return '';
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }

@@ -28,7 +28,8 @@
     justify-content: center;
 }
 
-.modal.show {
+.modal.show,
+.modal.active {
     display: flex;
 }
 

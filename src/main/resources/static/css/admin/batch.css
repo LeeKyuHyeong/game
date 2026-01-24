@@ -624,3 +624,98 @@
         padding: 0.375rem 0.5rem;
     }
 }
+
+/* ========================================
+   모바일 (480px 이하)
+   ======================================== */
+@media (max-width: 480px) {
+    .batch-card {
+        padding: 1rem;
+    }
+
+    .batch-name {
+        font-size: 0.9375rem;
+    }
+
+    .batch-description {
+        font-size: 0.75rem;
+    }
+
+    .batch-info {
+        padding: 0.5rem;
+    }
+
+    .batch-info .info-label,
+    .batch-info .info-value {
+        font-size: 0.6875rem;
+    }
+
+    .batch-actions {
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .batch-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .batch-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .batch-title-row {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .execution-info {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .exec-item {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0.25rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .exec-item:last-child {
+        border-bottom: none;
+    }
+
+    .modal-content.modal-lg {
+        max-width: 100%;
+        margin: 0.5rem;
+        max-height: 95vh;
+    }
+
+    .mini-table th,
+    .mini-table td {
+        padding: 0.25rem 0.375rem;
+        font-size: 0.6875rem;
+    }
+
+    .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .stat-card {
+        padding: 0.75rem;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+    }
+
+    .cron-presets .preset-buttons {
+        flex-wrap: wrap;
+    }
+
+    .cron-presets .btn-xs {
+        flex: 1 1 45%;
+    }
+}
