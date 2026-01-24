@@ -2,7 +2,7 @@
  * 랭킹 관리 통합 페이지 JavaScript
  */
 
-var currentTab = 'solo';
+var currentTab = 'multi';
 var currentParams = {};
 
 // 탭 전환
@@ -32,20 +32,23 @@ function loadTabContent(tab, params) {
     let rankType = '';
 
     switch (tab) {
-        case 'solo':
-            rankType = 'guess';
-            break;
         case 'multi':
             rankType = 'multi';
+            break;
+        case 'challenge30':
+            rankType = 'weeklyBest30';
+            break;
+        case 'artist':
+            rankType = 'fan';
+            break;
+        case 'genre':
+            rankType = 'genreTotal';
             break;
         case 'retro':
             rankType = 'retro';
             break;
-        case 'challenge':
-            rankType = 'fan';
-            break;
         default:
-            rankType = 'guess';
+            rankType = 'multi';
     }
 
     // 파라미터 설정

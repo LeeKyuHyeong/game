@@ -1,10 +1,13 @@
 package com.kh.game.controller.admin;
 
 import com.kh.game.entity.FanChallengeRecord;
+import com.kh.game.entity.GenreChallengeRecord;
 import com.kh.game.entity.Member;
 import com.kh.game.entity.MultiTier;
 import com.kh.game.repository.FanChallengeRecordRepository;
+import com.kh.game.repository.GenreChallengeRecordRepository;
 import com.kh.game.repository.MemberRepository;
+import com.kh.game.service.GameSessionService;
 import com.kh.game.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,12 +33,14 @@ public class AdminRankingController {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
+    private final GenreChallengeRecordRepository genreChallengeRecordRepository;
+    private final GameSessionService gameSessionService;
 
     /**
      * 통합 랭킹 관리 페이지
      */
     @GetMapping({"", "/"})
-    public String rankingIndex(@RequestParam(defaultValue = "solo") String tab, Model model) {
+    public String rankingIndex(@RequestParam(defaultValue = "multi") String tab, Model model) {
         model.addAttribute("activeTab", tab);
         model.addAttribute("menu", "ranking");
         return "admin/ranking/index";
@@ -46,10 +51,22 @@ public class AdminRankingController {
      */
     @GetMapping("/content")
     public String rankingContent(
-            @RequestParam(defaultValue = "guess") String rankType,
-            @RequestParam(defaultValue = "solo") String tab,
+            @RequestParam(required = false) String rankType,
+            @RequestParam(defaultValue = "multi") String tab,
             @RequestParam(required = false) String artist,
             Model model) {
+
+        // 탭별 기본 rankType 설정
+        if (rankType == null || rankType.isEmpty()) {
+            switch (tab) {
+                case "multi": rankType = "multi"; break;
+                case "challenge30": rankType = "weeklyBest30"; break;
+                case "artist": rankType = "fan"; break;
+                case "genre": rankType = "genreTotal"; break;
+                case "retro": rankType = "retro"; break;
+                default: rankType = "multi";
+            }
+        }
 
         model.addAttribute("tab", tab);
 
@@ -78,6 +95,7 @@ public class AdminRankingController {
         List<Member> memberRankings = new ArrayList<>();
         List<FanChallengeRecord> fanRankings = new ArrayList<>();
         List<Map<String, Object>> fanArtistStats = new ArrayList<>();
+        List<Map<String, Object>> best30Rankings = new ArrayList<>();
 
         switch (rankType) {
             case "guess":
@@ -91,6 +109,15 @@ public class AdminRankingController {
                 break;
             case "best":
                 memberRankings = memberService.getGuessBestScoreRanking(50);
+                break;
+            case "weeklyBest30":
+                best30Rankings = gameSessionService.getWeeklyBest30RankingByDuration(50);
+                break;
+            case "monthlyBest30":
+                best30Rankings = gameSessionService.getMonthlyBest30RankingByDuration(50);
+                break;
+            case "hallOfFame":
+                best30Rankings = gameSessionService.getAllTimeBest30RankingByDuration(50);
                 break;
             case "retro":
                 memberRankings = memberService.getRetroRankingByScore(50);
@@ -127,16 +154,55 @@ public class AdminRankingController {
                         true, PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "achievedAt")));
                 fanRankings = perfectPage.getContent();
                 break;
+            case "genreTotal":
+                // 장르 챌린지 - 총 정답수 랭킹
+                List<Object[]> totalCorrectRanking = genreChallengeRecordRepository.findTotalCorrectCountRanking(PageRequest.of(0, 50));
+                model.addAttribute("genreRankings", convertGenreRankingToMap(totalCorrectRanking, "totalCorrect"));
+                break;
+            case "genreCount":
+                // 장르 챌린지 - 도전 장르수 랭킹
+                List<Object[]> genreCountRanking = genreChallengeRecordRepository.findGenreClearCountRanking(PageRequest.of(0, 50));
+                model.addAttribute("genreRankings", convertGenreRankingToMap(genreCountRanking, "genreCount"));
+                break;
+            case "genreCombo":
+                // 장르 챌린지 - 최대 콤보 랭킹
+                List<Object[]> maxComboRanking = genreChallengeRecordRepository.findMaxComboRanking(PageRequest.of(0, 50));
+                model.addAttribute("genreRankings", convertGenreRankingToMap(maxComboRanking, "maxCombo"));
+                break;
             default:
-                memberRankings = memberService.getGuessRankingByScore(50);
+                memberRankings = memberService.getMultiTierRanking(50);
         }
 
         model.addAttribute("multiTierDistribution", multiTierDistribution);
         model.addAttribute("totalMultiPlayers", totalMultiPlayers);
         model.addAttribute("memberRankings", memberRankings);
         model.addAttribute("fanRankings", fanRankings);
+        model.addAttribute("best30Rankings", best30Rankings);
         model.addAttribute("rankType", rankType);
 
         return "admin/ranking/fragments/ranking";
+    }
+
+    /**
+     * 장르 챌린지 랭킹 데이터를 Map으로 변환 (닉네임 포함)
+     */
+    private List<Map<String, Object>> convertGenreRankingToMap(List<Object[]> rankings, String valueKey) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        int rank = 1;
+        for (Object[] row : rankings) {
+            Long memberId = (Long) row[0];
+            Object value = row[1];
+
+            Member member = memberService.findById(memberId).orElse(null);
+            if (member != null) {
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("rank", rank++);
+                entry.put("memberId", memberId);
+                entry.put("nickname", member.getNickname());
+                entry.put(valueKey, value);
+                result.add(entry);
+            }
+        }
+        return result;
     }
 }

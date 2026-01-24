@@ -4,34 +4,38 @@
     <link rel="stylesheet" th:href="@{/css/admin/history-index.css}">
 
     <!-- 현재 탭 저장 -->
-    <input type="hidden" id="currentTab" th:value="${tab ?: 'solo'}">
+    <input type="hidden" id="currentTab" th:value="${tab ?: 'multi'}">
 
     <!-- 랭킹 타입 선택 - 탭별로 다른 옵션 표시 -->
     <div class="ranking-type-selector">
-        <!-- 솔로 탭 -->
-        <select th:if="${tab == 'solo' or tab == null}" id="rankingType" onchange="changeRankingType(this.value)">
-            <option value="guess" th:selected="${rankType == 'guess'}">전체 점수</option>
-            <option value="weekly" th:selected="${rankType == 'weekly'}">주간 점수</option>
-            <option value="best" th:selected="${rankType == 'best'}">30곡 챌린지</option>
+        <!-- 멀티 탭 (단일 옵션이므로 select 숨김) -->
+        <input th:if="${tab == 'multi'}" type="hidden" id="rankingType" value="multi">
+
+        <!-- 30곡 챌린지 탭 -->
+        <select th:if="${tab == 'challenge30'}" id="rankingType" onchange="changeRankingType(this.value)">
+            <option value="weeklyBest30" th:selected="${rankType == 'weeklyBest30'}">주간 최고 기록</option>
+            <option value="monthlyBest30" th:selected="${rankType == 'monthlyBest30'}">월간 최고 기록</option>
+            <option value="hallOfFame" th:selected="${rankType == 'hallOfFame'}">명예의전당</option>
         </select>
 
-        <!-- 멀티 탭 -->
-        <select th:if="${tab == 'multi'}" id="rankingType" onchange="changeRankingType(this.value)">
-            <option value="multi" th:selected="${rankType == 'multi'}">티어 랭킹</option>
-            <option value="weeklyMulti" th:selected="${rankType == 'weeklyMulti'}">주간 점수</option>
+        <!-- 아티스트 챌린지 탭 -->
+        <select th:if="${tab == 'artist'}" id="rankingType" onchange="changeRankingType(this.value)">
+            <option value="fan" th:selected="${rankType == 'fan'}">아티스트별</option>
+            <option value="fanPerfect" th:selected="${rankType == 'fanPerfect'}">퍼펙트 클리어</option>
         </select>
 
-        <!-- 레트로 탭 -->
+        <!-- 장르 챌린지 탭 -->
+        <select th:if="${tab == 'genre'}" id="rankingType" onchange="changeRankingType(this.value)">
+            <option value="genreTotal" th:selected="${rankType == 'genreTotal'}">총 정답수</option>
+            <option value="genreCount" th:selected="${rankType == 'genreCount'}">도전 장르수</option>
+            <option value="genreCombo" th:selected="${rankType == 'genreCombo'}">최대 콤보</option>
+        </select>
+
+        <!-- 레트로 챌린지 탭 -->
         <select th:if="${tab == 'retro'}" id="rankingType" onchange="changeRankingType(this.value)">
             <option value="retro" th:selected="${rankType == 'retro'}">전체 점수</option>
             <option value="retroWeekly" th:selected="${rankType == 'retroWeekly'}">주간 점수</option>
             <option value="retroBest" th:selected="${rankType == 'retroBest'}">30곡 챌린지</option>
-        </select>
-
-        <!-- 챌린지 탭 -->
-        <select th:if="${tab == 'challenge'}" id="rankingType" onchange="changeRankingType(this.value)">
-            <option value="fan" th:selected="${rankType == 'fan'}">아티스트별</option>
-            <option value="fanPerfect" th:selected="${rankType == 'fanPerfect'}">퍼펙트 클리어</option>
         </select>
     </div>
 
@@ -68,8 +72,72 @@
         </div>
     </div>
 
-    <!-- 랭킹 테이블 -->
-    <div class="table-container">
+    <!-- 30곡 랭킹 테이블 (주간/월간/명예의전당) -->
+    <div class="table-container" th:if="${rankType == 'weeklyBest30' or rankType == 'monthlyBest30' or rankType == 'hallOfFame'}">
+        <table class="data-table ranking-table">
+            <thead>
+            <tr>
+                <th class="col-rank">순위</th>
+                <th>닉네임</th>
+                <th>점수</th>
+                <th>소요시간</th>
+                <th>달성일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="record : ${best30Rankings}" th:if="${best30Rankings != null and !best30Rankings.isEmpty()}">
+                <td data-label="순위" class="rank-cell">
+                    <span class="rank-badge"
+                          th:classappend="${record.rank <= 3} ? ('rank-' + ${record.rank})">
+                        <span th:text="${record.rank}"></span>
+                    </span>
+                </td>
+                <td data-label="닉네임" th:text="${record.nickname}"></td>
+                <td data-label="점수" th:text="${record.score}"></td>
+                <td data-label="소요시간" th:text="${record.durationFormatted}"></td>
+                <td data-label="달성일" th:text="${record.achievedAt != null ? #temporals.format(record.achievedAt, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+            </tr>
+            <tr th:if="${best30Rankings == null or best30Rankings.isEmpty()}">
+                <td colspan="5" class="empty-row">랭킹 데이터가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 장르 챌린지 랭킹 테이블 -->
+    <div class="table-container" th:if="${rankType == 'genreTotal' or rankType == 'genreCount' or rankType == 'genreCombo'}">
+        <table class="data-table ranking-table">
+            <thead>
+            <tr>
+                <th class="col-rank">순위</th>
+                <th>닉네임</th>
+                <th th:if="${rankType == 'genreTotal'}">총 정답수</th>
+                <th th:if="${rankType == 'genreCount'}">도전 장르수</th>
+                <th th:if="${rankType == 'genreCombo'}">최대 콤보</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="record : ${genreRankings}" th:if="${genreRankings != null and !genreRankings.isEmpty()}">
+                <td data-label="순위" class="rank-cell">
+                    <span class="rank-badge"
+                          th:classappend="${record.rank <= 3} ? ('rank-' + ${record.rank})">
+                        <span th:text="${record.rank}"></span>
+                    </span>
+                </td>
+                <td data-label="닉네임" th:text="${record.nickname}"></td>
+                <td th:if="${rankType == 'genreTotal'}" data-label="총 정답수" th:text="${record.totalCorrect}"></td>
+                <td th:if="${rankType == 'genreCount'}" data-label="도전 장르수" th:text="${record.genreCount}"></td>
+                <td th:if="${rankType == 'genreCombo'}" data-label="최대 콤보" th:text="${record.maxCombo}"></td>
+            </tr>
+            <tr th:if="${genreRankings == null or genreRankings.isEmpty()}">
+                <td colspan="3" class="empty-row">랭킹 데이터가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 일반 랭킹 테이블 (멀티/레트로/아티스트 챌린지) -->
+    <div class="table-container" th:if="${rankType != 'weeklyBest30' and rankType != 'monthlyBest30' and rankType != 'hallOfFame' and rankType != 'genreTotal' and rankType != 'genreCount' and rankType != 'genreCombo'}">
         <table class="data-table ranking-table">
             <thead>
             <tr>
@@ -85,7 +153,7 @@
             </thead>
             <tbody>
             <!-- 회원 랭킹 (솔로/멀티/레트로) -->
-            <tr th:each="member, iterStat : ${memberRankings}" th:if="${memberRankings != null}">
+            <tr th:each="member, iterStat : ${memberRankings}" th:if="${memberRankings != null and !memberRankings.isEmpty()}">
                 <td data-label="순위" class="rank-cell">
                     <span class="rank-badge"
                           th:classappend="${iterStat.index < 3} ? ('rank-' + (${iterStat.index + 1}))">
@@ -104,7 +172,7 @@
             </tr>
 
             <!-- 팬 챌린지 랭킹 -->
-            <tr th:each="record, iterStat : ${fanRankings}" th:if="${fanRankings != null}">
+            <tr th:each="record, iterStat : ${fanRankings}" th:if="${fanRankings != null and !fanRankings.isEmpty()}">
                 <td data-label="순위" class="rank-cell">
                     <span class="rank-badge"
                           th:classappend="${iterStat.index < 3} ? ('rank-' + (${iterStat.index + 1}))">

@@ -15,25 +15,30 @@
 
         <!-- 탭 네비게이션 -->
         <div class="tab-navigation">
-            <button class="tab-btn" th:classappend="${activeTab == 'solo'} ? 'active'"
-                    data-tab="solo" onclick="switchTab('solo')">
-                <span class="tab-icon">🎯</span>
-                <span class="tab-text">솔로 랭킹</span>
-            </button>
             <button class="tab-btn" th:classappend="${activeTab == 'multi'} ? 'active'"
                     data-tab="multi" onclick="switchTab('multi')">
                 <span class="tab-icon">🎮</span>
                 <span class="tab-text">멀티 랭킹</span>
             </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'challenge30'} ? 'active'"
+                    data-tab="challenge30" onclick="switchTab('challenge30')">
+                <span class="tab-icon">🎯</span>
+                <span class="tab-text">30곡 챌린지 랭킹</span>
+            </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'artist'} ? 'active'"
+                    data-tab="artist" onclick="switchTab('artist')">
+                <span class="tab-icon">🎤</span>
+                <span class="tab-text">아티스트 챌린지 랭킹</span>
+            </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'genre'} ? 'active'"
+                    data-tab="genre" onclick="switchTab('genre')">
+                <span class="tab-icon">🎵</span>
+                <span class="tab-text">장르 챌린지 랭킹</span>
+            </button>
             <button class="tab-btn" th:classappend="${activeTab == 'retro'} ? 'active'"
                     data-tab="retro" onclick="switchTab('retro')">
                 <span class="tab-icon">📻</span>
-                <span class="tab-text">레트로 랭킹</span>
-            </button>
-            <button class="tab-btn" th:classappend="${activeTab == 'challenge'} ? 'active'"
-                    data-tab="challenge" onclick="switchTab('challenge')">
-                <span class="tab-icon">🏆</span>
-                <span class="tab-text">챌린지 랭킹</span>
+                <span class="tab-text">레트로 챌린지 랭킹</span>
             </button>
         </div>
 
@@ -50,7 +55,7 @@
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/admin/admin-ranking-index.js}"></script>
 <script th:inline="javascript">
-    currentTab = [[${activeTab}]];
+    currentTab = [[${activeTab}]] || 'multi';
 </script>
 </body>
 </html>

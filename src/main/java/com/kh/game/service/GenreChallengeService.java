@@ -33,8 +33,10 @@ public class GenreChallengeService {
     private final GenreRepository genreRepository;
     private final ObjectMapper objectMapper;
 
-    // 최소 곡 수 (10곡 이상)
-    public static final int MIN_SONG_COUNT = 10;
+    // 최소 곡 수 (100곡 이상)
+    public static final int MIN_SONG_COUNT = 100;
+    // 최대 곡 수 (100곡까지)
+    public static final int MAX_SONG_COUNT = 100;
 
     /**
      * 장르 챌린지 게임 시작 (기본 난이도: NORMAL)
@@ -58,6 +60,15 @@ public class GenreChallengeService {
                     MIN_SONG_COUNT, allSongs.size()));
         }
 
+        // 최대 곡 수 제한: MAX_SONG_COUNT 초과 시 랜덤 선택
+        List<Song> selectedSongs = allSongs;
+        if (allSongs.size() > MAX_SONG_COUNT) {
+            // getAllValidatedSongsByGenreCode에서 이미 셔플되어 있으므로 앞에서 자르면 랜덤 선택
+            selectedSongs = new ArrayList<>(allSongs.subList(0, MAX_SONG_COUNT));
+            log.info("[장르 챌린지] 곡 수 제한 적용: {}곡 → {}곡 (genreCode: {})",
+                allSongs.size(), MAX_SONG_COUNT, genreCode);
+        }
+
         // 게임 세션 생성
         GameSession session = new GameSession();
         session.setSessionUuid(UUID.randomUUID().toString());
@@ -65,7 +76,7 @@ public class GenreChallengeService {
         session.setNickname(nickname);
         session.setGameType(GameSession.GameType.GENRE_CHALLENGE);
         session.setGameMode(GameSession.GameMode.FIXED_GENRE);
-        session.setTotalRounds(allSongs.size());
+        session.setTotalRounds(selectedSongs.size());
         session.setCompletedRounds(0);
         session.setTotalScore(0);
         session.setCorrectCount(0);
@@ -89,15 +100,15 @@ public class GenreChallengeService {
 
         GameSession savedSession = gameSessionRepository.save(session);
 
-        // 라운드 생성 (모든 곡)
-        for (int i = 0; i < allSongs.size(); i++) {
+        // 라운드 생성 (선택된 곡)
+        for (int i = 0; i < selectedSongs.size(); i++) {
             GameRound round = new GameRound();
             round.setGameSession(savedSession);
             round.setRoundNumber(i + 1);
-            round.setSong(allSongs.get(i));
-            round.setGenre(allSongs.get(i).getGenre());
-            round.setPlayStartTime(allSongs.get(i).getStartTime());
-            round.setPlayDuration(allSongs.get(i).getPlayDuration());
+            round.setSong(selectedSongs.get(i));
+            round.setGenre(selectedSongs.get(i).getGenre());
+            round.setPlayStartTime(selectedSongs.get(i).getStartTime());
+            round.setPlayDuration(selectedSongs.get(i).getPlayDuration());
             round.setStatus(GameRound.RoundStatus.WAITING);
             round.setAttemptCount(0);
             round.setScore(0);
