@@ -51,6 +51,7 @@ function loadTabContent(tab, params) {
     // 파라미터 설정
     const queryParams = params || {};
     queryParams.rankType = rankType;
+    queryParams.tab = tab;
     const searchParams = new URLSearchParams(queryParams);
     url += '?' + searchParams.toString();
 

@@ -24,7 +24,7 @@
                                     <span class="selected-badge-emoji" th:text="${member.selectedBadge.emoji}"></span>
                                 </div>
                             </div>
-                            <span class="tier-badge" th:style="'background: ' + ${member.multiTierColor}"
+                            <span class="tier-badge" th:style="'background: ' + ${member.multiTierColor} + '; color: ' + ${member.multiTierTextColor}"
                                   th:text="${member.multiTierDisplayName}">브론즈</span>
                         </div>
                     </div>

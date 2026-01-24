@@ -3,18 +3,34 @@
     <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
     <link rel="stylesheet" th:href="@{/css/admin/history-index.css}">
 
-    <!-- 랭킹 타입 선택 -->
+    <!-- 현재 탭 저장 -->
+    <input type="hidden" id="currentTab" th:value="${tab ?: 'solo'}">
+
+    <!-- 랭킹 타입 선택 - 탭별로 다른 옵션 표시 -->
     <div class="ranking-type-selector">
-        <select id="rankingType" onchange="changeRankingType(this.value)">
-            <option value="guess" th:selected="${rankType == 'guess'}">솔로 전체 점수</option>
-            <option value="weekly" th:selected="${rankType == 'weekly'}">솔로 주간 점수</option>
-            <option value="best" th:selected="${rankType == 'best'}">솔로 30곡 챌린지</option>
-            <option value="multi" th:selected="${rankType == 'multi'}">멀티 티어 랭킹</option>
-            <option value="weeklyMulti" th:selected="${rankType == 'weeklyMulti'}">멀티 주간 점수</option>
-            <option value="retro" th:selected="${rankType == 'retro'}">레트로 전체 점수</option>
-            <option value="retroWeekly" th:selected="${rankType == 'retroWeekly'}">레트로 주간 점수</option>
-            <option value="retroBest" th:selected="${rankType == 'retroBest'}">레트로 30곡 챌린지</option>
-            <option value="fan" th:selected="${rankType == 'fan'}">팬 챌린지</option>
+        <!-- 솔로 탭 -->
+        <select th:if="${tab == 'solo' or tab == null}" id="rankingType" onchange="changeRankingType(this.value)">
+            <option value="guess" th:selected="${rankType == 'guess'}">전체 점수</option>
+            <option value="weekly" th:selected="${rankType == 'weekly'}">주간 점수</option>
+            <option value="best" th:selected="${rankType == 'best'}">30곡 챌린지</option>
+        </select>
+
+        <!-- 멀티 탭 -->
+        <select th:if="${tab == 'multi'}" id="rankingType" onchange="changeRankingType(this.value)">
+            <option value="multi" th:selected="${rankType == 'multi'}">티어 랭킹</option>
+            <option value="weeklyMulti" th:selected="${rankType == 'weeklyMulti'}">주간 점수</option>
+        </select>
+
+        <!-- 레트로 탭 -->
+        <select th:if="${tab == 'retro'}" id="rankingType" onchange="changeRankingType(this.value)">
+            <option value="retro" th:selected="${rankType == 'retro'}">전체 점수</option>
+            <option value="retroWeekly" th:selected="${rankType == 'retroWeekly'}">주간 점수</option>
+            <option value="retroBest" th:selected="${rankType == 'retroBest'}">30곡 챌린지</option>
+        </select>
+
+        <!-- 챌린지 탭 -->
+        <select th:if="${tab == 'challenge'}" id="rankingType" onchange="changeRankingType(this.value)">
+            <option value="fan" th:selected="${rankType == 'fan'}">아티스트별</option>
             <option value="fanPerfect" th:selected="${rankType == 'fanPerfect'}">퍼펙트 클리어</option>
         </select>
     </div>
@@ -38,11 +54,14 @@
     <div id="tierDistribution" class="tier-distribution" th:if="${rankType == 'multi'}">
         <h4>티어 분포</h4>
         <div class="tier-bars">
-            <th:block th:each="entry : ${multiTierDistribution}">
-                <div class="tier-bar">
+            <th:block th:each="entry, iterStat : ${multiTierDistribution}">
+                <div class="tier-bar" th:data-tier="${iterStat.index + 1}">
                     <span class="tier-name" th:text="${entry.key}"></span>
-                    <div class="tier-bar-fill"
-                         th:style="'width: ' + (${totalMultiPlayers > 0 ? (entry.value * 100 / totalMultiPlayers) : 0}) + '%'"></div>
+                    <div class="tier-bar-container">
+                        <div class="tier-bar-fill"
+                             th:classappend="'tier-' + ${iterStat.index + 1}"
+                             th:style="'width: ' + (${totalMultiPlayers > 0 and entry.value > 0 ? (entry.value * 100 / totalMultiPlayers) : 0}) + '%'"></div>
+                    </div>
                     <span class="tier-count" th:text="${entry.value}"></span>
                 </div>
             </th:block>
@@ -75,7 +94,7 @@
                 </td>
                 <td data-label="닉네임" th:text="${member.nickname}"></td>
                 <td data-label="점수" th:if="${rankType != 'multi'}"
-                    th:text="${rankType.contains('retro')} ? ${member.retroTotalScore} : ${member.guessTotalScore}"></td>
+                    th:text="${rankType.contains('retro')} ? ${member.retroScore} : ${member.guessScore}"></td>
                 <td data-label="티어" th:if="${rankType == 'multi'}">
                     <span class="tier-badge" th:classappend="${member.multiTier != null ? member.multiTier.name().toLowerCase() : 'bronze'}"
                           th:text="${member.multiTier != null ? member.multiTier.name() : 'BRONZE'}"></span>
@@ -109,9 +128,10 @@
     <script>
     function changeRankingType(type) {
         const container = document.getElementById('tabContent');
+        const tab = document.getElementById('currentTab').value;
         container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
 
-        fetch('/admin/ranking/content?rankType=' + type)
+        fetch('/admin/ranking/content?rankType=' + type + '&tab=' + tab)
             .then(response => response.text())
             .then(html => {
                 container.innerHTML = html;
@@ -131,9 +151,10 @@
         if (!artist) return;
 
         const container = document.getElementById('tabContent');
+        const tab = document.getElementById('currentTab').value;
         container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
 
-        fetch('/admin/ranking/content?rankType=fan&artist=' + encodeURIComponent(artist))
+        fetch('/admin/ranking/content?rankType=fan&tab=' + tab + '&artist=' + encodeURIComponent(artist))
             .then(response => response.text())
             .then(html => {
                 container.innerHTML = html;

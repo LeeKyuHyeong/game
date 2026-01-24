@@ -26,7 +26,7 @@
     /* ========== 텍스트 계층 ========== */
     --text-primary: #1e293b;
     --text-secondary: #64748b;
-    --text-muted: #94a3b8;
+    --text-muted: #6b7280; /* 라이트 모드: 대비 강화 (4.5:1 이상) */
     --text-inverse: #ffffff;
     --text-on-gradient: #ffffff; /* 그라디언트 배경 위 텍스트 (항상 흰색) */
     --text-on-gold: #ffffff; /* 금/은/동 그라디언트 배경 위 텍스트 (항상 흰색) */
@@ -94,7 +94,7 @@
     --input-bg: #ffffff;
     --input-border: #e2e8f0;
     --input-focus-border: var(--primary-color);
-    --input-placeholder: #94a3b8;
+    --input-placeholder: #6b7280; /* 라이트 모드: 대비 강화 */
 
     /* ========== 테이블 ========== */
     --table-header-bg: #f8fafc;

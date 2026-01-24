@@ -1,25 +1,5 @@
 <!-- 장르 챌린지 탭 콘텐츠 (프래그먼트) -->
 <div class="challenge-tab-content" xmlns:th="http://www.thymeleaf.org">
-    <!-- 서브 통계 -->
-    <div class="sub-stats">
-        <div class="sub-stat">
-            <span class="sub-stat-value" th:text="${totalCount}">0</span>
-            <span class="sub-stat-label">총 기록</span>
-        </div>
-        <div class="sub-stat">
-            <span class="sub-stat-value" th:text="${activeGenreCount}">0</span>
-            <span class="sub-stat-label">활성 장르</span>
-        </div>
-        <div class="sub-stat">
-            <span class="sub-stat-value" th:text="${todayCount}">0</span>
-            <span class="sub-stat-label">오늘 도전</span>
-        </div>
-        <div class="sub-stat">
-            <span class="sub-stat-value" th:text="${#numbers.formatDecimal(avgClearRate, 1, 1)} + '%'">0%</span>
-            <span class="sub-stat-label">평균 클리어율</span>
-        </div>
-    </div>
-
     <!-- 검색 -->
     <div class="search-bar">
         <form class="search-form">

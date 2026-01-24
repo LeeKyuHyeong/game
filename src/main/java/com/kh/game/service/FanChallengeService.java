@@ -342,18 +342,19 @@ public class FanChallengeService {
             // 기존 마일스톤 뱃지
             List<Badge> newBadges = badgeService.checkBadgesAfterFanChallengePerfect(member, difficulty);
 
-            // 아티스트별 단계 뱃지 (HARDCORE만)
-            if (difficulty == FanChallengeDifficulty.HARDCORE) {
-                Badge stageBadge = badgeService.awardStageBadge(member, artist, stageLevel);
-                if (stageBadge != null) {
-                    newBadges.add(stageBadge);
-                }
+            // 아티스트별 단계 뱃지 (NORMAL: 1단계만, HARDCORE: 모든 단계)
+            // NORMAL은 stageLevel 무관하게 항상 1단계 배지만 부여
+            int effectiveStageLevel = (difficulty == FanChallengeDifficulty.NORMAL) ? 1 : stageLevel;
+            Badge stageBadge = badgeService.awardStageBadge(member, artist, difficulty, effectiveStageLevel);
+            if (stageBadge != null) {
+                newBadges.add(stageBadge);
             }
 
             if (!newBadges.isEmpty()) {
-                log.info("팬챌린지 퍼펙트 뱃지 획득: {} -> {}",
+                log.info("팬챌린지 퍼펙트 뱃지 획득: {} -> {} (난이도: {})",
                     member.getNickname(),
-                    newBadges.stream().map(Badge::getName).toList());
+                    newBadges.stream().map(Badge::getName).toList(),
+                    difficulty.getDisplayName());
             }
         }
 

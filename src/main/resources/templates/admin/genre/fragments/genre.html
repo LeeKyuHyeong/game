@@ -2,10 +2,6 @@
 <div class="tab-panel genre-panel" xmlns:th="http://www.thymeleaf.org">
     <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
 
-    <div class="panel-header">
-        <button class="btn btn-primary" onclick="openGenreModal()">+ 장르 추가</button>
-    </div>
-
     <div class="filter-section">
         <form id="genreFilterForm" class="filter-row">
             <div class="filter-group">
@@ -15,6 +11,7 @@
             <div class="filter-actions">
                 <button type="submit" class="btn btn-search">검색</button>
                 <button type="button" class="btn btn-reset" onclick="resetGenreFilter()">초기화</button>
+                <button type="button" class="btn btn-primary" onclick="openGenreModal()">+ 장르 추가</button>
             </div>
         </form>
     </div>

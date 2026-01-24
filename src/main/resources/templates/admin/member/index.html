@@ -22,13 +22,13 @@
                 <div class="stat-value" th:text="${activeCount}">0</div>
                 <div class="stat-label">활성 회원</div>
             </div>
-            <div class="stat-card banned">
-                <div class="stat-value" th:text="${bannedCount}">0</div>
-                <div class="stat-label">정지 회원</div>
-            </div>
             <div class="stat-card admin">
                 <div class="stat-value" th:text="${adminCount}">0</div>
                 <div class="stat-label">관리자</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${badwordActiveCount}">0</div>
+                <div class="stat-label">비속어 활성</div>
             </div>
         </div>
 

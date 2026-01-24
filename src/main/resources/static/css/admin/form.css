@@ -208,8 +208,8 @@ input[readonly] {
 /* Filter Group */
 .filter-group {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    flex-direction: row;
+    gap: 1rem;
 }
 
 .filter-group label {
@@ -275,17 +275,18 @@ input[readonly] {
 
 .btn-reset {
     padding: 0.625rem 1.25rem;
-    background: var(--card-bg);
-    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
     font-weight: 500;
     text-decoration: none;
     transition: all 0.2s;
+    cursor: pointer;
 }
 
 .btn-reset:hover {
-    background: var(--bg-elevated);
+    background: var(--bg-muted);
     color: var(--text-primary);
 }
 

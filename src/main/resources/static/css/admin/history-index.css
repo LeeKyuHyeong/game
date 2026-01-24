@@ -65,6 +65,36 @@
 }
 
 /* ========================================
+   Ranking Type Selector
+   ======================================== */
+.ranking-type-selector {
+    margin-bottom: 1.5rem;
+}
+
+.ranking-type-selector select {
+    width: 100%;
+    max-width: 20rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ranking-type-selector select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ranking-type-selector select:hover {
+    border-color: var(--primary-color);
+}
+
+/* ========================================
    History Index - 태블릿 (768px 이하)
    ======================================== */
 @media (max-width: 768px) {
@@ -76,6 +106,10 @@
     .tab-text {
         display: none;
     }
+
+    .ranking-type-selector select {
+        max-width: 100%;
+    }
 }
 
 /* ========================================
@@ -84,6 +118,11 @@
 @media (max-width: 480px) {
     .tab-btn {
         padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .ranking-type-selector select {
+        padding: 0.625rem 0.75rem;
         font-size: 0.9rem;
     }
 }

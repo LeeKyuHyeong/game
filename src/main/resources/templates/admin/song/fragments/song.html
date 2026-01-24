@@ -3,17 +3,6 @@
     <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
     <link rel="stylesheet" th:href="@{/css/admin/song-grid.css}">
 
-    <div class="admin-header">
-        <div class="header-content">
-            <div>
-                <p>노래 목록을 조회하고 관리합니다. 총 <strong th:text="${totalItems}">0</strong>곡</p>
-            </div>
-            <div class="header-actions">
-                <button class="btn btn-primary" onclick="openModal()">+ 노래 추가</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Filter Section -->
     <div class="filter-section">
         <form id="filterForm">
@@ -76,6 +65,7 @@
                 <div class="filter-actions">
                     <button type="submit" class="btn btn-search">검색</button>
                     <a href="#" class="btn btn-reset">초기화</a>
+                    <button type="button" class="btn btn-primary" onclick="openModal()">+ 노래 추가</button>
                 </div>
             </div>
 

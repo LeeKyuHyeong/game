@@ -1197,14 +1197,15 @@
     /* 모바일 아티스트 유형 select 표시 */
     #roundSettingArea:not(.host-settings-row #roundSettingArea) .mobile-artist-type {
         display: flex !important;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
+        gap: 0.5rem;
     }
 
     #roundSettingArea:not(.host-settings-row #roundSettingArea) .mobile-artist-type label {
         font-size: 0.8rem;
         font-weight: 600;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0;
     }
 
     #roundSettingArea:not(.host-settings-row #roundSettingArea) .mobile-artist-type .mode-select {

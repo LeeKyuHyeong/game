@@ -7,6 +7,7 @@ import com.kh.game.service.MemberService;
 import com.kh.game.service.FanChallengeService;
 import com.kh.game.repository.MemberRepository;
 import com.kh.game.repository.FanChallengeRecordRepository;
+import com.kh.game.repository.GameRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +34,7 @@ public class AdminGameHistoryController {
     private final MemberRepository memberRepository;
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
     private final FanChallengeService fanChallengeService;
+    private final GameRoomRepository gameRoomRepository;
 
     /**
      * 기존 URL → 통합 게임 관리 페이지로 리다이렉트
@@ -78,6 +80,7 @@ public class AdminGameHistoryController {
         model.addAttribute("totalItems", sessionPage.getTotalElements());
         model.addAttribute("todayCount", gameSessionService.getTodayGameCount());
         model.addAttribute("avgScore", gameSessionService.getAverageScore());
+        model.addAttribute("playingCount", gameRoomRepository.countByStatus(GameRoom.RoomStatus.PLAYING));
         model.addAttribute("menu", "game");
 
         return "admin/history/fragments/history";

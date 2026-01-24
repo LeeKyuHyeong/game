@@ -5,26 +5,28 @@ package com.kh.game.entity;
  * 롤(LoL) 스타일의 LP 기반 승급/강등 시스템
  */
 public enum MultiTier {
-    BRONZE(0, "브론즈", "#CD7F32"),
-    SILVER(1, "실버", "#C0C0C0"),
-    GOLD(2, "골드", "#FFD700"),
-    PLATINUM(3, "플래티넘", "#E5E4E2"),
-    DIAMOND(4, "다이아", "#B9F2FF"),
-    MASTER(5, "마스터", "#FF6B6B"),
-    CHALLENGER(6, "챌린저", "#00BFFF");
+    BRONZE(0, "브론즈", "#CD7F32", "#FFFFFF"),
+    SILVER(1, "실버", "#C0C0C0", "#1e293b"),
+    GOLD(2, "골드", "#FFD700", "#1e293b"),
+    PLATINUM(3, "플래티넘", "#E5E4E2", "#1e293b"),
+    DIAMOND(4, "다이아", "#B9F2FF", "#1e293b"),
+    MASTER(5, "마스터", "#FF6B6B", "#FFFFFF"),
+    CHALLENGER(6, "챌린저", "#00BFFF", "#1e293b");
 
     private final int order;
     private final String displayName;
     private final String color;
+    private final String textColor;
 
     // LP 범위 상수
     public static final int MAX_LP = 100;
     public static final int MIN_LP = 0;
 
-    MultiTier(int order, String displayName, String color) {
+    MultiTier(int order, String displayName, String color, String textColor) {
         this.order = order;
         this.displayName = displayName;
         this.color = color;
+        this.textColor = textColor;
     }
 
     public int getOrder() {
@@ -37,6 +39,10 @@ public enum MultiTier {
 
     public String getColor() {
         return color;
+    }
+
+    public String getTextColor() {
+        return textColor;
     }
 
     /**

@@ -568,6 +568,10 @@ public class Member {
         return multiTier != null ? multiTier.getColor() : MultiTier.BRONZE.getColor();
     }
 
+    public String getMultiTierTextColor() {
+        return multiTier != null ? multiTier.getTextColor() : MultiTier.BRONZE.getTextColor();
+    }
+
     /**
      * LP 적용 및 티어 변동 처리
      * @param lpChange LP 변화량 (양수: 획득, 음수: 차감)

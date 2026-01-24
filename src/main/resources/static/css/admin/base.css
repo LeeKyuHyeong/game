@@ -423,14 +423,13 @@ code {
     color: var(--badge-success-text);
 }
 
-/* Tier Badge */
+/* Tier Badge - 색상은 인라인 스타일로 적용됨 (member.multiTierColor, member.multiTierTextColor) */
 .tier-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--gray-900);
 }
 
 /* Role Badge */

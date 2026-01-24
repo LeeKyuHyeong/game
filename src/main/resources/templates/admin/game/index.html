@@ -17,26 +17,6 @@
             <h1>게임 관리</h1>
         </header>
 
-        <!-- 통합 통계 카드 -->
-        <div class="stats-cards">
-            <div class="stat-card">
-                <div class="stat-value" th:text="${todayGames}">0</div>
-                <div class="stat-label">오늘 게임</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" th:text="${playingCount}">0</div>
-                <div class="stat-label">진행 중인 방</div>
-            </div>
-            <div class="stat-card active">
-                <div class="stat-value" th:text="${fanTotalCount}">0</div>
-                <div class="stat-label">팬 챌린지</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" th:text="${fanPerfectCount}">0</div>
-                <div class="stat-label">퍼펙트 클리어</div>
-            </div>
-        </div>
-
         <!-- 탭 네비게이션 -->
         <div class="tab-navigation">
             <button class="tab-btn" th:classappend="${activeTab == 'history'} ? 'active'"

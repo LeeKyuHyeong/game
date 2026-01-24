@@ -38,40 +38,6 @@ public class AdminRankingController {
     public String rankingIndex(@RequestParam(defaultValue = "solo") String tab, Model model) {
         model.addAttribute("activeTab", tab);
         model.addAttribute("menu", "ranking");
-
-        // 멀티게임 LP 티어 분포
-        Map<String, Long> multiTierDistribution = new LinkedHashMap<>();
-        multiTierDistribution.put("CHALLENGER", 0L);
-        multiTierDistribution.put("MASTER", 0L);
-        multiTierDistribution.put("DIAMOND", 0L);
-        multiTierDistribution.put("PLATINUM", 0L);
-        multiTierDistribution.put("GOLD", 0L);
-        multiTierDistribution.put("SILVER", 0L);
-        multiTierDistribution.put("BRONZE", 0L);
-
-        List<Object[]> multiTierCounts = memberRepository.countByMultiTier();
-        long totalMultiPlayers = 0;
-        for (Object[] row : multiTierCounts) {
-            if (row[0] != null) {
-                String tierName = ((MultiTier) row[0]).name();
-                Long count = (Long) row[1];
-                multiTierDistribution.put(tierName, count);
-                totalMultiPlayers += count;
-            }
-        }
-
-        model.addAttribute("multiTierDistribution", multiTierDistribution);
-        model.addAttribute("totalMultiPlayers", totalMultiPlayers);
-
-        // 팬챌린지 통계
-        long fanTotalCount = fanChallengeRecordRepository.count();
-        long fanPerfectCount = fanChallengeRecordRepository.countPerfectClears();
-        long fanArtistCount = fanChallengeRecordRepository.countDistinctArtists();
-
-        model.addAttribute("fanTotalCount", fanTotalCount);
-        model.addAttribute("fanPerfectCount", fanPerfectCount);
-        model.addAttribute("fanArtistCount", fanArtistCount);
-
         return "admin/ranking/index";
     }
 
@@ -81,8 +47,11 @@ public class AdminRankingController {
     @GetMapping("/content")
     public String rankingContent(
             @RequestParam(defaultValue = "guess") String rankType,
+            @RequestParam(defaultValue = "solo") String tab,
             @RequestParam(required = false) String artist,
             Model model) {
+
+        model.addAttribute("tab", tab);
 
         // 멀티게임 LP 티어 분포
         Map<String, Long> multiTierDistribution = new LinkedHashMap<>();

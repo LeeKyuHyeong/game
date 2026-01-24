@@ -66,6 +66,15 @@ public class Badge {
     @Column(name = "fan_stage_level")
     private Integer fanStageLevel;
 
+    /**
+     * 팬 챌린지 난이도 (FAN_STAGE 뱃지용)
+     * - NORMAL: 노말 모드 퍼펙트 클리어 (1단계만)
+     * - HARDCORE: 하드코어 모드 퍼펙트 클리어 (1~3단계)
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "fan_challenge_difficulty", length = 20)
+    private FanChallengeDifficulty fanChallengeDifficulty;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

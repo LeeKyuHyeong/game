@@ -280,17 +280,33 @@ public class BadgeService {
     }
 
     /**
-     * 아티스트별 단계 뱃지 지급 (HARDCORE 퍼펙트 클리어 시)
-     * - 뱃지가 없으면 동적으로 생성
-     * - "BTS 1단계", "아이유 2단계" 등
+     * 아티스트별 단계 뱃지 지급 (기존 호환용 - HARDCORE 기본)
      */
     @Transactional
     public Badge awardStageBadge(Member member, String artist, int stageLevel) {
-        String badgeCode = "FAN_STAGE_" + normalizeArtistCode(artist) + "_" + stageLevel;
+        return awardStageBadge(member, artist, FanChallengeDifficulty.HARDCORE, stageLevel);
+    }
+
+    /**
+     * 아티스트별 단계 뱃지 지급 (난이도별)
+     * - 뱃지가 없으면 동적으로 생성
+     * - NORMAL: "BTS 노말" (1단계만, COMMON)
+     * - HARDCORE: "BTS 1단계", "BTS 2단계", "BTS 3단계" (RARE → LEGENDARY)
+     */
+    @Transactional
+    public Badge awardStageBadge(Member member, String artist, FanChallengeDifficulty difficulty, int stageLevel) {
+        // NORMAL은 1단계만 허용
+        if (difficulty == FanChallengeDifficulty.NORMAL && stageLevel != 1) {
+            log.warn("NORMAL 난이도는 1단계만 배지 지급 가능: artist={}, stageLevel={}", artist, stageLevel);
+            return null;
+        }
+
+        String normalizedArtist = normalizeArtistCode(artist);
+        String badgeCode = buildStageBadgeCode(normalizedArtist, difficulty, stageLevel);
 
         // 뱃지가 없으면 동적 생성
         Badge badge = badgeRepository.findByCode(badgeCode)
-                .orElseGet(() -> createStageBadge(artist, stageLevel, badgeCode));
+                .orElseGet(() -> createStageBadge(artist, difficulty, stageLevel, badgeCode));
 
         // 이미 보유 중인지 확인
         if (memberBadgeRepository.existsByMemberAndBadge(member, badge)) {
@@ -301,47 +317,84 @@ public class BadgeService {
         MemberBadge memberBadge = new MemberBadge(member, badge);
         memberBadgeRepository.save(memberBadge);
 
-        log.info("단계 뱃지 획득: {} -> {} {} ({})",
-                member.getNickname(), artist, stageLevel + "단계", badgeCode);
+        log.info("단계 뱃지 획득: {} -> {} {} {} ({})",
+                member.getNickname(), artist, difficulty.getDisplayName(),
+                stageLevel + "단계", badgeCode);
         return badge;
     }
 
     /**
-     * 단계 뱃지 동적 생성
+     * 단계 뱃지 코드 생성
+     * - NORMAL: FAN_STAGE_BTS_NORMAL_1
+     * - HARDCORE: FAN_STAGE_BTS_HARDCORE_1
      */
-    private Badge createStageBadge(String artist, int stageLevel, String badgeCode) {
-        // 단계 설정 조회
+    public String buildStageBadgeCode(String normalizedArtist, FanChallengeDifficulty difficulty, int stageLevel) {
+        return "FAN_STAGE_" + normalizedArtist + "_" + difficulty.name() + "_" + stageLevel;
+    }
+
+    /**
+     * 단계 뱃지 동적 생성 (난이도별)
+     */
+    private Badge createStageBadge(String artist, FanChallengeDifficulty difficulty,
+                                    int stageLevel, String badgeCode) {
+        // 단계 설정 조회 (HARDCORE용)
         FanChallengeStageConfig config = stageConfigRepository.findByStageLevel(stageLevel)
                 .orElse(null);
 
-        String stageName = config != null ? config.getStageName() : stageLevel + "단계";
-        String stageEmoji = config != null ? config.getStageEmoji() : "🏆";
+        String stageName;
+        String stageEmoji;
+
+        if (difficulty == FanChallengeDifficulty.NORMAL) {
+            stageName = "노말";
+            stageEmoji = "⭐";
+        } else {
+            stageName = config != null ? config.getStageName() : stageLevel + "단계";
+            stageEmoji = config != null ? config.getStageEmoji() : "🏆";
+        }
 
         Badge badge = new Badge();
         badge.setCode(badgeCode);
         badge.setName(artist + " " + stageName);
-        badge.setDescription(artist + " 팬 챌린지 " + stageName + " 퍼펙트 클리어");
+        badge.setDescription(artist + " 팬 챌린지 " + difficulty.getDisplayName() + " "
+                + stageName + " 퍼펙트 클리어");
         badge.setEmoji(stageEmoji);
         badge.setBadgeType("FAN_STAGE");
         badge.setArtistName(artist);
         badge.setFanStageLevel(stageLevel);
+        badge.setFanChallengeDifficulty(difficulty);
         badge.setCategory(Badge.BadgeCategory.SPECIAL);
 
-        // 단계별 희귀도 설정
-        if (stageLevel >= 3) {
-            badge.setRarity(Badge.BadgeRarity.LEGENDARY);
-        } else if (stageLevel == 2) {
-            badge.setRarity(Badge.BadgeRarity.EPIC);
-        } else {
-            badge.setRarity(Badge.BadgeRarity.RARE);
-        }
+        // 난이도+단계별 희귀도 설정
+        badge.setRarity(determineStageBadgeRarity(difficulty, stageLevel));
 
         badge.setIsActive(true);
-        badge.setSortOrder(100 + stageLevel); // 단계 뱃지는 100번대
+        // 정렬: NORMAL=100, HARDCORE 1단계=101, 2단계=102, 3단계=103
+        badge.setSortOrder(difficulty == FanChallengeDifficulty.NORMAL ? 100 : 100 + stageLevel);
 
-        log.info("새 단계 뱃지 생성: {} ({}, {})",
-                badge.getName(), badge.getCode(), badge.getRarity().getDisplayName());
+        log.info("새 단계 뱃지 생성: {} ({}, {}, {})",
+                badge.getName(), badge.getCode(), difficulty.name(), badge.getRarity().getDisplayName());
         return badgeRepository.save(badge);
+    }
+
+    /**
+     * 난이도+단계별 희귀도 결정
+     * - NORMAL 1단계: COMMON
+     * - HARDCORE 1단계: RARE
+     * - HARDCORE 2단계: EPIC
+     * - HARDCORE 3단계: LEGENDARY
+     */
+    public Badge.BadgeRarity determineStageBadgeRarity(FanChallengeDifficulty difficulty, int stageLevel) {
+        if (difficulty == FanChallengeDifficulty.NORMAL) {
+            return Badge.BadgeRarity.COMMON;
+        }
+        // HARDCORE
+        if (stageLevel >= 3) {
+            return Badge.BadgeRarity.LEGENDARY;
+        } else if (stageLevel == 2) {
+            return Badge.BadgeRarity.EPIC;
+        } else {
+            return Badge.BadgeRarity.RARE;
+        }
     }
 
     /**

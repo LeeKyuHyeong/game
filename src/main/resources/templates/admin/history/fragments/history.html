@@ -14,10 +14,24 @@
     @media (max-width: 768px) { .filter-form { flex-direction: column; } .filter-form input, .filter-form select { width: 100%; } }
     </style>
 
-    <div class="sub-stats">
-        <div class="sub-stat"><span class="sub-stat-value" th:text="${todayCount} ?: 0">0</span><span class="sub-stat-label">오늘 게임</span></div>
-        <div class="sub-stat"><span class="sub-stat-value" th:text="${#numbers.formatDecimal(avgScore ?: 0, 0, 1)}">0</span><span class="sub-stat-label">평균 점수</span></div>
-        <div class="sub-stat"><span class="sub-stat-value" th:text="${totalItems}">0</span><span class="sub-stat-label">전체 이력</span></div>
+    <!-- 통계 카드 -->
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="stat-value" th:text="${todayCount} ?: 0">0</div>
+            <div class="stat-label">오늘 게임</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" th:text="${playingCount} ?: 0">0</div>
+            <div class="stat-label">진행 중인 방</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" th:text="${totalItems}">0</div>
+            <div class="stat-label">전체 이력</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" th:text="${#numbers.formatDecimal(avgScore ?: 0, 0, 1)}">0</div>
+            <div class="stat-label">평균 점수</div>
+        </div>
     </div>
 
     <div class="filter-bar">
