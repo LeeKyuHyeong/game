@@ -1,5 +1,5 @@
-// 이벤트 바인딩 - AJAX 로드 후에도 동작하도록 즉시 실행
-(function initBatchEvents() {
+// 배치 탭 초기화 함수 - AJAX 로드 후 호출됨
+function initBatchTab() {
     document.querySelectorAll('.batch-card').forEach(function(card) {
         // 이미 바인딩되었으면 스킵
         if (card.dataset.bound) return;
@@ -36,7 +36,10 @@
             saveBatchConfig();
         });
     }
-})();
+}
+
+// 페이지 최초 로드 시에도 초기화 시도
+initBatchTab();
 
 // 필터링 기능
 function filterBatches() {
