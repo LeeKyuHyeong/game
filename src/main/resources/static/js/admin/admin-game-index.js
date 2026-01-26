@@ -26,6 +26,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 콘텐츠 로드
     loadTabContent(tab);
+
+    // 이벤트 위임: 동적으로 로드되는 검색 폼 처리
+    document.getElementById('tabContent').addEventListener('submit', function(e) {
+        if (e.target.classList.contains('search-form')) {
+            e.preventDefault();
+            var params = new URLSearchParams(new FormData(e.target)).toString();
+
+            if (currentTab === 'history') {
+                loadHistoryContent(params);
+            } else if (currentTab === 'multi') {
+                loadMultiSubContent(params);
+            } else if (currentTab === 'challenge') {
+                loadChallengeSubContent(params);
+            }
+        }
+    });
+
+    // 이벤트 위임: 초기화 버튼 처리
+    document.getElementById('tabContent').addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-reset')) {
+            e.preventDefault();
+
+            if (currentTab === 'history') {
+                loadHistoryContent();
+            } else if (currentTab === 'multi') {
+                loadMultiSubContent();
+            } else if (currentTab === 'challenge') {
+                loadChallengeSubContent();
+            }
+        }
+    });
 });
 
 // 브라우저 뒤로가기/앞으로가기 처리
@@ -109,35 +140,51 @@ function loadTabContent(tab, params) {
 
 // 탭 내 스크립트 초기화
 function initializeTabScripts() {
-    // 인라인 스크립트 실행
+    // 동적으로 로드된 스크립트 실행
     var scripts = document.querySelectorAll('#tabContent script');
+    var scriptsToLoad = [];
+
     scripts.forEach(function(script) {
-        if (!script.src && script.textContent) {
+        if (script.src) {
+            // 외부 스크립트 - 동적으로 로드
+            scriptsToLoad.push(script.src);
+        } else if (script.textContent) {
+            // 인라인 스크립트 - 즉시 실행
             var newScript = document.createElement('script');
             newScript.textContent = script.textContent;
             document.body.appendChild(newScript);
         }
     });
 
-    // 게임 이력 탭 폼 이벤트 초기화
-    if (currentTab === 'history') {
-        var filterForm = document.querySelector('.tab-content .filter-form');
-        if (filterForm) {
-            filterForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                var params = new URLSearchParams(new FormData(filterForm)).toString();
-                loadTabContent('history', params);
-            });
-        }
+    // 외부 스크립트 순차 로드
+    loadScriptsSequentially(scriptsToLoad, function() {
+        // 폼 이벤트는 DOMContentLoaded에서 이벤트 위임으로 처리됨
+    });
+}
 
-        var resetBtn = document.querySelector('.tab-content .btn-reset');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                loadTabContent('history');
-            });
-        }
+// 외부 스크립트 순차 로드
+function loadScriptsSequentially(urls, callback) {
+    if (urls.length === 0) {
+        callback();
+        return;
     }
+
+    var url = urls.shift();
+
+    // 이미 로드된 스크립트인지 확인
+    if (document.querySelector('script[src="' + url + '"]')) {
+        loadScriptsSequentially(urls, callback);
+        return;
+    }
+
+    var script = document.createElement('script');
+    script.src = url;
+    script.onload = function() { loadScriptsSequentially(urls, callback); };
+    script.onerror = function() {
+        console.error('Failed to load script:', url);
+        loadScriptsSequentially(urls, callback);
+    };
+    document.body.appendChild(script);
 }
 
 // ========== 공통 유틸리티 함수 ==========
@@ -573,6 +620,72 @@ function changeRankType(rankType, artist) {
         .catch(function(error) {
             console.error('Error:', error);
         });
+}
+
+// ========== 서브탭 검색 함수 ==========
+// 멀티 운영 - 방 관리 검색
+function searchMultiRoom() {
+    var form = document.getElementById('multiRoomSearchForm');
+    if (form) {
+        var params = new URLSearchParams(new FormData(form)).toString();
+        loadMultiSubContent(params);
+    }
+}
+
+function resetMultiRoom() {
+    loadMultiSubContent();
+}
+
+// 멀티 운영 - 채팅 내역 검색
+function searchMultiChat() {
+    var form = document.getElementById('multiChatSearchForm');
+    if (form) {
+        var params = new URLSearchParams(new FormData(form)).toString();
+        loadMultiSubContent(params);
+    }
+}
+
+function resetMultiChat() {
+    loadMultiSubContent();
+}
+
+// 챌린지 기록 - 팬 챌린지 검색
+function searchFanChallenge() {
+    var form = document.getElementById('fanChallengeSearchForm');
+    if (form) {
+        var params = new URLSearchParams(new FormData(form)).toString();
+        loadChallengeSubContent(params);
+    }
+}
+
+function resetFanChallenge() {
+    loadChallengeSubContent();
+}
+
+// 챌린지 기록 - 장르 챌린지 검색
+function searchGenreChallenge() {
+    var form = document.getElementById('genreChallengeSearchForm');
+    if (form) {
+        var params = new URLSearchParams(new FormData(form)).toString();
+        loadChallengeSubContent(params);
+    }
+}
+
+function resetGenreChallenge() {
+    loadChallengeSubContent();
+}
+
+// 게임 이력 검색
+function searchHistory() {
+    var form = document.querySelector('.history-tab-content .filter-form');
+    if (form) {
+        var params = new URLSearchParams(new FormData(form)).toString();
+        loadHistoryContent(params);
+    }
+}
+
+function resetHistory() {
+    loadHistoryContent();
 }
 
 // 서브탭 콘텐츠 로드 헬퍼 함수

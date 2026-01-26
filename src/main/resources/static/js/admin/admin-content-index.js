@@ -90,6 +90,9 @@ function loadTabContent(tab, params) {
         case 'popularity':
             url = '/admin/song-popularity/content';
             break;
+        case 'report':
+            url = '/admin/report/content';
+            break;
         default:
             url = '/admin/song/content';
     }
@@ -113,26 +116,62 @@ function loadTabContent(tab, params) {
 }
 
 function initializeTabScripts() {
-    // 동적으로 로드된 인라인 스크립트 실행
+    // 동적으로 로드된 스크립트 실행
     const scripts = document.querySelectorAll('#tabContent script');
+    let scriptsToLoad = [];
+
     scripts.forEach(script => {
-        if (!script.src && script.textContent) {
+        if (script.src) {
+            // 외부 스크립트 - 동적으로 로드
+            scriptsToLoad.push(script.src);
+        } else if (script.textContent) {
+            // 인라인 스크립트 - 즉시 실행
             const newScript = document.createElement('script');
             newScript.textContent = script.textContent;
             document.body.appendChild(newScript);
         }
     });
 
-    // 탭별 초기화
-    if (currentTab === 'song') {
-        initSongTabScripts();
-    } else if (currentTab === 'answer') {
-        initAnswerTabScripts();
-    } else if (currentTab === 'genre') {
-        initGenreTabScripts();
-    } else if (currentTab === 'popularity') {
-        initPopularityTabScripts();
+    // 외부 스크립트 순차 로드 후 탭 초기화
+    loadScriptsSequentially(scriptsToLoad, () => {
+        // 탭별 초기화
+        if (currentTab === 'song') {
+            initSongTabScripts();
+        } else if (currentTab === 'answer') {
+            initAnswerTabScripts();
+        } else if (currentTab === 'genre') {
+            initGenreTabScripts();
+        } else if (currentTab === 'popularity') {
+            initPopularityTabScripts();
+        } else if (currentTab === 'report') {
+            initReportTabScripts();
+        }
+    });
+}
+
+// 외부 스크립트 순차 로드
+function loadScriptsSequentially(urls, callback) {
+    if (urls.length === 0) {
+        callback();
+        return;
     }
+
+    const url = urls.shift();
+
+    // 이미 로드된 스크립트인지 확인
+    if (document.querySelector(`script[src="${url}"]`)) {
+        loadScriptsSequentially(urls, callback);
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.src = url;
+    script.onload = () => loadScriptsSequentially(urls, callback);
+    script.onerror = () => {
+        console.error('Failed to load script:', url);
+        loadScriptsSequentially(urls, callback);
+    };
+    document.body.appendChild(script);
 }
 
 // ========== Song Tab Functions ==========
@@ -518,6 +557,74 @@ async function saveGenre(e) {
         }
     } catch (error) {
         showToast('저장 중 오류가 발생했습니다.', 'error');
+    }
+}
+
+// ========== Report Tab Functions ==========
+
+function initReportTabScripts() {
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.onchange = function() {
+            const params = this.value ? `status=${this.value}` : '';
+            loadTabContent('report', params);
+        };
+    }
+
+    const resetBtn = document.querySelector('.tab-content .btn-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadTabContent('report');
+        });
+    }
+}
+
+function goToReportPage(page) {
+    const statusFilter = document.getElementById('statusFilter');
+    const params = new URLSearchParams();
+    if (statusFilter && statusFilter.value) params.set('status', statusFilter.value);
+    params.set('page', page);
+    loadTabContent('report', params.toString());
+}
+
+async function processReport(id, status) {
+    const adminNote = prompt('관리자 메모 (선택사항):') || '';
+
+    try {
+        const response = await fetch(`/admin/report/process/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: status, adminNote: adminNote })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            showToast(result.message, 'success');
+            loadTabContent('report');
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        showToast('처리 중 오류가 발생했습니다.', 'error');
+    }
+}
+
+async function disableReportedSong(id) {
+    if (!confirm('해당 곡을 비활성화하고 신고를 승인 처리하시겠습니까?')) return;
+
+    try {
+        const response = await fetch(`/admin/report/disable-song/${id}`, { method: 'POST' });
+        const result = await response.json();
+
+        if (result.success) {
+            showToast(result.message, 'success');
+            loadTabContent('report');
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        showToast('처리 중 오류가 발생했습니다.', 'error');
     }
 }
 

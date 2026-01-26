@@ -54,22 +54,66 @@ async function loadTabContent(tab, params = '') {
 }
 
 function initTabScripts() {
-    const searchForm = document.querySelector('.tab-content .search-form, .tab-content .filter-form');
-    if (searchForm) {
-        searchForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const params = new URLSearchParams(new FormData(searchForm)).toString();
-            loadTabContent(currentTab, params);
-        });
+    // 동적으로 로드된 스크립트 실행
+    const scripts = document.querySelectorAll('#tabContent script');
+    let scriptsToLoad = [];
+
+    scripts.forEach(script => {
+        if (script.src) {
+            // 외부 스크립트 - 동적으로 로드
+            scriptsToLoad.push(script.src);
+        } else if (script.textContent) {
+            // 인라인 스크립트 - 즉시 실행
+            const newScript = document.createElement('script');
+            newScript.textContent = script.textContent;
+            document.body.appendChild(newScript);
+        }
+    });
+
+    // 외부 스크립트 순차 로드 후 폼 이벤트 바인딩
+    loadScriptsSequentially(scriptsToLoad, () => {
+        const searchForm = document.querySelector('.tab-content .search-form, .tab-content .filter-form');
+        if (searchForm) {
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const params = new URLSearchParams(new FormData(searchForm)).toString();
+                loadTabContent(currentTab, params);
+            });
+        }
+
+        const resetBtn = document.querySelector('.tab-content .btn-reset');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                loadTabContent(currentTab);
+            });
+        }
+    });
+}
+
+// 외부 스크립트 순차 로드
+function loadScriptsSequentially(urls, callback) {
+    if (urls.length === 0) {
+        callback();
+        return;
     }
 
-    const resetBtn = document.querySelector('.tab-content .btn-reset');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            loadTabContent(currentTab);
-        });
+    const url = urls.shift();
+
+    // 이미 로드된 스크립트인지 확인
+    if (document.querySelector(`script[src="${url}"]`)) {
+        loadScriptsSequentially(urls, callback);
+        return;
     }
+
+    const script = document.createElement('script');
+    script.src = url;
+    script.onload = () => loadScriptsSequentially(urls, callback);
+    script.onerror = () => {
+        console.error('Failed to load script:', url);
+        loadScriptsSequentially(urls, callback);
+    };
+    document.body.appendChild(script);
 }
 
 // ========== Form Initialization ==========
