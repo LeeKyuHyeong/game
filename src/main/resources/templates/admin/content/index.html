@@ -4,6 +4,7 @@
 <body class="admin-page">
 <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
 <link rel="stylesheet" th:href="@{/css/admin/member-index.css}">
+<link rel="stylesheet" th:href="@{/css/admin/form.css}">
 <link rel="stylesheet" th:href="@{/css/admin/song-grid.css}">
 <link rel="stylesheet" th:href="@{/css/admin/song-index.css}">
 <link rel="stylesheet" th:href="@{/css/admin/song-popularity.css}">
@@ -254,9 +255,7 @@
 </script>
 
 <script th:src="@{/js/common/common.js}"></script>
-<script th:src="@{/js/admin/admin-song.js}"></script>
-<script th:src="@{/js/admin/admin-song-index.js}"></script>
-<script th:src="@{/js/admin/admin-song-popularity.js}"></script>
+<script th:src="@{/js/common/toggle-row-expand.js}"></script>
 <script th:src="@{/js/admin/admin-content-index.js}"></script>
 <script th:inline="javascript">
     currentTab = [[${activeTab}]];

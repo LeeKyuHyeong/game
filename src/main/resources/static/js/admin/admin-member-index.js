@@ -113,7 +113,11 @@ function initForms() {
 // ========== Row & Pagination Functions ==========
 
 function toggleRowExpand(row) {
-    if (window.innerWidth <= 768) row.classList.toggle('expanded');
+    console.log('toggleRowExpand called, width:', window.innerWidth);
+    if (window.innerWidth <= 768) {
+        row.classList.toggle('expanded');
+        console.log('expanded:', row.classList.contains('expanded'));
+    }
 }
 
 function goToPage(page) {
@@ -140,6 +144,7 @@ function sortBy(column) {
 // ========== Member Detail Functions ==========
 
 async function viewDetail(id) {
+    console.log('viewDetail called with id:', id);
     currentMemberId = id;
     try {
         const response = await fetch(`/admin/member/detail/${id}`);
@@ -192,12 +197,12 @@ function openRoleModal(id) {
 }
 
 function openModal(id) {
-    document.getElementById(id).classList.add('active');
+    document.getElementById(id).classList.add('show');
     document.body.style.overflow = 'hidden';
 }
 
 function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
+    document.getElementById(id).classList.remove('show');
     document.body.style.overflow = '';
 }
 

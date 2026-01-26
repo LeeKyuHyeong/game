@@ -106,12 +106,12 @@ function escapeHtml(text) {
 }
 
 function openModal(modalId) {
-    document.getElementById(modalId).classList.add('active');
+    document.getElementById(modalId).classList.add('show');
     document.body.style.overflow = 'hidden';
 }
 
 function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
+    document.getElementById(modalId).classList.remove('show');
     document.body.style.overflow = '';
     if (modalId === 'chatModal') {
         document.getElementById('deleteAllChatsBtn').style.display = 'none';

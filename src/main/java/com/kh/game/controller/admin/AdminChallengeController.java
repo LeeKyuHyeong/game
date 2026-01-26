@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 /**
- * 챌린지 관리 통합 페이지 컨트롤러
- * 팬 챌린지 + 장르 챌린지를 하나의 페이지에서 탭으로 관리
+ * 챌린지 기록 페이지 컨트롤러
+ * 팬 챌린지 + 장르 챌린지 기록을 하나의 페이지에서 탭으로 관리 (기록 조회/관리용)
  */
 @Controller
 @RequestMapping("/admin/challenge")

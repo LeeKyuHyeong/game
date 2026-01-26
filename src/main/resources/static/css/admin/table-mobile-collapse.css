@@ -115,15 +115,11 @@
         border-top: 1px solid var(--border-color);
     }
 
-    .data-table tbody tr.expanded td.action-buttons {
-        display: flex;
-    }
-
     .data-table td.action-buttons::before {
         display: none !important;
     }
 
-    /* 확장 토글 버튼 (행 하단) */
+    /* 확장 토글 버튼 (행 하단에 가상 요소로) */
     .data-table tbody tr::after {
         content: '상세보기 ▼';
         display: block;
@@ -134,10 +130,20 @@
         cursor: pointer;
         background: var(--bg-elevated);
         border-top: 1px solid var(--border-color);
+        /* 클릭 이벤트를 통과시켜 tr의 onclick이 처리하도록 */
+        pointer-events: none;
     }
 
+    /* 확장 상태 */
     .data-table tbody tr.expanded::after {
         content: '접기 ▲';
+    }
+
+    /* 확장 시 action-buttons 표시 */
+    .data-table tbody tr.expanded td.action-buttons {
+        display: flex;
+        position: relative;
+        z-index: 10;
     }
 
     /* 빈 행 */

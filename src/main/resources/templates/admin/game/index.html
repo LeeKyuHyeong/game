@@ -26,13 +26,13 @@
             </button>
             <button class="tab-btn" th:classappend="${activeTab == 'multi'} ? 'active'"
                     data-tab="multi" onclick="switchTab('multi')">
-                <span class="tab-icon">🎮</span>
-                <span class="tab-text">멀티게임</span>
+                <span class="tab-icon">🚪</span>
+                <span class="tab-text">멀티 운영</span>
             </button>
             <button class="tab-btn" th:classappend="${activeTab == 'challenge'} ? 'active'"
                     data-tab="challenge" onclick="switchTab('challenge')">
-                <span class="tab-icon">⭐</span>
-                <span class="tab-text">챌린지</span>
+                <span class="tab-icon">📋</span>
+                <span class="tab-text">챌린지 기록</span>
             </button>
         </div>
 
@@ -102,11 +102,9 @@
 
 <script th:src="@{/js/common/common.js}"></script>
 <script th:src="@{/js/common/toggle-row-expand.js}"></script>
-<script th:src="@{/js/admin/admin-history.js}"></script>
-<script th:src="@{/js/admin/admin-multi-index.js}"></script>
-<script th:src="@{/js/admin/admin-challenge-index.js}"></script>
 <script th:src="@{/js/admin/admin-game-index.js}"></script>
 <script th:inline="javascript">
+    // 서버에서 전달받은 초기 탭 설정
     currentTab = [[${activeTab}]];
 </script>
 </body>

@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * 멀티게임 관리 통합 페이지 컨트롤러
- * 방 관리 + 채팅 내역을 하나의 페이지에서 탭으로 관리
+ * 멀티 운영 페이지 컨트롤러
+ * 방 관리 + 채팅 내역을 하나의 페이지에서 탭으로 관리 (운영/모니터링용)
  */
 @Controller
 @RequestMapping("/admin/multi")
