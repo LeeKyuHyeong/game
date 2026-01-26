@@ -5,6 +5,7 @@ import com.kh.game.entity.*;
 import com.kh.game.service.GameSessionService;
 import com.kh.game.service.MemberService;
 import com.kh.game.service.FanChallengeService;
+import com.kh.game.service.GenreService;
 import com.kh.game.repository.MemberRepository;
 import com.kh.game.repository.FanChallengeRecordRepository;
 import com.kh.game.repository.GameRoomRepository;
@@ -35,6 +36,7 @@ public class AdminGameHistoryController {
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
     private final FanChallengeService fanChallengeService;
     private final GameRoomRepository gameRoomRepository;
+    private final GenreService genreService;
 
     /**
      * 기존 URL → 통합 게임 관리 페이지로 리다이렉트
@@ -58,20 +60,43 @@ public class AdminGameHistoryController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<GameSession> sessionPage;
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
+        // 검색 조건 파싱
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        GameSession.GameType parsedGameType = null;
+        GameSession.GameStatus parsedStatus = null;
+
+        if (gameType != null && !gameType.isEmpty()) {
+            try {
+                parsedGameType = GameSession.GameType.valueOf(gameType);
+            } catch (IllegalArgumentException e) {
+                // 잘못된 gameType 무시
+            }
+        }
+        if (status != null && !status.isEmpty()) {
+            try {
+                parsedStatus = GameSession.GameStatus.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                // 잘못된 status 무시
+            }
+        }
+
+        // 검색 조건에 따라 조회
+        if (hasKeyword) {
             sessionPage = gameSessionService.search(keyword, pageable);
-            model.addAttribute("keyword", keyword);
-        } else if (gameType != null && !gameType.isEmpty()) {
-            sessionPage = gameSessionService.findByGameType(
-                    GameSession.GameType.valueOf(gameType), pageable);
-            model.addAttribute("gameType", gameType);
-        } else if (status != null && !status.isEmpty()) {
-            sessionPage = gameSessionService.findByStatus(
-                    GameSession.GameStatus.valueOf(status), pageable);
-            model.addAttribute("status", status);
+        } else if (parsedGameType != null && parsedStatus != null) {
+            sessionPage = gameSessionService.findByGameTypeAndStatus(parsedGameType, parsedStatus, pageable);
+        } else if (parsedGameType != null) {
+            sessionPage = gameSessionService.findByGameType(parsedGameType, pageable);
+        } else if (parsedStatus != null) {
+            sessionPage = gameSessionService.findByStatus(parsedStatus, pageable);
         } else {
             sessionPage = gameSessionService.findAll(pageable);
         }
+
+        // 항상 검색 조건을 model에 추가 (폼 상태 유지)
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("gameType", gameType);
+        model.addAttribute("status", status);
 
         model.addAttribute("sessions", sessionPage.getContent());
         model.addAttribute("currentPage", page);
@@ -94,9 +119,18 @@ public class AdminGameHistoryController {
         List<GameRound> rounds = gameSessionService.findRoundsBySessionId(id);
         GameSettings settings = gameSessionService.parseSettings(session.getSettings());
 
+        // 고정 장르 이름 조회
+        String fixedGenreName = null;
+        if (settings.getFixedGenreId() != null) {
+            fixedGenreName = genreService.findById(settings.getFixedGenreId())
+                    .map(Genre::getName)
+                    .orElse(null);
+        }
+
         model.addAttribute("gameSession", session);
         model.addAttribute("rounds", rounds);
         model.addAttribute("settings", settings);
+        model.addAttribute("fixedGenreName", fixedGenreName);
         model.addAttribute("menu", "history");
 
         return "admin/history/detail";

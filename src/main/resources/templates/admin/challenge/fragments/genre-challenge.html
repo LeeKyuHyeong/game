@@ -2,8 +2,8 @@
 <div class="challenge-tab-content" xmlns:th="http://www.thymeleaf.org">
     <!-- 검색 -->
     <div class="search-bar">
-        <form class="search-form">
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="회원 검색">
+        <form class="search-form" id="genreChallengeSearchForm" onsubmit="searchGenreChallenge(); return false;">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="회원 검색" onkeypress="if(event.key==='Enter'){searchGenreChallenge(); return false;}">
             <select name="genreCode" class="form-select">
                 <option value="">전체 장르</option>
                 <option th:each="genre : ${genres}" th:value="${genre.code}"
@@ -14,8 +14,8 @@
                 <option value="NORMAL" th:selected="${difficulty == 'NORMAL'}">노말</option>
                 <option value="HARDCORE" th:selected="${difficulty == 'HARDCORE'}">하드코어</option>
             </select>
-            <button type="submit" class="btn btn-search">검색</button>
-            <a th:if="${keyword != null or genreCode != null or difficulty != null}" href="#" class="btn btn-reset">초기화</a>
+            <button type="button" class="btn btn-search" onclick="searchGenreChallenge()">검색</button>
+            <button type="button" class="btn btn-reset" onclick="resetGenreChallenge()">초기화</button>
         </form>
     </div>
 

@@ -36,10 +36,37 @@
                     <div class="info-item">
                         <label>게임모드</label>
                         <span th:switch="${gameSession.gameMode.name()}">
-                                <span th:case="'RANDOM'">전체 랜덤</span>
-                                <span th:case="'GENRE_PER_ROUND'">라운드별 장르 선택</span>
-                                <span th:case="'FIXED_GENRE'">고정 장르</span>
-                            </span>
+                            <span th:case="'RANDOM'">전체 랜덤</span>
+                            <span th:case="'RETRO'">레트로</span>
+                            <span th:case="'GENRE_PER_ROUND'">라운드별 장르 선택</span>
+                            <span th:case="'FIXED_GENRE'">고정 장르</span>
+                            <span th:case="'FIXED_ARTIST'">고정 아티스트</span>
+                            <span th:case="'FIXED_YEAR'">고정 연도</span>
+                            <span th:case="'ARTIST_PER_ROUND'">라운드별 아티스트 선택</span>
+                            <span th:case="'YEAR_PER_ROUND'">라운드별 연도 선택</span>
+                            <span th:case="*" th:text="${gameSession.gameMode.name()}">기타</span>
+                        </span>
+                    </div>
+                    <!-- 고정 장르 표시 -->
+                    <div class="info-item" th:if="${gameSession.gameMode.name() == 'FIXED_GENRE' and fixedGenreName != null}">
+                        <label>선택 장르</label>
+                        <span class="highlight-value" th:text="${fixedGenreName}"></span>
+                    </div>
+                    <!-- 고정 연도 표시 -->
+                    <div class="info-item" th:if="${gameSession.gameMode.name() == 'FIXED_YEAR' and settings.selectedYears != null and !settings.selectedYears.isEmpty()}">
+                        <label>선택 연도</label>
+                        <span class="highlight-value" th:text="${#strings.listJoin(settings.selectedYears, ', ')} + '년'"></span>
+                    </div>
+                    <!-- 고정 아티스트 표시 -->
+                    <div class="info-item" th:if="${gameSession.gameMode.name() == 'FIXED_ARTIST' and settings.selectedArtists != null and !settings.selectedArtists.isEmpty()}">
+                        <label>선택 아티스트</label>
+                        <span class="highlight-value" th:text="${#strings.listJoin(settings.selectedArtists, ', ')}"></span>
+                    </div>
+                    <div class="info-item">
+                        <label>솔로/그룹</label>
+                        <span th:if="${settings.soloOnly}">솔로만</span>
+                        <span th:if="${settings.groupOnly}">그룹만</span>
+                        <span th:if="${!settings.soloOnly and !settings.groupOnly}">전체</span>
                     </div>
                     <div class="info-item">
                         <label>상태</label>
@@ -95,42 +122,6 @@
                     <div class="result-card">
                         <div class="result-value" th:text="${gameSession.skipCount} ?: 0">0</div>
                         <div class="result-label">스킵</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="detail-section">
-                <h3>게임 설정</h3>
-                <div class="settings-grid">
-                    <div class="setting-item">
-                        <label>제한시간</label>
-                        <span th:text="${settings.timeLimit} + '초'"></span>
-                    </div>
-                    <div class="setting-item">
-                        <label>힌트 사용</label>
-                        <span th:text="${settings.hintEnabled} ? '가능' : '불가'"></span>
-                    </div>
-                    <div class="setting-item">
-                        <label>스킵 허용</label>
-                        <span th:text="${settings.skipAllowed} ? '가능 (' + ${settings.maxSkips} + '회)' : '불가'"></span>
-                    </div>
-                    <div class="setting-item" th:if="${settings.yearFrom != null or settings.yearTo != null}">
-                        <label>연도 범위</label>
-                        <span th:text="${settings.yearFrom} + ' ~ ' + ${settings.yearTo}"></span>
-                    </div>
-                    <div class="setting-item">
-                        <label>솔로/그룹</label>
-                        <span th:if="${settings.soloOnly}">솔로만</span>
-                        <span th:if="${settings.groupOnly}">그룹만</span>
-                        <span th:if="${!settings.soloOnly and !settings.groupOnly}">전체</span>
-                    </div>
-                    <div class="setting-item">
-                        <label>정답 점수</label>
-                        <span th:text="${settings.scorePerCorrect} + '점'"></span>
-                    </div>
-                    <div class="setting-item">
-                        <label>시간 보너스</label>
-                        <span th:text="${settings.timeBonusRate} + '%'"></span>
                     </div>
                 </div>
             </div>

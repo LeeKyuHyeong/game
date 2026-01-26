@@ -2,19 +2,18 @@
 <div class="multi-tab-content" xmlns:th="http://www.thymeleaf.org">
     <!-- 검색 -->
     <div class="search-bar">
-        <form class="search-form chat-filter-form">
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="메시지 검색">
-            <input type="text" name="roomCode" th:value="${roomCode}" placeholder="방 코드">
-            <input type="text" name="nickname" th:value="${nickname}" placeholder="닉네임">
+        <form class="search-form chat-filter-form" id="multiChatSearchForm" onsubmit="searchMultiChat(); return false;">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="메시지 검색" onkeypress="if(event.key==='Enter'){searchMultiChat(); return false;}">
+            <input type="text" name="roomCode" th:value="${roomCode}" placeholder="방 코드" onkeypress="if(event.key==='Enter'){searchMultiChat(); return false;}">
+            <input type="text" name="nickname" th:value="${nickname}" placeholder="닉네임" onkeypress="if(event.key==='Enter'){searchMultiChat(); return false;}">
             <select name="messageType" class="form-select">
                 <option value="">전체 타입</option>
                 <option value="CHAT" th:selected="${messageType == 'CHAT'}">일반 채팅</option>
                 <option value="CORRECT_ANSWER" th:selected="${messageType == 'CORRECT_ANSWER'}">정답</option>
                 <option value="SYSTEM" th:selected="${messageType == 'SYSTEM'}">시스템</option>
             </select>
-            <button type="submit" class="btn btn-search">검색</button>
-            <a th:if="${keyword != null or roomCode != null or nickname != null or messageType != null}"
-               href="#" class="btn btn-reset">초기화</a>
+            <button type="button" class="btn btn-search" onclick="searchMultiChat()">검색</button>
+            <button type="button" class="btn btn-reset" onclick="resetMultiChat()">초기화</button>
         </form>
     </div>
 
@@ -114,7 +113,7 @@
 
 /* 채팅 필터 폼 */
 .chat-filter-form {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .chat-filter-form input[type="text"] {

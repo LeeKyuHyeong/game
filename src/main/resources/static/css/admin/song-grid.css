@@ -172,7 +172,14 @@
 .filter-row.filter-selects .filter-actions {
     display: flex;
     gap: 0.5rem;
-    align-items: flex-end;
+    align-items: center;
+}
+
+/* 검색/초기화/노래추가 버튼 높이 통일 (button/a 태그 차이 보정) */
+.filter-row.filter-selects .filter-actions .btn {
+    padding: 0.625rem 1.25rem;
+    line-height: 1;
+    box-sizing: border-box;
 }
 
 /* Artist Filter Section - 2 Section Layout */
@@ -424,14 +431,6 @@
 
 .btn-text:hover {
     text-decoration: underline;
-}
-
-.filter-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
 }
 
 /* View Toggle */

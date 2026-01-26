@@ -52,20 +52,35 @@ public class AdminRoomController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<GameRoom> roomPage;
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            roomPage = gameRoomRepository.searchByKeyword(keyword, pageable);
-            model.addAttribute("keyword", keyword);
-        } else if (status != null && !status.isEmpty()) {
+        // 검색 조건 파싱
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        GameRoom.RoomStatus roomStatus = null;
+        if (status != null && !status.isEmpty()) {
             try {
-                GameRoom.RoomStatus roomStatus = GameRoom.RoomStatus.valueOf(status);
-                roomPage = gameRoomRepository.findByStatusOrderByCreatedAtDesc(roomStatus, pageable);
+                roomStatus = GameRoom.RoomStatus.valueOf(status);
             } catch (IllegalArgumentException e) {
-                roomPage = gameRoomRepository.findAllByOrderByCreatedAtDesc(pageable);
+                // 잘못된 상태값 무시
             }
-            model.addAttribute("status", status);
+        }
+
+        // 검색 조건에 따라 조회
+        if (hasKeyword && roomStatus != null) {
+            // 키워드 + 상태 동시 검색
+            roomPage = gameRoomRepository.searchByKeywordAndStatus(keyword, roomStatus, pageable);
+        } else if (hasKeyword) {
+            // 키워드만 검색
+            roomPage = gameRoomRepository.searchByKeyword(keyword, pageable);
+        } else if (roomStatus != null) {
+            // 상태만 필터
+            roomPage = gameRoomRepository.findByStatusOrderByCreatedAtDesc(roomStatus, pageable);
         } else {
+            // 전체 조회
             roomPage = gameRoomRepository.findAllByOrderByCreatedAtDesc(pageable);
         }
+
+        // 항상 검색 조건을 model에 추가 (폼 상태 유지)
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("status", status);
 
         // 통계 정보
         long totalRooms = gameRoomRepository.count();

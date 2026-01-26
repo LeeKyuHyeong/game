@@ -72,14 +72,14 @@ public class DataInitializer implements CommandLineRunner {
         // 기본 관리자 계정 생성
         Member admin = new Member();
         admin.setEmail(adminEmail);
-        admin.setPassword(passwordEncoder.encode("1234"));
+        admin.setPassword(passwordEncoder.encode("123!@#"));
         admin.setNickname("관리자");
         admin.setUsername("admin");
         admin.setRole(Member.MemberRole.ADMIN);
         admin.setStatus(Member.MemberStatus.ACTIVE);
 
         memberRepository.save(admin);
-        log.info("기본 관리자 계정 생성 완료: {} (비밀번호: admin1234!)", adminEmail);
+        log.info("기본 관리자 계정 생성 완료: {} (비밀번호: 123!@#)", adminEmail);
     }
 
     private void initBadWords() {

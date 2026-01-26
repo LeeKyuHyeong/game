@@ -3,6 +3,7 @@ package com.kh.game.controller.admin;
 import com.kh.game.service.GenreService;
 import com.kh.game.service.SongService;
 import com.kh.game.service.SongPopularityVoteService;
+import com.kh.game.service.SongReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +25,7 @@ public class AdminContentController {
     private final SongService songService;
     private final GenreService genreService;
     private final SongPopularityVoteService voteService;
+    private final SongReportService songReportService;
 
     /**
      * 통합 콘텐츠 관리 페이지
@@ -55,6 +57,10 @@ public class AdminContentController {
 
         // 노래 폼에 필요한 장르 목록
         model.addAttribute("genres", genreService.findActiveGenres());
+
+        // 곡 신고 통계
+        long pendingReports = songReportService.getPendingCount();
+        model.addAttribute("pendingReports", pendingReports);
 
         return "admin/content/index";
     }

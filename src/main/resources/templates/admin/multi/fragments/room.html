@@ -2,16 +2,16 @@
 <div class="multi-tab-content" xmlns:th="http://www.thymeleaf.org">
     <!-- 검색 -->
     <div class="search-bar">
-        <form class="search-form">
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="방 이름 또는 코드 검색">
+        <form class="search-form" id="multiRoomSearchForm" onsubmit="searchMultiRoom(); return false;">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="방 이름 또는 코드 검색" onkeypress="if(event.key==='Enter'){searchMultiRoom(); return false;}">
             <select name="status" class="form-select">
                 <option value="">전체 상태</option>
                 <option value="WAITING" th:selected="${status == 'WAITING'}">대기중</option>
                 <option value="PLAYING" th:selected="${status == 'PLAYING'}">게임중</option>
                 <option value="FINISHED" th:selected="${status == 'FINISHED'}">종료됨</option>
             </select>
-            <button type="submit" class="btn btn-search">검색</button>
-            <a th:if="${keyword != null or status != null}" href="#" class="btn btn-reset">초기화</a>
+            <button type="button" class="btn btn-search" onclick="searchMultiRoom()">검색</button>
+            <button type="button" class="btn btn-reset" onclick="resetMultiRoom()">초기화</button>
         </form>
     </div>
 

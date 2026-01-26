@@ -43,6 +43,10 @@ public class GameSessionService {
         return gameSessionRepository.findByGameType(gameType, pageable);
     }
 
+    public Page<GameSession> findByGameTypeAndStatus(GameSession.GameType gameType, GameSession.GameStatus status, Pageable pageable) {
+        return gameSessionRepository.findByGameTypeAndStatus(gameType, status, pageable);
+    }
+
     public Page<GameSession> search(String keyword, Pageable pageable) {
         return gameSessionRepository.findByNicknameContaining(keyword, pageable);
     }

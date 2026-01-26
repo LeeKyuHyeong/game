@@ -163,7 +163,9 @@
         gap: 0.5rem;
     }
 
-    .search-bar .search-form input {
+    .search-bar .search-form input,
+    .search-bar .search-form select,
+    .search-bar .search-form .form-select {
         width: 100%;
     }
 

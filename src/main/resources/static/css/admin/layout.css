@@ -447,6 +447,11 @@
     font-weight: 500;
 }
 
+.info-item .highlight-value {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
 /* Settings Grid */
 .settings-grid {
     display: grid;

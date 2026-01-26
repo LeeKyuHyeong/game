@@ -7,11 +7,8 @@
     .sub-stat { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-elevated); border-radius: 0.5rem; font-size: 0.9rem; }
     .sub-stat-value { font-weight: 600; color: var(--primary-color); }
     .sub-stat-label { color: var(--text-secondary); }
-    .filter-bar { margin-bottom: 1rem; }
-    .filter-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
     .score-cell { font-weight: 600; color: var(--primary-color); }
     .accuracy { color: var(--text-secondary); }
-    @media (max-width: 768px) { .filter-form { flex-direction: column; } .filter-form input, .filter-form select { width: 100%; } }
     </style>
 
     <!-- 통계 카드 -->
@@ -34,10 +31,11 @@
         </div>
     </div>
 
-    <div class="filter-bar">
-        <form class="filter-form">
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="별명 검색">
-            <select name="gameType">
+    <!-- 검색 -->
+    <div class="search-bar">
+        <form class="search-form" id="historySearchForm" onsubmit="searchHistory(); return false;">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="별명 검색" onkeypress="if(event.key==='Enter'){searchHistory(); return false;}">
+            <select name="gameType" class="form-select">
                 <option value="">게임유형 전체</option>
                 <option value="SOLO_HOST" th:selected="${gameType == 'SOLO_HOST'}">게임진행용</option>
                 <option value="SOLO_GUESS" th:selected="${gameType == 'SOLO_GUESS'}">내가맞추기</option>
@@ -45,14 +43,14 @@
                 <option value="GENRE_CHALLENGE" th:selected="${gameType == 'GENRE_CHALLENGE'}">장르 챌린지</option>
                 <option value="RETRO_GUESS" th:selected="${gameType == 'RETRO_GUESS'}">레트로 게임</option>
             </select>
-            <select name="status">
+            <select name="status" class="form-select">
                 <option value="">상태 전체</option>
                 <option value="PLAYING" th:selected="${status == 'PLAYING'}">진행중</option>
                 <option value="COMPLETED" th:selected="${status == 'COMPLETED'}">완료</option>
                 <option value="ABANDONED" th:selected="${status == 'ABANDONED'}">중도포기</option>
             </select>
-            <button type="submit" class="btn btn-search">검색</button>
-            <a th:if="${keyword != null or gameType != null or status != null}" href="#" class="btn btn-reset">초기화</a>
+            <button type="button" class="btn btn-search" onclick="searchHistory()">검색</button>
+            <button type="button" class="btn btn-reset" onclick="resetHistory()">초기화</button>
         </form>
     </div>
 
