@@ -90,6 +90,18 @@
     border-left: 4px solid var(--warning-color);
 }
 
+.stat-card.active {
+    border-left: 4px solid var(--success);
+}
+
+.stat-card.banned {
+    border-left: 4px solid var(--danger);
+}
+
+.stat-card.admin {
+    border-left: 4px solid var(--badge-indigo-text);
+}
+
 /* Stats Row (horizontal layout) */
 .stats-row {
     display: flex;

@@ -1,68 +1,9 @@
 /* ========================================
-   History Index - Tab Navigation Styles
+   History Index - Page-specific Styles
+
+   Note: Tab navigation, loading spinner
+   are defined in components.css
    ======================================== */
-
-.tab-navigation {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid var(--border-color);
-}
-
-.tab-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    background: transparent;
-    border: none;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    transition: all 0.2s;
-}
-
-.tab-btn:hover {
-    color: var(--text-primary);
-    background: var(--bg-elevated);
-}
-
-.tab-btn.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-    font-weight: 600;
-}
-
-.tab-content {
-    min-height: 400px;
-}
-
-.loading-spinner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    gap: 1rem;
-    color: var(--text-secondary);
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
 
 /* ========================================
    Ranking Type Selector
@@ -95,32 +36,18 @@
 }
 
 /* ========================================
-   History Index - 태블릿 (768px 이하)
+   History Index - Tablet (768px)
    ======================================== */
 @media (max-width: 768px) {
-    .tab-btn {
-        flex: 1;
-        justify-content: center;
-    }
-
-    .tab-text {
-        display: none;
-    }
-
     .ranking-type-selector select {
         max-width: 100%;
     }
 }
 
 /* ========================================
-   History Index - 모바일 (480px 이하)
+   History Index - Mobile (480px)
    ======================================== */
 @media (max-width: 480px) {
-    .tab-btn {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
-    }
-
     .ranking-type-selector select {
         padding: 0.625rem 0.75rem;
         font-size: 0.9rem;

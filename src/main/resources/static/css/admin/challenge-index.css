@@ -1,42 +1,15 @@
 /* ========================================
-   Challenge Index Page - Tab & Stats
+   Challenge Index Page - Page-specific Styles
+
+   Note: Tab navigation (.tab-navigation, .tab-btn, .tab-content),
+   loading spinner (.loading-spinner, .spinner),
+   error message (.error-message)
+   are defined in components.css
    ======================================== */
 
-/* Tab Navigation */
-.tab-navigation {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 0;
-}
-
-.tab-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    background: transparent;
-    border: none;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-}
-
-.tab-btn:hover {
-    color: var(--text-primary);
-    background: var(--bg-elevated);
-}
-
-.tab-btn.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-    font-weight: 600;
-}
-
+/* ========================================
+   Tab Extensions (beyond base components)
+   ======================================== */
 .tab-icon {
     font-size: 1.1rem;
 }
@@ -54,147 +27,8 @@
     color: white;
 }
 
-/* Sub-Tab Navigation (Fan/Genre/Stages) */
-.sub-tab-navigation {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.sub-tab-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-}
-
-.sub-tab-btn:hover {
-    background: var(--bg-surface);
-    color: var(--text-primary);
-    border-color: var(--primary-color);
-}
-
-.sub-tab-btn.active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-    font-weight: 600;
-}
-
-/* Tab Content */
-.tab-content {
-    min-height: 400px;
-}
-
-/* Loading Spinner */
-.loading-spinner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    gap: 1rem;
-    color: var(--text-secondary);
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* Error Message */
-.error-message {
-    text-align: center;
-    padding: 3rem;
-    color: var(--text-secondary);
-}
-
-.error-message p {
-    margin-bottom: 1rem;
-}
-
-/* Stats Card Colors */
-.stat-card.fan {
-    border-left: 3px solid #ec4899;
-}
-
-.stat-card.genre {
-    border-left: 3px solid #8b5cf6;
-}
-
-/* Perfect Badge */
-.perfect-badge {
-    display: inline-block;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.perfect-badge.achieved {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.perfect-badge.invalid {
-    background: #fef3c7;
-    color: #92400e;
-}
-
 /* ========================================
-   Responsive - Tablet (768px)
-   ======================================== */
-@media (max-width: 768px) {
-    .tab-navigation {
-        flex-wrap: wrap;
-    }
-
-    .tab-btn {
-        flex: 1;
-        justify-content: center;
-        min-width: 120px;
-    }
-
-    .tab-text {
-        display: none;
-    }
-
-    .tab-icon {
-        font-size: 1.3rem;
-    }
-
-    .sub-tab-navigation {
-        flex-wrap: wrap;
-    }
-
-    .sub-tab-btn {
-        flex: 1;
-        min-width: 80px;
-        justify-content: center;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.85rem;
-    }
-}
-
-/* ========================================
-   Sub-Tab Navigation (내부 탭)
+   Sub-Tab Navigation (Fan/Genre/Stages)
    ======================================== */
 .sub-tab-navigation {
     display: flex;
@@ -225,7 +59,7 @@
     background: var(--bg-surface);
     color: var(--primary-color);
     font-weight: 600;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px var(--overlay-light);
 }
 
 .sub-tab-content {
@@ -233,7 +67,39 @@
 }
 
 /* ========================================
-   Sub Stats (서브 통계)
+   Stats Card Colors
+   ======================================== */
+.stat-card.fan {
+    border-left: 3px solid var(--badge-pink-text);
+}
+
+.stat-card.genre {
+    border-left: 3px solid var(--badge-indigo-text);
+}
+
+/* ========================================
+   Perfect Badge
+   ======================================== */
+.perfect-badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.perfect-badge.achieved {
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
+}
+
+.perfect-badge.invalid {
+    background: var(--badge-warning-bg);
+    color: var(--badge-warning-text);
+}
+
+/* ========================================
+   Sub Stats
    ======================================== */
 .sub-stats {
     display: flex;
@@ -274,7 +140,7 @@
 }
 
 /* ========================================
-   Search Bar (검색 바)
+   Search Bar
    ======================================== */
 .search-bar {
     margin-bottom: 1.5rem;
@@ -322,7 +188,7 @@
 }
 
 /* ========================================
-   Stage Cards (단계 설정)
+   Stage Cards
    ======================================== */
 .stage-header {
     margin-bottom: 1.5rem;
@@ -356,8 +222,8 @@
 }
 
 .stage-card.active {
-    border-color: var(--success-color, #10b981);
-    box-shadow: 0 0 0 1px var(--success-color, #10b981);
+    border-color: var(--success);
+    box-shadow: 0 0 0 1px var(--success);
 }
 
 .stage-card.inactive {
@@ -386,13 +252,13 @@
     font-size: 0.8rem;
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
-    background: #d1fae5;
-    color: #065f46;
+    background: var(--badge-success-bg);
+    color: var(--badge-success-text);
 }
 
 .stage-status.locked {
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--badge-danger-bg);
+    color: var(--badge-danger-text);
 }
 
 .stage-card-body {
@@ -508,20 +374,6 @@
    Responsive - Tablet (768px)
    ======================================== */
 @media (max-width: 768px) {
-    .tab-navigation {
-        flex-wrap: wrap;
-    }
-
-    .tab-btn {
-        flex: 1;
-        justify-content: center;
-        min-width: 120px;
-    }
-
-    .tab-text {
-        display: none;
-    }
-
     .tab-icon {
         font-size: 1.3rem;
     }
@@ -567,10 +419,6 @@
    Responsive - Mobile (480px)
    ======================================== */
 @media (max-width: 480px) {
-    .tab-btn {
-        padding: 0.6rem 0.8rem;
-    }
-
     .sub-tab-btn {
         padding: 0.4rem 0.5rem;
         font-size: 0.8rem;

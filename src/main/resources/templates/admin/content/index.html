@@ -3,7 +3,6 @@
 <head th:replace="~{common/fragments/head :: adminHead('콘텐츠 관리')}"></head>
 <body class="admin-page">
 <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
-<link rel="stylesheet" th:href="@{/css/admin/member-index.css}">
 <link rel="stylesheet" th:href="@{/css/admin/form.css}">
 <link rel="stylesheet" th:href="@{/css/admin/song-grid.css}">
 <link rel="stylesheet" th:href="@{/css/admin/song-index.css}">
@@ -57,6 +56,12 @@
                     data-tab="popularity" onclick="switchTab('popularity')">
                 <span class="tab-icon">🗳️</span>
                 <span class="tab-text">대중성 투표</span>
+            </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'report'} ? 'active'"
+                    data-tab="report" onclick="switchTab('report')">
+                <span class="tab-icon">🚨</span>
+                <span class="tab-text">곡 신고</span>
+                <span th:if="${pendingReports > 0}" class="pending-count-badge" th:text="${pendingReports}"></span>
             </button>
         </div>
 

@@ -1,7 +1,7 @@
 <!-- 곡 신고 탭 콘텐츠 (프래그먼트) -->
 <div class="report-tab-content" xmlns:th="http://www.thymeleaf.org">
     <div class="report-header">
-        <span th:if="${pendingCount > 0}" class="pending-badge">
+        <span th:if="${pendingCount > 0}" class="report-pending-badge">
             대기 <span th:text="${pendingCount}"></span>건
         </span>
     </div>

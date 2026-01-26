@@ -8,6 +8,9 @@
 /* Base styles - admin page container, common utilities */
 @import url('base.css');
 
+/* Common components - tabs, spinners, detail grids */
+@import url('components.css');
+
 /* Login page styles */
 @import url('login.css');
 
