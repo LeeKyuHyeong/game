@@ -151,14 +151,6 @@ function initForms() {
 
 // ========== Row & Pagination Functions ==========
 
-function toggleRowExpand(row) {
-    console.log('toggleRowExpand called, width:', window.innerWidth);
-    if (window.innerWidth <= 768) {
-        row.classList.toggle('expanded');
-        console.log('expanded:', row.classList.contains('expanded'));
-    }
-}
-
 function goToPage(page) {
     const form = document.querySelector('.tab-content .search-form, .tab-content .filter-form');
     const params = new URLSearchParams();
@@ -212,13 +204,6 @@ async function viewDetail(id) {
         `;
         openModal('detailModal');
     } catch (error) { showToast('상세 정보를 불러오는데 실패했습니다.', 'error'); }
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
 
 // ========== Modal Functions ==========

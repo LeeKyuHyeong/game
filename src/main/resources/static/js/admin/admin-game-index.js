@@ -194,12 +194,6 @@ function loadScriptsSequentially(urls, callback) {
 }
 
 // ========== 공통 유틸리티 함수 ==========
-function escapeHtml(text) {
-    if (!text) return '';
-    var div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
 
 function openModal(modalId) {
     var modal = document.getElementById(modalId);
@@ -218,12 +212,6 @@ function closeModal(modalId) {
     if (modalId === 'chatModal') {
         var deleteBtn = document.getElementById('deleteAllChatsBtn');
         if (deleteBtn) deleteBtn.style.display = 'none';
-    }
-}
-
-function toggleRowExpand(row) {
-    if (window.innerWidth <= 768) {
-        row.classList.toggle('expanded');
     }
 }
 

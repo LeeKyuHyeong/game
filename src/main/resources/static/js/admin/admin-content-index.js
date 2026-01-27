@@ -295,7 +295,33 @@ async function toggleStatus(id) {
         const result = await response.json();
 
         if (result.success) {
-            refreshSongList();
+            const useYn = result.useYn;
+            const isActive = useYn === 'Y';
+
+            // 테이블 뷰: 해당 행의 상태 배지 업데이트
+            const row = document.querySelector(`tr button.btn-toggle[data-id="${id}"]`)?.closest('tr');
+            if (row) {
+                const statusSpan = row.querySelector('.status');
+                if (statusSpan) {
+                    statusSpan.classList.remove('active', 'inactive');
+                    statusSpan.classList.add(isActive ? 'active' : 'inactive');
+                    statusSpan.textContent = isActive ? '사용' : '미사용';
+                }
+            }
+
+            // 그리드 뷰: 카드 상태 업데이트
+            const card = document.querySelector(`.song-card button.btn-toggle[data-id="${id}"]`)?.closest('.song-card');
+            if (card) {
+                card.classList.toggle('disabled', !isActive);
+                const statusSpan = card.querySelector('.song-card-header .status');
+                if (statusSpan) {
+                    statusSpan.classList.remove('active', 'inactive');
+                    statusSpan.classList.add(isActive ? 'active' : 'inactive');
+                    statusSpan.textContent = isActive ? '사용' : '미사용';
+                }
+            }
+
+            showToast(result.message, 'success');
         } else {
             showToast(result.message, 'error');
         }
@@ -435,6 +461,33 @@ function initGenreTabScripts() {
             e.preventDefault();
             loadTabContent('genre');
         });
+    }
+}
+
+async function toggleGenreStatus(id) {
+    try {
+        const response = await fetch(`/admin/genre/toggle/${id}`, { method: 'POST' });
+        const result = await response.json();
+
+        if (result.success) {
+            const isActive = result.useYn === 'Y';
+
+            const row = document.querySelector(`tr button.btn-toggle[data-id="${id}"]`)?.closest('tr');
+            if (row) {
+                const statusSpan = row.querySelector('.status');
+                if (statusSpan) {
+                    statusSpan.classList.remove('active', 'inactive');
+                    statusSpan.classList.add(isActive ? 'active' : 'inactive');
+                    statusSpan.textContent = isActive ? '사용' : '미사용';
+                }
+            }
+
+            showToast(result.message, 'success');
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        showToast('상태 변경 중 오류가 발생했습니다.', 'error');
     }
 }
 
@@ -741,10 +794,6 @@ function renderSongVotes(data, container) {
 }
 
 // ========== Row & Pagination Functions ==========
-
-function toggleRowExpand(row) {
-    if (window.innerWidth <= 768) row.classList.toggle('expanded');
-}
 
 function goToPage(page) {
     const form = document.getElementById('filterForm') || document.querySelector('.tab-content .search-form');
@@ -1053,12 +1102,6 @@ function setupModalEvents() {
 }
 
 // ========== Helper Functions ==========
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
 
 // openModal 하위호환 - 노래 모달 열기
 function openSongModalAlias() {

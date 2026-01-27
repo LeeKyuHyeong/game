@@ -463,12 +463,6 @@ function initMenuTab() {
     // 메뉴 탭 초기화 로직 (필요시 추가)
 }
 
-function toggleRowExpand(row) {
-    if (window.innerWidth <= 768) {
-        row.classList.toggle('expanded');
-    }
-}
-
 async function toggleMenu(menuId) {
     try {
         const response = await fetch(`/admin/menu/toggle/${menuId}`, {

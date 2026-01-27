@@ -149,13 +149,6 @@ async function viewMemberDetail(id) {
     }
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
 // ========== 모달 함수 ==========
 
 function openModal(id) {

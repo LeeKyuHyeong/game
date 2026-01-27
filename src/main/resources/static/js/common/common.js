@@ -23,6 +23,14 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
+// HTML 이스케이프 (XSS 방지)
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Common utilities
 const Utils = {
     formatDate(dateStr) {
