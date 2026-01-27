@@ -120,8 +120,10 @@ public class AdminGenreController {
         Map<String, Object> result = new HashMap<>();
         try {
             genreService.toggleUseYn(id);
+            Genre genre = genreService.findById(id).orElse(null);
             result.put("success", true);
-            result.put("message", "상태가 변경되었습니다.");
+            result.put("useYn", genre != null ? genre.getUseYn() : null);
+            result.put("message", genre != null && "Y".equals(genre.getUseYn()) ? "사용으로 변경되었습니다." : "미사용으로 변경되었습니다.");
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "상태 변경 중 오류가 발생했습니다.");

@@ -71,6 +71,9 @@
                             onclick="openAnswerModal(this)">
                         정답 관리
                     </button>
+                    <button class="btn btn-sm btn-toggle"
+                            th:data-id="${song.id}"
+                            onclick="toggleStatus(this.dataset.id)">상태변경</button>
                 </td>
             </tr>
             <tr th:if="${songs.content.isEmpty()}">
