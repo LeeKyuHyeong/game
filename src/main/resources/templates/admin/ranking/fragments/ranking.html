@@ -58,12 +58,11 @@
     <div id="tierDistribution" class="tier-distribution" th:if="${rankType == 'multi'}">
         <h4>티어 분포</h4>
         <div class="tier-bars">
-            <th:block th:each="entry, iterStat : ${multiTierDistribution}">
-                <div class="tier-bar" th:data-tier="${iterStat.index + 1}">
+            <th:block th:each="entry : ${multiTierDistribution}">
+                <div class="tier-bar" th:data-tier="${entry.key}">
                     <span class="tier-name" th:text="${entry.key}"></span>
                     <div class="tier-bar-container">
                         <div class="tier-bar-fill"
-                             th:classappend="'tier-' + ${iterStat.index + 1}"
                              th:style="'width: ' + (${totalMultiPlayers > 0 and entry.value > 0 ? (entry.value * 100 / totalMultiPlayers) : 0}) + '%'"></div>
                     </div>
                     <span class="tier-count" th:text="${entry.value}"></span>
@@ -82,6 +81,7 @@
                 <th>점수</th>
                 <th>소요시간</th>
                 <th>달성일</th>
+                <th class="col-action">관리</th>
             </tr>
             </thead>
             <tbody>
@@ -96,9 +96,13 @@
                 <td data-label="점수" th:text="${record.score}"></td>
                 <td data-label="소요시간" th:text="${record.durationFormatted}"></td>
                 <td data-label="달성일" th:text="${record.achievedAt != null ? #temporals.format(record.achievedAt, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+                <td data-label="관리" class="action-cell">
+                    <button class="btn btn-sm btn-view" th:attr="data-id=${record.memberId}"
+                            onclick="viewMemberDetail(this.dataset.id)">상세</button>
+                </td>
             </tr>
             <tr th:if="${best30Rankings == null or best30Rankings.isEmpty()}">
-                <td colspan="5" class="empty-row">랭킹 데이터가 없습니다.</td>
+                <td colspan="6" class="empty-row">랭킹 데이터가 없습니다.</td>
             </tr>
             </tbody>
         </table>
@@ -114,6 +118,7 @@
                 <th th:if="${rankType == 'genreTotal'}">총 정답수</th>
                 <th th:if="${rankType == 'genreCount'}">도전 장르수</th>
                 <th th:if="${rankType == 'genreCombo'}">최대 콤보</th>
+                <th class="col-action">관리</th>
             </tr>
             </thead>
             <tbody>
@@ -128,9 +133,13 @@
                 <td th:if="${rankType == 'genreTotal'}" data-label="총 정답수" th:text="${record.totalCorrect}"></td>
                 <td th:if="${rankType == 'genreCount'}" data-label="도전 장르수" th:text="${record.genreCount}"></td>
                 <td th:if="${rankType == 'genreCombo'}" data-label="최대 콤보" th:text="${record.maxCombo}"></td>
+                <td data-label="관리" class="action-cell">
+                    <button class="btn btn-sm btn-view" th:attr="data-id=${record.memberId}"
+                            onclick="viewMemberDetail(this.dataset.id)">상세</button>
+                </td>
             </tr>
             <tr th:if="${genreRankings == null or genreRankings.isEmpty()}">
-                <td colspan="3" class="empty-row">랭킹 데이터가 없습니다.</td>
+                <td colspan="4" class="empty-row">랭킹 데이터가 없습니다.</td>
             </tr>
             </tbody>
         </table>
@@ -149,6 +158,7 @@
                 <th th:if="${rankType == 'fan' or rankType == 'fanPerfect'}">아티스트</th>
                 <th th:if="${rankType == 'fan' or rankType == 'fanPerfect'}">난이도</th>
                 <th>달성일</th>
+                <th class="col-action">관리</th>
             </tr>
             </thead>
             <tbody>
@@ -169,6 +179,10 @@
                 </td>
                 <td data-label="LP" th:if="${rankType == 'multi'}" th:text="${member.multiLp}"></td>
                 <td data-label="달성일" th:text="${member.lastLoginAt != null ? #temporals.format(member.lastLoginAt, 'yyyy-MM-dd') : '-'}"></td>
+                <td data-label="관리" class="action-cell">
+                    <button class="btn btn-sm btn-view" th:attr="data-id=${member.id}"
+                            onclick="viewMemberDetail(this.dataset.id)">상세</button>
+                </td>
             </tr>
 
             <!-- 팬 챌린지 랭킹 -->
@@ -184,16 +198,37 @@
                 <td data-label="아티스트" th:text="${record.artist}"></td>
                 <td data-label="난이도" th:text="${record.difficulty.displayName}"></td>
                 <td data-label="달성일" th:text="${#temporals.format(record.achievedAt, 'yyyy-MM-dd')}"></td>
+                <td data-label="관리" class="action-cell">
+                    <button class="btn btn-sm btn-view" th:attr="data-id=${record.member.id}"
+                            onclick="viewMemberDetail(this.dataset.id)">상세</button>
+                </td>
             </tr>
 
             <tr th:if="${(memberRankings == null or memberRankings.isEmpty()) and (fanRankings == null or fanRankings.isEmpty())}">
-                <td colspan="6" class="empty-row">랭킹 데이터가 없습니다.</td>
+                <td colspan="7" class="empty-row">랭킹 데이터가 없습니다.</td>
             </tr>
             </tbody>
         </table>
     </div>
 
     <script>
+    // 모바일에서 행 클릭 시 확장/축소 바인딩
+    function initRowExpand() {
+        document.querySelectorAll('.ranking-table tbody tr').forEach(row => {
+            if (row.querySelector('.empty-row')) return;
+
+            row.addEventListener('click', function(e) {
+                if (e.target.closest('button')) return;
+                if (window.innerWidth <= 768) {
+                    this.classList.toggle('expanded');
+                }
+            });
+        });
+    }
+
+    // 초기 바인딩
+    initRowExpand();
+
     function changeRankingType(type) {
         const container = document.getElementById('tabContent');
         const tab = document.getElementById('currentTab').value;
@@ -203,11 +238,18 @@
             .then(response => response.text())
             .then(html => {
                 container.innerHTML = html;
-                // 팬 챌린지일 때 아티스트 선택기 표시
                 const artistSelector = document.getElementById('artistSelector');
                 if (type === 'fan' && artistSelector) {
                     artistSelector.style.display = 'block';
                 }
+                // 인라인 스크립트 실행
+                container.querySelectorAll('script').forEach(script => {
+                    if (!script.src && script.textContent) {
+                        const newScript = document.createElement('script');
+                        newScript.textContent = script.textContent;
+                        document.body.appendChild(newScript);
+                    }
+                });
             })
             .catch(error => {
                 container.innerHTML = '<div class="error-message">콘텐츠를 불러오는데 실패했습니다.</div>';
@@ -230,6 +272,14 @@
                 if (artistSelector) {
                     artistSelector.style.display = 'block';
                 }
+                // 인라인 스크립트 실행
+                container.querySelectorAll('script').forEach(script => {
+                    if (!script.src && script.textContent) {
+                        const newScript = document.createElement('script');
+                        newScript.textContent = script.textContent;
+                        document.body.appendChild(newScript);
+                    }
+                });
             })
             .catch(error => {
                 container.innerHTML = '<div class="error-message">콘텐츠를 불러오는데 실패했습니다.</div>';

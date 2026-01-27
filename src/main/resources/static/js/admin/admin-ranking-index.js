@@ -105,3 +105,79 @@ window.addEventListener('popstate', function(event) {
         document.querySelector('[data-tab="' + event.state.tab + '"]').classList.add('active');
     }
 });
+
+// ========== 회원 상세보기 ==========
+
+async function viewMemberDetail(id) {
+    if (!id) return;
+
+    try {
+        const response = await fetch('/admin/member/detail/' + id);
+        if (!response.ok) throw new Error('Failed to load member detail');
+
+        const data = await response.json();
+        const content = document.getElementById('memberDetailContent');
+
+        content.innerHTML = `
+            <div class="detail-grid">
+                <div class="detail-item"><div class="detail-label">ID</div><div class="detail-value">${data.id}</div></div>
+                <div class="detail-item"><div class="detail-label">이메일</div><div class="detail-value">${escapeHtml(data.email)}</div></div>
+                <div class="detail-item"><div class="detail-label">닉네임</div><div class="detail-value">${escapeHtml(data.nickname)}</div></div>
+                <div class="detail-item"><div class="detail-label">권한</div><div class="detail-value">${data.role === 'ADMIN' ? '관리자' : '사용자'}</div></div>
+                <div class="detail-item"><div class="detail-label">상태</div><div class="detail-value">${data.status}</div></div>
+                <div class="detail-item"><div class="detail-label">티어</div><div class="detail-value"><span class="tier-badge" style="background-color:${data.multiTierColor}">${escapeHtml(data.multiTierDisplayName)}</span> (LP: ${data.multiLp})</div></div>
+                <div class="detail-item"><div class="detail-label">총 게임</div><div class="detail-value">${data.totalGames}회</div></div>
+                <div class="detail-item"><div class="detail-label">총 점수</div><div class="detail-value">${data.totalScore}점</div></div>
+                <div class="detail-item"><div class="detail-label">마지막 로그인</div><div class="detail-value">${data.lastLoginAt ? new Date(data.lastLoginAt).toLocaleString('ko-KR') : '-'}</div></div>
+                <div class="detail-item"><div class="detail-label">가입일</div><div class="detail-value">${new Date(data.createdAt).toLocaleString('ko-KR')}</div></div>
+            </div>
+            ${data.badges && data.badges.length > 0 ? `
+                <div class="badges-section">
+                    <h4>보유 뱃지 (${data.badgeCount}개)</h4>
+                    <div class="badges-list">${data.badges.map(b => `<span class="badge-item" style="border-color:${b.rarityColor}" title="${escapeHtml(b.description)}">${b.emoji} ${escapeHtml(b.name)}</span>`).join('')}</div>
+                </div>
+            ` : ''}
+        `;
+        openModal('memberDetailModal');
+    } catch (error) {
+        console.error('Error loading member detail:', error);
+        if (typeof showToast === 'function') {
+            showToast('회원 정보를 불러오는데 실패했습니다.', 'error');
+        } else {
+            alert('회원 정보를 불러오는데 실패했습니다.');
+        }
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ========== 모달 함수 ==========
+
+function openModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+
+// 모달 외부 클릭 시 닫기
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+});

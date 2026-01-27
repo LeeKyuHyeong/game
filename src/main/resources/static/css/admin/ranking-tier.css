@@ -94,8 +94,16 @@
     color: var(--text-secondary);
 }
 
-.tier-bar-fill {
+.tier-bar-container {
+    flex: 1;
     height: 1.25rem;
+    background: var(--bg-muted);
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.tier-bar-fill {
+    height: 100%;
     background: var(--primary-color);
     border-radius: 0.25rem;
     transition: width 0.3s ease;
@@ -170,6 +178,106 @@
         width: 4rem;
         font-size: 0.75rem;
     }
+
+    /* ========================================
+       랭킹 테이블 모바일 완전 오버라이드
+       table-mobile-collapse.css 스타일 무효화
+       ======================================== */
+
+    /* 기본: 모든 셀 숨김 초기화 후 재정의 */
+    .ranking-table td {
+        display: none !important;
+    }
+
+    /* 순위, 닉네임은 항상 표시 */
+    .ranking-table td[data-label="순위"] {
+        display: flex !important;
+        justify-content: flex-start !important;
+        padding: 0.75rem 1rem 0.25rem !important;
+        border-bottom: none !important;
+    }
+
+    .ranking-table td[data-label="닉네임"] {
+        display: flex !important;
+        justify-content: flex-start !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        padding: 0.25rem 1rem 0.5rem !important;
+        border-bottom: 1px solid var(--border-subtle) !important;
+    }
+
+    /* 관리 버튼 항상 표시 */
+    .ranking-table td[data-label="관리"] {
+        display: flex !important;
+        justify-content: flex-end !important;
+        background: var(--bg-elevated) !important;
+        padding: 0.5rem 1rem !important;
+        border-top: 1px solid var(--border-color) !important;
+    }
+
+    .ranking-table td[data-label="순위"]::before,
+    .ranking-table td[data-label="닉네임"]::before,
+    .ranking-table td[data-label="관리"]::before {
+        display: none !important;
+    }
+
+    /* 랭킹 테이블 행 스타일 */
+    .ranking-table tbody tr {
+        cursor: pointer;
+        position: relative;
+    }
+
+    /* 더보기 텍스트 숨기고 행 자체로 클릭 유도 */
+    .ranking-table tbody tr::after {
+        content: '▼ 더보기';
+        display: block;
+        text-align: center;
+        padding: 0.4rem;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        background: var(--bg-surface);
+    }
+
+    .ranking-table tbody tr.expanded::after {
+        content: '▲ 접기';
+    }
+
+    /* 빈 행은 더보기 숨김 */
+    .ranking-table tbody tr:has(.empty-row)::after {
+        display: none;
+    }
+
+    /* 확장 시 모든 정보 표시 */
+    .ranking-table tbody tr.expanded td {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0.5rem 1rem !important;
+        border-bottom: 1px solid var(--border-subtle) !important;
+    }
+
+    .ranking-table tbody tr.expanded td::before {
+        content: attr(data-label);
+        font-weight: 500;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        flex-shrink: 0;
+        margin-right: 0.5rem;
+    }
+
+    /* 확장 시에도 순위/닉네임/관리는 라벨 숨김 */
+    .ranking-table tbody tr.expanded td[data-label="순위"]::before,
+    .ranking-table tbody tr.expanded td[data-label="닉네임"]::before,
+    .ranking-table tbody tr.expanded td[data-label="관리"]::before {
+        display: none !important;
+    }
+
+    /* 확장 시 관리 버튼 스타일 유지 */
+    .ranking-table tbody tr.expanded td[data-label="관리"] {
+        justify-content: flex-end !important;
+        background: var(--bg-elevated) !important;
+        border-top: 1px solid var(--border-color) !important;
+    }
 }
 
 /* ========================================
@@ -189,7 +297,7 @@
         font-size: 0.9rem;
     }
 
-    .tier-bar-fill {
+    .tier-bar-container {
         height: 1rem;
     }
 
