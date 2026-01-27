@@ -1,7 +1,6 @@
 <!-- 정답 관리 탭 콘텐츠 (AJAX 로딩용) -->
+<!-- CSS는 부모 페이지(content/index.html)에서 로드됨 -->
 <div class="tab-panel answer-panel" xmlns:th="http://www.thymeleaf.org">
-    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
-
     <!-- 필터 -->
     <div class="filter-section">
         <form id="answerFilterForm" class="filter-row">
@@ -177,7 +176,7 @@
         </div>
     </div>
 
-    <script th:src="@{/js/admin/admin-answer.js}"></script>
+    <!-- JS는 부모 페이지에서 로드됨 (admin-content-index.js) -->
     <script th:inline="javascript">
     var answerSort = /*[[${sort}]]*/ 'id';
     var answerDirection = /*[[${direction}]]*/ 'desc';

@@ -1,8 +1,6 @@
 <!-- 배치 관리 탭 콘텐츠 (AJAX 로딩용) -->
+<!-- CSS는 부모 페이지(system/index.html)에서 로드됨 -->
 <div class="tab-panel batch-panel batch-stats" xmlns:th="http://www.thymeleaf.org">
-    <link rel="stylesheet" th:href="@{/css/admin/mobile-stats.css}">
-    <link rel="stylesheet" th:href="@{/css/admin/batch.css}">
-
     <div class="panel-header">
         <div class="header-actions">
             <button class="btn btn-secondary" onclick="refreshBatchSchedules()">스케줄 새로고침</button>
@@ -234,5 +232,5 @@
         </div>
     </div>
 
-    <script th:src="@{/js/admin/admin-batch.js}"></script>
+    <!-- JS는 부모 페이지에서 로드됨 (admin-system-index.js) -->
 </div>

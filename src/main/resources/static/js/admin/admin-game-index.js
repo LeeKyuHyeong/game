@@ -7,19 +7,33 @@
 // ========== 전역 변수 ==========
 var currentTab = 'history';
 var currentRoomId = null;
+var VALID_TABS = ['history', 'multi', 'challenge'];
 
 // ========== 페이지 초기화 ==========
 document.addEventListener('DOMContentLoaded', function() {
-    // URL에서 탭 파라미터 확인
-    const urlParams = new URLSearchParams(window.location.search);
-    const tab = urlParams.get('tab') || currentTab;
+    // 1. URL에서 탭 파라미터 확인
+    var urlParams = new URLSearchParams(window.location.search);
+    var tab = urlParams.get('tab');
+
+    // 2. URL에 유효한 탭이 없으면 DOM의 data-active-tab 속성에서 읽기
+    if (!tab || VALID_TABS.indexOf(tab) === -1) {
+        var tabContent = document.getElementById('tabContent');
+        if (tabContent && tabContent.dataset.activeTab) {
+            tab = tabContent.dataset.activeTab;
+        }
+    }
+
+    // 3. 여전히 유효하지 않으면 history로 fallback
+    if (!tab || VALID_TABS.indexOf(tab) === -1) {
+        tab = 'history';
+    }
     currentTab = tab;
 
     // 탭 버튼 활성화 상태 설정
     document.querySelectorAll('.tab-btn').forEach(function(btn) {
         btn.classList.remove('active');
     });
-    const activeBtn = document.querySelector('[data-tab="' + tab + '"]');
+    var activeBtn = document.querySelector('[data-tab="' + tab + '"]');
     if (activeBtn) {
         activeBtn.classList.add('active');
     }
@@ -140,25 +154,17 @@ function loadTabContent(tab, params) {
 
 // 탭 내 스크립트 초기화
 function initializeTabScripts() {
-    // 동적으로 로드된 스크립트 실행
+    // 동적으로 로드된 인라인 스크립트만 실행
+    // 주의: 외부 스크립트(script.src)는 로드하지 않음 - 함수 충돌 방지
     var scripts = document.querySelectorAll('#tabContent script');
-    var scriptsToLoad = [];
 
     scripts.forEach(function(script) {
-        if (script.src) {
-            // 외부 스크립트 - 동적으로 로드
-            scriptsToLoad.push(script.src);
-        } else if (script.textContent) {
-            // 인라인 스크립트 - 즉시 실행
+        // 인라인 스크립트만 실행 (외부 스크립트는 무시)
+        if (!script.src && script.textContent) {
             var newScript = document.createElement('script');
             newScript.textContent = script.textContent;
             document.body.appendChild(newScript);
         }
-    });
-
-    // 외부 스크립트 순차 로드
-    loadScriptsSequentially(scriptsToLoad, function() {
-        // 폼 이벤트는 DOMContentLoaded에서 이벤트 위임으로 처리됨
     });
 }
 

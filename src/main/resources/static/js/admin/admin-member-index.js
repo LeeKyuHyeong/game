@@ -54,41 +54,36 @@ async function loadTabContent(tab, params = '') {
 }
 
 function initTabScripts() {
-    // 동적으로 로드된 스크립트 실행
+    // 동적으로 로드된 인라인 스크립트만 실행
+    // 주의: 외부 스크립트(script.src)는 로드하지 않음 - 함수 충돌 방지
     const scripts = document.querySelectorAll('#tabContent script');
-    let scriptsToLoad = [];
 
     scripts.forEach(script => {
-        if (script.src) {
-            // 외부 스크립트 - 동적으로 로드
-            scriptsToLoad.push(script.src);
-        } else if (script.textContent) {
-            // 인라인 스크립트 - 즉시 실행
+        // 인라인 스크립트만 실행 (외부 스크립트는 무시)
+        if (!script.src && script.textContent) {
             const newScript = document.createElement('script');
             newScript.textContent = script.textContent;
             document.body.appendChild(newScript);
         }
     });
 
-    // 외부 스크립트 순차 로드 후 폼 이벤트 바인딩
-    loadScriptsSequentially(scriptsToLoad, () => {
-        const searchForm = document.querySelector('.tab-content .search-form, .tab-content .filter-form');
-        if (searchForm) {
-            searchForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const params = new URLSearchParams(new FormData(searchForm)).toString();
-                loadTabContent(currentTab, params);
-            });
-        }
+    // 폼 이벤트 바인딩
+    const searchForm = document.querySelector('.tab-content .search-form, .tab-content .filter-form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const params = new URLSearchParams(new FormData(searchForm)).toString();
+            loadTabContent(currentTab, params);
+        });
+    }
 
-        const resetBtn = document.querySelector('.tab-content .btn-reset');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                loadTabContent(currentTab);
-            });
-        }
-    });
+    const resetBtn = document.querySelector('.tab-content .btn-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadTabContent(currentTab);
+        });
+    }
 }
 
 // 외부 스크립트 순차 로드

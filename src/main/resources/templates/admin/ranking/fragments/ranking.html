@@ -1,8 +1,6 @@
 <!-- 랭킹 탭 콘텐츠 (AJAX 로딩용) -->
+<!-- CSS는 부모 페이지(ranking/index.html)에서 로드됨 -->
 <div class="tab-panel ranking-panel" xmlns:th="http://www.thymeleaf.org">
-    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
-    <link rel="stylesheet" th:href="@{/css/admin/history-index.css}">
-
     <!-- 현재 탭 저장 -->
     <input type="hidden" id="currentTab" th:value="${tab ?: 'multi'}">
 

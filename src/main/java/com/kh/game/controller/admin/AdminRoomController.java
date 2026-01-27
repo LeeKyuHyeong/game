@@ -33,10 +33,11 @@ public class AdminRoomController {
 
     /**
      * 레거시 URL → 통합 페이지로 리다이렉트
+     * /admin/room → /admin/game?tab=multi (멀티 운영 탭, 기본 서브탭이 room)
      */
     @GetMapping
     public String redirectToMulti() {
-        return "redirect:/admin/multi?tab=room";
+        return "redirect:/admin/game?tab=multi";
     }
 
     /**

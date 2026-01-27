@@ -116,37 +116,31 @@ function loadTabContent(tab, params) {
 }
 
 function initializeTabScripts() {
-    // 동적으로 로드된 스크립트 실행
+    // 동적으로 로드된 인라인 스크립트만 실행
+    // 주의: 외부 스크립트(script.src)는 로드하지 않음 - 함수 충돌 방지
     const scripts = document.querySelectorAll('#tabContent script');
-    let scriptsToLoad = [];
 
     scripts.forEach(script => {
-        if (script.src) {
-            // 외부 스크립트 - 동적으로 로드
-            scriptsToLoad.push(script.src);
-        } else if (script.textContent) {
-            // 인라인 스크립트 - 즉시 실행
+        // 인라인 스크립트만 실행 (외부 스크립트는 무시)
+        if (!script.src && script.textContent) {
             const newScript = document.createElement('script');
             newScript.textContent = script.textContent;
             document.body.appendChild(newScript);
         }
     });
 
-    // 외부 스크립트 순차 로드 후 탭 초기화
-    loadScriptsSequentially(scriptsToLoad, () => {
-        // 탭별 초기화
-        if (currentTab === 'song') {
-            initSongTabScripts();
-        } else if (currentTab === 'answer') {
-            initAnswerTabScripts();
-        } else if (currentTab === 'genre') {
-            initGenreTabScripts();
-        } else if (currentTab === 'popularity') {
-            initPopularityTabScripts();
-        } else if (currentTab === 'report') {
-            initReportTabScripts();
-        }
-    });
+    // 탭별 초기화
+    if (currentTab === 'song') {
+        initSongTabScripts();
+    } else if (currentTab === 'answer') {
+        initAnswerTabScripts();
+    } else if (currentTab === 'genre') {
+        initGenreTabScripts();
+    } else if (currentTab === 'popularity') {
+        initPopularityTabScripts();
+    } else if (currentTab === 'report') {
+        initReportTabScripts();
+    }
 }
 
 // 외부 스크립트 순차 로드

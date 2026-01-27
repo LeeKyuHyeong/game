@@ -1,7 +1,6 @@
 <!-- 메뉴 관리 탭 콘텐츠 (AJAX 로딩용) -->
+<!-- CSS는 부모 페이지(system/index.html)에서 로드됨 -->
 <div class="tab-panel menu-panel" xmlns:th="http://www.thymeleaf.org">
-    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
-
     <div class="table-container">
         <table class="data-table">
             <thead>
@@ -57,5 +56,5 @@
         </ul>
     </div>
 
-    <script th:src="@{/js/admin/admin-menu.js}"></script>
+    <!-- JS는 부모 페이지에서 로드됨 (admin-system-index.js) -->
 </div>

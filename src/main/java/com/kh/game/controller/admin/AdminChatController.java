@@ -35,10 +35,11 @@ public class AdminChatController {
 
     /**
      * 레거시 URL → 통합 페이지로 리다이렉트
+     * /admin/chat → /admin/game?tab=multi (멀티 운영 탭에서 채팅 내역 서브탭)
      */
     @GetMapping
     public String redirectToMulti() {
-        return "redirect:/admin/multi?tab=chat";
+        return "redirect:/admin/game?tab=multi";
     }
 
     /**

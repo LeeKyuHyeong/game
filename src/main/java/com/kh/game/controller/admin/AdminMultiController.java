@@ -24,9 +24,14 @@ public class AdminMultiController {
 
     /**
      * 기존 URL → 통합 게임 관리 페이지로 리다이렉트
+     * tab=room 또는 tab=chat인 경우에도 tab=multi로 리다이렉트 (멀티 운영 탭)
      */
     @GetMapping({"", "/"})
     public String redirectToGame(@RequestParam(defaultValue = "multi") String tab) {
+        // room, chat은 멀티 운영 탭의 서브탭이므로 multi로 통일
+        if ("room".equals(tab) || "chat".equals(tab)) {
+            tab = "multi";
+        }
         return "redirect:/admin/game?tab=" + tab;
     }
 

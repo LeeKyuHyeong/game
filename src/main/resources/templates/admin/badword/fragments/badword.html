@@ -1,7 +1,6 @@
 <!-- 비속어 관리 탭 콘텐츠 (AJAX 로딩용) -->
+<!-- CSS는 부모 페이지(member/index.html)에서 로드됨 -->
 <div class="tab-panel badword-panel" xmlns:th="http://www.thymeleaf.org">
-    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
-
     <div class="panel-header">
         <div class="header-actions">
             <button class="btn btn-primary" onclick="openBadWordModal()">+ 비속어 추가</button>
@@ -160,7 +159,7 @@
         </div>
     </div>
 
-    <script th:src="@{/js/admin/admin-badword.js}"></script>
+    <!-- JS는 부모 페이지에서 로드됨 (admin-member-index.js) -->
     <script th:inline="javascript">
     var badwordSort = /*[[${sort}]]*/ 'createdAt';
     var badwordDirection = /*[[${direction}]]*/ 'desc';

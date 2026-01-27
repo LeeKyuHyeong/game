@@ -1,7 +1,6 @@
 <!-- 대중성 투표 탭 콘텐츠 (AJAX 로딩용) -->
+<!-- CSS는 부모 페이지(content/index.html)에서 로드됨 -->
 <div class="tab-panel popularity-panel" xmlns:th="http://www.thymeleaf.org">
-    <link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
-
     <!-- 서브탭 네비게이션 -->
     <div class="sub-tab-navigation">
         <button class="sub-tab-btn" th:classappend="${activeSubTab == 'songs'} ? 'active'"
