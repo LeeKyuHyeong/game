@@ -175,8 +175,10 @@
     }
 
     .tier-bar .tier-name {
-        width: 4rem;
+        width: auto;
+        min-width: 4rem;
         font-size: 0.75rem;
+        white-space: nowrap;
     }
 
     /* ========================================

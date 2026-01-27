@@ -882,6 +882,21 @@
 }
 
 @media (max-width: 480px) {
+    /* 아티스트 필터 체크박스 - 모바일 터치 영역 확보 */
+    .artist-checkbox-item {
+        padding: 0.5rem !important;
+        min-height: 2.5rem;
+    }
+
+    .artist-checkbox-item input[type="checkbox"] {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .artist-checkbox-item .artist-name {
+        font-size: 0.8rem !important;
+    }
+
     .song-card-footer {
         flex-direction: column;
         gap: 0.5rem;

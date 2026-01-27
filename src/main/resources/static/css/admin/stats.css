@@ -721,6 +721,22 @@
 
 /* ========== Responsive ========== */
 @media (max-width: 768px) {
+    /* 통계 페이지 헤더 - 제목/부제 겹침 방지 */
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .content-header h1 {
+        font-size: 1.4rem;
+    }
+
+    .content-header p {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
     /* Filter Form Tablet - popularity-stats */
     .popularity-stats .filter-form {
         gap: 1rem;
@@ -790,6 +806,14 @@
 
     .panel-header h3 {
         font-size: 1rem;
+    }
+
+    /* 숨겨진 패널의 테이블 셀 ::before 컨텐츠 누출 방지 */
+    .stats-panel[style*="display:none"] .stats-table td,
+    .stats-panel[style*="display: none"] .stats-table td,
+    .primary-content[style*="display:none"] .stats-table td,
+    .primary-content[style*="display: none"] .stats-table td {
+        display: none !important;
     }
 
     /* Stats Table Mobile - Card View */
@@ -902,6 +926,15 @@
 
 /* ========== Mobile (480px 이하) ========== */
 @media (max-width: 480px) {
+    /* 통계 페이지 헤더 - 더 컴팩트하게 */
+    .content-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .content-header p {
+        font-size: 0.8rem;
+    }
+
     /* Stats Cards - 더 컴팩트하게 */
     .stats-cards {
         grid-template-columns: 1fr 1fr;
