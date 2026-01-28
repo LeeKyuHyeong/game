@@ -53,3 +53,6 @@ sql-output/
 ### Misc ###
 nul
 *.png
+
+### SSL/Certbot ###
+certbot/

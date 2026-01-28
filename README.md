@@ -11,7 +11,7 @@
 
 노래를 듣고 제목을 맞춰보세요! 🎧
 
-[🎮 게임하러 가기](http://kyuhyeong.cafe24.com:8082) · [📖 게임 설명](#-게임-모드) · [🏆 랭킹 시스템](#-랭킹--뱃지-시스템)
+[🎮 게임하러 가기](https://game.kiryong.com) · [📖 게임 설명](#-게임-모드) · [🏆 랭킹 시스템](#-랭킹--뱃지-시스템)
 
 </div>
 
@@ -125,6 +125,10 @@
 <tr>
 <td align="center"><b>Deploy</b></td>
 <td>Docker, Docker Compose, GitHub Actions</td>
+</tr>
+<tr>
+<td align="center"><b>Infra</b></td>
+<td>Nginx, Let's Encrypt (HTTPS)</td>
 </tr>
 </table>
 
