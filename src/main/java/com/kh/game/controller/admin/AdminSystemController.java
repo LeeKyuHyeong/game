@@ -2,6 +2,7 @@ package com.kh.game.controller.admin;
 
 import com.kh.game.batch.BatchScheduler;
 import com.kh.game.entity.BatchConfig;
+import com.kh.game.service.BadWordService;
 import com.kh.game.service.BatchService;
 import com.kh.game.service.MenuConfigService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.List;
 
 /**
  * 시스템 설정 통합 페이지 컨트롤러
- * 배치 관리, 메뉴 관리를 하나의 페이지에서 탭으로 관리
+ * 배치 관리, 메뉴 관리, 금칙어 관리를 하나의 페이지에서 탭으로 관리
  */
 @Controller
 @RequestMapping("/admin/system")
@@ -25,6 +26,7 @@ public class AdminSystemController {
     private final BatchService batchService;
     private final BatchScheduler batchScheduler;
     private final MenuConfigService menuConfigService;
+    private final BadWordService badWordService;
 
     /**
      * 통합 시스템 설정 페이지
@@ -52,6 +54,13 @@ public class AdminSystemController {
 
         model.addAttribute("totalMenus", totalMenus);
         model.addAttribute("activeMenus", activeMenus);
+
+        // 금칙어 통계
+        long totalBadWords = badWordService.count();
+        long activeBadWords = badWordService.countActive();
+
+        model.addAttribute("totalBadWords", totalBadWords);
+        model.addAttribute("activeBadWords", activeBadWords);
 
         return "admin/system/index";
     }

@@ -149,6 +149,83 @@ async function viewMemberDetail(id) {
     }
 }
 
+// ========== 랭킹 리셋 함수 ==========
+
+function confirmResetWeekly() {
+    if (!confirm('주간 랭킹을 리셋하시겠습니까?\n\n현재 주간 랭킹이 스냅샷으로 저장된 후 초기화됩니다.')) return;
+    executeRankingReset('weekly');
+}
+
+function confirmResetMonthly() {
+    if (!confirm('월간 랭킹을 리셋하시겠습니까?\n\n현재 월간 랭킹이 스냅샷으로 저장된 후 초기화됩니다.')) return;
+    executeRankingReset('monthly');
+}
+
+function executeRankingReset(type) {
+    fetch('/admin/ranking/reset/' + type, { method: 'POST' })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.success) {
+                showToast(result.message, 'success');
+                loadTabContent(currentTab);
+            } else {
+                showToast(result.message, 'error');
+            }
+        })
+        .catch(function() {
+            showToast('랭킹 리셋 중 오류가 발생했습니다.', 'error');
+        });
+}
+
+// ========== 과거 기간 조회 함수 ==========
+
+function loadAvailablePeriods() {
+    var select = document.getElementById('historyPeriodSelect');
+    if (!select) return;
+
+    fetch('/admin/ranking/history/periods')
+        .then(function(response) { return response.json(); })
+        .then(function(periods) {
+            // 기존 옵션 유지 (첫 번째 "실시간" 옵션)
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            periods.forEach(function(p) {
+                var option = document.createElement('option');
+                option.value = p.periodStart + '|' + p.periodEnd;
+                option.textContent = p.label;
+                select.appendChild(option);
+            });
+        })
+        .catch(function() {
+            console.error('Failed to load ranking history periods');
+        });
+}
+
+function loadRankingHistoryPeriod(value) {
+    if (!value) {
+        // 실시간으로 돌아가기
+        loadTabContent(currentTab);
+        return;
+    }
+
+    var parts = value.split('|');
+    var periodStart = parts[0];
+    var periodEnd = parts[1];
+
+    var container = document.getElementById('tabContent');
+    container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
+
+    fetch('/admin/ranking/history/content?periodStart=' + periodStart + '&periodEnd=' + periodEnd)
+        .then(function(response) { return response.text(); })
+        .then(function(html) {
+            container.innerHTML = html;
+        })
+        .catch(function() {
+            container.innerHTML = '<div class="error-message">스냅샷 데이터를 불러오는데 실패했습니다.</div>';
+        });
+}
+
 // ========== 모달 함수 ==========
 
 function openModal(id) {

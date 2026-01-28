@@ -183,4 +183,8 @@ public class BadWordService {
     public long countActive() {
         return badWordRepository.findByIsActiveTrue().size();
     }
+
+    public long count() {
+        return badWordRepository.count();
+    }
 }

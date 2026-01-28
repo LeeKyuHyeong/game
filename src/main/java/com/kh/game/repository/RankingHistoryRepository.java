@@ -125,6 +125,23 @@ public interface RankingHistoryRepository extends JpaRepository<RankingHistory, 
            "ORDER BY rh.periodEnd DESC, rh.rankPosition ASC")
     List<RankingHistory> findLatestByRankingType(@Param("rankingType") RankingType rankingType, Pageable pageable);
 
+    // ========== 기간 목록 조회 ==========
+
+    /**
+     * 조회 가능한 기간 목록 (기간 유형별 고유한 기간 시작/종료 목록)
+     */
+    @Query("SELECT DISTINCT rh.periodType, rh.periodStart, rh.periodEnd FROM RankingHistory rh " +
+           "ORDER BY rh.periodEnd DESC")
+    List<Object[]> findDistinctPeriods();
+
+    /**
+     * 특정 기간의 랭킹 데이터 조회
+     */
+    @Query("SELECT rh FROM RankingHistory rh WHERE rh.periodStart = :periodStart AND rh.periodEnd = :periodEnd " +
+           "ORDER BY rh.rankingType ASC, rh.rankPosition ASC")
+    List<RankingHistory> findByPeriod(@Param("periodStart") LocalDate periodStart,
+                                      @Param("periodEnd") LocalDate periodEnd);
+
     // ========== 삭제 ==========
 
     /**

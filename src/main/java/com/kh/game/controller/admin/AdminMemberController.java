@@ -3,7 +3,6 @@ package com.kh.game.controller.admin;
 import com.kh.game.entity.Member;
 import com.kh.game.entity.MemberBadge;
 import com.kh.game.repository.MemberBadgeRepository;
-import com.kh.game.service.BadWordService;
 import com.kh.game.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,7 +27,6 @@ public class AdminMemberController {
 
     private final MemberService memberService;
     private final MemberBadgeRepository memberBadgeRepository;
-    private final BadWordService badWordService;
 
     /**
      * 통합 회원 관리 페이지
@@ -41,13 +39,11 @@ public class AdminMemberController {
         // 회원 통계
         long totalCount = memberService.count();
         long activeCount = memberService.countByStatus(Member.MemberStatus.ACTIVE);
-        long bannedCount = memberService.countByStatus(Member.MemberStatus.BANNED);
         long adminCount = memberService.countByRole(Member.MemberRole.ADMIN);
 
         model.addAttribute("totalCount", totalCount);
         model.addAttribute("activeCount", activeCount);
         model.addAttribute("adminCount", adminCount);
-        model.addAttribute("badwordActiveCount", badWordService.countActive());
 
         return "admin/member/index";
     }

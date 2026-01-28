@@ -30,7 +30,7 @@
                 <span class="nav-icon">🎮</span>
                 <span class="nav-text">게임 관리</span>
             </a>
-            <a href="/admin/member" class="nav-item" th:classappend="${menu == 'member' or menu == 'login-history' or menu == 'badword'} ? 'active'">
+            <a href="/admin/member" class="nav-item" th:classappend="${menu == 'member' or menu == 'login-history'} ? 'active'">
                 <span class="nav-icon">👥</span>
                 <span class="nav-text">회원 관리</span>
             </a>
@@ -42,7 +42,7 @@
                 <span class="nav-icon">📈</span>
                 <span class="nav-text">통계 분석</span>
             </a>
-            <a href="/admin/system" class="nav-item" th:classappend="${menu == 'system' or menu == 'batch' or menu == 'batch-affected' or menu == 'menu'} ? 'active'">
+            <a href="/admin/system" class="nav-item" th:classappend="${menu == 'system' or menu == 'batch' or menu == 'batch-affected' or menu == 'menu' or menu == 'badword'} ? 'active'">
                 <span class="nav-icon">⚙️</span>
                 <span class="nav-text">시스템 설정</span>
             </a>

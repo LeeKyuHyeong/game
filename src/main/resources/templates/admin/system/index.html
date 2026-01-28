@@ -31,6 +31,14 @@
                 <div class="stat-value" th:text="${activeMenus}">0</div>
                 <div class="stat-label">활성 메뉴</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${totalBadWords}">0</div>
+                <div class="stat-label">전체 금칙어</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${activeBadWords}">0</div>
+                <div class="stat-label">활성 금칙어</div>
+            </div>
         </div>
 
         <!-- 탭 네비게이션 -->
@@ -44,6 +52,11 @@
                     data-tab="menu" onclick="switchTab('menu')">
                 <span class="tab-icon">📋</span>
                 <span class="tab-text">메뉴 관리</span>
+            </button>
+            <button class="tab-btn" th:classappend="${activeTab == 'badword'} ? 'active'"
+                    data-tab="badword" onclick="switchTab('badword')">
+                <span class="tab-icon">🚫</span>
+                <span class="tab-text">금칙어 관리</span>
             </button>
         </div>
 

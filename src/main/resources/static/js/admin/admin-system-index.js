@@ -70,6 +70,9 @@ function loadTabContent(tab, params) {
         case 'menu':
             url = '/admin/menu/content';
             break;
+        case 'badword':
+            url = '/admin/badword/content';
+            break;
         default:
             url = '/admin/batch/content';
     }
@@ -111,6 +114,8 @@ function initializeTabScripts() {
         initBatchTab();
     } else if (currentTab === 'menu') {
         initMenuTab();
+    } else if (currentTab === 'badword') {
+        initBadWordTab();
     }
 }
 
@@ -483,6 +488,293 @@ async function toggleMenu(menuId) {
     } catch (error) {
         showToast('메뉴 상태 변경 중 오류가 발생했습니다.', 'error');
     }
+}
+
+// ========== BadWord Tab Functions ==========
+
+function initBadWordTab() {
+    // 필터 폼 이벤트 바인딩
+    var filterForm = document.getElementById('badwordFilterForm');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var params = new URLSearchParams(new FormData(filterForm)).toString();
+            loadTabContent('badword', params);
+        });
+    }
+
+    // 금칙어 추가/수정 폼 이벤트
+    var badWordForm = document.getElementById('badWordForm');
+    if (badWordForm) {
+        badWordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveBadWord();
+        });
+    }
+
+    // 일괄 등록 폼 이벤트
+    var bulkAddForm = document.getElementById('bulkAddForm');
+    if (bulkAddForm) {
+        bulkAddForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            bulkAddBadWords();
+        });
+    }
+}
+
+// 금칙어 추가 모달 열기
+function openBadWordModal() {
+    document.getElementById('badWordModalTitle').textContent = '비속어 추가';
+    document.getElementById('badWordId').value = '';
+    document.getElementById('word').value = '';
+    document.getElementById('replacement').value = '';
+    document.getElementById('isActive').checked = true;
+    openModal('badWordModal');
+}
+
+// 금칙어 수정 모달 열기
+function editBadWord(id) {
+    fetch('/admin/badword/detail/' + id)
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            document.getElementById('badWordModalTitle').textContent = '비속어 수정';
+            document.getElementById('badWordId').value = data.id;
+            document.getElementById('word').value = data.word;
+            document.getElementById('replacement').value = data.replacement || '';
+            document.getElementById('isActive').checked = data.isActive;
+            openModal('badWordModal');
+        })
+        .catch(function() {
+            showToast('비속어 정보를 불러오는 중 오류가 발생했습니다.', 'error');
+        });
+}
+
+// 금칙어 저장 (추가/수정)
+function saveBadWord() {
+    var id = document.getElementById('badWordId').value;
+    var word = document.getElementById('word').value.trim();
+    var replacement = document.getElementById('replacement').value.trim();
+    var isActive = document.getElementById('isActive').checked;
+
+    if (!word) {
+        showToast('비속어를 입력해주세요.', 'error');
+        return;
+    }
+
+    var params = new URLSearchParams();
+    if (id) params.append('id', id);
+    params.append('word', word);
+    params.append('replacement', replacement);
+    params.append('isActive', isActive);
+
+    fetch('/admin/badword/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(result) {
+        if (result.success) {
+            showToast(result.message, 'success');
+            closeBadWordModal();
+            loadTabContent('badword');
+        } else {
+            showToast(result.message, 'error');
+        }
+    })
+    .catch(function() {
+        showToast('저장 중 오류가 발생했습니다.', 'error');
+    });
+}
+
+// 금칙어 삭제
+function deleteBadWord(id) {
+    if (!confirm('이 비속어를 삭제하시겠습니까?')) return;
+
+    fetch('/admin/badword/delete/' + id, { method: 'POST' })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.success) {
+                showToast(result.message, 'success');
+                loadTabContent('badword');
+            } else {
+                showToast(result.message, 'error');
+            }
+        })
+        .catch(function() {
+            showToast('삭제 중 오류가 발생했습니다.', 'error');
+        });
+}
+
+// 금칙어 상태 토글
+function toggleBadWord(id) {
+    fetch('/admin/badword/toggle/' + id, { method: 'POST' })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.success) {
+                showToast(result.message, 'success');
+                loadTabContent('badword');
+            } else {
+                showToast(result.message, 'error');
+            }
+        })
+        .catch(function() {
+            showToast('상태 변경 중 오류가 발생했습니다.', 'error');
+        });
+}
+
+// 금칙어 모달 닫기
+function closeBadWordModal() {
+    closeModal('badWordModal');
+}
+
+// 일괄 등록 모달 열기
+function openBulkAddModal() {
+    document.getElementById('bulkWords').value = '';
+    openModal('bulkAddModal');
+}
+
+// 일괄 등록 모달 닫기
+function closeBulkAddModal() {
+    closeModal('bulkAddModal');
+}
+
+// 일괄 등록 실행
+function bulkAddBadWords() {
+    var words = document.getElementById('bulkWords').value.trim();
+    if (!words) {
+        showToast('비속어 목록을 입력해주세요.', 'error');
+        return;
+    }
+
+    var params = new URLSearchParams();
+    params.append('words', words);
+
+    fetch('/admin/badword/bulk-add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(result) {
+        if (result.success) {
+            showToast(result.message, 'success');
+            closeBulkAddModal();
+            loadTabContent('badword');
+        } else {
+            showToast(result.message, 'error');
+        }
+    })
+    .catch(function() {
+        showToast('일괄 등록 중 오류가 발생했습니다.', 'error');
+    });
+}
+
+// 필터 테스트 모달 열기
+function openTestModal() {
+    document.getElementById('testMessage').value = '';
+    document.getElementById('testResult').style.display = 'none';
+    openModal('testModal');
+}
+
+// 필터 테스트 모달 닫기
+function closeTestModal() {
+    closeModal('testModal');
+}
+
+// 필터 테스트 실행
+function testBadWordFilter() {
+    var message = document.getElementById('testMessage').value.trim();
+    if (!message) {
+        showToast('테스트할 메시지를 입력해주세요.', 'error');
+        return;
+    }
+
+    var params = new URLSearchParams();
+    params.append('message', message);
+
+    fetch('/admin/badword/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(result) {
+        if (result.success) {
+            document.getElementById('testOriginal').textContent = result.original;
+            document.getElementById('testFiltered').textContent = result.filtered;
+            document.getElementById('testFound').textContent = result.foundWords.length > 0 ? result.foundWords.join(', ') : '없음';
+            document.getElementById('testResult').style.display = 'block';
+        } else {
+            showToast(result.message, 'error');
+        }
+    })
+    .catch(function() {
+        showToast('테스트 중 오류가 발생했습니다.', 'error');
+    });
+}
+
+// 캐시 갱신
+function reloadBadWordCache() {
+    if (!confirm('금칙어 캐시를 갱신하시겠습니까?')) return;
+
+    fetch('/admin/badword/reload-cache', { method: 'POST' })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.success) {
+                showToast(result.message, 'success');
+            } else {
+                showToast(result.message, 'error');
+            }
+        })
+        .catch(function() {
+            showToast('캐시 갱신 중 오류가 발생했습니다.', 'error');
+        });
+}
+
+// 금칙어 필터 초기화
+function resetBadWordFilter() {
+    loadTabContent('badword');
+}
+
+// 금칙어 정렬
+function sortBadWordBy(column) {
+    var currentSort = typeof badwordSort !== 'undefined' ? badwordSort : 'createdAt';
+    var currentDir = typeof badwordDirection !== 'undefined' ? badwordDirection : 'desc';
+    var newDir = (currentSort === column && currentDir === 'desc') ? 'asc' : 'desc';
+
+    var params = new URLSearchParams();
+    params.set('sort', column);
+    params.set('direction', newDir);
+
+    var filterForm = document.getElementById('badwordFilterForm');
+    if (filterForm) {
+        new FormData(filterForm).forEach(function(v, k) {
+            if (v) params.set(k, v);
+        });
+    }
+
+    loadTabContent('badword', params.toString());
+}
+
+// 금칙어 페이지 이동
+function loadBadWordPage(page) {
+    var params = new URLSearchParams();
+    params.set('page', page);
+
+    var currentSort = typeof badwordSort !== 'undefined' ? badwordSort : 'createdAt';
+    var currentDir = typeof badwordDirection !== 'undefined' ? badwordDirection : 'desc';
+    params.set('sort', currentSort);
+    params.set('direction', currentDir);
+
+    var filterForm = document.getElementById('badwordFilterForm');
+    if (filterForm) {
+        new FormData(filterForm).forEach(function(v, k) {
+            if (v) params.set(k, v);
+        });
+    }
+
+    loadTabContent('badword', params.toString());
 }
 
 // ========== Modal Functions ==========

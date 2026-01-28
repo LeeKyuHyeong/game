@@ -23,7 +23,7 @@ function switchTab(tab) {
     window.history.pushState({}, '', url);
 
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    const tabIndex = tab === 'member' ? 1 : tab === 'login' ? 2 : 3;
+    const tabIndex = tab === 'member' ? 1 : 2;
     document.querySelector(`.tab-btn:nth-child(${tabIndex})`).classList.add('active');
 
     loadTabContent(tab);
@@ -37,10 +37,8 @@ async function loadTabContent(tab, params = '') {
         let url;
         if (tab === 'member') {
             url = `/admin/member/content${params ? '?' + params : ''}`;
-        } else if (tab === 'login') {
-            url = `/admin/login-history/content${params ? '?' + params : ''}`;
         } else {
-            url = `/admin/badword/content${params ? '?' + params : ''}`;
+            url = `/admin/login-history/content${params ? '?' + params : ''}`;
         }
 
         const response = await fetch(url);

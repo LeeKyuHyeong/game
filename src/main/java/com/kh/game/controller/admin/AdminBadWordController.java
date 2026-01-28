@@ -23,11 +23,11 @@ public class AdminBadWordController {
     private final BadWordService badWordService;
 
     /**
-     * 기존 URL → 통합 회원 관리 페이지로 리다이렉트
+     * 기존 URL → 시스템 설정 페이지로 리다이렉트
      */
     @GetMapping({"", "/"})
-    public String redirectToMember() {
-        return "redirect:/admin/member?tab=badword";
+    public String redirectToSystem() {
+        return "redirect:/admin/system?tab=badword";
     }
 
     /**
@@ -65,7 +65,7 @@ public class AdminBadWordController {
         model.addAttribute("active", active);
         model.addAttribute("sort", sort);
         model.addAttribute("direction", direction);
-        model.addAttribute("menu", "member");
+        model.addAttribute("menu", "system");
 
         return "admin/badword/fragments/badword";
     }

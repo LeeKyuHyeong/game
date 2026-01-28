@@ -4,6 +4,20 @@
     <!-- 현재 탭 저장 -->
     <input type="hidden" id="currentTab" th:value="${tab ?: 'multi'}">
 
+    <!-- 랭킹 액션 바 -->
+    <div class="ranking-action-bar">
+        <div class="ranking-action-left">
+            <label for="historyPeriodSelect" class="action-label">과거 기간 조회</label>
+            <select id="historyPeriodSelect" class="action-select" onchange="loadRankingHistoryPeriod(this.value)">
+                <option value="">실시간 (현재)</option>
+            </select>
+        </div>
+        <div class="ranking-action-right">
+            <button class="btn btn-warning btn-sm" onclick="confirmResetWeekly()">주간 랭킹 리셋</button>
+            <button class="btn btn-danger btn-sm" onclick="confirmResetMonthly()">월간 랭킹 리셋</button>
+        </div>
+    </div>
+
     <!-- 랭킹 타입 선택 - 탭별로 다른 옵션 표시 -->
     <div class="ranking-type-selector">
         <!-- 멀티 탭 (단일 옵션이므로 select 숨김) -->
@@ -210,6 +224,9 @@
     </div>
 
     <script>
+    // 과거 기간 목록 로드
+    loadAvailablePeriods();
+
     // 모바일에서 행 클릭 시 확장/축소 바인딩
     function initRowExpand() {
         document.querySelectorAll('.ranking-table tbody tr').forEach(row => {

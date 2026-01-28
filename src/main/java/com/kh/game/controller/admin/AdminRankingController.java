@@ -1,24 +1,28 @@
 package com.kh.game.controller.admin;
 
-import com.kh.game.entity.FanChallengeRecord;
-import com.kh.game.entity.GenreChallengeRecord;
-import com.kh.game.entity.Member;
-import com.kh.game.entity.MultiTier;
+import com.kh.game.batch.MonthlyRankingResetBatch;
+import com.kh.game.batch.RankingSnapshotBatch;
+import com.kh.game.batch.WeeklyRankingResetBatch;
+import com.kh.game.entity.*;
+import com.kh.game.entity.RankingHistory.PeriodType;
 import com.kh.game.repository.FanChallengeRecordRepository;
 import com.kh.game.repository.GenreChallengeRecordRepository;
 import com.kh.game.repository.MemberRepository;
+import com.kh.game.repository.RankingHistoryRepository;
 import com.kh.game.service.GameSessionService;
 import com.kh.game.service.MemberService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -35,6 +39,10 @@ public class AdminRankingController {
     private final FanChallengeRecordRepository fanChallengeRecordRepository;
     private final GenreChallengeRecordRepository genreChallengeRecordRepository;
     private final GameSessionService gameSessionService;
+    private final RankingSnapshotBatch rankingSnapshotBatch;
+    private final WeeklyRankingResetBatch weeklyRankingResetBatch;
+    private final MonthlyRankingResetBatch monthlyRankingResetBatch;
+    private final RankingHistoryRepository rankingHistoryRepository;
 
     /**
      * 통합 랭킹 관리 페이지
@@ -181,6 +189,112 @@ public class AdminRankingController {
         model.addAttribute("rankType", rankType);
 
         return "admin/ranking/fragments/ranking";
+    }
+
+    /**
+     * 주간 랭킹 수동 리셋
+     */
+    @PostMapping("/reset/weekly")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> resetWeekly(HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        Member member = (Member) session.getAttribute("member");
+        if (member == null || !Member.MemberRole.ADMIN.equals(member.getRole())) {
+            result.put("success", false);
+            result.put("message", "관리자 권한이 필요합니다.");
+            return ResponseEntity.status(403).body(result);
+        }
+
+        try {
+            int snapshotCount = rankingSnapshotBatch.executeWeekly(BatchExecutionHistory.ExecutionType.MANUAL);
+            int resetCount = weeklyRankingResetBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+            result.put("success", true);
+            result.put("message", String.format("주간 랭킹 리셋 완료 (스냅샷: %d건, 리셋: %d명)", snapshotCount, resetCount));
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "주간 리셋 중 오류: " + e.getMessage());
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 월간 랭킹 수동 리셋
+     */
+    @PostMapping("/reset/monthly")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> resetMonthly(HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        Member member = (Member) session.getAttribute("member");
+        if (member == null || !Member.MemberRole.ADMIN.equals(member.getRole())) {
+            result.put("success", false);
+            result.put("message", "관리자 권한이 필요합니다.");
+            return ResponseEntity.status(403).body(result);
+        }
+
+        try {
+            int snapshotCount = rankingSnapshotBatch.executeMonthly(BatchExecutionHistory.ExecutionType.MANUAL);
+            int resetCount = monthlyRankingResetBatch.execute(BatchExecutionHistory.ExecutionType.MANUAL);
+            result.put("success", true);
+            result.put("message", String.format("월간 랭킹 리셋 완료 (스냅샷: %d건, 리셋: %d명)", snapshotCount, resetCount));
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "월간 리셋 중 오류: " + e.getMessage());
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 조회 가능한 기간 목록
+     */
+    @GetMapping("/history/periods")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getHistoryPeriods() {
+        List<Object[]> periods = rankingHistoryRepository.findDistinctPeriods();
+        List<Map<String, Object>> result = new ArrayList<>();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        for (Object[] row : periods) {
+            Map<String, Object> period = new HashMap<>();
+            PeriodType periodType = (PeriodType) row[0];
+            LocalDate start = (LocalDate) row[1];
+            LocalDate end = (LocalDate) row[2];
+
+            period.put("periodType", periodType.name());
+            period.put("periodTypeDisplay", periodType.getDisplayName());
+            period.put("periodStart", start.format(fmt));
+            period.put("periodEnd", end.format(fmt));
+            period.put("label", periodType.getDisplayName() + " " + start.format(fmt) + " ~ " + end.format(fmt));
+            result.add(period);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 특정 기간의 스냅샷 데이터
+     */
+    @GetMapping("/history/content")
+    public String getHistoryContent(@RequestParam String periodStart,
+                                     @RequestParam String periodEnd,
+                                     Model model) {
+        LocalDate start = LocalDate.parse(periodStart);
+        LocalDate end = LocalDate.parse(periodEnd);
+
+        List<RankingHistory> historyList = rankingHistoryRepository.findByPeriod(start, end);
+
+        // 랭킹 타입별로 그룹화
+        Map<String, List<RankingHistory>> groupedHistory = new LinkedHashMap<>();
+        for (RankingHistory rh : historyList) {
+            String typeName = rh.getRankingType().getDisplayName();
+            groupedHistory.computeIfAbsent(typeName, k -> new ArrayList<>()).add(rh);
+        }
+
+        model.addAttribute("groupedHistory", groupedHistory);
+        model.addAttribute("periodStart", periodStart);
+        model.addAttribute("periodEnd", periodEnd);
+        model.addAttribute("isHistoryView", true);
+
+        return "admin/ranking/fragments/ranking-history";
     }
 
     /**
