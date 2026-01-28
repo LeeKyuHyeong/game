@@ -6,6 +6,7 @@ import com.kh.game.repository.GenreChallengeRecordRepository;
 import com.kh.game.repository.GenreRepository;
 import com.kh.game.service.FanChallengeService;
 import com.kh.game.service.GameSessionService;
+import com.kh.game.service.GenreChallengeService;
 import com.kh.game.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -638,7 +639,7 @@ public class RankingController {
             memberInfo.put("id", member.getId());
             memberInfo.put("nickname", member.getNickname());
             memberInfo.put("correctCount", record.getCorrectCount());
-            memberInfo.put("totalSongs", record.getTotalSongs());
+            memberInfo.put("totalSongs", Math.min(record.getTotalSongs(), GenreChallengeService.MAX_SONG_COUNT));
             memberInfo.put("maxCombo", record.getMaxCombo());
             memberInfo.put("achievedAt", record.getAchievedAt());
             addBadgeInfo(memberInfo, member);

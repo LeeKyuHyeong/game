@@ -268,7 +268,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
            "JOIN s.genre g " +
            "WHERE s.useYn = 'Y' " +
            "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
-           "GROUP BY g.code, g.name " +
+           "GROUP BY g.code, g.name, g.displayOrder " +
            "ORDER BY g.displayOrder, g.name")
     List<Object[]> findGenresWithSongCount();
 
@@ -279,7 +279,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
            "JOIN s.genre g " +
            "WHERE s.useYn = 'Y' " +
            "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
-           "GROUP BY g.code, g.name " +
+           "GROUP BY g.code, g.name, g.displayOrder " +
            "HAVING COUNT(s) >= :minCount " +
            "ORDER BY g.displayOrder, g.name")
     List<Object[]> findGenresWithSongCountMinimum(@Param("minCount") long minCount);

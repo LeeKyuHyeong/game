@@ -113,7 +113,7 @@ public class MenuConfigService {
                     "SOLO", "🎯", "/game/solo/guess", 2, true),
             new MenuConfig("FAN_CHALLENGE", "아티스트 챌린지", "특정 아티스트의 20곡을 맞추는 도전 모드",
                     "SOLO", "🏆", "/game/fan-challenge", 3, true),
-            new MenuConfig("GENRE_CHALLENGE", "장르 챌린지", "특정 장르의 전곡을 맞추는 도전 모드",
+            new MenuConfig("GENRE_CHALLENGE", "장르 챌린지", "특정 장르에서 랜덤 50곡을 맞추는 도전 모드",
                     "SOLO", "🎸", "/game/genre-challenge", 4, true),
             new MenuConfig("RETRO", "레트로 챌린지", "추억의 노래를 맞추는 모드",
                     "SOLO", "📻", "/game/retro", 5, true),

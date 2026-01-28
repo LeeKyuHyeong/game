@@ -1,5 +1,23 @@
 # TODO
 
+## 2026-01-28 변경 내역 (2차)
+
+### 금칙어 관리 이동 (회원 관리 → 시스템 설정)
+- [O] 금칙어 탭을 `/admin/member`에서 `/admin/system`으로 이동
+- [O] 시스템 설정 통계 카드 6개로 확장 (전체/활성 금칙어 추가)
+- [O] admin-system-index.js에 금칙어 JS 함수 17개 전체 구현
+- [O] 회원 관리 페이지에서 금칙어 탭/통계 제거 (3탭→2탭)
+- [O] 사이드바 금칙어 활성 체크 member→system 이동
+
+### 랭킹 관리 수동 리셋/기간 필터 추가
+- [O] 주간/월간 수동 리셋 API 추가 (POST /admin/ranking/reset/weekly, monthly)
+- [O] 과거 스냅샷 기간 목록/데이터 조회 API 추가
+- [O] 랭킹 페이지에 액션 바 UI 추가 (기간 드롭다운 + 리셋 버튼)
+- [O] ranking-history.html 신규 fragment 생성
+- [O] ranking-tier.css에 액션 바/히스토리 배너 CSS 추가 (다크모드 + 3단계 반응형)
+
+---
+
 ## 2026-01-22 변경 내역
 
 ### 관리자 메뉴 통합
@@ -190,15 +208,15 @@
 ### 3. 회원 관리 (/admin/member) ✅ 완료
 
 #### 회원 목록 탭
-- [O] 페이지 로딩 - 정상 (3개 탭, 회원 20건 표시)
+- [O] 페이지 로딩 - 정상 (2개 탭: 회원 목록, 로그인 이력)
 - [O] 탭: 회원 목록 - 정상 전환
 - [O] 탭: 로그인 이력 - 정상 전환
-- [O] 탭: 비속어 필터 - 정상 전환 (금칙어 관리가 여기에 위치)
 - [O] 검색 (keyword) - "admin" 검색 시 1건 정상 반환
 - [O] 검색 초기화 - 정상
 - [O] 상세 모달 - 회원 상세 정보 모달 정상 (ID, 이메일, 별명, 권한)
 - [O] 상태변경 모달 - 정상
 - [O] 권한변경 모달 - 정상
+- **참고**: 비속어 필터(금칙어 관리)는 시스템 설정으로 이동됨
 
 ### 4. 랭킹 관리 (/admin/ranking) ✅ 완료
 
@@ -209,8 +227,9 @@
 - [O] 탭: 장르 챌린지 랭킹 - 정상 (2건)
 - [O] 탭: 레트로 챌린지 랭킹 - 정상 (3건)
 - [O] 상세 버튼 - 회원 랭킹 상세 모달 정상
-- [N/A] 기간별 필터 - 해당 기능 없음
-- [N/A] 랭킹 리셋 버튼 - 해당 기능 없음
+- [O] 기간별 필터 - 과거 스냅샷 기간 드롭다운 추가 (2026-01-28 구현)
+- [O] 주간 랭킹 리셋 버튼 - confirm 후 스냅샷 저장+리셋 (2026-01-28 구현)
+- [O] 월간 랭킹 리셋 버튼 - confirm 후 스냅샷 저장+리셋 (2026-01-28 구현)
 
 ### 5. 통계 분석 (/admin/stats) ✅ 완료
 
@@ -228,16 +247,17 @@
 
 ### 6. 시스템 설정 (/admin/system) ✅ 완료
 
-- [O] 페이지 로딩 - 정상 (2개 탭: 배치 관리, 메뉴 관리)
+- [O] 페이지 로딩 - 정상 (3개 탭: 배치 관리, 메뉴 관리, 금칙어 관리)
 - [O] 탭: 배치 관리 - 정상 전환
 - [O] 탭: 메뉴 관리 - 정상 전환
+- [O] 탭: 금칙어 관리 - 정상 전환 (2026-01-28 회원 관리에서 이동)
 - [O] 배치 실행 버튼 - 26개 실행 버튼 확인
 - [O] 배치 활성/비활성 토글 - 25개 토글 버튼 정상
 - [O] 전체 수동 실행 - 확인 다이얼로그 및 실행 모달 정상
 - [O] 배치 상세 모달 - 정상
 - [O] 메뉴 설정 저장 - 정상
 - [ ] 배치 설정 모달 - 미테스트 (모달 중첩 이슈)
-- **참고**: 금칙어 관리는 시스템 설정이 아닌 회원 관리 > 비속어 필터 탭에 위치
+- [ ] 금칙어 CRUD 전체 동작 - 미테스트 (추가/수정/삭제/상태변경/일괄등록/필터테스트/캐시갱신)
 
 ### 공통 UI ✅ 완료
 
@@ -261,12 +281,21 @@
 - **증상**: 클릭해도 게임 이력 탭 내용이 그대로 유지
 - **심각도**: 중간 (BUG-003 수정 후 재확인 필요)
 
-#### BUG-003: 게임 관리 페이지 500 Server Error (CRITICAL)
+#### BUG-003: 게임 관리 페이지 500 Server Error ✅ 수정됨
 - **위치**: `AdminGameManagementController.java` line 47
 - **에러**: `NullPointerException: Cannot invoke "java.lang.Double.doubleValue()"` - `gameSessionService.getAverageScore()` 반환값이 null
 - **원인**: 게임 세션이 없을 때 `getAverageScore()`가 `null`을 반환하는데, primitive `double`에 할당하면서 auto-unboxing NPE 발생
-- **수정 방안**: `Double avgScore = gameSessionService.getAverageScore();` + null 처리, 또는 서비스에서 `0.0` 기본값 반환
-- **심각도**: 치명적 (게임 관리 페이지 전체 접근 불가)
-- 
-- 금칙어 관리는 시스템 설정이 아닌 회원 관리 > 비속어 필터 탭에 위치
-- 랭킹 리셋/기간 필터 버튼은 현재 페이지에 존재하지 않음    
+- **수정**: `Double avgScoreObj` + null 체크 (`avgScoreObj != null ? avgScoreObj : 0.0`) 적용 (2026-01-28)
+
+### 장르챌린지 수정
+- [O] 세팅화면 필터링 적용 여부 - 50곡 이상 장르 5개 정상 필터링 (SQL GROUP BY 오류 수정)
+- [O] 게임진행 오류 여부 - 라운드 로딩/타이머/정답제출/시간초과/라이프감소/콤보 정상 동작
+- [O] 결과 화면 오류 여부 - 정답률 표시 버그 수정 (.0% -> 0.0%), 라운드별 기록 정상
+- [O] 랭킹 오류 여부 (기존 데이터 문제 파악) - totalSongs 957곡 표시 문제 -> API에서 50곡 캡 처리
+
+#### 수정된 파일
+- `SongRepository.java`: GROUP BY에 `g.displayOrder` 추가 (only_full_group_by 호환)
+- `result.html`: `#numbers.formatDecimal` 최소 정수 자릿수 0->1
+- `RankingController.java`: totalSongs를 MAX_SONG_COUNT(50)로 캡
+- `GameGenreChallengeController.java`: totalSongs를 MAX_SONG_COUNT(50)로 캡 (3곳)
+- `GenreChallengeService.java`: 홈페이지 TOP 기록 totalSongs 캡

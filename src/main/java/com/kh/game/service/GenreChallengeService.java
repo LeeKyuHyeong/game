@@ -17,7 +17,7 @@ import java.util.*;
 
 /**
  * 장르 챌린지 서비스
- * - 장르별 전곡 도전 모드
+ * - 장르별 랜덤 50곡 도전 모드
  * - 콤보 및 정답수 기록
  * - 영구 랭킹 (리셋 없음)
  */
@@ -33,10 +33,10 @@ public class GenreChallengeService {
     private final GenreRepository genreRepository;
     private final ObjectMapper objectMapper;
 
-    // 최소 곡 수 (100곡 이상)
-    public static final int MIN_SONG_COUNT = 100;
-    // 최대 곡 수 (100곡까지)
-    public static final int MAX_SONG_COUNT = 100;
+    // 최소 곡 수 (50곡 이상)
+    public static final int MIN_SONG_COUNT = 50;
+    // 최대 곡 수 (50곡까지)
+    public static final int MAX_SONG_COUNT = 50;
 
     /**
      * 장르 챌린지 게임 시작 (기본 난이도: NORMAL)
@@ -420,7 +420,7 @@ public class GenreChallengeService {
                 item.put("genreName", genreNameMap.getOrDefault(genreCode, genreCode));
                 item.put("nickname", top.getMember().getNickname());
                 item.put("correctCount", top.getCorrectCount());
-                item.put("totalSongs", top.getTotalSongs());
+                item.put("totalSongs", Math.min(top.getTotalSongs(), MAX_SONG_COUNT));
                 item.put("maxCombo", top.getMaxCombo());
                 item.put("bestTimeMs", top.getBestTimeMs());
                 result.add(item);

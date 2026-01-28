@@ -10,8 +10,8 @@ const DIFFICULTY_CONFIG = {
     HARDCORE: { playTime: 5, answerTime: 5, lives: 5, ranked: true, icon: '🔥' }
 };
 
-// 최소 곡 수 (서버와 동일하게 10곡)
-const MIN_SONG_COUNT = 10;
+// 최소 곡 수 (서버와 동일하게 50곡)
+const MIN_SONG_COUNT = 50;
 
 document.addEventListener('DOMContentLoaded', function() {
     // 닉네임 초기값 설정
@@ -64,7 +64,7 @@ function selectGenre(code, name, count) {
 
     // 선택된 장르 정보 표시
     document.getElementById('selectedGenreName').textContent = name;
-    document.getElementById('selectedGenreCount').textContent = `${count}곡 전체 도전`;
+    document.getElementById('selectedGenreCount').textContent = `${count}곡 중 랜덤 50곡 도전`;
 
     // 선택 영역 숨기고 선택 완료 영역 표시
     document.getElementById('genreSelectArea').style.display = 'none';
@@ -145,7 +145,7 @@ function updateStartButton() {
     if (selectedGenre) {
         const config = DIFFICULTY_CONFIG[selectedDifficulty];
         const modeText = config.ranked ? '🏆 공식' : '📝 연습';
-        startBtn.textContent = `${selectedGenre.name} 도전 시작! (${selectedGenre.count}곡) ${modeText}`;
+        startBtn.textContent = `${selectedGenre.name} 도전 시작! (랜덤 50곡) ${modeText}`;
     } else {
         startBtn.textContent = '도전 시작!';
     }
@@ -175,7 +175,7 @@ function updateRulesDisplay() {
     const totalTime = config.playTime + config.answerTime;
 
     let rulesHtml = `
-        <li><span class="rule-icon">🎵</span> 해당 장르의 <strong>전곡</strong> 출제</li>
+        <li><span class="rule-icon">🎵</span> 해당 장르에서 <strong>랜덤 50곡</strong> 출제</li>
         <li><span class="rule-icon">⏱</span> <strong>${config.playTime}초</strong> 듣기 + <strong>${config.answerTime}초</strong> 입력 (총 ${totalTime}초)</li>
         <li><span class="rule-icon">❤</span> 라이프 <strong>${config.lives}개</strong> (오답/시간초과 시 -1)</li>
         <li><span class="rule-icon">🔥</span> <strong>콤보</strong> 시스템! 연속 정답을 노려라</li>

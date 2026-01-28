@@ -61,7 +61,7 @@ public class GameGenreChallengeController {
     }
 
     /**
-     * 장르 목록 조회 (곡 수 포함) - 10곡 이상 장르만
+     * 장르 목록 조회 (곡 수 포함) - 50곡 이상 장르만
      */
     @GetMapping("/genres")
     @ResponseBody
@@ -109,7 +109,7 @@ public class GameGenreChallengeController {
                 return ResponseEntity.badRequest().body(result);
             }
 
-            // 곡 수 확인 (최소 10곡 필요)
+            // 곡 수 확인 (최소 50곡 필요)
             int songCount = songService.getSongCountByGenreCode(genreCode);
             if (songCount < GenreChallengeService.MIN_SONG_COUNT) {
                 result.put("success", false);
@@ -500,7 +500,7 @@ public class GameGenreChallengeController {
             item.put("rank", rank++);
             item.put("nickname", record.getMember().getNickname());
             item.put("correctCount", record.getCorrectCount());
-            item.put("totalSongs", record.getTotalSongs());
+            item.put("totalSongs", Math.min(record.getTotalSongs(), GenreChallengeService.MAX_SONG_COUNT));
             item.put("maxCombo", record.getMaxCombo());
             item.put("bestTimeMs", record.getBestTimeMs());
             item.put("achievedAt", record.getAchievedAt());
@@ -538,7 +538,7 @@ public class GameGenreChallengeController {
             Map<String, Object> topInfo = new HashMap<>();
             topInfo.put("nickname", top.getMember().getNickname());
             topInfo.put("correctCount", top.getCorrectCount());
-            topInfo.put("totalSongs", top.getTotalSongs());
+            topInfo.put("totalSongs", Math.min(top.getTotalSongs(), GenreChallengeService.MAX_SONG_COUNT));
             topInfo.put("maxCombo", top.getMaxCombo());
             topInfo.put("bestTimeMs", top.getBestTimeMs());
             result.put("topRecord", topInfo);
@@ -552,7 +552,7 @@ public class GameGenreChallengeController {
                         .ifPresent(record -> {
                             Map<String, Object> myInfo = new HashMap<>();
                             myInfo.put("correctCount", record.getCorrectCount());
-                            myInfo.put("totalSongs", record.getTotalSongs());
+                            myInfo.put("totalSongs", Math.min(record.getTotalSongs(), GenreChallengeService.MAX_SONG_COUNT));
                             myInfo.put("maxCombo", record.getMaxCombo());
                             myInfo.put("bestTimeMs", record.getBestTimeMs());
                             result.put("myRecord", myInfo);

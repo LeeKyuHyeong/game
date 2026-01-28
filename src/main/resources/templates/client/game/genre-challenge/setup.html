@@ -16,9 +16,9 @@
         <div class="setup-card genre-challenge-card">
             <div class="challenge-intro">
                 <div class="challenge-icon">&#127912;</div>
-                <h2>이 장르를 전부 맞춰봐!</h2>
+                <h2>장르 랜덤 50곡에 도전!</h2>
                 <p class="challenge-desc">
-                    선택한 장르의 <strong>모든 곡</strong>을 듣고 맞춰라!<br>
+                    선택한 장르에서 <strong>랜덤 50곡</strong>을 듣고 맞춰라!<br>
                     5번 틀리면 게임 오버! 최대 콤보를 노려보자!
                 </p>
             </div>
@@ -92,7 +92,7 @@
             <div class="setup-step rules-section">
                 <h3>게임 규칙</h3>
                 <ul class="rules-list" id="rulesList">
-                    <li><span class="rule-icon">&#127925;</span> 해당 장르의 <strong>전곡</strong> 출제</li>
+                    <li><span class="rule-icon">&#127925;</span> 해당 장르에서 <strong>랜덤 50곡</strong> 출제 (50곡 이상 장르만 선택 가능)</li>
                     <li><span class="rule-icon">&#9200;</span> 노말: <strong th:text="'듣기 ' + ${normalPlaySec} + '초 + 입력 ' + ${normalAnswerSec} + '초'">듣기 7초 + 입력 6초</strong> | 하드코어: <strong th:text="'듣기 ' + ${hardcorePlaySec} + '초 + 입력 ' + ${hardcoreAnswerSec} + '초'">듣기 5초 + 입력 5초</strong></li>
                     <li><span class="rule-icon">&#10084;</span> 라이프 <strong th:text="${normalLives} + '개'">5개</strong> (오답/시간초과 시 -1)</li>
                     <li><span class="rule-icon">&#128293;</span> <strong>콤보</strong> 시스템! 연속 정답을 노려라</li>
