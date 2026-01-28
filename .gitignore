@@ -53,6 +53,7 @@ sql-output/
 ### Misc ###
 nul
 *.png
+menu_renewal.md
 
 ### SSL/Certbot ###
 certbot/
