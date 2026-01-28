@@ -3,6 +3,8 @@ package com.kh.game.service;
 import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.Song;
 import com.kh.game.entity.SongAnswer;
+import com.kh.game.repository.BadgeRepository;
+import com.kh.game.repository.FanChallengeRecordRepository;
 import com.kh.game.repository.GameRoomRepository;
 import com.kh.game.repository.GameRoundRepository;
 import com.kh.game.repository.SongAnswerRepository;
@@ -1134,4 +1136,88 @@ public class SongService {
         }
         return genres;
     }
+
+    // ========== 아티스트 관리 (병합) ==========
+
+    /**
+     * 아티스트 병합 (fromArtist → toArtist)
+     * song, fan_challenge_record, badge 테이블의 아티스트명 일괄 변경
+     *
+     * @param fromArtist 변경할 아티스트명 (사라질 이름)
+     * @param toArtist 새 아티스트명 (대표명)
+     * @return 변경 결과 (테이블별 변경 건수)
+     */
+    @Transactional
+    public ArtistMergeResult mergeArtist(String fromArtist, String toArtist) {
+        if (fromArtist == null || fromArtist.trim().isEmpty()) {
+            throw new IllegalArgumentException("변경할 아티스트명을 입력해주세요.");
+        }
+        if (toArtist == null || toArtist.trim().isEmpty()) {
+            throw new IllegalArgumentException("새 아티스트명을 입력해주세요.");
+        }
+        if (fromArtist.equals(toArtist)) {
+            throw new IllegalArgumentException("동일한 아티스트명으로는 변경할 수 없습니다.");
+        }
+
+        // 1. Song 테이블 업데이트
+        int songCount = songRepository.updateArtistName(fromArtist, toArtist);
+
+        // 2. FanChallengeRecord 테이블 업데이트
+        int fanChallengeCount = fanChallengeRecordRepository.updateArtistName(fromArtist, toArtist);
+
+        // 3. Badge 테이블 업데이트
+        int badgeCount = badgeRepository.updateArtistName(fromArtist, toArtist);
+
+        log.info("아티스트 병합 완료: '{}' → '{}' (Song: {}, FanChallenge: {}, Badge: {})",
+                fromArtist, toArtist, songCount, fanChallengeCount, badgeCount);
+
+        return new ArtistMergeResult(fromArtist, toArtist, songCount, fanChallengeCount, badgeCount);
+    }
+
+    /**
+     * 특정 아티스트의 곡 수 조회
+     */
+    public long countSongsByArtist(String artist) {
+        return songRepository.countByArtist(artist);
+    }
+
+    /**
+     * 아티스트 존재 여부 확인
+     */
+    public boolean artistExists(String artist) {
+        return songRepository.existsByArtist(artist);
+    }
+
+    /**
+     * 아티스트 병합 결과 DTO
+     */
+    public static class ArtistMergeResult {
+        private final String fromArtist;
+        private final String toArtist;
+        private final int songCount;
+        private final int fanChallengeCount;
+        private final int badgeCount;
+
+        public ArtistMergeResult(String fromArtist, String toArtist, int songCount, int fanChallengeCount, int badgeCount) {
+            this.fromArtist = fromArtist;
+            this.toArtist = toArtist;
+            this.songCount = songCount;
+            this.fanChallengeCount = fanChallengeCount;
+            this.badgeCount = badgeCount;
+        }
+
+        public String getFromArtist() { return fromArtist; }
+        public String getToArtist() { return toArtist; }
+        public int getSongCount() { return songCount; }
+        public int getFanChallengeCount() { return fanChallengeCount; }
+        public int getBadgeCount() { return badgeCount; }
+        public int getTotalCount() { return songCount + fanChallengeCount + badgeCount; }
+    }
+
+    // FanChallengeRecordRepository, BadgeRepository 주입 필요
+    @org.springframework.beans.factory.annotation.Autowired
+    private FanChallengeRecordRepository fanChallengeRecordRepository;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private BadgeRepository badgeRepository;
 }

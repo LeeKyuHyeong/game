@@ -55,4 +55,13 @@ public interface BadgeRepository extends JpaRepository<Badge, Long> {
      */
     @Query("SELECT b FROM Badge b WHERE b.code LIKE :pattern")
     List<Badge> findByCodePattern(@Param("pattern") String pattern);
+
+    // ========== 아티스트 관리 (병합) ==========
+
+    /**
+     * 아티스트명 일괄 변경 (병합)
+     */
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE Badge b SET b.artistName = :toArtist WHERE b.artistName = :fromArtist")
+    int updateArtistName(@Param("fromArtist") String fromArtist, @Param("toArtist") String toArtist);
 }

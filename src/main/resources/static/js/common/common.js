@@ -1,3 +1,29 @@
+// ========== 조건부 디버그 로깅 ==========
+const Debug = {
+    // 개발 환경 여부 (localhost 또는 127.0.0.1)
+    isDev: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1',
+
+    // 일반 로그 (개발 환경에서만 출력)
+    log(...args) {
+        if (this.isDev) console.log(...args);
+    },
+
+    // 경고 로그 (개발 환경에서만 출력)
+    warn(...args) {
+        if (this.isDev) console.warn(...args);
+    },
+
+    // 에러 로그 (항상 출력 - 운영 환경에서도 에러는 추적 필요)
+    error(...args) {
+        console.error(...args);
+    },
+
+    // 테이블 형태 로그 (개발 환경에서만)
+    table(data) {
+        if (this.isDev) console.table(data);
+    }
+};
+
 // 토스트 알림 표시 (전역 함수)
 function showToast(message, type = 'info') {
     // 기존 토스트 제거

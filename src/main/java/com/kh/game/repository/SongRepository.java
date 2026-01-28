@@ -285,4 +285,26 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     List<Object[]> findGenresWithSongCountMinimum(@Param("minCount") long minCount);
 
     long countByUseYn(String useYn);
+
+    // ========== 아티스트 관리 (병합) ==========
+
+    /**
+     * 아티스트명 일괄 변경 (병합)
+     * @param fromArtist 변경할 아티스트명
+     * @param toArtist 새 아티스트명
+     * @return 변경된 레코드 수
+     */
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE Song s SET s.artist = :toArtist, s.updatedAt = CURRENT_TIMESTAMP WHERE s.artist = :fromArtist")
+    int updateArtistName(@Param("fromArtist") String fromArtist, @Param("toArtist") String toArtist);
+
+    /**
+     * 특정 아티스트의 곡 수 조회
+     */
+    long countByArtist(String artist);
+
+    /**
+     * 아티스트 존재 여부 확인
+     */
+    boolean existsByArtist(String artist);
 }

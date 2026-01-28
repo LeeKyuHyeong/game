@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: adminHead('아티스트 관리')}"></head>
+<body class="admin-page">
+<link rel="stylesheet" th:href="@{/css/admin/table-mobile-collapse.css}">
+<link rel="stylesheet" th:href="@{/css/admin/form.css}">
+<style>
+    .merge-section {
+        background: var(--bg-surface);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+    .merge-section h3 {
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+    .merge-form {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+    .merge-form .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    .merge-form label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+    .merge-form input, .merge-form select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.375rem;
+        background: var(--bg-base);
+        color: var(--text-primary);
+    }
+    .merge-form input:focus, .merge-form select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+    .merge-arrow {
+        font-size: 1.5rem;
+        color: var(--text-muted);
+        padding-bottom: 0.5rem;
+    }
+    .merge-btn {
+        padding: 0.75rem 1.5rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+    .merge-btn:hover {
+        background: var(--primary-hover);
+    }
+    .merge-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .duplicate-section {
+        background: var(--bg-surface);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--warning-color);
+    }
+    .duplicate-section h3 {
+        color: var(--warning-color);
+        margin-bottom: 1rem;
+    }
+    .duplicate-group {
+        background: var(--bg-elevated);
+        border-radius: 0.375rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    .duplicate-group-header {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+    .duplicate-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--bg-surface);
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        margin: 0.25rem;
+        font-size: 0.875rem;
+    }
+    .duplicate-item .count {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+    }
+    .quick-merge-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+
+    .artist-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .artist-table th, .artist-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .artist-table th {
+        background: var(--bg-elevated);
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+    .artist-table tr:hover {
+        background: var(--bg-elevated);
+    }
+    .artist-name {
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+    .song-count {
+        color: var(--text-secondary);
+    }
+    .select-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 0.25rem;
+        cursor: pointer;
+        color: var(--text-primary);
+    }
+    .select-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .search-box {
+        margin-bottom: 1rem;
+    }
+    .search-box input {
+        width: 100%;
+        max-width: 400px;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.375rem;
+        background: var(--bg-base);
+        color: var(--text-primary);
+    }
+
+    .result-message {
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin-bottom: 1rem;
+    }
+    .result-message.success {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid var(--success-color);
+        color: var(--success-color);
+    }
+    .result-message.error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid var(--error-color);
+        color: var(--error-color);
+    }
+    .result-details {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+        .merge-form {
+            flex-direction: column;
+        }
+        .merge-arrow {
+            transform: rotate(90deg);
+            padding: 0;
+        }
+    }
+</style>
+<div class="admin-container">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+    <main class="main-content">
+        <header class="content-header">
+            <h1>아티스트 관리</h1>
+        </header>
+
+        <!-- 통계 카드 -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${totalArtists}">0</div>
+                <div class="stat-label">전체 아티스트</div>
+            </div>
+        </div>
+
+        <!-- 결과 메시지 -->
+        <div id="resultMessage" class="result-message" style="display: none;"></div>
+
+        <!-- 병합 섹션 -->
+        <div class="merge-section">
+            <h3>🔀 아티스트 병합</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.875rem;">
+                중복된 아티스트를 하나로 통합합니다. 변경 전 아티스트의 모든 곡, 팬챌린지 기록, 뱃지가 새 아티스트명으로 변경됩니다.
+            </p>
+            <form class="merge-form" onsubmit="mergeArtist(event)">
+                <div class="form-group">
+                    <label for="fromArtist">변경할 아티스트 (사라질 이름)</label>
+                    <input type="text" id="fromArtist" name="fromArtist" placeholder="예: MC THE MAX" required list="artistListFrom">
+                    <datalist id="artistListFrom">
+                        <option th:each="artist : ${artists}" th:value="${artist.name}">
+                    </datalist>
+                </div>
+                <div class="merge-arrow">→</div>
+                <div class="form-group">
+                    <label for="toArtist">새 아티스트 (대표명)</label>
+                    <input type="text" id="toArtist" name="toArtist" placeholder="예: 엠씨더맥스" required list="artistListTo">
+                    <datalist id="artistListTo">
+                        <option th:each="artist : ${artists}" th:value="${artist.name}">
+                    </datalist>
+                </div>
+                <button type="submit" class="merge-btn" id="mergeBtn">병합 실행</button>
+            </form>
+        </div>
+
+        <!-- 중복 의심 아티스트 -->
+        <div class="duplicate-section" id="duplicateSection">
+            <h3>⚠️ 중복 의심 아티스트</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.875rem;">
+                이름이 비슷한 아티스트들입니다. 클릭하여 병합 폼에 자동 입력할 수 있습니다.
+            </p>
+            <div id="duplicateList">로딩 중...</div>
+        </div>
+
+        <!-- 아티스트 목록 -->
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--text-primary);">📋 전체 아티스트 목록</h3>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="아티스트 검색..." oninput="filterArtists()">
+            </div>
+            <div style="max-height: 500px; overflow-y: auto;">
+                <table class="artist-table" id="artistTable">
+                    <thead>
+                        <tr>
+                            <th>아티스트명</th>
+                            <th>곡 수</th>
+                            <th>선택</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="artist : ${artists}">
+                            <td class="artist-name" th:text="${artist.name}">아티스트명</td>
+                            <td class="song-count" th:text="${artist.count} + '곡'">0곡</td>
+                            <td>
+                                <button class="select-btn" th:data-name="${artist.name}"
+                                        onclick="selectAsFrom(this.dataset.name)">From</button>
+                                <button class="select-btn" th:data-name="${artist.name}"
+                                        onclick="selectAsTo(this.dataset.name)">To</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script th:inline="javascript">
+    // 중복 의심 아티스트 로드
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDuplicates();
+    });
+
+    function loadDuplicates() {
+        fetch('/admin/artist/duplicates')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('duplicateList');
+                if (data.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted);">중복 의심 아티스트가 없습니다.</p>';
+                    return;
+                }
+
+                let html = '';
+                data.forEach(group => {
+                    html += '<div class="duplicate-group">';
+                    html += '<div class="duplicate-group-header">그룹 (' + group.count + '개)</div>';
+                    group.artists.forEach(artist => {
+                        html += '<span class="duplicate-item">';
+                        html += '<span>' + escapeHtml(artist.name) + '</span>';
+                        html += '<span class="count">(' + artist.count + '곡)</span>';
+                        html += '<button class="quick-merge-btn" onclick="selectAsFrom(\'' + escapeJs(artist.name) + '\')">From</button>';
+                        html += '</span>';
+                    });
+                    html += '</div>';
+                });
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error loading duplicates:', error);
+                document.getElementById('duplicateList').innerHTML = '<p style="color: var(--error-color);">로드 실패</p>';
+            });
+    }
+
+    function selectAsFrom(name) {
+        document.getElementById('fromArtist').value = name;
+    }
+
+    function selectAsTo(name) {
+        document.getElementById('toArtist').value = name;
+    }
+
+    function filterArtists() {
+        const keyword = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#artistTable tbody tr');
+
+        rows.forEach(row => {
+            const name = row.querySelector('.artist-name').textContent.toLowerCase();
+            row.style.display = name.includes(keyword) ? '' : 'none';
+        });
+    }
+
+    function mergeArtist(event) {
+        event.preventDefault();
+
+        const fromArtist = document.getElementById('fromArtist').value.trim();
+        const toArtist = document.getElementById('toArtist').value.trim();
+        const mergeBtn = document.getElementById('mergeBtn');
+
+        if (!fromArtist || !toArtist) {
+            showResult(false, '아티스트명을 모두 입력해주세요.');
+            return;
+        }
+
+        if (fromArtist === toArtist) {
+            showResult(false, '동일한 아티스트명으로는 변경할 수 없습니다.');
+            return;
+        }
+
+        if (!confirm(`'${fromArtist}' → '${toArtist}'로 병합하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+            return;
+        }
+
+        mergeBtn.disabled = true;
+        mergeBtn.textContent = '처리 중...';
+
+        const formData = new FormData();
+        formData.append('fromArtist', fromArtist);
+        formData.append('toArtist', toArtist);
+
+        fetch('/admin/artist/merge', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let details = `Song: ${data.songCount}건, FanChallenge: ${data.fanChallengeCount}건, Badge: ${data.badgeCount}건`;
+                showResult(true, data.message, details);
+
+                // 폼 초기화
+                document.getElementById('fromArtist').value = '';
+                document.getElementById('toArtist').value = '';
+
+                // 중복 목록 새로고침
+                loadDuplicates();
+
+                // 3초 후 페이지 새로고침
+                setTimeout(() => location.reload(), 3000);
+            } else {
+                showResult(false, data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showResult(false, '병합 중 오류가 발생했습니다.');
+        })
+        .finally(() => {
+            mergeBtn.disabled = false;
+            mergeBtn.textContent = '병합 실행';
+        });
+    }
+
+    function showResult(success, message, details) {
+        const el = document.getElementById('resultMessage');
+        el.className = 'result-message ' + (success ? 'success' : 'error');
+        el.innerHTML = '<strong>' + (success ? '✅ ' : '❌ ') + message + '</strong>';
+        if (details) {
+            el.innerHTML += '<div class="result-details">' + details + '</div>';
+        }
+        el.style.display = 'block';
+
+        // 스크롤 이동
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function escapeJs(text) {
+        return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+</script>
+</body>
+</html>

@@ -32,14 +32,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         await YouTubePlayerManager.init('youtubePlayerContainer', {
             onStateChange: function(e) {
-                console.log('YouTube 상태 변경:', e.data);
+                Debug.log('YouTube 상태 변경:', e.data);
 
                 if (e.data === 5) { // CUED
                     videoReady = true;
-                    console.log('영상 로드 완료 (CUED)');
+                    Debug.log('영상 로드 완료 (CUED)');
 
                     if (pendingAutoPlay && currentSong) {
-                        console.log('자동 재생 시작');
+                        Debug.log('자동 재생 시작');
                         pendingAutoPlay = false;
                         playAudio();
                     }
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 videoReady = false;
                 pendingAutoPlay = false;
                 if (currentSong && currentSong.filePath) {
-                    console.log('MP3 fallback 시도');
+                    Debug.log('MP3 fallback 시도');
                     currentSong.youtubeVideoId = null;
                     loadAudioSource();
                 } else {
@@ -175,7 +175,7 @@ function loadAudioSource() {
 
     if (currentSong.youtubeVideoId && youtubePlayerReady) {
         if (shouldAutoPlay) {
-            console.log('자동 재생 시작 (라운드:', currentRound, ')');
+            Debug.log('자동 재생 시작 (라운드:', currentRound, ')');
             YouTubePlayerManager.loadAndPlay(currentSong.youtubeVideoId, currentSong.startTime || 0);
             isPlaying = true;
             document.getElementById('playBtn').innerHTML = '<span class="pause-icon">❚❚</span>';
@@ -595,7 +595,7 @@ document.getElementById('answerInput').addEventListener('keydown', function(e) {
 function handlePlaybackError(errorInfo) {
     if (!currentSong) return;
 
-    console.log('재생 실패 처리:', errorInfo);
+    Debug.log('재생 실패 처리:', errorInfo);
 
     if (errorInfo && errorInfo.isPlaybackError) {
         reportUnplayableSong(currentSong.id, errorInfo.code);
@@ -614,7 +614,7 @@ async function reportUnplayableSong(songId, errorCode) {
                 description: '자동 신고: YouTube 에러 코드 ' + errorCode
             })
         });
-        console.log('재생 불가 곡 자동 신고 완료');
+        Debug.log('재생 불가 곡 자동 신고 완료');
     } catch (error) {
         // console.error('자동 신고 실패:', error);
     }

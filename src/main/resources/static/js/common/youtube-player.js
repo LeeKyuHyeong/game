@@ -74,7 +74,7 @@ const YouTubePlayerManager = {
             events: {
                 onReady: (e) => {
                     this.isReady = true;
-                    console.log('YouTube Player ready');
+                    Debug.log('YouTube Player ready');
                     if (this.onReadyCallback) this.onReadyCallback(e);
                     resolve();
                 },
@@ -89,7 +89,7 @@ const YouTubePlayerManager = {
                     // Error 2일 때 startTime=0으로 한 번 재시도 (startTime 문제일 수 있음)
                     if (errorCode === 2 && this.retryCount < this.MAX_ERROR_RETRIES && this.currentVideoId) {
                         this.retryCount++;
-                        console.log('Error 2 재시도 중... (startTime=0, 시도:', this.retryCount + '/' + this.MAX_ERROR_RETRIES + ')');
+                        Debug.log('Error 2 재시도 중... (startTime=0, 시도:', this.retryCount + '/' + this.MAX_ERROR_RETRIES + ')');
                         this.player.cueVideoById({
                             videoId: this.currentVideoId,
                             startSeconds: 0

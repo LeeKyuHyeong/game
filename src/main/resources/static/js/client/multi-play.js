@@ -44,15 +44,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         await YouTubePlayerManager.init('youtubePlayerContainer', {
             onStateChange: function(e) {
                 // 상태: -1=unstarted, 0=ended, 1=playing, 2=paused, 3=buffering, 5=cued
-                console.log('YouTube 상태 변경:', e.data);
+                Debug.log('YouTube 상태 변경:', e.data);
 
                 if (e.data === 5) { // CUED - 영상 로드 완료
                     videoReady = true;
-                    console.log('영상 로드 완료 (CUED)');
+                    Debug.log('영상 로드 완료 (CUED)');
 
                     // 서버에서 재생 요청이 대기 중이었으면 자동 재생
                     if (pendingPlay && currentSong) {
-                        console.log('대기 중이던 재생 시작');
+                        Debug.log('대기 중이던 재생 시작');
                         startPlayback();
                     }
                 } else if (e.data === 1) { // PLAYING
@@ -372,7 +372,7 @@ function syncAudio(serverPlaying, serverPlayedAt) {
 
         // 영상이 아직 로드되지 않았으면 대기
         if (!videoReady) {
-            console.log('영상 로드 대기 중... pendingPlay 설정');
+            Debug.log('영상 로드 대기 중... pendingPlay 설정');
             pendingPlay = true;
             return;
         }
@@ -429,7 +429,7 @@ function startPlayback() {
 
     var targetTime = startTime + elapsedSec;
 
-    console.log('재생 시작: targetTime=' + targetTime.toFixed(1) + 's');
+    Debug.log('재생 시작: targetTime=' + targetTime.toFixed(1) + 's');
 
     // YouTube 동기화 및 재생
     YouTubePlayerManager.seekTo(targetTime);
@@ -446,11 +446,11 @@ function loadSong(song) {
     pendingPlay = false;
 
     if (!youtubePlayerReady) {
-        console.warn('YouTube Player not ready for loadSong');
+        Debug.warn('YouTube Player not ready for loadSong');
         // 1초 후 재시도
         if (loadRetryCount < MAX_LOAD_RETRIES) {
             loadRetryCount++;
-            console.log('YouTube Player not ready, 재시도 예정 (' + loadRetryCount + '/' + MAX_LOAD_RETRIES + ')');
+            Debug.log('YouTube Player not ready, 재시도 예정 (' + loadRetryCount + '/' + MAX_LOAD_RETRIES + ')');
             setTimeout(function() { loadSong(song); }, 1000);
         }
         return;
@@ -463,11 +463,11 @@ function loadSong(song) {
             errorRetryCount = 0;
         }
 
-        console.log('영상 로드 시작: ' + song.youtubeVideoId);
+        Debug.log('영상 로드 시작: ' + song.youtubeVideoId);
         var loaded = YouTubePlayerManager.loadVideo(song.youtubeVideoId.trim(), song.startTime || 0);
         if (!loaded && loadRetryCount < MAX_LOAD_RETRIES) {
             loadRetryCount++;
-            console.log('YouTube loadVideo 실패, 재시도 예정 (' + loadRetryCount + '/' + MAX_LOAD_RETRIES + ')');
+            Debug.log('YouTube loadVideo 실패, 재시도 예정 (' + loadRetryCount + '/' + MAX_LOAD_RETRIES + ')');
             setTimeout(function() { loadSong(song); }, 1000);
             return;
         }
@@ -854,7 +854,7 @@ function escapeHtml(text) {
 function handlePlaybackError(errorInfo) {
     if (!currentSong) return;
 
-    console.log('재생 실패 처리:', errorInfo);
+    Debug.log('재생 실패 처리:', errorInfo);
 
     // 재생 불가 에러인 경우에만 처리
     if (errorInfo && errorInfo.isPlaybackError) {
@@ -881,7 +881,7 @@ async function reportUnplayableSong(songId, errorCode) {
                 description: '자동 신고: YouTube 에러 코드 ' + errorCode
             })
         });
-        console.log('재생 불가 곡 자동 신고 완료');
+        Debug.log('재생 불가 곡 자동 신고 완료');
     } catch (error) {
         // console.error('자동 신고 실패:', error);
     }
@@ -896,7 +896,7 @@ async function reportUnplayableSong(songId, errorCode) {
                 errorCode: errorCode
             })
         });
-        console.log('서버에 재생 오류 보고 완료');
+        Debug.log('서버에 재생 오류 보고 완료');
     } catch (error) {
         // console.error('재생 오류 보고 실패:', error);
     }
@@ -962,14 +962,14 @@ async function skipUnplayableSong(songId) {
  * 심각한 오류 시 플레이어를 재생성합니다.
  */
 async function reinitializePlayer() {
-    console.log('YouTube 플레이어 재초기화 중...');
+    Debug.log('YouTube 플레이어 재초기화 중...');
 
     // 기존 플레이어 정리
     if (YouTubePlayerManager.player) {
         try {
             YouTubePlayerManager.player.destroy();
         } catch (e) {
-            console.warn('플레이어 destroy 실패:', e);
+            Debug.warn('플레이어 destroy 실패:', e);
         }
     }
 
@@ -992,13 +992,13 @@ async function reinitializePlayer() {
     try {
         await YouTubePlayerManager.init('youtubePlayerContainer', {
             onStateChange: function(e) {
-                console.log('YouTube 상태 변경:', e.data);
+                Debug.log('YouTube 상태 변경:', e.data);
 
                 if (e.data === 5) { // CUED - 영상 로드 완료
                     videoReady = true;
-                    console.log('영상 로드 완료 (CUED)');
+                    Debug.log('영상 로드 완료 (CUED)');
                     if (pendingPlay && currentSong) {
-                        console.log('대기 중이던 재생 시작');
+                        Debug.log('대기 중이던 재생 시작');
                         startPlayback();
                     }
                 } else if (e.data === 1) { // PLAYING
@@ -1026,7 +1026,7 @@ async function reinitializePlayer() {
             loadSong(currentSong);
         }
 
-        console.log('YouTube 플레이어 재초기화 완료');
+        Debug.log('YouTube 플레이어 재초기화 완료');
 
         // 재초기화 성공 알림
         var chatContainer = document.getElementById('chatMessages');

@@ -22,14 +22,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         await YouTubePlayerManager.init('youtubePlayerContainer', {
             onStateChange: function(e) {
-                console.log('YouTube 상태 변경:', e.data);
+                Debug.log('YouTube 상태 변경:', e.data);
 
                 if (e.data === 5) { // CUED - 영상 로드 완료
                     videoReady = true;
-                    console.log('영상 로드 완료 (CUED)');
+                    Debug.log('영상 로드 완료 (CUED)');
 
                     if (pendingAutoPlay && currentSong) {
-                        console.log('자동 재생 시작');
+                        Debug.log('자동 재생 시작');
                         pendingAutoPlay = false;
                         playAudio();
                     }
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     videoReady = true;
                     // loadAndPlay 성공 시 UI 업데이트 (CUED 건너뛰는 경우 대응)
                     if (pendingAutoPlay) {
-                        console.log('자동 재생 시작 (PLAYING 상태)');
+                        Debug.log('자동 재생 시작 (PLAYING 상태)');
                         pendingAutoPlay = false;
                         isPlaying = true;
                         document.getElementById('playBtn').innerHTML = '<span class="pause-icon">❚❚</span>';
@@ -526,7 +526,7 @@ function loadAudioSource() {
             // 자동 재생: pendingAutoPlay 설정 후 loadAndPlay
             // CUED 또는 PLAYING 상태에서 UI 업데이트 (네트워크 지연 대응)
             pendingAutoPlay = true;
-            console.log('자동 재생 대기 (라운드:', currentRound, ')');
+            Debug.log('자동 재생 대기 (라운드:', currentRound, ')');
             YouTubePlayerManager.loadAndPlay(currentSong.youtubeVideoId, currentSong.startTime || 0);
         } else {
             // 수동 재생: loadVideo 사용 (cueVideoById)
@@ -920,7 +920,7 @@ audioPlayer.addEventListener('error', function() {
 function handlePlaybackError(errorInfo) {
     if (!currentSong) return;
 
-    console.log('재생 실패 처리:', errorInfo);
+    Debug.log('재생 실패 처리:', errorInfo);
 
     // 재생 불가 에러인 경우에만 처리
     if (errorInfo && errorInfo.isPlaybackError) {
@@ -946,7 +946,7 @@ async function reportUnplayableSong(songId, errorCode) {
                 description: '자동 신고: YouTube 에러 코드 ' + errorCode
             })
         });
-        console.log('재생 불가 곡 자동 신고 완료');
+        Debug.log('재생 불가 곡 자동 신고 완료');
     } catch (error) {
         // console.error('자동 신고 실패:', error);
     }
@@ -1050,58 +1050,3 @@ async function skipUnplayableRound() {
     }
 }
 
-// 브라우저 콘솔 테스트 함수 (개발용)
-const HostAutoPlayTests = {
-    testFirstRoundNoAutoPlay: function() {
-        const saved = currentRound;
-        currentRound = 1;
-        const shouldAutoPlay = currentRound > 1;
-        console.assert(shouldAutoPlay === false, 'FAIL: 1라운드에서 shouldAutoPlay가 false여야 함');
-        currentRound = saved;
-        console.log('PASS: testFirstRoundNoAutoPlay');
-    },
-
-    testSubsequentRoundAutoPlay: function() {
-        const saved = currentRound;
-        currentRound = 2;
-        const shouldAutoPlay = currentRound > 1;
-        console.assert(shouldAutoPlay === true, 'FAIL: 2라운드에서 shouldAutoPlay가 true여야 함');
-        currentRound = saved;
-        console.log('PASS: testSubsequentRoundAutoPlay');
-    },
-
-    testAutoPlayCondition: function() {
-        const savedPending = pendingAutoPlay;
-        const savedReady = videoReady;
-        const savedSong = currentSong;
-
-        pendingAutoPlay = true;
-        videoReady = true;
-        currentSong = { youtubeVideoId: 'test123', startTime: 0 };
-        const shouldPlay = pendingAutoPlay && videoReady && currentSong;
-        console.assert(shouldPlay === true, 'FAIL: 조건 충족 시 재생해야 함');
-
-        pendingAutoPlay = savedPending;
-        videoReady = savedReady;
-        currentSong = savedSong;
-        console.log('PASS: testAutoPlayCondition');
-    },
-
-    checkState: function() {
-        console.table({
-            currentRound: currentRound,
-            videoReady: videoReady,
-            pendingAutoPlay: pendingAutoPlay,
-            isPlaying: isPlaying,
-            hasSong: !!currentSong
-        });
-    },
-
-    runAll: function() {
-        console.log('=== Host AutoPlay Tests ===');
-        this.testFirstRoundNoAutoPlay();
-        this.testSubsequentRoundAutoPlay();
-        this.testAutoPlayCondition();
-        console.log('=== All tests completed ===');
-    }
-};

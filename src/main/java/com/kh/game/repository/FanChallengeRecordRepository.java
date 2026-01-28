@@ -174,4 +174,13 @@ public interface FanChallengeRecordRepository extends JpaRepository<FanChallenge
            "WHERE r.member.id IN :memberIds " +
            "GROUP BY r.member.id")
     List<Object[]> countRecordsByMemberIds(@Param("memberIds") List<Long> memberIds);
+
+    // ========== 아티스트 관리 (병합) ==========
+
+    /**
+     * 아티스트명 일괄 변경 (병합)
+     */
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE FanChallengeRecord r SET r.artist = :toArtist WHERE r.artist = :fromArtist")
+    int updateArtistName(@Param("fromArtist") String fromArtist, @Param("toArtist") String toArtist);
 }

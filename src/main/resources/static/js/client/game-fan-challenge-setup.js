@@ -68,13 +68,22 @@ async function loadArtists() {
         const container = document.getElementById('artistList');
         container.innerHTML = '';
 
+        if (sortedArtists.length === 0) {
+            container.innerHTML = '<div class="no-results">도전 가능한 아티스트가 없습니다.<br><small>20곡 이상 보유한 아티스트가 필요합니다.</small></div>';
+            return;
+        }
+
         sortedArtists.forEach(artist => {
             const item = document.createElement('div');
             item.className = 'artist-item';
-            item.innerHTML = `
-                <span class="artist-name">${artist.name}</span>
-                <span class="song-count">${artist.count}곡</span>
-            `;
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'artist-name';
+            nameSpan.textContent = artist.name;
+            const countSpan = document.createElement('span');
+            countSpan.className = 'song-count';
+            countSpan.textContent = artist.count + '곡';
+            item.appendChild(nameSpan);
+            item.appendChild(countSpan);
             item.onclick = () => selectArtist(artist.name, artist.count);
             container.appendChild(item);
         });
@@ -92,25 +101,42 @@ async function searchArtists(keyword) {
     }
 
     try {
-        // 로컬 필터링 (이미 로드된 목록에서)
-        const filtered = artistList.filter(a =>
-            a.name.toLowerCase().includes(keyword.toLowerCase())
-        ).slice(0, 10);
+        let filtered;
+
+        if (artistList.length > 0) {
+            // 로컬 필터링 (이미 로드된 목록에서)
+            filtered = artistList.filter(a =>
+                a.name.toLowerCase().includes(keyword.toLowerCase())
+            ).slice(0, 10);
+        } else {
+            // 로컬 목록이 비어있으면 서버 API 사용
+            const response = await fetch(`/game/fan-challenge/artists/search?keyword=${encodeURIComponent(keyword)}`);
+            if (!response.ok) throw new Error('검색 실패');
+            const artists = await response.json();
+            filtered = artists.slice(0, 10).map(name => ({ name, count: null }));
+        }
 
         resultsContainer.innerHTML = '';
 
         if (filtered.length === 0) {
-            resultsContainer.innerHTML = '<div class="no-results">검색 결과가 없습니다</div>';
+            const noResult = document.createElement('div');
+            noResult.className = 'no-results';
+            noResult.textContent = '검색 결과가 없습니다';
+            resultsContainer.appendChild(noResult);
         } else {
             filtered.forEach(artist => {
                 const item = document.createElement('div');
                 item.className = 'search-result-item';
-                item.innerHTML = `
-                    <span class="artist-name">${artist.name}</span>
-                    <span class="song-count">${artist.count}곡</span>
-                `;
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'artist-name';
+                nameSpan.textContent = artist.name;
+                const countSpan = document.createElement('span');
+                countSpan.className = 'song-count';
+                countSpan.textContent = artist.count != null ? artist.count + '곡' : '';
+                item.appendChild(nameSpan);
+                item.appendChild(countSpan);
                 item.onclick = () => {
-                    selectArtist(artist.name, artist.count);
+                    selectArtist(artist.name, artist.count || 0);
                     resultsContainer.style.display = 'none';
                     document.getElementById('artistSearch').value = '';
                 };
@@ -172,25 +198,52 @@ async function loadArtistChallengeInfo(artist, stageLevel = 1) {
         // 내 기록 표시
         if (data.myRecord) {
             const myRecord = data.myRecord;
-            const timeText = myRecord.bestTimeMs ? ` ${(myRecord.bestTimeMs / 1000).toFixed(1)}초` : '';
-            const perfectText = myRecord.isPerfectClear ? ' PERFECT' : '';
-            document.getElementById('myRecordValue').innerHTML =
-                `<span class="score">${myRecord.correctCount}/${myRecord.totalSongs}</span>` +
-                `<span class="time">${timeText}</span>` +
-                (perfectText ? `<span class="perfect-badge">${perfectText}</span>` : '');
+            const container = document.getElementById('myRecordValue');
+            container.innerHTML = '';
+            const scoreSpan = document.createElement('span');
+            scoreSpan.className = 'score';
+            scoreSpan.textContent = myRecord.correctCount + '/' + myRecord.totalSongs;
+            container.appendChild(scoreSpan);
+            if (myRecord.bestTimeMs) {
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'time';
+                timeSpan.textContent = ' ' + (myRecord.bestTimeMs / 1000).toFixed(1) + '초';
+                container.appendChild(timeSpan);
+            }
+            if (myRecord.isPerfectClear) {
+                const perfectSpan = document.createElement('span');
+                perfectSpan.className = 'perfect-badge';
+                perfectSpan.textContent = ' PERFECT';
+                container.appendChild(perfectSpan);
+            }
             myRecordInfo.style.display = 'flex';
         }
 
         // 1위 기록 표시
         if (data.topRecord) {
             const top = data.topRecord;
-            const timeText = top.bestTimeMs ? ` ${(top.bestTimeMs / 1000).toFixed(1)}초` : '';
-            const perfectText = top.isPerfectClear ? ' PERFECT' : '';
-            document.getElementById('topRecordValue').innerHTML =
-                `<span class="nickname">${top.nickname}</span>` +
-                `<span class="score">${top.correctCount}/${top.totalSongs}</span>` +
-                `<span class="time">${timeText}</span>` +
-                (perfectText ? `<span class="perfect-badge">${perfectText}</span>` : '');
+            const container = document.getElementById('topRecordValue');
+            container.innerHTML = '';
+            const nickSpan = document.createElement('span');
+            nickSpan.className = 'nickname';
+            nickSpan.textContent = top.nickname;
+            container.appendChild(nickSpan);
+            const scoreSpan = document.createElement('span');
+            scoreSpan.className = 'score';
+            scoreSpan.textContent = top.correctCount + '/' + top.totalSongs;
+            container.appendChild(scoreSpan);
+            if (top.bestTimeMs) {
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'time';
+                timeSpan.textContent = ' ' + (top.bestTimeMs / 1000).toFixed(1) + '초';
+                container.appendChild(timeSpan);
+            }
+            if (top.isPerfectClear) {
+                const perfectSpan = document.createElement('span');
+                perfectSpan.className = 'perfect-badge';
+                perfectSpan.textContent = ' PERFECT';
+                container.appendChild(perfectSpan);
+            }
             topRecordInfo.style.display = 'flex';
         } else {
             // 기록이 없을 때

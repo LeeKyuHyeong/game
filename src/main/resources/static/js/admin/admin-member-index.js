@@ -173,7 +173,6 @@ function sortBy(column) {
 // ========== Member Detail Functions ==========
 
 async function viewDetail(id) {
-    console.log('viewDetail called with id:', id);
     currentMemberId = id;
     try {
         const response = await fetch(`/admin/member/detail/${id}`);

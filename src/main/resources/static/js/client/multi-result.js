@@ -99,7 +99,7 @@ async function goToLobby() {
         });
     } catch (error) {
         // 나가기 실패해도 로비로 이동
-        console.log('나가기 처리 중 오류 (무시됨):', error);
+        Debug.log('나가기 처리 중 오류 (무시됨):', error);
     }
     window.location.href = '/game/multi';
 }
