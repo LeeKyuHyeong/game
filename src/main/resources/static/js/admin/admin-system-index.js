@@ -462,6 +462,11 @@ function refreshBatchSchedules() {
     refreshSchedules();
 }
 
+// 배치 모달 닫기 (하위호환)
+function closeBatchModal(modalId) {
+    closeModal(modalId);
+}
+
 // ========== Menu Tab Functions ==========
 
 function initMenuTab() {
