@@ -1101,6 +1101,218 @@ function setupModalEvents() {
     }
 }
 
+// ========== Answer Modal Functions ==========
+
+function openAnswerModal(button) {
+    var songId = button.dataset.songId;
+    var songTitle = button.dataset.songTitle;
+    var songArtist = button.dataset.songArtist;
+
+    document.getElementById('currentSongId').value = songId;
+    document.getElementById('modalSongTitle').textContent = songTitle;
+    document.getElementById('modalSongArtist').textContent = songArtist;
+    document.getElementById('answerModalTitle').textContent = songTitle + ' - 정답 관리';
+
+    var answerList = document.getElementById('answerList');
+    answerList.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>로딩 중...</span></div>';
+
+    var modal = document.getElementById('answerModal');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+
+    fetch('/admin/answer/song/' + songId)
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.success) {
+                renderAnswerList(result.answers);
+            } else {
+                answerList.innerHTML = '<div class="error-message">' + escapeHtml(result.message) + '</div>';
+            }
+        })
+        .catch(function(error) {
+            answerList.innerHTML = '<div class="error-message">정답 목록을 불러오는데 실패했습니다.</div>';
+        });
+}
+
+function closeAnswerModal() {
+    var modal = document.getElementById('answerModal');
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    var newAnswerInput = document.getElementById('newAnswer');
+    if (newAnswerInput) newAnswerInput.value = '';
+    var primaryCheckbox = document.getElementById('newAnswerPrimary');
+    if (primaryCheckbox) primaryCheckbox.checked = false;
+}
+
+function renderAnswerList(answers) {
+    var answerList = document.getElementById('answerList');
+    answerList.textContent = '';
+
+    if (!answers || answers.length === 0) {
+        answerList.innerHTML = '<div class="empty-message">등록된 정답이 없습니다.</div>';
+        return;
+    }
+
+    answers.forEach(function(answer) {
+        var item = document.createElement('div');
+        item.className = 'answer-item';
+
+        var answerText = document.createElement('span');
+        answerText.className = 'answer-tag' + (answer.isPrimary ? ' primary' : '');
+        answerText.textContent = answer.answer;
+
+        var actions = document.createElement('span');
+        actions.className = 'answer-actions';
+
+        var editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-sm btn-secondary';
+        editBtn.textContent = '수정';
+        editBtn.onclick = function() { editAnswer(answer.id, answer.answer, answer.isPrimary); };
+
+        var deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn btn-sm btn-danger';
+        deleteBtn.textContent = '삭제';
+        deleteBtn.onclick = function() { deleteAnswer(answer.id); };
+
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+
+        item.appendChild(answerText);
+        item.appendChild(actions);
+        answerList.appendChild(item);
+    });
+}
+
+function addAnswer() {
+    var songId = document.getElementById('currentSongId').value;
+    var answerText = document.getElementById('newAnswer').value.trim();
+    var isPrimary = document.getElementById('newAnswerPrimary').checked;
+
+    if (!answerText) {
+        showToast('정답을 입력해주세요.', 'error');
+        return;
+    }
+
+    fetch('/admin/answer/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ songId: songId, answer: answerText, isPrimary: isPrimary })
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(result) {
+        if (result.success) {
+            showToast(result.message, 'success');
+            document.getElementById('newAnswer').value = '';
+            document.getElementById('newAnswerPrimary').checked = false;
+            refreshAnswerList(songId);
+        } else {
+            showToast(result.message, 'error');
+        }
+    })
+    .catch(function(error) {
+        showToast('정답 추가 중 오류가 발생했습니다.', 'error');
+    });
+}
+
+function deleteAnswer(answerId) {
+    if (!confirm('이 정답을 삭제하시겠습니까?')) return;
+
+    fetch('/admin/answer/delete/' + answerId, { method: 'POST' })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.success) {
+                showToast(result.message, 'success');
+                var songId = document.getElementById('currentSongId').value;
+                refreshAnswerList(songId);
+            } else {
+                showToast(result.message, 'error');
+            }
+        })
+        .catch(function(error) {
+            showToast('정답 삭제 중 오류가 발생했습니다.', 'error');
+        });
+}
+
+function editAnswer(answerId, answerText, isPrimary) {
+    document.getElementById('editAnswerId').value = answerId;
+    document.getElementById('editAnswerText').value = answerText;
+    document.getElementById('editAnswerPrimary').checked = isPrimary;
+
+    var modal = document.getElementById('editAnswerModal');
+    modal.classList.add('show');
+}
+
+function closeEditModal() {
+    var modal = document.getElementById('editAnswerModal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
+}
+
+function saveEditAnswer() {
+    var answerId = document.getElementById('editAnswerId').value;
+    var answerText = document.getElementById('editAnswerText').value.trim();
+    var isPrimary = document.getElementById('editAnswerPrimary').checked;
+
+    if (!answerText) {
+        showToast('정답을 입력해주세요.', 'error');
+        return;
+    }
+
+    fetch('/admin/answer/update/' + answerId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answer: answerText, isPrimary: isPrimary })
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(result) {
+        if (result.success) {
+            showToast(result.message, 'success');
+            closeEditModal();
+            var songId = document.getElementById('currentSongId').value;
+            refreshAnswerList(songId);
+        } else {
+            showToast(result.message, 'error');
+        }
+    })
+    .catch(function(error) {
+        showToast('정답 수정 중 오류가 발생했습니다.', 'error');
+    });
+}
+
+function autoGenerateAnswers() {
+    var songId = document.getElementById('currentSongId').value;
+
+    fetch('/admin/answer/auto-generate/' + songId, { method: 'POST' })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.success) {
+                showToast(result.message, 'success');
+                refreshAnswerList(songId);
+            } else {
+                showToast(result.message, 'error');
+            }
+        })
+        .catch(function(error) {
+            showToast('자동 생성 중 오류가 발생했습니다.', 'error');
+        });
+}
+
+function refreshAnswerList(songId) {
+    fetch('/admin/answer/song/' + songId)
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.success) {
+                renderAnswerList(result.answers);
+            }
+        })
+        .catch(function(error) {
+            console.error('Error refreshing answer list:', error);
+        });
+}
+
 // ========== Helper Functions ==========
 
 // openModal 하위호환 - 노래 모달 열기

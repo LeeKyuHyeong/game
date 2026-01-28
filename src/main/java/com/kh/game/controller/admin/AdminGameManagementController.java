@@ -43,7 +43,8 @@ public class AdminGameManagementController {
 
         // 게임 이력 통계
         long todayGames = gameSessionService.getTodayGameCount();
-        double avgScore = gameSessionService.getAverageScore();
+        Double avgScoreObj = gameSessionService.getAverageScore();
+        double avgScore = avgScoreObj != null ? avgScoreObj : 0.0;
         long totalGames = gameSessionService.countAll();
         model.addAttribute("todayGames", todayGames);
         model.addAttribute("avgScore", avgScore);
