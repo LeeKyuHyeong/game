@@ -498,7 +498,7 @@ public class RetroGameController {
         Map<String, Object> result = new HashMap<>();
 
         try {
-            Long previousSessionId = ((Number) request.get("previousSessionId")).longValue();
+            Long previousSessionId = Long.valueOf(request.get("previousSessionId").toString());
 
             // 이전 세션 조회
             GameSession previous = gameSessionService.findById(previousSessionId).orElse(null);
