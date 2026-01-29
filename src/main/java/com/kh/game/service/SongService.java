@@ -1074,26 +1074,16 @@ public class SongService {
 
     /**
      * 장르별 유효한 곡 조회 (YouTube 또는 MP3)
+     * - DB에서 이미 YouTube 검증된 곡만 조회 (isYoutubeValid = true 또는 null)
+     * - 실시간 검증 제거로 성능 개선
      */
     public List<Song> getAllValidatedSongsByGenreCode(String genreCode) {
         List<Song> songs = songRepository.findByGenreCodeAndHasAudioSource(genreCode);
 
-        // YouTube 검증
-        List<Song> validSongs = new ArrayList<>();
-        for (Song song : songs) {
-            if (song.getYoutubeVideoId() != null && !song.getYoutubeVideoId().isEmpty()) {
-                YouTubeValidationService.ValidationResult result =
-                        youTubeValidationService.validateVideo(song.getYoutubeVideoId());
-                if (!result.isValid()) {
-                    continue;
-                }
-            }
-            validSongs.add(song);
-        }
-
         // 셔플 후 반환
-        Collections.shuffle(validSongs);
-        return validSongs;
+        List<Song> shuffledSongs = new ArrayList<>(songs);
+        Collections.shuffle(shuffledSongs);
+        return shuffledSongs;
     }
 
     /**

@@ -246,19 +246,21 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     // ========== 장르 챌린지용 쿼리 ==========
 
     /**
-     * 장르별 유효한 곡 조회 (YouTube 또는 MP3)
+     * 장르별 유효한 곡 조회 (YouTube 또는 MP3, YouTube 검증 완료된 곡만)
      */
     @Query("SELECT s FROM Song s WHERE s.useYn = 'Y' " +
            "AND s.genre.code = :genreCode " +
-           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL)")
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
+           "AND (s.isYoutubeValid IS NULL OR s.isYoutubeValid = true)")
     List<Song> findByGenreCodeAndHasAudioSource(@Param("genreCode") String genreCode);
 
     /**
-     * 장르별 유효한 곡 수 조회
+     * 장르별 유효한 곡 수 조회 (YouTube 검증 완료된 곡만)
      */
     @Query("SELECT COUNT(s) FROM Song s WHERE s.useYn = 'Y' " +
            "AND s.genre.code = :genreCode " +
-           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL)")
+           "AND (s.youtubeVideoId IS NOT NULL OR s.filePath IS NOT NULL) " +
+           "AND (s.isYoutubeValid IS NULL OR s.isYoutubeValid = true)")
     int countByGenreCodeAndHasAudioSource(@Param("genreCode") String genreCode);
 
     /**

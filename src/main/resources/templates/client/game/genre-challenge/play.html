@@ -7,10 +7,6 @@
 <div class="game-container genre-challenge">
     <header class="game-header">
         <div class="header-left">
-            <span class="difficulty-badge" th:data-difficulty="${difficulty}">
-                <span th:text="${difficultyEmoji != null ? difficultyEmoji : '⭐'}"></span>
-                <span th:text="${difficultyName}">일반</span>
-            </span>
             <span class="genre-name" th:text="${genreName}">장르</span>
             <span class="round-info">
                 <span id="currentRound">1</span> / <span id="totalRounds">?</span>

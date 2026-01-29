@@ -433,7 +433,6 @@
     background: var(--bg-base);
     padding: 1.5rem;
     border-radius: 0.75rem;
-    margin-top: 0.75rem;
     border: 1px solid var(--border-color);
 }
 
@@ -1894,15 +1893,23 @@
         display: none;
     }
 
-    /* 모바일: 플로팅 버튼 표시 */
+    /* 모바일: 플로팅 버튼 표시 - 헤더와 게임박스 중간 */
     .mobile-floating-buttons {
         display: flex;
         position: fixed;
-        top: 4rem;
+        /* 헤더(~3rem)와 게임박스(~35vh) 중간 지점 */
+        top: calc(1.5rem + 4.2dvh);
         left: 50%;
         transform: translateX(-50%);
         gap: 0.75rem;
         z-index: 100;
+    }
+
+    /* dvh 미지원 브라우저 fallback */
+    @supports not (height: 1dvh) {
+        .mobile-floating-buttons {
+            top: calc(1.5rem + 4.2vh);
+        }
     }
 
     .floating-btn {
