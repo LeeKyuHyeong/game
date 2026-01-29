@@ -2,6 +2,7 @@ package com.kh.game.service;
 
 import com.kh.game.entity.Badge;
 import com.kh.game.entity.FanChallengeDifficulty;
+import com.kh.game.entity.FanChallengeRecord;
 import com.kh.game.entity.FanChallengeStageConfig;
 import com.kh.game.entity.Member;
 import com.kh.game.entity.MemberBadge;
@@ -90,7 +91,61 @@ public class BadgeService {
         // 5. 멀티 티어 뱃지
         checkMultiTierBadges(member, newBadges);
 
+        // 6. 팬챌린지 퍼펙트 뱃지
+        checkFanChallengeBadges(member, newBadges);
+
         return newBadges;
+    }
+
+    /**
+     * 팬챌린지 퍼펙트 관련 뱃지 체크 (배치용)
+     * - 마일스톤 뱃지 (FAN_FIRST_PERFECT, FAN_PERFECT_5 등)
+     * - 아티스트별 단계 뱃지 (FAN_STAGE_xxx)
+     */
+    private void checkFanChallengeBadges(Member member, List<Badge> newBadges) {
+        // 6-1. 전체 퍼펙트 마일스톤 뱃지
+        long totalPerfect = fanChallengeRecordRepository.countDistinctPerfectArtistsByMember(member);
+        if (totalPerfect >= 1) {
+            awardBadge(member, "FAN_FIRST_PERFECT").ifPresent(newBadges::add);
+        }
+        if (totalPerfect >= 5) {
+            awardBadge(member, "FAN_PERFECT_5").ifPresent(newBadges::add);
+        }
+        if (totalPerfect >= 10) {
+            awardBadge(member, "FAN_PERFECT_10").ifPresent(newBadges::add);
+        }
+
+        // 6-2. 하드코어 퍼펙트 마일스톤 뱃지
+        long hardcorePerfect = fanChallengeRecordRepository
+                .countDistinctPerfectArtistsByMemberAndDifficulty(member, FanChallengeDifficulty.HARDCORE);
+        if (hardcorePerfect >= 1) {
+            awardBadge(member, "FAN_HARDCORE_FIRST").ifPresent(newBadges::add);
+        }
+        if (hardcorePerfect >= 5) {
+            awardBadge(member, "FAN_HARDCORE_5").ifPresent(newBadges::add);
+        }
+        if (hardcorePerfect >= 10) {
+            awardBadge(member, "FAN_HARDCORE_10").ifPresent(newBadges::add);
+        }
+
+        // 6-3. 아티스트별 단계 뱃지 (퍼펙트 기록 기반)
+        List<FanChallengeRecord> records = fanChallengeRecordRepository.findByMemberOrderByAchievedAtDesc(member);
+        for (FanChallengeRecord record : records) {
+            if (Boolean.TRUE.equals(record.getIsPerfectClear())) {
+                FanChallengeDifficulty difficulty = record.getDifficulty();
+                int stageLevel = record.getStageLevel() != null ? record.getStageLevel() : 1;
+
+                // NORMAL은 1단계만
+                if (difficulty == FanChallengeDifficulty.NORMAL) {
+                    stageLevel = 1;
+                }
+
+                Badge awarded = awardStageBadge(member, record.getArtist(), difficulty, stageLevel);
+                if (awarded != null) {
+                    newBadges.add(awarded);
+                }
+            }
+        }
     }
 
     /**

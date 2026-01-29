@@ -3,6 +3,7 @@
 <th:block th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
     <title th:text="${title}">Song Quiz</title>
     <!-- FOUC 방지: CSS 로드 전 테마 적용 -->
     <script th:inline="javascript">
@@ -24,6 +25,7 @@
 <th:block th:fragment="adminHead(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
     <title th:text="${title}">Song Quiz Admin</title>
     <!-- FOUC 방지: CSS 로드 전 테마 적용 -->
     <script th:inline="javascript">
@@ -46,6 +48,7 @@
 <th:block th:fragment="clientHead(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
     <title th:text="${title}">Song Quiz</title>
     <!-- FOUC 방지: CSS 로드 전 테마 적용 -->
     <script th:inline="javascript">
