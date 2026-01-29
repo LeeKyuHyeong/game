@@ -5,6 +5,17 @@
 
 var currentTab = 'batch';
 var currentParams = {};
+var tabParams = {}; // 탭별 검색 파라미터 저장
+
+// 탭별 파라미터 저장
+function saveTabParams(tab, params) {
+    if (params) {
+        tabParams[tab] = typeof params === 'string' ? params : new URLSearchParams(params).toString();
+    } else {
+        delete tabParams[tab];
+    }
+    sessionStorage.setItem('admin_system_tabParams', JSON.stringify(tabParams));
+}
 
 // ========== Initialization ==========
 
@@ -13,7 +24,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const tab = urlParams.get('tab') || currentTab;
     currentTab = tab;
 
-    loadTabContent(tab);
+    // sessionStorage에서 탭별 파라미터 복원
+    const savedTabParams = sessionStorage.getItem('admin_system_tabParams');
+    if (savedTabParams) {
+        try {
+            tabParams = JSON.parse(savedTabParams);
+        } catch (e) {
+            tabParams = {};
+        }
+    }
+
+    // 저장된 파라미터가 있으면 사용
+    loadTabContent(tab, tabParams[tab] || null);
 
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.querySelector('[data-tab="' + tab + '"]');
@@ -42,7 +64,7 @@ function switchTab(tab) {
     if (currentTab === tab) return;
 
     currentTab = tab;
-    currentParams = {};
+    currentParams = tabParams[tab] ? new URLSearchParams(tabParams[tab]) : {};
 
     // 탭 버튼 활성화 상태 변경
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -54,8 +76,8 @@ function switchTab(tab) {
     url.searchParams.set('tab', tab);
     history.pushState({tab: tab}, '', url);
 
-    // 콘텐츠 로드
-    loadTabContent(tab);
+    // 콘텐츠 로드 (저장된 파라미터가 있으면 사용)
+    loadTabContent(tab, tabParams[tab] || null);
 }
 
 function loadTabContent(tab, params) {
@@ -81,6 +103,8 @@ function loadTabContent(tab, params) {
     if (params) {
         const searchParams = typeof params === 'string' ? params : new URLSearchParams(params).toString();
         url += '?' + searchParams;
+        // 탭별 파라미터 저장
+        saveTabParams(tab, searchParams);
     }
 
     fetch(url)
@@ -739,6 +763,7 @@ function reloadBadWordCache() {
 
 // 금칙어 필터 초기화
 function resetBadWordFilter() {
+    saveTabParams('badword', null); // 저장된 파라미터 삭제
     loadTabContent('badword');
 }
 

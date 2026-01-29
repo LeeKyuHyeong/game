@@ -8,6 +8,17 @@
 var currentTab = 'history';
 var currentRoomId = null;
 var VALID_TABS = ['history', 'multi', 'challenge'];
+var tabParams = {}; // 탭별 검색 파라미터 저장
+
+// ========== 탭별 파라미터 저장 ==========
+function saveTabParams(tab, params) {
+    if (params) {
+        tabParams[tab] = typeof params === 'string' ? params : new URLSearchParams(params).toString();
+    } else {
+        delete tabParams[tab];
+    }
+    sessionStorage.setItem('admin_game_tabParams', JSON.stringify(tabParams));
+}
 
 // ========== 페이지 초기화 ==========
 document.addEventListener('DOMContentLoaded', function() {
@@ -29,6 +40,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     currentTab = tab;
 
+    // sessionStorage에서 탭별 파라미터 복원
+    var savedTabParams = sessionStorage.getItem('admin_game_tabParams');
+    if (savedTabParams) {
+        try {
+            tabParams = JSON.parse(savedTabParams);
+        } catch (e) {
+            tabParams = {};
+        }
+    }
+
     // 탭 버튼 활성화 상태 설정
     document.querySelectorAll('.tab-btn').forEach(function(btn) {
         btn.classList.remove('active');
@@ -38,8 +59,8 @@ document.addEventListener('DOMContentLoaded', function() {
         activeBtn.classList.add('active');
     }
 
-    // 콘텐츠 로드
-    loadTabContent(tab);
+    // 콘텐츠 로드 (저장된 파라미터가 있으면 사용)
+    loadTabContent(tab, tabParams[tab] || null);
 
     // 이벤트 위임: 동적으로 로드되는 검색 폼 처리
     document.getElementById('tabContent').addEventListener('submit', function(e) {
@@ -61,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('tabContent').addEventListener('click', function(e) {
         if (e.target.classList.contains('btn-reset')) {
             e.preventDefault();
+            saveTabParams(currentTab, null); // 저장된 파라미터 삭제
 
             if (currentTab === 'history') {
                 loadHistoryContent();
@@ -108,8 +130,8 @@ function switchTab(tab) {
     url.searchParams.set('tab', tab);
     history.pushState({tab: tab}, '', url);
 
-    // 콘텐츠 로드
-    loadTabContent(tab);
+    // 콘텐츠 로드 (저장된 파라미터가 있으면 사용)
+    loadTabContent(tab, tabParams[tab] || null);
 }
 
 // ========== 탭 콘텐츠 로드 ==========
@@ -136,6 +158,8 @@ function loadTabContent(tab, params) {
     if (params) {
         var searchParams = new URLSearchParams(params);
         url += '?' + searchParams.toString();
+        // 탭별 파라미터 저장
+        saveTabParams(tab, searchParams.toString());
     }
 
     fetch(url)
@@ -627,6 +651,7 @@ function searchMultiRoom() {
 }
 
 function resetMultiRoom() {
+    saveTabParams('multi', null); // 저장된 파라미터 삭제
     loadMultiSubContent();
 }
 
@@ -640,6 +665,7 @@ function searchMultiChat() {
 }
 
 function resetMultiChat() {
+    saveTabParams('multi', null); // 저장된 파라미터 삭제
     loadMultiSubContent();
 }
 
@@ -653,6 +679,7 @@ function searchFanChallenge() {
 }
 
 function resetFanChallenge() {
+    saveTabParams('challenge', null); // 저장된 파라미터 삭제
     loadChallengeSubContent();
 }
 
@@ -666,6 +693,7 @@ function searchGenreChallenge() {
 }
 
 function resetGenreChallenge() {
+    saveTabParams('challenge', null); // 저장된 파라미터 삭제
     loadChallengeSubContent();
 }
 
@@ -679,6 +707,7 @@ function searchHistory() {
 }
 
 function resetHistory() {
+    saveTabParams('history', null); // 저장된 파라미터 삭제
     loadHistoryContent();
 }
 

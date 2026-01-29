@@ -48,6 +48,10 @@
                 <span class="tab-icon">⚙️</span>
                 <span class="tab-text">배치 관리</span>
             </button>
+            <a href="/admin/batch-affected" class="tab-btn">
+                <span class="tab-icon">📝</span>
+                <span class="tab-text">배치 영향 내역</span>
+            </a>
             <button class="tab-btn" th:classappend="${activeTab == 'menu'} ? 'active'"
                     data-tab="menu" onclick="switchTab('menu')">
                 <span class="tab-icon">📋</span>

@@ -3,7 +3,7 @@
 <div class="tab-panel answer-panel" xmlns:th="http://www.thymeleaf.org">
     <!-- 필터 -->
     <div class="filter-section">
-        <form id="answerFilterForm" class="filter-row">
+        <form id="answerFilterForm" class="filter-row" onsubmit="event.preventDefault(); var params = new URLSearchParams(new FormData(this)).toString(); loadTabContent('answer', params); return false;">
             <div class="filter-group">
                 <label>검색</label>
                 <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 아티스트">

@@ -4,11 +4,22 @@
 
 var currentTab = 'multi';
 var currentParams = {};
+var tabParams = {}; // 탭별 검색 파라미터 저장
+
+// 탭별 파라미터 저장
+function saveTabParams(tab, params) {
+    if (params) {
+        tabParams[tab] = typeof params === 'string' ? params : new URLSearchParams(params).toString();
+    } else {
+        delete tabParams[tab];
+    }
+    sessionStorage.setItem('admin_ranking_tabParams', JSON.stringify(tabParams));
+}
 
 // 탭 전환
 function switchTab(tab) {
     currentTab = tab;
-    currentParams = {};
+    currentParams = tabParams[tab] ? new URLSearchParams(tabParams[tab]) : {};
 
     // 탭 버튼 활성화 상태 변경
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -19,8 +30,8 @@ function switchTab(tab) {
     url.searchParams.set('tab', tab);
     history.pushState({tab: tab}, '', url);
 
-    // 콘텐츠 로드
-    loadTabContent(tab);
+    // 콘텐츠 로드 (저장된 파라미터가 있으면 사용)
+    loadTabContent(tab, tabParams[tab] || null);
 }
 
 // 탭 콘텐츠 로드
@@ -58,6 +69,11 @@ function loadTabContent(tab, params) {
     const searchParams = new URLSearchParams(queryParams);
     url += '?' + searchParams.toString();
 
+    // 탭별 파라미터 저장 (rankType, tab 제외한 검색 파라미터만)
+    if (params && Object.keys(params).length > 0) {
+        saveTabParams(tab, new URLSearchParams(params).toString());
+    }
+
     fetch(url)
         .then(response => response.text())
         .then(html => {
@@ -87,8 +103,20 @@ function initializeScripts() {
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const tab = urlParams.get('tab') || currentTab;
+    currentTab = tab;
 
-    loadTabContent(tab);
+    // sessionStorage에서 탭별 파라미터 복원
+    const savedTabParams = sessionStorage.getItem('admin_ranking_tabParams');
+    if (savedTabParams) {
+        try {
+            tabParams = JSON.parse(savedTabParams);
+        } catch (e) {
+            tabParams = {};
+        }
+    }
+
+    // 저장된 파라미터가 있으면 사용
+    loadTabContent(tab, tabParams[tab] || null);
 
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.querySelector('[data-tab="' + tab + '"]');

@@ -5,6 +5,7 @@
 
 var currentTab = 'song';
 var currentParams = {};
+var tabParams = {}; // 탭별 검색 파라미터 저장
 
 // YouTube API 관련
 var ytPlayer = null;
@@ -22,8 +23,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const tab = urlParams.get('tab') || currentTab;
     currentTab = tab;
 
-    // 초기 탭 콘텐츠 로드
-    loadTabContent(tab);
+    // sessionStorage에서 탭별 파라미터 복원
+    const savedTabParams = sessionStorage.getItem('admin_content_tabParams');
+    if (savedTabParams) {
+        try {
+            tabParams = JSON.parse(savedTabParams);
+        } catch (e) {
+            tabParams = {};
+        }
+    }
+
+    // 초기 탭 콘텐츠 로드 (저장된 파라미터가 있으면 사용)
+    loadTabContent(tab, tabParams[tab] || null);
 
     // 탭 버튼 활성화
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -56,7 +67,7 @@ function switchTab(tab) {
     if (currentTab === tab) return;
 
     currentTab = tab;
-    currentParams = {};
+    currentParams = tabParams[tab] ? new URLSearchParams(tabParams[tab]) : {};
 
     // 탭 버튼 활성화 상태 변경
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -68,8 +79,18 @@ function switchTab(tab) {
     url.searchParams.set('tab', tab);
     history.pushState({tab: tab}, '', url);
 
-    // 콘텐츠 로드
-    loadTabContent(tab);
+    // 콘텐츠 로드 (저장된 파라미터가 있으면 사용)
+    loadTabContent(tab, tabParams[tab] || null);
+}
+
+// 탭별 파라미터 저장
+function saveTabParams(tab, params) {
+    if (params) {
+        tabParams[tab] = typeof params === 'string' ? params : new URLSearchParams(params).toString();
+    } else {
+        delete tabParams[tab];
+    }
+    sessionStorage.setItem('admin_content_tabParams', JSON.stringify(tabParams));
 }
 
 function loadTabContent(tab, params) {
@@ -101,6 +122,8 @@ function loadTabContent(tab, params) {
     if (params) {
         const searchParams = typeof params === 'string' ? params : new URLSearchParams(params).toString();
         url += '?' + searchParams;
+        // 탭별 파라미터 저장
+        saveTabParams(tab, searchParams);
     }
 
     fetch(url)
@@ -185,6 +208,7 @@ function initSongTabScripts() {
     if (resetBtn) {
         resetBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            saveTabParams('song', null); // 저장된 파라미터 삭제
             loadTabContent('song');
         });
     }
@@ -399,7 +423,8 @@ async function saveSong(e) {
 // ========== Answer Tab Functions ==========
 
 function initAnswerTabScripts() {
-    const searchForm = document.querySelector('.tab-content .search-form');
+    // answerFilterForm 또는 search-form 클래스로 폼 찾기
+    const searchForm = document.getElementById('answerFilterForm') || document.querySelector('.tab-content .search-form');
     if (searchForm) {
         searchForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -413,6 +438,7 @@ function initAnswerTabScripts() {
     if (resetBtn) {
         resetBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            saveTabParams('answer', null); // 저장된 파라미터 삭제
             loadTabContent('answer');
         });
     }
@@ -421,6 +447,7 @@ function initAnswerTabScripts() {
 function resetAnswerFilter() {
     const keywordInput = document.querySelector('[name="keyword"]');
     if (keywordInput) keywordInput.value = '';
+    saveTabParams('answer', null); // 저장된 파라미터 삭제
     loadTabContent('answer');
 }
 
@@ -445,7 +472,8 @@ function loadAnswerPage(page) {
 // ========== Genre Tab Functions ==========
 
 function initGenreTabScripts() {
-    const searchForm = document.querySelector('.tab-content .search-form');
+    // genreFilterForm ID 또는 .search-form 클래스로 폼 찾기
+    const searchForm = document.getElementById('genreFilterForm') || document.querySelector('.tab-content .search-form');
     if (searchForm) {
         searchForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -459,6 +487,7 @@ function initGenreTabScripts() {
     if (resetBtn) {
         resetBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            saveTabParams('genre', null); // 저장된 파라미터 삭제
             loadTabContent('genre');
         });
     }
@@ -494,6 +523,7 @@ async function toggleGenreStatus(id) {
 function resetGenreFilter() {
     const keywordInput = document.querySelector('[name="keyword"]');
     if (keywordInput) keywordInput.value = '';
+    saveTabParams('genre', null); // 저장된 파라미터 삭제
     loadTabContent('genre');
 }
 
@@ -622,6 +652,7 @@ function initReportTabScripts() {
     if (resetBtn) {
         resetBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            saveTabParams('report', null); // 저장된 파라미터 삭제
             loadTabContent('report');
         });
     }
@@ -692,6 +723,7 @@ function initPopularityTabScripts() {
     if (resetBtn) {
         resetBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            saveTabParams('popularity', null); // 저장된 파라미터 삭제
             loadTabContent('popularity');
         });
     }

@@ -4,11 +4,33 @@
 
 var currentTab = currentTab || 'member';
 var currentMemberId = currentMemberId || null;
+var tabParams = {}; // 탭별 검색 파라미터 저장
+
+// 탭별 파라미터 저장
+function saveTabParams(tab, params) {
+    if (params) {
+        tabParams[tab] = typeof params === 'string' ? params : new URLSearchParams(params).toString();
+    } else {
+        delete tabParams[tab];
+    }
+    sessionStorage.setItem('admin_member_tabParams', JSON.stringify(tabParams));
+}
 
 // ========== Initialization ==========
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadTabContent(currentTab);
+    // sessionStorage에서 탭별 파라미터 복원
+    const savedTabParams = sessionStorage.getItem('admin_member_tabParams');
+    if (savedTabParams) {
+        try {
+            tabParams = JSON.parse(savedTabParams);
+        } catch (e) {
+            tabParams = {};
+        }
+    }
+
+    // 저장된 파라미터가 있으면 사용
+    loadTabContent(currentTab, tabParams[currentTab] || '');
     initForms();
 });
 
@@ -26,7 +48,8 @@ function switchTab(tab) {
     const tabIndex = tab === 'member' ? 1 : 2;
     document.querySelector(`.tab-btn:nth-child(${tabIndex})`).classList.add('active');
 
-    loadTabContent(tab);
+    // 저장된 파라미터가 있으면 사용
+    loadTabContent(tab, tabParams[tab] || '');
 }
 
 async function loadTabContent(tab, params = '') {
@@ -39,6 +62,11 @@ async function loadTabContent(tab, params = '') {
             url = `/admin/member/content${params ? '?' + params : ''}`;
         } else {
             url = `/admin/login-history/content${params ? '?' + params : ''}`;
+        }
+
+        // 파라미터가 있으면 탭별로 저장
+        if (params) {
+            saveTabParams(tab, params);
         }
 
         const response = await fetch(url);
@@ -79,6 +107,7 @@ function initTabScripts() {
     if (resetBtn) {
         resetBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            saveTabParams(currentTab, null); // 저장된 파라미터 삭제
             loadTabContent(currentTab);
         });
     }
