@@ -95,7 +95,19 @@
     </main>
 
     <footer class="result-footer">
-        <a href="/game/solo/guess" class="btn btn-replay">다시 하기 🔄</a>
+        <!-- 재시작용 데이터 -->
+        <span id="restartData"
+              th:data-session-id="${gameSession.id}"
+              th:data-game-mode="${gameSession.gameMode.name()}"
+              style="display:none;"></span>
+
+        <!-- PER_ROUND 모드가 아닐 때만 재시작 버튼 표시 -->
+        <button type="button" class="btn btn-restart"
+                th:unless="${gameSession.gameMode.name().contains('PER_ROUND')}"
+                onclick="restartWithSameSettings()">
+            같은 설정으로 다시하기 🔄
+        </button>
+        <a href="/game/solo/guess" class="btn btn-replay">설정 변경 ⚙️</a>
         <a href="/ranking" class="btn btn-ranking" id="rankingBtn" style="display: none;">랭킹 보기 🏆</a>
         <a href="/" class="btn btn-home">홈으로 🏠</a>
     </footer>

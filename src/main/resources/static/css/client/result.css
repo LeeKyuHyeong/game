@@ -867,11 +867,19 @@
 }
 
 .result-footer .btn-replay,
-.result-footer .btn-home {
+.result-footer .btn-home,
+.result-footer .btn-restart {
     padding: 1rem 2rem;
     border-radius: 0.75rem;
     font-weight: 600;
     font-size: 1rem;
+}
+
+.result-footer .btn-restart {
+    background: var(--gradient-success);
+    color: var(--text-on-gradient);
+    border: none;
+    cursor: pointer;
 }
 
 .result-footer .btn-replay {
@@ -1126,7 +1134,8 @@
     }
 
     .result-footer .btn-replay,
-    .result-footer .btn-home {
+    .result-footer .btn-home,
+    .result-footer .btn-restart {
         width: 100%;
         text-align: center;
         padding: 0.875rem 1.5rem;
@@ -1314,6 +1323,7 @@
 
     .result-footer .btn-replay,
     .result-footer .btn-home,
+    .result-footer .btn-restart,
     .result-footer .btn-lobby,
     .result-actions .btn-lobby,
     .result-actions .btn-restart {
@@ -1753,6 +1763,15 @@
 [data-theme="dark"] .result-page .result-footer .btn-home:hover {
     background: var(--overlay-white-medium);
     color: var(--result-text-primary);
+}
+
+[data-theme="dark"] .result-page .result-footer .btn-restart {
+    background: var(--gradient-success);
+    color: var(--text-on-gradient);
+}
+
+[data-theme="dark"] .result-page .result-footer .btn-restart:hover {
+    box-shadow: 0 8px 20px var(--game-correct-glow);
 }
 
 /* ========== Result Card 다크 모드 (레트로 게임) ========== */

@@ -473,6 +473,9 @@ public class GameGenreChallengeController {
         // 로그인 여부
         model.addAttribute("isLoggedIn", memberId != null);
 
+        // 재시작용 세션 ID 전달 (세션 정리 전에 저장)
+        model.addAttribute("gameSessionId", sessionId);
+
         // 세션 정리
         httpSession.removeAttribute("genreChallengeSessionId");
         httpSession.removeAttribute("genreChallengeNickname");
@@ -580,6 +583,86 @@ public class GameGenreChallengeController {
 
         result.put("success", true);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 같은 장르로 다시 도전
+     */
+    @PostMapping("/restart")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> restartGame(
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            Long previousSessionId = ((Number) request.get("previousSessionId")).longValue();
+
+            // 이전 세션 조회
+            GameSession previous = genreChallengeService.getSession(previousSessionId);
+            if (previous == null) {
+                result.put("success", false);
+                result.put("message", "이전 게임 정보를 찾을 수 없습니다.");
+                result.put("redirectUrl", "/game/genre-challenge");
+                return ResponseEntity.ok(result);
+            }
+
+            // 이전 설정 추출
+            String nickname = previous.getNickname();
+            String genreCode = previous.getChallengeGenreCode();
+            GenreChallengeDifficulty difficulty = genreChallengeService.getDifficultyFromSession(previous);
+
+            if (genreCode == null || genreCode.isEmpty()) {
+                result.put("success", false);
+                result.put("message", "장르 정보를 찾을 수 없습니다.");
+                result.put("redirectUrl", "/game/genre-challenge");
+                return ResponseEntity.ok(result);
+            }
+
+            // 장르 정보 조회
+            Genre genre = genreRepository.findByCode(genreCode).orElse(null);
+            if (genre == null) {
+                result.put("success", false);
+                result.put("message", "존재하지 않는 장르입니다.");
+                result.put("redirectUrl", "/game/genre-challenge");
+                return ResponseEntity.ok(result);
+            }
+
+            // 로그인 회원 확인
+            Member member = null;
+            Long memberId = (Long) httpSession.getAttribute("memberId");
+            if (memberId != null) {
+                member = memberService.findById(memberId).orElse(null);
+            }
+
+            // 새 게임 세션 생성
+            GameSession session = genreChallengeService.startChallenge(member, nickname, genreCode, difficulty);
+
+            // HTTP 세션에 저장
+            httpSession.setAttribute("genreChallengeSessionId", session.getId());
+            httpSession.setAttribute("genreChallengeNickname", nickname);
+            httpSession.setAttribute("genreChallengeGenreCode", genreCode);
+            httpSession.setAttribute("genreChallengeGenreName", genre.getName());
+            httpSession.setAttribute("genreChallengeDifficulty", difficulty.name());
+
+            result.put("success", true);
+            result.put("sessionId", session.getId());
+            result.put("genreCode", genreCode);
+            result.put("genreName", genre.getName());
+            result.put("totalRounds", session.getTotalRounds());
+            result.put("remainingLives", session.getRemainingLives());
+            result.put("difficulty", difficulty.name());
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            log.error("장르 챌린지 재시작 오류", e);
+            result.put("success", false);
+            result.put("message", "재시작 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("redirectUrl", "/game/genre-challenge");
+            return ResponseEntity.ok(result);
+        }
     }
 
     /**

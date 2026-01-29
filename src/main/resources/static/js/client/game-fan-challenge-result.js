@@ -13,6 +13,42 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * 같은 아티스트로 다시 도전
+ */
+async function restartWithSameArtist() {
+    const restartData = document.getElementById('restartData');
+    if (!restartData) {
+        alert('재시작 정보를 찾을 수 없습니다.');
+        window.location.href = '/game/fan-challenge';
+        return;
+    }
+
+    const sessionId = restartData.dataset.sessionId;
+
+    try {
+        const response = await fetch('/game/fan-challenge/restart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ previousSessionId: sessionId })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.href = '/game/fan-challenge/play';
+        } else {
+            alert(result.message || '재시작에 실패했습니다.');
+            if (result.redirectUrl) {
+                window.location.href = result.redirectUrl;
+            }
+        }
+    } catch (error) {
+        console.error('Restart error:', error);
+        alert('재시작 중 오류가 발생했습니다.');
+    }
+}
+
+/**
  * 곡 인기도 평가 기능 초기화
  */
 function initPopularityVote() {

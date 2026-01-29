@@ -86,10 +86,46 @@
     </main>
 
     <footer class="result-footer">
-        <a href="/game/retro" class="btn btn-replay">다시 하기 🔄</a>
+        <!-- 재시작용 데이터 -->
+        <span id="restartData"
+              th:data-session-id="${gameSession.id}"
+              style="display:none;"></span>
+
+        <button type="button" class="btn btn-restart" onclick="restartWithSameSettings()">
+            같은 설정으로 다시하기 🔄
+        </button>
+        <a href="/game/retro" class="btn btn-replay">설정 변경 ⚙️</a>
         <a href="/" class="btn btn-home">홈으로 🏠</a>
     </footer>
 </div>
+
+<script>
+async function restartWithSameSettings() {
+    const sessionId = document.getElementById('restartData').dataset.sessionId;
+
+    try {
+        const response = await fetch('/game/retro/restart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ previousSessionId: sessionId })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.href = '/game/retro/play';
+        } else {
+            alert(result.message || '재시작에 실패했습니다.');
+            if (result.redirectUrl) {
+                window.location.href = result.redirectUrl;
+            }
+        }
+    } catch (error) {
+        console.error('Restart error:', error);
+        alert('재시작 중 오류가 발생했습니다.');
+    }
+}
+</script>
 
 <!-- 신고 모달 -->
 <th:block th:replace="~{common/fragments/report-modal :: reportModal}"></th:block>

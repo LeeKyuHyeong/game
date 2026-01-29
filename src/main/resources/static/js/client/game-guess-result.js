@@ -23,3 +23,33 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.removeItem('challengeMode');
     }
 });
+
+/**
+ * 같은 설정으로 다시하기
+ */
+async function restartWithSameSettings() {
+    const restartData = document.getElementById('restartData');
+    const sessionId = restartData.dataset.sessionId;
+
+    try {
+        const response = await fetch('/game/solo/guess/restart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ previousSessionId: sessionId })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.href = '/game/solo/guess/play';
+        } else {
+            alert(result.message || '재시작에 실패했습니다.');
+            if (result.redirectUrl) {
+                window.location.href = result.redirectUrl;
+            }
+        }
+    } catch (error) {
+        console.error('Restart error:', error);
+        alert('재시작 중 오류가 발생했습니다.');
+    }
+}

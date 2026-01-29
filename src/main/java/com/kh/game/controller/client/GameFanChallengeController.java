@@ -535,11 +535,17 @@ public class GameFanChallengeController {
         // 로그인 여부
         model.addAttribute("isLoggedIn", memberId != null);
 
+        // 재시작용 세션 ID 전달 (세션 정리 전에 저장)
+        model.addAttribute("gameSessionId", sessionId);
+        Integer stageLevel = (Integer) httpSession.getAttribute("fanChallengeStageLevel");
+        model.addAttribute("stageLevel", stageLevel != null ? stageLevel : 1);
+
         // 세션 정리
         httpSession.removeAttribute("fanChallengeSessionId");
         httpSession.removeAttribute("fanChallengeNickname");
         httpSession.removeAttribute("fanChallengeArtist");
         httpSession.removeAttribute("fanChallengeDifficulty");
+        httpSession.removeAttribute("fanChallengeStageLevel");
 
         return "client/game/fan-challenge/result";
     }
@@ -719,5 +725,76 @@ public class GameFanChallengeController {
 
         result.put("success", true);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 같은 아티스트로 다시 도전
+     */
+    @PostMapping("/restart")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> restartGame(
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            Long previousSessionId = ((Number) request.get("previousSessionId")).longValue();
+
+            // 이전 세션 조회
+            GameSession previous = fanChallengeService.getSession(previousSessionId);
+            if (previous == null) {
+                result.put("success", false);
+                result.put("message", "이전 게임 정보를 찾을 수 없습니다.");
+                result.put("redirectUrl", "/game/fan-challenge");
+                return ResponseEntity.ok(result);
+            }
+
+            // 이전 설정 추출
+            String nickname = previous.getNickname();
+            String artist = previous.getChallengeArtist();
+            FanChallengeDifficulty difficulty = fanChallengeService.getDifficultyFromSession(previous);
+            Integer stageLevel = fanChallengeService.getStageLevelFromSession(previous);
+
+            if (artist == null || artist.isEmpty()) {
+                result.put("success", false);
+                result.put("message", "아티스트 정보를 찾을 수 없습니다.");
+                result.put("redirectUrl", "/game/fan-challenge");
+                return ResponseEntity.ok(result);
+            }
+
+            // 로그인 회원 확인
+            Member member = null;
+            Long memberId = (Long) httpSession.getAttribute("memberId");
+            if (memberId != null) {
+                member = memberService.findById(memberId).orElse(null);
+            }
+
+            // 새 게임 세션 생성
+            GameSession session = fanChallengeService.startChallenge(member, nickname, artist, difficulty, stageLevel);
+
+            // HTTP 세션에 저장
+            httpSession.setAttribute("fanChallengeSessionId", session.getId());
+            httpSession.setAttribute("fanChallengeNickname", nickname);
+            httpSession.setAttribute("fanChallengeArtist", artist);
+            httpSession.setAttribute("fanChallengeDifficulty", difficulty.name());
+            httpSession.setAttribute("fanChallengeStageLevel", stageLevel);
+
+            result.put("success", true);
+            result.put("sessionId", session.getId());
+            result.put("artist", artist);
+            result.put("totalRounds", session.getTotalRounds());
+            result.put("remainingLives", session.getRemainingLives());
+            result.put("difficulty", difficulty.name());
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            log.error("팬 챌린지 재시작 오류", e);
+            result.put("success", false);
+            result.put("message", "재시작 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("redirectUrl", "/game/fan-challenge");
+            return ResponseEntity.ok(result);
+        }
     }
 }

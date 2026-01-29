@@ -487,6 +487,101 @@ public class RetroGameController {
     }
 
     /**
+     * 같은 설정으로 다시하기
+     */
+    @PostMapping("/restart")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> restartGame(
+            @RequestBody Map<String, Object> request,
+            HttpSession httpSession) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            Long previousSessionId = ((Number) request.get("previousSessionId")).longValue();
+
+            // 이전 세션 조회
+            GameSession previous = gameSessionService.findById(previousSessionId).orElse(null);
+            if (previous == null) {
+                result.put("success", false);
+                result.put("message", "이전 게임 정보를 찾을 수 없습니다.");
+                result.put("redirectUrl", "/game/retro");
+                return ResponseEntity.ok(result);
+            }
+
+            // 이전 설정 추출
+            String nickname = previous.getNickname();
+            int totalRounds = previous.getTotalRounds();
+            GameSettings settings = gameSessionService.parseSettings(previous.getSettings());
+
+            // 새 GameSession 생성
+            GameSession session = new GameSession();
+            session.setSessionUuid(UUID.randomUUID().toString());
+            session.setNickname(nickname);
+            session.setGameType(GameSession.GameType.RETRO_GUESS);
+            session.setGameMode(GameSession.GameMode.RANDOM);
+            session.setTotalRounds(totalRounds);
+            session.setStatus(GameSession.GameStatus.PLAYING);
+            session.setSettings(previous.getSettings());
+
+            // 로그인한 회원인 경우 연결
+            Long memberId = (Long) httpSession.getAttribute("memberId");
+            if (memberId != null) {
+                memberService.findById(memberId).ifPresent(session::setMember);
+            }
+
+            // 레트로 곡 목록 가져오기 (YouTube 검증 포함)
+            SongService.ValidatedSongsResult validatedResult =
+                    songService.getRandomRetroSongsWithValidation(totalRounds, settings);
+            List<Song> songs = validatedResult.getSongs();
+
+            if (songs.isEmpty()) {
+                result.put("success", false);
+                result.put("message", "레트로 곡이 부족합니다.");
+                result.put("redirectUrl", "/game/retro");
+                return ResponseEntity.ok(result);
+            }
+
+            // 실제 생성된 라운드 수로 업데이트
+            int actualRounds = songs.size();
+            session.setTotalRounds(actualRounds);
+
+            GameSession savedSession = gameSessionService.save(session);
+
+            for (int i = 0; i < songs.size(); i++) {
+                GameRound round = new GameRound();
+                round.setGameSession(savedSession);
+                round.setRoundNumber(i + 1);
+                round.setSong(songs.get(i));
+                round.setGenre(songs.get(i).getGenre());
+                round.setPlayStartTime(songs.get(i).getStartTime());
+                round.setPlayDuration(songs.get(i).getPlayDuration());
+                round.setStatus(GameRound.RoundStatus.WAITING);
+                savedSession.getRounds().add(round);
+            }
+
+            gameSessionService.save(savedSession);
+
+            // 세션에 정보 저장
+            httpSession.setAttribute("retroSessionId", savedSession.getId());
+            httpSession.setAttribute("retroNickname", nickname);
+            httpSession.setAttribute("retroPlayedSongIds", new ArrayList<Long>());
+            httpSession.setAttribute("retroScore", 0);
+
+            result.put("success", true);
+            result.put("sessionId", savedSession.getId());
+            result.put("actualRounds", actualRounds);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "재시작 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("redirectUrl", "/game/retro");
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * 시간 기반 점수 계산
      * 0초 이하(노래 시작 전): 100점 (고수 인정)
      * 5초까지: 100점, 8초까지: 90점, 12초까지: 80점, 15초까지: 70점, 이후: 60점

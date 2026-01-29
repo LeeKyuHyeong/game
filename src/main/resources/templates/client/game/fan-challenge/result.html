@@ -287,7 +287,15 @@
     </main>
 
     <footer class="result-footer">
-        <a th:href="@{/game/fan-challenge}" class="btn btn-replay">다시 도전</a>
+        <!-- 재시작용 데이터 -->
+        <span id="restartData"
+              th:data-session-id="${gameSessionId}"
+              style="display:none;"></span>
+
+        <button type="button" class="btn btn-restart" onclick="restartWithSameArtist()">
+            같은 아티스트로 다시 도전 🔄
+        </button>
+        <a th:href="@{/game/fan-challenge}" class="btn btn-replay">아티스트 변경 ⚙️</a>
         <a th:href="@{/}" class="btn btn-home">홈으로</a>
     </footer>
 </div>
