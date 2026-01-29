@@ -131,7 +131,7 @@
                 <div class="stat-item">
                     <span class="stat-label">정답률</span>
                     <span class="stat-value"
-                          th:text="${#numbers.formatDecimal(correctCount * 100.0 / totalRounds, 0, 1) + '%'}">0%</span>
+                          th:text="${#numbers.formatDecimal(correctCount * 100.0 / totalRounds, 1, 1) + '%'}">0%</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">소요 시간</span>
