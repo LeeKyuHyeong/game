@@ -121,14 +121,14 @@ public class SongPopularityVoteService {
      * 평가 라벨 반환
      */
     public static String getRatingLabel(int rating) {
-        return switch (rating) {
-            case 1 -> "매우 대중적";
-            case 2 -> "대중적";
-            case 3 -> "보통";
-            case 4 -> "매니악";
-            case 5 -> "매우 매니악";
-            default -> "알 수 없음";
-        };
+        switch (rating) {
+            case 1: return "매우 대중적";
+            case 2: return "대중적";
+            case 3: return "보통";
+            case 4: return "매니악";
+            case 5: return "매우 매니악";
+            default: return "알 수 없음";
+        }
     }
 
     // ========== 관리자용 메서드 ==========

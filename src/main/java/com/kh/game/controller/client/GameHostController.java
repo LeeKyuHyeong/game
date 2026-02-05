@@ -113,6 +113,41 @@ public class GameHostController {
         return ResponseEntity.ok(artists);
     }
 
+    /**
+     * 필터 조건에 맞는 아티스트 목록 조회
+     * 장르, 연도, 솔로/그룹 필터를 적용하여 해당 조건의 곡이 있는 아티스트만 반환
+     */
+    @PostMapping("/artists/filtered")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getFilteredArtists(
+            @RequestBody Map<String, Object> request) {
+
+        Long genreId = null;
+        if (request.get("genreId") != null) {
+            genreId = Long.valueOf(request.get("genreId").toString());
+        }
+
+        List<Integer> years = null;
+        if (request.get("years") != null) {
+            @SuppressWarnings("unchecked")
+            List<Integer> yearList = (List<Integer>) request.get("years");
+            years = yearList;
+        }
+
+        Boolean soloOnly = null;
+        if (request.get("soloOnly") != null) {
+            soloOnly = (Boolean) request.get("soloOnly");
+        }
+
+        Boolean groupOnly = null;
+        if (request.get("groupOnly") != null) {
+            groupOnly = (Boolean) request.get("groupOnly");
+        }
+
+        List<Map<String, Object>> artists = songService.getArtistsWithCountFiltered(genreId, years, soloOnly, groupOnly);
+        return ResponseEntity.ok(artists);
+    }
+
     @GetMapping("/artists/search")
     @ResponseBody
     public ResponseEntity<List<String>> searchArtists(@RequestParam String keyword) {

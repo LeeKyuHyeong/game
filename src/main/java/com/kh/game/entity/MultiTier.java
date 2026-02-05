@@ -105,32 +105,32 @@ public enum MultiTier {
         }
 
         if (totalPlayers == 2) {
-            return switch (rank) {
-                case 1 -> 100;
-                case 2 -> 0;
-                default -> 0;
-            };
+            switch (rank) {
+                case 1: return 100;
+                case 2: return 0;
+                default: return 0;
+            }
         } else if (totalPlayers <= 4) {
-            return switch (rank) {
-                case 1 -> 120;
-                case 2 -> 40;
-                case 3 -> 0;
-                default -> -20;
-            };
+            switch (rank) {
+                case 1: return 120;
+                case 2: return 40;
+                case 3: return 0;
+                default: return -20;
+            }
         } else if (totalPlayers <= 6) {
-            return switch (rank) {
-                case 1 -> 150;
-                case 2 -> 60;
-                case 3 -> 20;
-                default -> -10;
-            };
+            switch (rank) {
+                case 1: return 150;
+                case 2: return 60;
+                case 3: return 20;
+                default: return -10;
+            }
         } else {
-            return switch (rank) {
-                case 1 -> 180;
-                case 2 -> 80;
-                case 3 -> 30;
-                default -> 0;
-            };
+            switch (rank) {
+                case 1: return 180;
+                case 2: return 80;
+                case 3: return 30;
+                default: return 0;
+            }
         }
     }
 
@@ -158,12 +158,13 @@ public enum MultiTier {
         double expectedScore = 1.0 / (1.0 + Math.pow(10, -ratingDiff / 400));
 
         // 실제 성과 점수 (1등: 1.0, 2등: 0.75, 3등: 0.5, 그 외: 0.25)
-        double actualScore = switch (rank) {
-            case 1 -> 1.0;
-            case 2 -> 0.75;
-            case 3 -> 0.5;
-            default -> 0.25;
-        };
+        double actualScore;
+        switch (rank) {
+            case 1: actualScore = 1.0; break;
+            case 2: actualScore = 0.75; break;
+            case 3: actualScore = 0.5; break;
+            default: actualScore = 0.25; break;
+        }
 
         // 성과 차이에 따른 배수 계산 (0.5 ~ 1.5 범위)
         // 기대보다 잘하면 보너스, 못하면 페널티

@@ -400,14 +400,19 @@ public class SongService {
         return songRepository.countByUseYn(useYn);
     }
 
-    // 아티스트 목록 조회 (곡 수 포함) - 게임용 (레트로 제외, 대중곡만)
+    // 아티스트 목록 조회 (곡 수 포함, isSolo 정보 포함) - 게임용 (레트로 제외, 대중곡만)
     public List<Map<String, Object>> getArtistsWithCount() {
         List<Song> allSongs = findSongsForGame();
         Map<String, Integer> artistCountMap = new TreeMap<>();
+        Map<String, Boolean> artistSoloMap = new HashMap<>();
 
         for (Song song : allSongs) {
             if (song.getArtist() != null) {
                 artistCountMap.merge(song.getArtist(), 1, Integer::sum);
+                // 첫 번째 곡의 isSolo 값 저장
+                if (!artistSoloMap.containsKey(song.getArtist())) {
+                    artistSoloMap.put(song.getArtist(), song.getIsSolo());
+                }
             }
         }
 
@@ -416,6 +421,54 @@ public class SongService {
             Map<String, Object> artist = new HashMap<>();
             artist.put("name", entry.getKey());
             artist.put("count", entry.getValue());
+            artist.put("isSolo", artistSoloMap.get(entry.getKey()));
+            artists.add(artist);
+        }
+        return artists;
+    }
+
+    /**
+     * 아티스트 목록 조회 (필터 조건 적용)
+     * 장르, 연도, 솔로/그룹 필터에 맞는 곡이 있는 아티스트만 반환
+     */
+    public List<Map<String, Object>> getArtistsWithCountFiltered(Long genreId, List<Integer> years, Boolean soloOnly, Boolean groupOnly) {
+        List<Song> allSongs = findSongsForGame();
+        Map<String, Integer> artistCountMap = new TreeMap<>();
+        Map<String, Boolean> artistSoloMap = new HashMap<>();
+
+        for (Song song : allSongs) {
+            if (song.getArtist() == null) continue;
+
+            // 장르 필터
+            if (genreId != null) {
+                if (song.getGenre() == null || !song.getGenre().getId().equals(genreId)) continue;
+            }
+
+            // 연도 필터 (복수 선택)
+            if (years != null && !years.isEmpty()) {
+                if (song.getReleaseYear() == null || !years.contains(song.getReleaseYear())) continue;
+            }
+
+            // 솔로/그룹 필터
+            if (Boolean.TRUE.equals(soloOnly)) {
+                if (song.getIsSolo() == null || !song.getIsSolo()) continue;
+            }
+            if (Boolean.TRUE.equals(groupOnly)) {
+                if (song.getIsSolo() != null && song.getIsSolo()) continue;
+            }
+
+            artistCountMap.merge(song.getArtist(), 1, Integer::sum);
+            if (!artistSoloMap.containsKey(song.getArtist())) {
+                artistSoloMap.put(song.getArtist(), song.getIsSolo());
+            }
+        }
+
+        List<Map<String, Object>> artists = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : artistCountMap.entrySet()) {
+            Map<String, Object> artist = new HashMap<>();
+            artist.put("name", entry.getKey());
+            artist.put("count", entry.getValue());
+            artist.put("isSolo", artistSoloMap.get(entry.getKey()));
             artists.add(artist);
         }
         return artists;
