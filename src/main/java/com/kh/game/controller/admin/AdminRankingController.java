@@ -11,8 +11,9 @@ import com.kh.game.repository.MemberRepository;
 import com.kh.game.repository.RankingHistoryRepository;
 import com.kh.game.service.GameSessionService;
 import com.kh.game.service.MemberService;
-import jakarta.servlet.http.HttpSession;
+import com.kh.game.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -196,14 +197,8 @@ public class AdminRankingController {
      */
     @PostMapping("/reset/weekly")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> resetWeekly(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> resetWeekly(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
-        Member member = (Member) session.getAttribute("member");
-        if (member == null || !Member.MemberRole.ADMIN.equals(member.getRole())) {
-            result.put("success", false);
-            result.put("message", "관리자 권한이 필요합니다.");
-            return ResponseEntity.status(403).body(result);
-        }
 
         try {
             int snapshotCount = rankingSnapshotBatch.executeWeekly(BatchExecutionHistory.ExecutionType.MANUAL);
@@ -222,14 +217,8 @@ public class AdminRankingController {
      */
     @PostMapping("/reset/monthly")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> resetMonthly(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> resetMonthly(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
-        Member member = (Member) session.getAttribute("member");
-        if (member == null || !Member.MemberRole.ADMIN.equals(member.getRole())) {
-            result.put("success", false);
-            result.put("message", "관리자 권한이 필요합니다.");
-            return ResponseEntity.status(403).body(result);
-        }
 
         try {
             int snapshotCount = rankingSnapshotBatch.executeMonthly(BatchExecutionHistory.ExecutionType.MANUAL);

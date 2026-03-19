@@ -2,13 +2,14 @@ package com.kh.game.controller.admin;
 
 import com.kh.game.entity.BatchAffectedSong;
 import com.kh.game.entity.Member;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.BatchService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +29,6 @@ public class AdminBatchAffectedController {
 
     private final BatchService batchService;
 
-    /**
-     * 메인 페이지
-     */
     @GetMapping
     public String index(Model model) {
         Map<String, Object> stats = batchService.getAffectedSongStats();
@@ -39,9 +37,6 @@ public class AdminBatchAffectedController {
         return "admin/batch-affected/index";
     }
 
-    /**
-     * 목록 콘텐츠 (AJAX 로딩용)
-     */
     @GetMapping("/content")
     public String content(@RequestParam(defaultValue = "0") int page,
                           @RequestParam(defaultValue = "20") int size,
@@ -50,7 +45,6 @@ public class AdminBatchAffectedController {
                           @RequestParam(required = false) String keyword,
                           Model model) {
 
-        // 빈 문자열을 null로 변환
         if (batchId != null && batchId.trim().isEmpty()) {
             batchId = null;
         }
@@ -73,9 +67,6 @@ public class AdminBatchAffectedController {
         return "admin/batch-affected/fragments/list";
     }
 
-    /**
-     * 통계 정보 API
-     */
     @GetMapping("/api/stats")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getStats() {
@@ -83,22 +74,13 @@ public class AdminBatchAffectedController {
         return ResponseEntity.ok(stats);
     }
 
-    /**
-     * 개별 곡 복구
-     */
     @PostMapping("/restore/{id}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> restoreSong(@PathVariable Long id, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> restoreSong(@PathVariable Long id,
+                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
-
         try {
-            Member admin = (Member) session.getAttribute("member");
-            if (admin == null) {
-                result.put("success", false);
-                result.put("message", "로그인이 필요합니다.");
-                return ResponseEntity.status(401).body(result);
-            }
-
+            Member admin = userDetails.getMember();
             boolean success = batchService.restoreSong(id, admin);
             if (success) {
                 result.put("success", true);
@@ -107,89 +89,56 @@ public class AdminBatchAffectedController {
                 result.put("success", false);
                 result.put("message", "복구에 실패했습니다. 이미 복구되었거나 존재하지 않는 기록입니다.");
             }
-
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "복구 중 오류 발생: " + e.getMessage());
         }
-
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * 일괄 복구 (배치 실행 이력 기준)
-     */
     @PostMapping("/restore-all/history/{historyId}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> restoreAllByHistory(@PathVariable Long historyId, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> restoreAllByHistory(@PathVariable Long historyId,
+                                                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
-
         try {
-            Member admin = (Member) session.getAttribute("member");
-            if (admin == null) {
-                result.put("success", false);
-                result.put("message", "로그인이 필요합니다.");
-                return ResponseEntity.status(401).body(result);
-            }
-
+            Member admin = userDetails.getMember();
             int restoredCount = batchService.restoreAllByHistory(historyId, admin);
             result.put("success", true);
             result.put("restoredCount", restoredCount);
             result.put("message", restoredCount + "곡이 복구되었습니다.");
-
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "일괄 복구 중 오류 발생: " + e.getMessage());
         }
-
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * 일괄 복구 (배치 ID 기준 - 미복구 전체)
-     */
     @PostMapping("/restore-all/batch/{batchId}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> restoreAllByBatchId(@PathVariable String batchId, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> restoreAllByBatchId(@PathVariable String batchId,
+                                                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
-
         try {
-            Member admin = (Member) session.getAttribute("member");
-            if (admin == null) {
-                result.put("success", false);
-                result.put("message", "로그인이 필요합니다.");
-                return ResponseEntity.status(401).body(result);
-            }
-
+            Member admin = userDetails.getMember();
             int restoredCount = batchService.restoreAllByBatchId(batchId, admin);
             result.put("success", true);
             result.put("restoredCount", restoredCount);
             result.put("message", restoredCount + "곡이 복구되었습니다.");
-
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "일괄 복구 중 오류 발생: " + e.getMessage());
         }
-
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * 선택 복구 (여러 ID)
-     */
     @PostMapping("/restore-selected")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> restoreSelected(@RequestBody Map<String, Object> request,
-                                                                HttpSession session) {
+                                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
-
         try {
-            Member admin = (Member) session.getAttribute("member");
-            if (admin == null) {
-                result.put("success", false);
-                result.put("message", "로그인이 필요합니다.");
-                return ResponseEntity.status(401).body(result);
-            }
+            Member admin = userDetails.getMember();
 
             @SuppressWarnings("unchecked")
             java.util.List<Integer> ids = (java.util.List<Integer>) request.get("ids");
@@ -209,12 +158,10 @@ public class AdminBatchAffectedController {
             result.put("success", true);
             result.put("restoredCount", restoredCount);
             result.put("message", restoredCount + "곡이 복구되었습니다.");
-
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "복구 중 오류 발생: " + e.getMessage());
         }
-
         return ResponseEntity.ok(result);
     }
 }

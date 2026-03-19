@@ -39,10 +39,13 @@
 - [x] adminHead에 common.js 추가 (CSRF fetch wrapper 공유)
 - [x] Security 테스트 28개 전체 통과 (CSRF 테스트 2개 추가)
 
-### Phase 5: 컨트롤러 정리 (미착수)
-- [ ] session.getAttribute("member") → @AuthenticationPrincipal 전환 (~17곳 확인됨)
-- [ ] Thymeleaf sec:authorize 태그 적용 (현재 0건)
-- [ ] SuccessHandler 하위 호환 세션 속성 제거
+### Phase 5: 컨트롤러 정리 ✅ 완료
+- [x] session.getAttribute("member") → @AuthenticationPrincipal CustomUserDetails 전환 (AdminBatchAffectedController 4곳, AdminRankingController 2곳, AdminController, AdminSongReportController 2곳, AuthController 3곳)
+- [x] @SessionAttribute("adminMember") → @AuthenticationPrincipal 전환 (AdminSongReportController 2곳)
+- [x] 소스 코드 내 session.getAttribute 0건 (인터셉터 제외, Phase 6에서 제거)
+- [ ] Thymeleaf sec:authorize 태그 적용 (현재 model 변수 기반 isLoggedIn/memberNickname 사용 → 별도 리팩토링 필요)
+- [x] SuccessHandler 하위 호환 세션 속성 유지 (AdminInterceptor가 sessionToken/memberId 참조, Phase 6에서 함께 제거)
+- [x] Security 테스트 28개 전체 통과
 
 ### Phase 6: 정리 및 제거 (Phase 2~5 완료 후 진행)
 - [ ] AdminInterceptor, SessionValidationInterceptor 삭제

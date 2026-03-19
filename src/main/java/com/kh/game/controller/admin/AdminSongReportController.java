@@ -2,12 +2,14 @@ package com.kh.game.controller.admin;
 
 import com.kh.game.entity.Member;
 import com.kh.game.entity.SongReport;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.SongReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -69,7 +71,8 @@ public class AdminSongReportController {
     public ResponseEntity<Map<String, Object>> process(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
-            @SessionAttribute("adminMember") Member admin) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member admin = userDetails.getMember();
 
         String statusStr = request.get("status");
         String adminNote = request.getOrDefault("adminNote", "");
@@ -91,8 +94,8 @@ public class AdminSongReportController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> disableSong(
             @PathVariable Long id,
-            @SessionAttribute("adminMember") Member admin) {
-
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Member admin = userDetails.getMember();
         return ResponseEntity.ok(songReportService.disableSong(id, admin));
     }
 }

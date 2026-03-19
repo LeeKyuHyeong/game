@@ -1,11 +1,12 @@
 package com.kh.game.controller.client;
 
 import com.kh.game.entity.Member;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,6 @@ public class AuthController {
 
     private final MemberService memberService;
 
-    // 로그인 페이지
     @GetMapping("/login")
     public String loginPage(@RequestParam(required = false) String redirect, Model model) {
         model.addAttribute("redirect", redirect);
@@ -48,13 +48,11 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
-    // 회원가입 페이지
     @GetMapping("/register")
     public String registerPage() {
         return "client/auth/register";
     }
 
-    // 회원가입 처리
     @PostMapping("/register")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request) {
@@ -66,7 +64,6 @@ public class AuthController {
             String nickname = request.get("nickname");
             String username = request.get("username");
 
-            // 유효성 검사
             if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
                 throw new IllegalArgumentException("올바른 이메일 형식이 아닙니다.");
             }
@@ -77,7 +74,7 @@ public class AuthController {
                 throw new IllegalArgumentException("닉네임은 2~20자 이내로 입력해주세요.");
             }
 
-            Member member = memberService.register(email, password, nickname, username);
+            memberService.register(email, password, nickname, username);
 
             result.put("success", true);
             result.put("message", "회원가입이 완료되었습니다.");
@@ -93,16 +90,14 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
-    // 로그아웃
     @PostMapping("/logout")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> logout(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                       HttpSession session) {
         Map<String, Object> result = new HashMap<>();
 
-        // 세션 토큰 무효화
-        Long memberId = (Long) session.getAttribute("memberId");
-        if (memberId != null) {
-            memberService.invalidateSessionToken(memberId);
+        if (userDetails != null) {
+            memberService.invalidateSessionToken(userDetails.getMember().getId());
         }
 
         session.invalidate();
@@ -111,7 +106,6 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
-    // 이메일 중복 체크
     @GetMapping("/check-email")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> checkEmail(@RequestParam String email) {
@@ -124,16 +118,16 @@ public class AuthController {
     // 현재 로그인 상태 확인
     @GetMapping("/status")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getStatus(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> getStatus(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
 
-        Boolean isLoggedIn = (Boolean) session.getAttribute("isLoggedIn");
-        if (isLoggedIn != null && isLoggedIn) {
+        if (userDetails != null) {
+            Member member = userDetails.getMember();
             result.put("isLoggedIn", true);
-            result.put("memberId", session.getAttribute("memberId"));
-            result.put("nickname", session.getAttribute("memberNickname"));
-            result.put("email", session.getAttribute("memberEmail"));
-            result.put("role", session.getAttribute("memberRole"));
+            result.put("memberId", member.getId());
+            result.put("nickname", member.getNickname());
+            result.put("email", member.getEmail());
+            result.put("role", member.getRole().name());
         } else {
             result.put("isLoggedIn", false);
         }
@@ -141,22 +135,27 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
-    // 세션 유효성 검증 (중복 로그인 감지용)
+    // 세션 유효성 검증 (중복 로그인 감지용, Phase 6에서 제거 예정)
     @GetMapping("/validate-session")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> validateSession(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> validateSession(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                HttpSession session) {
         Map<String, Object> result = new HashMap<>();
 
-        Long memberId = (Long) session.getAttribute("memberId");
-        String sessionToken = (String) session.getAttribute("sessionToken");
-
-        if (memberId == null || sessionToken == null) {
+        if (userDetails == null) {
             result.put("valid", false);
             result.put("reason", "NOT_LOGGED_IN");
             return ResponseEntity.ok(result);
         }
 
-        boolean isValid = memberService.validateSessionToken(memberId, sessionToken);
+        String sessionToken = (String) session.getAttribute("sessionToken");
+        if (sessionToken == null) {
+            result.put("valid", false);
+            result.put("reason", "NOT_LOGGED_IN");
+            return ResponseEntity.ok(result);
+        }
+
+        boolean isValid = memberService.validateSessionToken(userDetails.getMember().getId(), sessionToken);
 
         if (isValid) {
             result.put("valid", true);
