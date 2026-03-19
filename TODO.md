@@ -14,11 +14,14 @@
 - [x] Security 관련 테스트 13개 전체 통과
 - [ ] 기존 통합 테스트 전체 통과 확인 (ApplicationContext 로드 실패 — DB 연결 등 환경 문제, Security와 무관)
 
-### Phase 2: 인증 흐름 전환 (미착수)
-- [ ] CustomAuthenticationSuccessHandler (하위 호환 세션 속성 세팅)
-- [ ] CustomAuthenticationFailureHandler (실패 사유별 메시지)
-- [ ] SecurityFilterChain에 formLogin/logout 설정 (현재 .disable() 상태)
-- [ ] AuthController 리팩토링 (현재 수동 세션 관리: sessionToken 생성, 7개+ 세션 속성 직접 설정)
+### Phase 2: 인증 흐름 전환 ✅ 완료
+- [x] CustomAuthenticationSuccessHandler 구현 (하위 호환 세션 속성 + JSON 응답 + 로그인 이력 기록) + 테스트 5개
+- [x] CustomAuthenticationFailureHandler 구현 (BadCredentials/Locked/Disabled 메시지) + 테스트 4개
+- [x] SecurityFilterChain에 formLogin/logout 설정 (loginProcessingUrl=/auth/login-process) + 테스트 7개
+- [x] AuthController 리팩토링 (로그인 → Spring Security 위임, 중복체크 → /auth/check-login 분리)
+- [x] auth-login.js 프론트엔드 Spring Security formLogin 연동
+- [x] MemberService.recordLoginSuccess() 추가 (SuccessHandler에서 호출)
+- [x] Security 테스트 23개 전체 통과
 
 ### Phase 3: 인가 전환 (미착수)
 - [ ] URL별 권한 규칙 추가 (현재 anyRequest().permitAll() 상태)

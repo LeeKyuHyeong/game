@@ -27,62 +27,22 @@ public class AuthController {
         return "client/auth/login";
     }
 
-    // 로그인 처리
-    @PostMapping("/login")
+    // 중복 로그인 사전 체크 (프론트엔드에서 인증 전 호출)
+    @PostMapping("/check-login")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> login(
-            @RequestBody Map<String, String> request,
-            HttpServletRequest httpRequest,
-            HttpSession session) {
-
+    public ResponseEntity<Map<String, Object>> checkLogin(@RequestBody Map<String, String> request) {
         Map<String, Object> result = new HashMap<>();
 
-        try {
-            String email = request.get("email");
-            String password = request.get("password");
-            boolean forceLogin = "true".equals(request.get("forceLogin"));
+        String email = request.get("email");
+        MemberService.LoginAttemptResult attemptResult = memberService.checkLoginAttempt(email);
 
-            String ipAddress = getClientIp(httpRequest);
-            String userAgent = httpRequest.getHeader("User-Agent");
-
-            // 중복 로그인 체크 (forceLogin이 아닌 경우)
-            if (!forceLogin) {
-                MemberService.LoginAttemptResult attemptResult = memberService.checkLoginAttempt(email);
-
-                if (attemptResult.status() == MemberService.LoginAttemptStatus.IN_GAME) {
-                    // 게임 중인 경우 - 확인 필요
-                    result.put("success", false);
-                    result.put("requireConfirm", true);
-                    result.put("inGame", true);
-                    result.put("message", "현재 다른 기기에서 게임이 진행 중입니다. 강제 로그인하시겠습니까?");
-                    return ResponseEntity.ok(result);
-                }
-                // EXISTING_SESSION인 경우 - 바로 로그인 진행 (기존 세션은 자동 무효화)
-            }
-
-            Member member = memberService.login(email, password, ipAddress, userAgent);
-
-            // 새 세션 토큰 생성 (기존 세션 자동 무효화)
-            String sessionToken = memberService.createSessionToken(member.getId());
-
-            // 세션에 회원 정보 저장
-            session.setAttribute("member", member);
-            session.setAttribute("memberId", member.getId());
-            session.setAttribute("memberEmail", member.getEmail());
-            session.setAttribute("memberNickname", member.getNickname());
-            session.setAttribute("memberRole", member.getRole().name());
-            session.setAttribute("sessionToken", sessionToken);
-            session.setAttribute("isLoggedIn", true);
-
-            result.put("success", true);
-            result.put("nickname", member.getNickname());
-
-        } catch (IllegalArgumentException e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "로그인 처리 중 오류가 발생했습니다.");
+        if (attemptResult.status() == MemberService.LoginAttemptStatus.IN_GAME) {
+            result.put("canProceed", false);
+            result.put("requireConfirm", true);
+            result.put("inGame", true);
+            result.put("message", "현재 다른 기기에서 게임이 진행 중입니다. 강제 로그인하시겠습니까?");
+        } else {
+            result.put("canProceed", true);
         }
 
         return ResponseEntity.ok(result);
@@ -145,13 +105,7 @@ public class AuthController {
             memberService.invalidateSessionToken(memberId);
         }
 
-        session.removeAttribute("member");
-        session.removeAttribute("memberId");
-        session.removeAttribute("memberEmail");
-        session.removeAttribute("memberNickname");
-        session.removeAttribute("memberRole");
-        session.removeAttribute("sessionToken");
-        session.removeAttribute("isLoggedIn");
+        session.invalidate();
 
         result.put("success", true);
         return ResponseEntity.ok(result);
@@ -207,33 +161,11 @@ public class AuthController {
         if (isValid) {
             result.put("valid", true);
         } else {
-            // 세션이 무효화됨 - 다른 기기에서 로그인됨
             result.put("valid", false);
             result.put("reason", "SESSION_INVALIDATED");
             result.put("message", "다른 기기에서 로그인하여 현재 세션이 종료되었습니다.");
         }
 
         return ResponseEntity.ok(result);
-    }
-
-    // 클라이언트 IP 가져오기
-    private String getClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_CLIENT_IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        return ip;
     }
 }

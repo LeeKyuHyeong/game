@@ -225,6 +225,21 @@ public class MemberService {
         return member;
     }
 
+    /**
+     * Spring Security 인증 성공 후 호출 - 로그인 이력 기록 및 lastLoginAt 갱신
+     */
+    @Transactional
+    public void recordLoginSuccess(Long memberId, String ipAddress, String userAgent) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+
+        member.setLastLoginAt(LocalDateTime.now());
+        member.updateLoginStreak();
+        memberRepository.save(member);
+
+        loginHistoryRepository.save(MemberLoginHistory.success(member, ipAddress, userAgent));
+    }
+
     // ========== 게임 결과 ==========
 
     @Transactional
