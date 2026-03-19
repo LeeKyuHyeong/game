@@ -47,11 +47,18 @@
 - [x] SuccessHandler 하위 호환 세션 속성 유지 (AdminInterceptor가 sessionToken/memberId 참조, Phase 6에서 함께 제거)
 - [x] Security 테스트 28개 전체 통과
 
-### Phase 6: 정리 및 제거 (Phase 2~5 완료 후 진행)
-- [ ] AdminInterceptor, SessionValidationInterceptor 삭제
-- [ ] Member 엔티티 sessionToken/sessionCreatedAt 필드 제거
-- [ ] MemberService 세션 관련 메서드 제거 (createSessionToken, validateSessionToken, invalidateSessionToken, checkLoginAttempt)
-- [ ] 전체 통합 테스트 통과 확인
+### Phase 6: 정리 및 제거 ✅ 완료
+- [x] AdminInterceptor 삭제 + WebConfig에서 제거
+- [x] SessionValidationInterceptor 삭제
+- [x] interceptor 패키지 완전 제거
+- [x] Member 엔티티 sessionToken/sessionCreatedAt 필드 제거
+- [x] MemberService 세션 메서드 제거 (createSessionToken, validateSessionToken, invalidateSessionToken, hasActiveSession)
+- [x] checkLoginAttempt에서 sessionToken 참조 제거 (게임 중 여부만 확인)
+- [x] SuccessHandler 하위 호환 세션 속성 제거 (member, memberId, memberEmail 등 7개)
+- [x] AuthController에서 세션 토큰 관련 코드 제거 (logout, validate-session 단순화)
+- [x] AdminMemberController kickSession → SessionRegistry 기반으로 전환
+- [x] SecurityConfig에 SessionRegistry 빈 등록 + sessionManagement 연동
+- [x] Security 테스트 25개 전체 통과 + 컴파일 성공
 
 ## 미완료 항목
 

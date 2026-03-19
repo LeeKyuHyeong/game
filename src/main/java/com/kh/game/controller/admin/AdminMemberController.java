@@ -5,6 +5,8 @@ import com.kh.game.entity.MemberBadge;
 import com.kh.game.repository.MemberBadgeRepository;
 import com.kh.game.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,7 @@ public class AdminMemberController {
 
     private final MemberService memberService;
     private final MemberBadgeRepository memberBadgeRepository;
+    private final SessionRegistry sessionRegistry;
 
     /**
      * 통합 회원 관리 페이지
@@ -227,7 +230,18 @@ public class AdminMemberController {
     public ResponseEntity<Map<String, Object>> kickSession(@PathVariable Long id) {
         Map<String, Object> result = new HashMap<>();
         try {
-            memberService.invalidateSessionToken(id);
+            // SessionRegistry에서 해당 사용자의 모든 세션 만료 처리
+            for (Object principal : sessionRegistry.getAllPrincipals()) {
+                if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
+                    // CustomUserDetails에서 Member ID 매칭
+                    if (principal instanceof com.kh.game.security.CustomUserDetails customDetails
+                            && customDetails.getMember().getId().equals(id)) {
+                        for (SessionInformation session : sessionRegistry.getAllSessions(principal, false)) {
+                            session.expireNow();
+                        }
+                    }
+                }
+            }
             result.put("success", true);
             result.put("message", "세션이 강제 종료되었습니다.");
         } catch (Exception e) {

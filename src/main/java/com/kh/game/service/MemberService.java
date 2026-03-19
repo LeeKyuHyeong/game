@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -556,65 +556,7 @@ public class MemberService {
     }
 
     /**
-     * 기존 세션 존재 여부 확인
-     */
-    public boolean hasActiveSession(Long memberId) {
-        Optional<Member> memberOpt = memberRepository.findById(memberId);
-        if (memberOpt.isEmpty()) {
-            return false;
-        }
-        Member member = memberOpt.get();
-        return member.getSessionToken() != null && member.getSessionCreatedAt() != null;
-    }
-
-    /**
-     * 새 세션 토큰 생성 및 저장
-     */
-    @Transactional
-    public String createSessionToken(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
-
-        String token = UUID.randomUUID().toString().replace("-", "");
-        member.setSessionToken(token);
-        member.setSessionCreatedAt(LocalDateTime.now());
-        memberRepository.save(member);
-
-        return token;
-    }
-
-    /**
-     * 세션 토큰 유효성 검증
-     */
-    public boolean validateSessionToken(Long memberId, String token) {
-        if (token == null || memberId == null) {
-            return false;
-        }
-
-        Optional<Member> memberOpt = memberRepository.findById(memberId);
-        if (memberOpt.isEmpty()) {
-            return false;
-        }
-
-        Member member = memberOpt.get();
-        return token.equals(member.getSessionToken());
-    }
-
-    /**
-     * 세션 토큰 무효화 (로그아웃)
-     */
-    @Transactional
-    public void invalidateSessionToken(Long memberId) {
-        memberRepository.findById(memberId).ifPresent(member -> {
-            member.setSessionToken(null);
-            member.setSessionCreatedAt(null);
-            memberRepository.save(member);
-        });
-    }
-
-    /**
-     * 로그인 시도 상태 확인 (중복 로그인 체크)
-     * @return LoginAttemptResult
+     * 로그인 시도 상태 확인 (게임 중 여부 체크)
      */
     public LoginAttemptResult checkLoginAttempt(String email) {
         Optional<Member> memberOpt = memberRepository.findByEmail(email);
@@ -624,19 +566,12 @@ public class MemberService {
 
         Member member = memberOpt.get();
 
-        // 게임 중인지 먼저 확인 (세션 토큰 유무와 관계없이)
         boolean inGame = isInGame(member.getId());
         if (inGame) {
             return new LoginAttemptResult(LoginAttemptStatus.IN_GAME, true);
         }
 
-        // 기존 세션이 없으면 바로 로그인 가능
-        if (member.getSessionToken() == null) {
-            return new LoginAttemptResult(LoginAttemptStatus.NO_EXISTING_SESSION, false);
-        }
-
-        // 기존 세션이 있지만 게임 중 아님
-        return new LoginAttemptResult(LoginAttemptStatus.EXISTING_SESSION, true);
+        return new LoginAttemptResult(LoginAttemptStatus.NO_EXISTING_SESSION, false);
     }
 
     public enum LoginAttemptStatus {

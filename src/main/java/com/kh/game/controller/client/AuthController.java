@@ -27,7 +27,6 @@ public class AuthController {
         return "client/auth/login";
     }
 
-    // 중복 로그인 사전 체크 (프론트엔드에서 인증 전 호출)
     @PostMapping("/check-login")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> checkLogin(@RequestBody Map<String, String> request) {
@@ -92,16 +91,9 @@ public class AuthController {
 
     @PostMapping("/logout")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> logout(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                       HttpSession session) {
+    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
         Map<String, Object> result = new HashMap<>();
-
-        if (userDetails != null) {
-            memberService.invalidateSessionToken(userDetails.getMember().getId());
-        }
-
         session.invalidate();
-
         result.put("success", true);
         return ResponseEntity.ok(result);
     }
@@ -115,7 +107,6 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
-    // 현재 로그인 상태 확인
     @GetMapping("/status")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getStatus(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -135,34 +126,17 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
-    // 세션 유효성 검증 (중복 로그인 감지용, Phase 6에서 제거 예정)
+    // 세션 유효성 검증 (Spring Security maximumSessions가 처리, 하위 호환용 유지)
     @GetMapping("/validate-session")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> validateSession(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                HttpSession session) {
+    public ResponseEntity<Map<String, Object>> validateSession(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
 
         if (userDetails == null) {
             result.put("valid", false);
             result.put("reason", "NOT_LOGGED_IN");
-            return ResponseEntity.ok(result);
-        }
-
-        String sessionToken = (String) session.getAttribute("sessionToken");
-        if (sessionToken == null) {
-            result.put("valid", false);
-            result.put("reason", "NOT_LOGGED_IN");
-            return ResponseEntity.ok(result);
-        }
-
-        boolean isValid = memberService.validateSessionToken(userDetails.getMember().getId(), sessionToken);
-
-        if (isValid) {
-            result.put("valid", true);
         } else {
-            result.put("valid", false);
-            result.put("reason", "SESSION_INVALIDATED");
-            result.put("message", "다른 기기에서 로그인하여 현재 세션이 종료되었습니다.");
+            result.put("valid", true);
         }
 
         return ResponseEntity.ok(result);

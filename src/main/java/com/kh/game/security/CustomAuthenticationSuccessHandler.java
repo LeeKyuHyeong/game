@@ -5,7 +5,6 @@ import com.kh.game.service.MemberService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -30,20 +29,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String userAgent = request.getHeader("User-Agent");
         memberService.recordLoginSuccess(member.getId(), ipAddress, userAgent);
 
-        // 세션 토큰 생성 (중복 로그인 감지용, Phase 4에서 제거 예정)
-        String sessionToken = memberService.createSessionToken(member.getId());
-
-        // 하위 호환 세션 속성 세팅 (Phase 5에서 제거 예정)
-        HttpSession session = request.getSession();
-        session.setAttribute("member", member);
-        session.setAttribute("memberId", member.getId());
-        session.setAttribute("memberEmail", member.getEmail());
-        session.setAttribute("memberNickname", member.getNickname());
-        session.setAttribute("memberRole", member.getRole().name());
-        session.setAttribute("sessionToken", sessionToken);
-        session.setAttribute("isLoggedIn", true);
-
-        // JSON 응답 (기존 프론트엔드 AJAX 호환)
+        // JSON 응답 (프론트엔드 AJAX)
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("{\"success\":true,\"nickname\":\"" + escapeJson(member.getNickname()) + "\"}");
     }
