@@ -1,12 +1,13 @@
 package com.kh.game.controller.client;
 
 import com.kh.game.entity.Member;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.WrongAnswerStatsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.SessionAttribute;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,9 +21,10 @@ public class StatsController {
 
     @GetMapping("/stats")
     public String statsPage(
-            @SessionAttribute(value = "member", required = false) Member member,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         // 가장 어려운 곡 TOP 10
         List<Map<String, Object>> hardestSongs = wrongAnswerStatsService.getHardestSongs(5, 10);
 

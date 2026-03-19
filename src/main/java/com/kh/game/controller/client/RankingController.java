@@ -4,12 +4,14 @@ import com.kh.game.entity.GenreChallengeRecord;
 import com.kh.game.entity.Member;
 import com.kh.game.repository.GenreChallengeRecordRepository;
 import com.kh.game.repository.GenreRepository;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.FanChallengeService;
 import com.kh.game.service.GameSessionService;
 import com.kh.game.service.GenreChallengeService;
 import com.kh.game.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -344,8 +346,9 @@ public class RankingController {
     @GetMapping("/api/ranking/best30/my")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getMyBest30Ranking(
-            @SessionAttribute(value = "memberId", required = false) Long memberId) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         Map<String, Object> result = new HashMap<>();
 
         if (memberId == null) {
@@ -416,8 +419,9 @@ public class RankingController {
     @GetMapping("/api/ranking/my")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getMyRanking(
-            @SessionAttribute(value = "memberId", required = false) Long memberId) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         Map<String, Object> result = new HashMap<>();
 
         if (memberId == null) {

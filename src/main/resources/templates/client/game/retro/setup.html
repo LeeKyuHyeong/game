@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{common/fragments/head :: clientHead('레트로 게임 - Song Quiz')}"></head>
 <body class="client-page">
 <div class="client-container">
@@ -15,7 +15,7 @@
         <div class="setup-card">
             <!-- 30곡 챌린지 바로가기 -->
             <div class="challenge-shortcut" id="challengeShortcut">
-                <div class="challenge-shortcut-content" th:if="${isLoggedIn}">
+                <div class="challenge-shortcut-content" sec:authorize="isAuthenticated()">
                     <div class="challenge-icon">🎯</div>
                     <div class="challenge-info">
                         <strong>30곡 챌린지</strong>
@@ -23,7 +23,7 @@
                     </div>
                     <button type="button" class="btn-challenge" onclick="openChallengeModal()">바로 시작</button>
                 </div>
-                <div class="challenge-shortcut-content locked" th:if="${!isLoggedIn}">
+                <div class="challenge-shortcut-content locked" sec:authorize="!isAuthenticated()">
                     <div class="challenge-icon">🔒</div>
                     <div class="challenge-info">
                         <strong>30곡 챌린지</strong>
@@ -105,8 +105,8 @@
 </div>
 
 <script th:inline="javascript">
-    const isLoggedIn = [[${isLoggedIn}]];
-    const memberNickname = [[${memberNickname}]];
+    const isLoggedIn = [[${#authorization.expression('isAuthenticated()')}]];
+    const memberNickname = [[${#authentication?.principal instanceof T(com.kh.game.security.CustomUserDetails) ? #authentication.principal.member.nickname : null}]];
 </script>
 <script th:src="@{/js/client/game-retro-setup.js}"></script>
 </body>

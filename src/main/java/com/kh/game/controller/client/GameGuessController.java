@@ -2,6 +2,7 @@ package com.kh.game.controller.client;
 
 import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.*;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.BadgeService;
 import com.kh.game.service.GameSessionService;
 import com.kh.game.service.GenreService;
@@ -9,6 +10,7 @@ import com.kh.game.service.MemberService;
 import com.kh.game.service.SongService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,13 +31,8 @@ public class GameGuessController {
     private final BadgeService badgeService;
 
     @GetMapping
-    public String setup(Model model, HttpSession httpSession) {
+    public String setup(Model model) {
         model.addAttribute("genres", genreService.findActiveGenresForGame());
-        // 로그인 상태 전달
-        Boolean isLoggedIn = (Boolean) httpSession.getAttribute("isLoggedIn");
-        String memberNickname = (String) httpSession.getAttribute("memberNickname");
-        model.addAttribute("isLoggedIn", isLoggedIn != null && isLoggedIn);
-        model.addAttribute("memberNickname", memberNickname);
         return "client/game/guess/setup";
     }
 
@@ -154,7 +151,8 @@ public class GameGuessController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startGame(
             @RequestBody Map<String, Object> request,
-            HttpSession httpSession) {
+            HttpSession httpSession,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
 
@@ -176,7 +174,7 @@ public class GameGuessController {
             session.setStatus(GameSession.GameStatus.PLAYING);
 
             // 로그인한 회원인 경우 연결
-            Long memberId = (Long) httpSession.getAttribute("memberId");
+            Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
             if (memberId != null) {
                 memberService.findById(memberId).ifPresent(session::setMember);
             }
@@ -815,7 +813,8 @@ public class GameGuessController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> restartGame(
             @RequestBody Map<String, Object> request,
-            HttpSession httpSession) {
+            HttpSession httpSession,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
 
@@ -856,7 +855,7 @@ public class GameGuessController {
             session.setSettings(previous.getSettings());
 
             // 로그인한 회원인 경우 연결
-            Long memberId = (Long) httpSession.getAttribute("memberId");
+            Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
             if (memberId != null) {
                 memberService.findById(memberId).ifPresent(session::setMember);
             }

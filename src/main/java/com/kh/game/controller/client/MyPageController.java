@@ -3,15 +3,16 @@ package com.kh.game.controller.client;
 import com.kh.game.entity.Badge;
 import com.kh.game.entity.Member;
 import com.kh.game.entity.MemberBadge;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.BadgeService;
 import com.kh.game.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +26,8 @@ public class MyPageController {
     private final BadgeService badgeService;
 
     @GetMapping
-    public String myPage(HttpSession httpSession, Model model) {
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+    public String myPage(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         if (memberId == null) {
             return "redirect:/auth/login?redirect=/mypage";
         }
@@ -59,10 +60,10 @@ public class MyPageController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> selectBadge(
             @RequestBody Map<String, Object> request,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -87,8 +88,8 @@ public class MyPageController {
 
     @GetMapping("/badges/new")
     @ResponseBody
-    public ResponseEntity<List<Map<String, Object>>> getNewBadges(HttpSession httpSession) {
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+    public ResponseEntity<List<Map<String, Object>>> getNewBadges(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             return ResponseEntity.ok(List.of());
@@ -118,9 +119,9 @@ public class MyPageController {
 
     @PostMapping("/badges/mark-read")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> markBadgesAsRead(HttpSession httpSession) {
+    public ResponseEntity<Map<String, Object>> markBadgesAsRead(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);

@@ -4,6 +4,7 @@ import com.kh.game.dto.GameSettings;
 import com.kh.game.entity.GameRoom;
 import com.kh.game.entity.GameRoomParticipant;
 import com.kh.game.entity.Member;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.GameRoomService;
 import com.kh.game.service.GenreService;
 import com.kh.game.service.MemberService;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -40,8 +42,9 @@ public class MultiGameController {
      * 멀티게임 로비 페이지
      */
     @GetMapping
-    public String lobby(HttpSession httpSession, Model model) {
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+    public String lobby(@AuthenticationPrincipal CustomUserDetails userDetails,
+                        HttpSession httpSession, Model model) {
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             return "redirect:/auth/login?redirect=/game/multi";
@@ -100,8 +103,8 @@ public class MultiGameController {
      */
     @GetMapping("/join")
     public String joinPage(@RequestParam(required = false) String code,
-                           HttpSession httpSession, Model model) {
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+                           @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             return "redirect:/auth/login?redirect=/game/multi/join" + (code != null ? "?code=" + code : "");
@@ -126,14 +129,14 @@ public class MultiGameController {
     public ResponseEntity<Map<String, Object>> joinRoomApi(
             @PathVariable String roomCode,
             @RequestBody(required = false) Map<String, String> request,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
 
         // roomCode 대문자 변환
         roomCode = roomCode.toUpperCase().trim();
 
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -181,8 +184,8 @@ public class MultiGameController {
      * 방 만들기 페이지
      */
     @GetMapping("/create")
-    public String createRoomPage(HttpSession httpSession, Model model) {
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+    public String createRoomPage(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             return "redirect:/auth/login?redirect=/game/multi/create";
@@ -203,8 +206,9 @@ public class MultiGameController {
      * 대기실 페이지
      */
     @GetMapping("/room/{roomCode}")
-    public String waitingRoom(@PathVariable String roomCode, HttpSession httpSession, Model model) {
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+    public String waitingRoom(@PathVariable String roomCode,
+                             @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             return "redirect:/auth/login?redirect=/game/multi/room/" + roomCode;
@@ -299,8 +303,9 @@ public class MultiGameController {
      * 게임 플레이 페이지
      */
     @GetMapping("/room/{roomCode}/play")
-    public String playPage(@PathVariable String roomCode, HttpSession httpSession, Model model) {
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+    public String playPage(@PathVariable String roomCode,
+                          @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             return "redirect:/auth/login?redirect=/game/multi/room/" + roomCode;
@@ -338,8 +343,9 @@ public class MultiGameController {
      * 게임 결과 페이지
      */
     @GetMapping("/room/{roomCode}/result")
-    public String resultPage(@PathVariable String roomCode, HttpSession httpSession, Model model) {
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+    public String resultPage(@PathVariable String roomCode,
+                            @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             return "redirect:/auth/login";
@@ -441,10 +447,10 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> createRoom(
             @RequestBody GameSettings settings,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -488,14 +494,14 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> joinRoom(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
 
         // roomCode 대문자 변환
         roomCode = roomCode.toUpperCase().trim();
 
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -535,10 +541,10 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> leaveRoom(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -579,10 +585,10 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> leaveToLobby(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", true);  // 로그인 안 되어있어도 로비 이동은 허용
@@ -615,10 +621,10 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggleReady(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -655,10 +661,10 @@ public class MultiGameController {
     public ResponseEntity<Map<String, Object>> kickParticipant(
             @PathVariable String roomCode,
             @PathVariable Long targetMemberId,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -701,7 +707,7 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getRoomStatus(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
 
         GameRoom room = gameRoomService.findByRoomCode(roomCode).orElse(null);
@@ -712,7 +718,7 @@ public class MultiGameController {
         }
 
         // 요청자의 참가 상태 확인 (강퇴 감지용)
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         if (memberId != null) {
             Member member = memberService.findById(memberId).orElse(null);
             if (member != null) {
@@ -759,10 +765,10 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> restartGame(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -800,10 +806,10 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startGame(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -838,10 +844,10 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startRound(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -871,10 +877,10 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> nextRound(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -904,10 +910,10 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> setRoundReady(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -938,10 +944,10 @@ public class MultiGameController {
     public ResponseEntity<Map<String, Object>> skipSong(
             @PathVariable String roomCode,
             @RequestBody Map<String, Object> request,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -974,10 +980,10 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> voteSkipRound(
             @PathVariable String roomCode,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -1031,10 +1037,10 @@ public class MultiGameController {
     public ResponseEntity<Map<String, Object>> sendChat(
             @PathVariable String roomCode,
             @RequestBody Map<String, String> request,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -1090,9 +1096,10 @@ public class MultiGameController {
      */
     @PostMapping("/reset-participation")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> resetParticipation(HttpSession httpSession) {
+    public ResponseEntity<Map<String, Object>> resetParticipation(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);
@@ -1131,10 +1138,10 @@ public class MultiGameController {
     public ResponseEntity<Map<String, Object>> reportPlaybackError(
             @PathVariable String roomCode,
             @RequestBody Map<String, Object> request,
-            HttpSession httpSession) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Map<String, Object> result = new HashMap<>();
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
 
         if (memberId == null) {
             result.put("success", false);

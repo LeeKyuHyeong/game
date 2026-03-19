@@ -3,12 +3,14 @@ package com.kh.game.controller.client;
 import com.kh.game.entity.Board;
 import com.kh.game.entity.BoardComment;
 import com.kh.game.entity.Member;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +33,10 @@ public class BoardController {
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @SessionAttribute(value = "member", required = false) Member member,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         Board.BoardCategory boardCategory = null;
         if (category != null && !category.isEmpty()) {
             try {
@@ -61,9 +64,10 @@ public class BoardController {
     @GetMapping("/board/{id}")
     public String boardDetail(
             @PathVariable Long id,
-            @SessionAttribute(value = "member", required = false) Member member,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         Board board = boardService.findByIdAndIncrementView(id).orElse(null);
         if (board == null || board.getStatus() != Board.BoardStatus.ACTIVE) {
             return "redirect:/board";
@@ -83,9 +87,10 @@ public class BoardController {
     // 게시글 작성 페이지
     @GetMapping("/board/write")
     public String boardWriteForm(
-            @SessionAttribute(value = "member", required = false) Member member,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         if (member == null) {
             return "redirect:/auth/login?redirect=/board/write";
         }
@@ -100,9 +105,10 @@ public class BoardController {
     @GetMapping("/board/{id}/edit")
     public String boardEditForm(
             @PathVariable Long id,
-            @SessionAttribute(value = "member", required = false) Member member,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         if (member == null) {
             return "redirect:/auth/login?redirect=/board/" + id + "/edit";
         }
@@ -126,8 +132,9 @@ public class BoardController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> createBoard(
             @RequestBody Map<String, String> request,
-            @SessionAttribute(value = "member", required = false) Member member) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         if (member == null) {
             return ResponseEntity.ok(Map.of("success", false, "message", "로그인이 필요합니다."));
         }
@@ -164,8 +171,9 @@ public class BoardController {
     public ResponseEntity<Map<String, Object>> updateBoard(
             @PathVariable Long id,
             @RequestBody Map<String, String> request,
-            @SessionAttribute(value = "member", required = false) Member member) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         if (member == null) {
             return ResponseEntity.ok(Map.of("success", false, "message", "로그인이 필요합니다."));
         }
@@ -185,8 +193,9 @@ public class BoardController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteBoard(
             @PathVariable Long id,
-            @SessionAttribute(value = "member", required = false) Member member) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         if (member == null) {
             return ResponseEntity.ok(Map.of("success", false, "message", "로그인이 필요합니다."));
         }
@@ -201,8 +210,9 @@ public class BoardController {
     public ResponseEntity<Map<String, Object>> addComment(
             @PathVariable Long boardId,
             @RequestBody Map<String, String> request,
-            @SessionAttribute(value = "member", required = false) Member member) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         if (member == null) {
             return ResponseEntity.ok(Map.of("success", false, "message", "로그인이 필요합니다."));
         }
@@ -224,8 +234,9 @@ public class BoardController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteComment(
             @PathVariable Long commentId,
-            @SessionAttribute(value = "member", required = false) Member member) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         if (member == null) {
             return ResponseEntity.ok(Map.of("success", false, "message", "로그인이 필요합니다."));
         }
@@ -239,8 +250,9 @@ public class BoardController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggleLike(
             @PathVariable Long boardId,
-            @SessionAttribute(value = "member", required = false) Member member) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         if (member == null) {
             return ResponseEntity.ok(Map.of("success", false, "message", "로그인이 필요합니다."));
         }

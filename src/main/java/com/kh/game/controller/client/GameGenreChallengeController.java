@@ -7,10 +7,12 @@ import com.kh.game.entity.GameRound;
 import com.kh.game.entity.GameSession;
 import com.kh.game.entity.Member;
 import com.kh.game.repository.GenreRepository;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.GenreChallengeService;
 import com.kh.game.service.MemberService;
 import com.kh.game.service.SongService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +37,9 @@ public class GameGenreChallengeController {
      * 설정 페이지
      */
     @GetMapping
-    public String setup(HttpSession httpSession, Model model) {
+    public String setup(@AuthenticationPrincipal CustomUserDetails userDetails, HttpSession httpSession, Model model) {
         // 로그인 상태 확인
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         if (memberId != null) {
             memberService.findById(memberId).ifPresent(member -> {
                 model.addAttribute("member", member);
@@ -77,6 +79,7 @@ public class GameGenreChallengeController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startChallenge(
             @RequestBody Map<String, Object> request,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpSession httpSession) {
 
         Map<String, Object> result = new HashMap<>();
@@ -120,7 +123,7 @@ public class GameGenreChallengeController {
 
             // 로그인 회원 확인
             Member member = null;
-            Long memberId = (Long) httpSession.getAttribute("memberId");
+            Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
             if (memberId != null) {
                 member = memberService.findById(memberId).orElse(null);
             }
@@ -408,7 +411,7 @@ public class GameGenreChallengeController {
      * 결과 페이지
      */
     @GetMapping("/result")
-    public String result(HttpSession httpSession, Model model) {
+    public String result(@AuthenticationPrincipal CustomUserDetails userDetails, HttpSession httpSession, Model model) {
         Long sessionId = (Long) httpSession.getAttribute("genreChallengeSessionId");
 
         // 세션이 없으면 백업 데이터 사용 모드로 렌더링
@@ -456,7 +459,7 @@ public class GameGenreChallengeController {
         model.addAttribute("ranking", ranking);
 
         // 내 기록
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         if (memberId != null) {
             Member member = memberService.findById(memberId).orElse(null);
             if (member != null) {
@@ -522,6 +525,7 @@ public class GameGenreChallengeController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getGenreChallengeInfo(
             @PathVariable String genreCode,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpSession httpSession) {
 
         Map<String, Object> result = new HashMap<>();
@@ -548,7 +552,7 @@ public class GameGenreChallengeController {
         }
 
         // 내 기록 조회 (로그인 시, 하드코어 기록)
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         if (memberId != null) {
             memberService.findById(memberId).ifPresent(member -> {
                 genreChallengeService.getMemberRecord(member, genre, GenreChallengeDifficulty.HARDCORE)
@@ -592,6 +596,7 @@ public class GameGenreChallengeController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> restartGame(
             @RequestBody Map<String, Object> request,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpSession httpSession) {
 
         Map<String, Object> result = new HashMap<>();
@@ -631,7 +636,7 @@ public class GameGenreChallengeController {
 
             // 로그인 회원 확인
             Member member = null;
-            Long memberId = (Long) httpSession.getAttribute("memberId");
+            Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
             if (memberId != null) {
                 member = memberService.findById(memberId).orElse(null);
             }

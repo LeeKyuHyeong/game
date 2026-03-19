@@ -2,10 +2,12 @@ package com.kh.game.controller.client;
 
 import com.kh.game.entity.Member;
 import com.kh.game.entity.SongReport;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.SongReportService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -24,9 +26,10 @@ public class SongReportController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> submitReport(
             @RequestBody Map<String, Object> request,
-            @SessionAttribute(value = "member", required = false) Member member,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpSession session) {
 
+        Member member = userDetails != null ? userDetails.getMember() : null;
         // 파라미터 추출
         Long songId;
         try {

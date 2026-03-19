@@ -9,9 +9,11 @@ import com.kh.game.entity.Member;
 import com.kh.game.service.FanChallengeService;
 import com.kh.game.service.FanChallengeStageService;
 import com.kh.game.service.MemberService;
+import com.kh.game.security.CustomUserDetails;
 import com.kh.game.service.SongPopularityVoteService;
 import com.kh.game.service.SongService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +39,9 @@ public class GameFanChallengeController {
      * 설정 페이지
      */
     @GetMapping
-    public String setup(HttpSession httpSession, Model model) {
+    public String setup(@AuthenticationPrincipal CustomUserDetails userDetails, HttpSession httpSession, Model model) {
         // 로그인 상태 확인
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         if (memberId != null) {
             memberService.findById(memberId).ifPresent(member -> {
                 model.addAttribute("member", member);
@@ -103,6 +105,7 @@ public class GameFanChallengeController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> startChallenge(
             @RequestBody Map<String, Object> request,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpSession httpSession) {
 
         Map<String, Object> result = new HashMap<>();
@@ -159,7 +162,7 @@ public class GameFanChallengeController {
 
             // 로그인 회원 확인
             Member member = null;
-            Long memberId = (Long) httpSession.getAttribute("memberId");
+            Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
             if (memberId != null) {
                 member = memberService.findById(memberId).orElse(null);
             }
@@ -442,7 +445,7 @@ public class GameFanChallengeController {
      * 결과 페이지
      */
     @GetMapping("/result")
-    public String result(HttpSession httpSession, Model model) {
+    public String result(@AuthenticationPrincipal CustomUserDetails userDetails, HttpSession httpSession, Model model) {
         Long sessionId = (Long) httpSession.getAttribute("fanChallengeSessionId");
 
         // 세션이 없으면 백업 데이터 사용 모드로 렌더링
@@ -488,7 +491,7 @@ public class GameFanChallengeController {
         model.addAttribute("ranking", ranking);
 
         // 내 기록 및 퍼펙트 뱃지
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         if (memberId != null) {
             Member member = memberService.findById(memberId).orElse(null);
             if (member != null) {
@@ -620,6 +623,7 @@ public class GameFanChallengeController {
     public ResponseEntity<Map<String, Object>> getArtistChallengeInfo(
             @PathVariable String artist,
             @RequestParam(required = false, defaultValue = "1") Integer stageLevel,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpSession httpSession) {
 
         Map<String, Object> result = new HashMap<>();
@@ -640,7 +644,7 @@ public class GameFanChallengeController {
         }
 
         // 내 기록 조회 (로그인 시, 하드코어 기록 - 단계별)
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         if (memberId != null) {
             memberService.findById(memberId).ifPresent(member -> {
                 fanChallengeService.getMemberRecord(member, artist, FanChallengeDifficulty.HARDCORE, stageLevel)
@@ -667,12 +671,13 @@ public class GameFanChallengeController {
     public ResponseEntity<Map<String, Object>> submitPopularityVote(
             @PathVariable Long songId,
             @RequestBody Map<String, Object> request,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpSession httpSession) {
 
         Map<String, Object> result = new HashMap<>();
 
         // 로그인 확인
-        Long memberId = (Long) httpSession.getAttribute("memberId");
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
         if (memberId == null) {
             result.put("success", false);
             result.put("message", "로그인이 필요합니다");
@@ -734,6 +739,7 @@ public class GameFanChallengeController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> restartGame(
             @RequestBody Map<String, Object> request,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpSession httpSession) {
 
         Map<String, Object> result = new HashMap<>();
@@ -765,7 +771,7 @@ public class GameFanChallengeController {
 
             // 로그인 회원 확인
             Member member = null;
-            Long memberId = (Long) httpSession.getAttribute("memberId");
+            Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
             if (memberId != null) {
                 member = memberService.findById(memberId).orElse(null);
             }
