@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -114,12 +115,22 @@ class SecurityFilterChainTest {
                 .andExpect(status().isOk());
     }
 
-    // ========== CSRF 비활성화 확인 ==========
+    // ========== Phase 4: CSRF 활성화 확인 ==========
 
     @Test
-    @DisplayName("CSRF 비활성화 상태 - POST 요청이 403 아닌 것")
-    void csrf_disabled_postWithoutToken_notForbidden() throws Exception {
+    @DisplayName("Phase 4: CSRF 토큰 없이 POST 시 403")
+    void csrf_enabled_postWithoutToken_forbidden() throws Exception {
         mockMvc.perform(post("/auth/login-process")
+                        .param("email", "test@test.com")
+                        .param("password", "1234"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Phase 4: CSRF 토큰 포함 POST 시 정상 처리")
+    void csrf_enabled_postWithToken_ok() throws Exception {
+        mockMvc.perform(post("/auth/login-process")
+                        .with(csrf())
                         .param("email", "test@test.com")
                         .param("password", "1234"))
                 .andExpect(status().isOk());
@@ -185,6 +196,7 @@ class SecurityFilterChainTest {
     @DisplayName("로그인 처리 URL이 /auth/login-process로 설정")
     void loginProcessUrl_configured() throws Exception {
         mockMvc.perform(post("/auth/login-process")
+                        .with(csrf())
                         .param("email", "nonexistent@test.com")
                         .param("password", "wrong"))
                 .andExpect(status().isOk());

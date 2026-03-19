@@ -29,10 +29,15 @@
 - [x] AdminInterceptor 단순화 (인증/인가 → Spring Security 위임, adminMember 세션 세팅만 유지)
 - [x] Security 테스트 27개 전체 통과 (인가 테스트 6개 추가)
 
-### Phase 4: 세션 관리 + CSRF (미착수)
-- [ ] maximumSessions(1) 동시 세션 제어 (현재 커스텀 sessionToken 방식)
-- [ ] SessionValidationInterceptor 제거 (현재 중복 로그인 감지에 사용 중)
-- [ ] CSRF 활성화 + Thymeleaf/AJAX 토큰 적용 (현재 csrf.disable() 상태)
+### Phase 4: 세션 관리 + CSRF ✅ 완료
+- [x] maximumSessions(1) 동시 세션 제어 + expiredUrl 설정
+- [x] SessionValidationInterceptor를 WebConfig에서 제거 (maximumSessions로 대체)
+- [x] CSRF 활성화 (HttpSessionCsrfTokenRepository + meta 태그 + fetch wrapper 자동 첨부)
+- [x] head fragments 3개에 CSRF meta 태그 추가
+- [x] common.js fetch wrapper에 CSRF 토큰 자동 첨부 로직 추가
+- [x] admin 로그인 폼 th:action으로 변경 (CSRF 토큰 자동 삽입)
+- [x] adminHead에 common.js 추가 (CSRF fetch wrapper 공유)
+- [x] Security 테스트 28개 전체 통과 (CSRF 테스트 2개 추가)
 
 ### Phase 5: 컨트롤러 정리 (미착수)
 - [ ] session.getAttribute("member") → @AuthenticationPrincipal 전환 (~17곳 확인됨)

@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -29,6 +31,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // CSRF: BREACH 공격 방지용 XOR 토큰 대신 plain 토큰 사용 (AJAX 호환성)
+        CsrfTokenRequestAttributeHandler csrfHandler = new CsrfTokenRequestAttributeHandler();
+        csrfHandler.setCsrfRequestAttributeName(null);
+
         http
                 // Phase 3: URL별 인가 규칙
                 .authorizeHttpRequests(auth -> auth
@@ -36,7 +42,8 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/css/**"),
                                 new AntPathRequestMatcher("/js/**"),
                                 new AntPathRequestMatcher("/images/**"),
-                                new AntPathRequestMatcher("/uploads/**")).permitAll()
+                                new AntPathRequestMatcher("/uploads/**"),
+                                new AntPathRequestMatcher("/favicon.svg")).permitAll()
                         // 인증 관련
                         .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
                         // 관리자 로그인 페이지
@@ -50,8 +57,11 @@ public class SecurityConfig {
                         // 나머지 - 모두 허용 (게임, 홈 등)
                         .anyRequest().permitAll()
                 )
-                // Phase 2: CSRF 비활성화 유지 (Phase 4에서 활성화 예정)
-                .csrf(csrf -> csrf.disable())
+                // Phase 4: CSRF 활성화 (HttpSession 기반 + meta 태그로 전달)
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(new HttpSessionCsrfTokenRepository())
+                        .csrfTokenRequestHandler(csrfHandler)
+                )
                 // Phase 2: Spring Security formLogin
                 .formLogin(form -> form
                         .loginPage("/auth/login")
@@ -69,6 +79,11 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
+                )
+                // Phase 4: 세션 관리 - 동시 세션 제어
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .expiredUrl("/auth/login?expired=true")
                 )
                 // httpBasic 비활성화 유지
                 .httpBasic(basic -> basic.disable());

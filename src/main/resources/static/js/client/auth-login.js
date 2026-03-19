@@ -40,9 +40,17 @@ async function attemptLogin(forceLogin) {
         formData.append('email', email);
         formData.append('password', password);
 
+        // CSRF 토큰 (Phase 4)
+        const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+        }
+
         const response = await fetch('/auth/login-process', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: headers,
             body: formData.toString()
         });
 

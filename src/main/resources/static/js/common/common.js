@@ -167,10 +167,31 @@ const SessionManager = {
     }
 };
 
-// 전역 fetch 래퍼 - AJAX 응답에서 세션 무효화 감지
+// 전역 fetch 래퍼 - CSRF 토큰 자동 첨부 + 세션 무효화 감지
 const originalFetch = window.fetch;
-window.fetch = async function(...args) {
-    const response = await originalFetch.apply(this, args);
+window.fetch = async function(input, init = {}) {
+    // CSRF 토큰 자동 첨부 (상태 변경 요청에만)
+    const method = (init.method || 'GET').toUpperCase();
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+        if (csrfToken && csrfHeader) {
+            init.headers = init.headers || {};
+            // Headers 객체인 경우와 plain object인 경우 모두 처리
+            if (init.headers instanceof Headers) {
+                if (!init.headers.has(csrfHeader)) {
+                    init.headers.set(csrfHeader, csrfToken);
+                }
+            } else {
+                if (!init.headers[csrfHeader]) {
+                    init.headers[csrfHeader] = csrfToken;
+                }
+            }
+        }
+    }
+
+    const response = await originalFetch.call(this, input, init);
 
     // 401 응답에서 세션 무효화 감지
     if (response.status === 401) {
