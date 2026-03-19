@@ -23,10 +23,11 @@
 - [x] MemberService.recordLoginSuccess() 추가 (SuccessHandler에서 호출)
 - [x] Security 테스트 23개 전체 통과
 
-### Phase 3: 인가 전환 (미착수)
-- [ ] URL별 권한 규칙 추가 (현재 anyRequest().permitAll() 상태)
-- [ ] @EnableMethodSecurity + @PreAuthorize 적용 (현재 0건)
-- [ ] AdminInterceptor 제거 (현재 /admin/** 보호에 사용 중)
+### Phase 3: 인가 전환 ✅ 완료
+- [x] URL별 권한 규칙 추가 (AntPathRequestMatcher: /admin/** → ROLE_ADMIN, /mypage/** → authenticated)
+- [x] @EnableMethodSecurity 활성화
+- [x] AdminInterceptor 단순화 (인증/인가 → Spring Security 위임, adminMember 세션 세팅만 유지)
+- [x] Security 테스트 27개 전체 통과 (인가 테스트 6개 추가)
 
 ### Phase 4: 세션 관리 + CSRF (미착수)
 - [ ] maximumSessions(1) 동시 세션 제어 (현재 커스텀 sessionToken 방식)
