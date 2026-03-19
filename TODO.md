@@ -43,7 +43,8 @@
 - [x] session.getAttribute("member") → @AuthenticationPrincipal CustomUserDetails 전환 (AdminBatchAffectedController 4곳, AdminRankingController 2곳, AdminController, AdminSongReportController 2곳, AuthController 3곳)
 - [x] @SessionAttribute("adminMember") → @AuthenticationPrincipal 전환 (AdminSongReportController 2곳)
 - [x] 소스 코드 내 session.getAttribute 0건 (인터셉터 제외, Phase 6에서 제거)
-- [ ] Thymeleaf sec:authorize 태그 적용 (현재 model 변수 기반 isLoggedIn/memberNickname 사용 → 별도 리팩토링 필요)
+- [x] Thymeleaf sec:authorize 태그 적용 (guess/retro setup, fan-challenge result)
+- [x] 전체 컨트롤러 session.getAttribute("memberId"/"isLoggedIn"/"memberNickname") → @AuthenticationPrincipal 전환 완료 (10개 컨트롤러, ~55곳)
 - [x] SuccessHandler 하위 호환 세션 속성 유지 (AdminInterceptor가 sessionToken/memberId 참조, Phase 6에서 함께 제거)
 - [x] Security 테스트 28개 전체 통과
 
