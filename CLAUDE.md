@@ -38,6 +38,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `mvn` ❌ → `./mvnw` ✅
 - Java 17 필수 (`JAVA_HOME` 설정)
 
+### Git 커밋
+- 커밋 메시지에 `Co-Authored-By: Claude` 등 AI 관련 트레일러 포함 금지
+
 ---
 
 ## Build & Run Commands
