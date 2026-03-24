@@ -168,11 +168,30 @@ All batches are DB-configurable via `BatchConfig` table with cron expressions:
 
 ### Scoring System
 
-- **Solo Guess:** Time-based scoring in challenge mode (100/90/80/70/60 based on answer speed)
+**Solo Guess (30곡 도전 모드 — 시간 기반):**
+
+| 답변 시간 | 점수 |
+|----------|------|
+| 0-5초 | 100점 |
+| 5-8초 | 90점 |
+| 8-12초 | 80점 |
+| 12-15초 | 70점 |
+| 15초+ | 60점 |
+| 3번 실패 | 0점 |
+
 - **Solo Guess (casual):** 10 → 7 → 5 points (3 attempts)
 - **Solo Host:** 100 → 70 → 50 points (3 attempts, host reads clues)
-- **Fan Challenge:** BEGINNER (7s play), NORMAL (5s play), HARDCORE (3s play, ranked)
 - **Multiplayer:** 100 points for first correct answer
+
+**Fan Challenge 난이도:**
+
+| 설정 | BEGINNER | NORMAL | HARDCORE |
+|------|----------|--------|----------|
+| 노래 재생 | 7초 | 5초 | 3초 |
+| 답변 시간 | 10초 | 8초 | 5초 |
+| 생명 | 5개 | 3개 | 3개 |
+| 초성 힌트 | O | X | X |
+| 랭크 기록 | X | X | O |
 
 ### Community Board
 
