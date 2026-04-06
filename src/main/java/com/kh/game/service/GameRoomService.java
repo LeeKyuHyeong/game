@@ -1,6 +1,7 @@
 package com.kh.game.service;
 
 import com.kh.game.entity.GameRoom;
+import com.kh.game.exception.BusinessException;
 import com.kh.game.entity.GameRoomParticipant;
 import com.kh.game.entity.Member;
 import com.kh.game.repository.GameRoomRepository;
@@ -37,7 +38,7 @@ public class GameRoomService {
         // 이미 다른 방에 참가중인지 확인
         Optional<GameRoomParticipant> existingParticipation = participantRepository.findActiveParticipation(host);
         if (existingParticipation.isPresent()) {
-            throw new IllegalStateException("이미 다른 방에 참가중입니다. 먼저 나가주세요.");
+            throw new BusinessException("이미 다른 방에 참가중입니다. 먼저 나가주세요.");
         }
 
         GameRoom room = new GameRoom();
@@ -75,9 +76,9 @@ public class GameRoomService {
         // 참가 가능 여부 확인
         if (!room.canJoin()) {
             if (room.getStatus() != GameRoom.RoomStatus.WAITING) {
-                throw new IllegalStateException("이미 게임이 시작된 방입니다.");
+                throw new BusinessException("이미 게임이 시작된 방입니다.");
             }
-            throw new IllegalStateException("방이 가득 찼습니다.");
+            throw new BusinessException("방이 가득 찼습니다.");
         }
 
         // 이미 다른 방에 참가중인지 확인
@@ -88,7 +89,7 @@ public class GameRoomService {
                 // 같은 방이면 기존 참가 정보 반환
                 return existingParticipation.get();
             }
-            throw new IllegalStateException("이미 다른 방에 참가중입니다.");
+            throw new BusinessException("이미 다른 방에 참가중입니다.");
         }
 
         // 이전에 나갔다가 다시 들어온 경우
@@ -264,10 +265,10 @@ public class GameRoomService {
     public void updateRoomSettings(GameRoom room, Member member, String roomName,
                                    int maxPlayers, int totalRounds, String settings) {
         if (!room.isHost(member)) {
-            throw new IllegalStateException("방장만 설정을 변경할 수 있습니다.");
+            throw new BusinessException("방장만 설정을 변경할 수 있습니다.");
         }
         if (room.getStatus() != GameRoom.RoomStatus.WAITING) {
-            throw new IllegalStateException("게임중에는 설정을 변경할 수 없습니다.");
+            throw new BusinessException("게임중에는 설정을 변경할 수 없습니다.");
         }
 
         room.setRoomName(roomName);
@@ -282,10 +283,10 @@ public class GameRoomService {
     @Transactional
     public void kickParticipant(GameRoom room, Member host, Member target) {
         if (!room.isHost(host)) {
-            throw new IllegalStateException("방장만 강퇴할 수 있습니다.");
+            throw new BusinessException("방장만 강퇴할 수 있습니다.");
         }
         if (host.getId().equals(target.getId())) {
-            throw new IllegalStateException("자기 자신은 강퇴할 수 없습니다.");
+            throw new BusinessException("자기 자신은 강퇴할 수 없습니다.");
         }
 
         GameRoomParticipant participant = participantRepository.findByGameRoomAndMember(room, target)
@@ -304,7 +305,7 @@ public class GameRoomService {
             code = generateRandomCode();
             attempts++;
             if (attempts > 100) {
-                throw new RuntimeException("방 코드 생성에 실패했습니다.");
+                throw new BusinessException("방 코드 생성에 실패했습니다.");
             }
         } while (gameRoomRepository.existsByRoomCode(code));
         return code;
@@ -350,11 +351,11 @@ public class GameRoomService {
     @Transactional
     public void restartRoom(GameRoom room, Member host) {
         if (!room.isHost(host)) {
-            throw new IllegalStateException("방장만 게임을 재시작할 수 있습니다.");
+            throw new BusinessException("방장만 게임을 재시작할 수 있습니다.");
         }
 
         if (room.getStatus() != GameRoom.RoomStatus.FINISHED) {
-            throw new IllegalStateException("종료된 게임만 재시작할 수 있습니다.");
+            throw new BusinessException("종료된 게임만 재시작할 수 있습니다.");
         }
 
         // 방 상태 초기화

@@ -1,6 +1,7 @@
 package com.kh.game.service;
 
 import com.kh.game.entity.FanChallengeStageConfig;
+import com.kh.game.exception.BusinessException;
 import com.kh.game.repository.FanChallengeStageConfigRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +77,7 @@ public class FanChallengeStageService {
                     .map(FanChallengeStageConfig::getIsActive)
                     .orElse(false);
             if (!previousActive) {
-                throw new IllegalStateException("이전 단계(" + (stageLevel - 1) + "단계)를 먼저 활성화해야 합니다.");
+                throw new BusinessException("이전 단계(" + (stageLevel - 1) + "단계)를 먼저 활성화해야 합니다.");
             }
         }
 
@@ -95,7 +96,7 @@ public class FanChallengeStageService {
 
         // 1단계는 비활성화 불가
         if (stageLevel == 1) {
-            throw new IllegalStateException("1단계는 비활성화할 수 없습니다.");
+            throw new BusinessException("1단계는 비활성화할 수 없습니다.");
         }
 
         // 다음 단계가 활성화되어 있는지 확인
@@ -103,7 +104,7 @@ public class FanChallengeStageService {
                 .map(FanChallengeStageConfig::getIsActive)
                 .orElse(false);
         if (nextActive) {
-            throw new IllegalStateException("다음 단계(" + (stageLevel + 1) + "단계)를 먼저 비활성화해야 합니다.");
+            throw new BusinessException("다음 단계(" + (stageLevel + 1) + "단계)를 먼저 비활성화해야 합니다.");
         }
 
         config.deactivate();
@@ -139,13 +140,13 @@ public class FanChallengeStageService {
             if (stageLevel > 1) {
                 int prevRequired = getRequiredSongsForStage(stageLevel - 1);
                 if (requiredSongs <= prevRequired) {
-                    throw new IllegalArgumentException("필요 곡 수는 이전 단계(" + prevRequired + "곡)보다 많아야 합니다.");
+                    throw new BusinessException("필요 곡 수는 이전 단계(" + prevRequired + "곡)보다 많아야 합니다.");
                 }
             }
             // 다음 단계보다 크거나 같을 수 없음
             Optional<FanChallengeStageConfig> nextStage = stageConfigRepository.findByStageLevel(stageLevel + 1);
             if (nextStage.isPresent() && requiredSongs >= nextStage.get().getRequiredSongs()) {
-                throw new IllegalArgumentException("필요 곡 수는 다음 단계(" + nextStage.get().getRequiredSongs() + "곡)보다 적어야 합니다.");
+                throw new BusinessException("필요 곡 수는 다음 단계(" + nextStage.get().getRequiredSongs() + "곡)보다 적어야 합니다.");
             }
             config.setRequiredSongs(requiredSongs);
         }
@@ -175,7 +176,7 @@ public class FanChallengeStageService {
         if (maxLevel != null) {
             int prevRequired = getRequiredSongsForStage(maxLevel);
             if (requiredSongs <= prevRequired) {
-                throw new IllegalArgumentException("필요 곡 수는 이전 단계(" + prevRequired + "곡)보다 많아야 합니다.");
+                throw new BusinessException("필요 곡 수는 이전 단계(" + prevRequired + "곡)보다 많아야 합니다.");
             }
         }
 

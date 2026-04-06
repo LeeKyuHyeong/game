@@ -156,116 +156,110 @@ public class GameGuessController {
 
         Map<String, Object> result = new HashMap<>();
 
-        try {
-            String nickname = (String) request.get("nickname");
-            int totalRounds = (int) request.get("totalRounds");
-            String gameMode = (String) request.get("gameMode");
+        String nickname = (String) request.get("nickname");
+        int totalRounds = (int) request.get("totalRounds");
+        String gameMode = (String) request.get("gameMode");
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> settingsMap = (Map<String, Object>) request.get("settings");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> settingsMap = (Map<String, Object>) request.get("settings");
 
-            // GameSession 생성
-            GameSession session = new GameSession();
-            session.setSessionUuid(UUID.randomUUID().toString());
-            session.setNickname(nickname);
-            session.setGameType(GameSession.GameType.SOLO_GUESS);
-            session.setGameMode(GameSession.GameMode.valueOf(gameMode));
-            session.setTotalRounds(totalRounds);
-            session.setStatus(GameSession.GameStatus.PLAYING);
+        // GameSession 생성
+        GameSession session = new GameSession();
+        session.setSessionUuid(UUID.randomUUID().toString());
+        session.setNickname(nickname);
+        session.setGameType(GameSession.GameType.SOLO_GUESS);
+        session.setGameMode(GameSession.GameMode.valueOf(gameMode));
+        session.setTotalRounds(totalRounds);
+        session.setStatus(GameSession.GameStatus.PLAYING);
 
-            // 로그인한 회원인 경우 연결
-            Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
-            if (memberId != null) {
-                memberService.findById(memberId).ifPresent(session::setMember);
-            }
-
-            // Settings JSON 생성
-            GameSettings settings = new GameSettings();
-            if (settingsMap != null) {
-                if (settingsMap.get("timeLimit") != null) {
-                    settings.setTimeLimit((Integer) settingsMap.get("timeLimit"));
-                }
-                if (settingsMap.get("yearFrom") != null) {
-                    settings.setYearFrom((Integer) settingsMap.get("yearFrom"));
-                }
-                if (settingsMap.get("yearTo") != null) {
-                    settings.setYearTo((Integer) settingsMap.get("yearTo"));
-                }
-                // 복수 연도 선택
-                if (settingsMap.get("selectedYears") != null) {
-                    @SuppressWarnings("unchecked")
-                    List<Integer> selectedYears = (List<Integer>) settingsMap.get("selectedYears");
-                    settings.setSelectedYears(selectedYears);
-                }
-                if (settingsMap.get("soloOnly") != null) {
-                    settings.setSoloOnly((Boolean) settingsMap.get("soloOnly"));
-                }
-                if (settingsMap.get("groupOnly") != null) {
-                    settings.setGroupOnly((Boolean) settingsMap.get("groupOnly"));
-                }
-                if (settingsMap.get("fixedGenreId") != null) {
-                    settings.setFixedGenreId(Long.valueOf(settingsMap.get("fixedGenreId").toString()));
-                }
-                if (settingsMap.get("fixedArtistName") != null) {
-                    settings.setFixedArtistName((String) settingsMap.get("fixedArtistName"));
-                }
-                // 복수 아티스트 선택
-                if (settingsMap.get("selectedArtists") != null) {
-                    @SuppressWarnings("unchecked")
-                    List<String> selectedArtists = (List<String>) settingsMap.get("selectedArtists");
-                    settings.setSelectedArtists(selectedArtists);
-                }
-            }
-            session.setSettings(gameSessionService.toSettingsJson(settings));
-
-            GameSession savedSession = gameSessionService.save(session);
-
-            // 세션에 정보 저장
-            httpSession.setAttribute("guessSessionId", savedSession.getId());
-            httpSession.setAttribute("guessNickname", nickname);
-            httpSession.setAttribute("guessPlayedSongIds", new ArrayList<Long>());
-            httpSession.setAttribute("guessGameMode", gameMode);
-            httpSession.setAttribute("guessScore", 0);
-
-            // 매 라운드 선택 모드가 아닌 경우에만 미리 라운드 생성
-            int replacedCount = 0;
-            if (!gameMode.contains("PER_ROUND")) {
-                // YouTube 사전 검증 포함된 노래 목록 가져오기
-                SongService.ValidatedSongsResult validatedResult =
-                        songService.getRandomSongsWithValidation(totalRounds, settings);
-                List<Song> songs = validatedResult.getSongs();
-                replacedCount = validatedResult.getReplacedCount();
-
-                // 실제 생성된 라운드 수로 업데이트
-                int actualRounds = songs.size();
-                savedSession.setTotalRounds(actualRounds);
-
-                for (int i = 0; i < songs.size(); i++) {
-                    GameRound round = new GameRound();
-                    round.setGameSession(savedSession);
-                    round.setRoundNumber(i + 1);
-                    round.setSong(songs.get(i));
-                    round.setGenre(songs.get(i).getGenre());
-                    round.setPlayStartTime(songs.get(i).getStartTime());
-                    round.setPlayDuration(songs.get(i).getPlayDuration());
-                    round.setStatus(GameRound.RoundStatus.WAITING);
-                    savedSession.getRounds().add(round);
-                }
-
-                gameSessionService.save(savedSession);
-            }
-
-            result.put("success", true);
-            result.put("sessionId", savedSession.getId());
-            result.put("gameMode", gameMode);
-            result.put("requestedRounds", totalRounds);
-            result.put("actualRounds", savedSession.getTotalRounds());
-            result.put("reducedCount", totalRounds - savedSession.getTotalRounds());
-
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "게임 시작 중 오류가 발생했습니다: " + e.getMessage());
+        // 로그인한 회원인 경우 연결
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
+        if (memberId != null) {
+            memberService.findById(memberId).ifPresent(session::setMember);
         }
+
+        // Settings JSON 생성
+        GameSettings settings = new GameSettings();
+        if (settingsMap != null) {
+            if (settingsMap.get("timeLimit") != null) {
+                settings.setTimeLimit((Integer) settingsMap.get("timeLimit"));
+            }
+            if (settingsMap.get("yearFrom") != null) {
+                settings.setYearFrom((Integer) settingsMap.get("yearFrom"));
+            }
+            if (settingsMap.get("yearTo") != null) {
+                settings.setYearTo((Integer) settingsMap.get("yearTo"));
+            }
+            // 복수 연도 선택
+            if (settingsMap.get("selectedYears") != null) {
+                @SuppressWarnings("unchecked")
+                List<Integer> selectedYears = (List<Integer>) settingsMap.get("selectedYears");
+                settings.setSelectedYears(selectedYears);
+            }
+            if (settingsMap.get("soloOnly") != null) {
+                settings.setSoloOnly((Boolean) settingsMap.get("soloOnly"));
+            }
+            if (settingsMap.get("groupOnly") != null) {
+                settings.setGroupOnly((Boolean) settingsMap.get("groupOnly"));
+            }
+            if (settingsMap.get("fixedGenreId") != null) {
+                settings.setFixedGenreId(Long.valueOf(settingsMap.get("fixedGenreId").toString()));
+            }
+            if (settingsMap.get("fixedArtistName") != null) {
+                settings.setFixedArtistName((String) settingsMap.get("fixedArtistName"));
+            }
+            // 복수 아티스트 선택
+            if (settingsMap.get("selectedArtists") != null) {
+                @SuppressWarnings("unchecked")
+                List<String> selectedArtists = (List<String>) settingsMap.get("selectedArtists");
+                settings.setSelectedArtists(selectedArtists);
+            }
+        }
+        session.setSettings(gameSessionService.toSettingsJson(settings));
+
+        GameSession savedSession = gameSessionService.save(session);
+
+        // 세션에 정보 저장
+        httpSession.setAttribute("guessSessionId", savedSession.getId());
+        httpSession.setAttribute("guessNickname", nickname);
+        httpSession.setAttribute("guessPlayedSongIds", new ArrayList<Long>());
+        httpSession.setAttribute("guessGameMode", gameMode);
+        httpSession.setAttribute("guessScore", 0);
+
+        // 매 라운드 선택 모드가 아닌 경우에만 미리 라운드 생성
+        int replacedCount = 0;
+        if (!gameMode.contains("PER_ROUND")) {
+            // YouTube 사전 검증 포함된 노래 목록 가져오기
+            SongService.ValidatedSongsResult validatedResult =
+                    songService.getRandomSongsWithValidation(totalRounds, settings);
+            List<Song> songs = validatedResult.getSongs();
+            replacedCount = validatedResult.getReplacedCount();
+
+            // 실제 생성된 라운드 수로 업데이트
+            int actualRounds = songs.size();
+            savedSession.setTotalRounds(actualRounds);
+
+            for (int i = 0; i < songs.size(); i++) {
+                GameRound round = new GameRound();
+                round.setGameSession(savedSession);
+                round.setRoundNumber(i + 1);
+                round.setSong(songs.get(i));
+                round.setGenre(songs.get(i).getGenre());
+                round.setPlayStartTime(songs.get(i).getStartTime());
+                round.setPlayDuration(songs.get(i).getPlayDuration());
+                round.setStatus(GameRound.RoundStatus.WAITING);
+                savedSession.getRounds().add(round);
+            }
+
+            gameSessionService.save(savedSession);
+        }
+
+        result.put("success", true);
+        result.put("sessionId", savedSession.getId());
+        result.put("gameMode", gameMode);
+        result.put("requestedRounds", totalRounds);
+        result.put("actualRounds", savedSession.getTotalRounds());
+        result.put("reducedCount", totalRounds - savedSession.getTotalRounds());
 
         return ResponseEntity.ok(result);
     }
@@ -309,56 +303,50 @@ public class GameGuessController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            Long genreId = Long.valueOf(request.get("genreId").toString());
-            int roundNumber = (int) request.get("roundNumber");
+        Long genreId = Long.valueOf(request.get("genreId").toString());
+        int roundNumber = (int) request.get("roundNumber");
 
-            GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
-            if (session == null) {
-                result.put("success", false);
-                result.put("message", "게임을 찾을 수 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            @SuppressWarnings("unchecked")
-            List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("guessPlayedSongIds");
-            if (playedSongIds == null) {
-                playedSongIds = new ArrayList<>();
-            }
-
-            // YouTube 사전 검증 포함
-            SongService.ValidatedSongResult validatedResult =
-                    songService.getValidatedSongByGenre(genreId, playedSongIds);
-            Song song = validatedResult.getSong();
-
-            if (song == null) {
-                result.put("success", false);
-                result.put("message", "해당 장르에 사용 가능한 노래가 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            GameRound round = new GameRound();
-            round.setGameSession(session);
-            round.setRoundNumber(roundNumber);
-            round.setSong(song);
-            round.setGenre(song.getGenre());
-            round.setPlayStartTime(song.getStartTime());
-            round.setPlayDuration(song.getPlayDuration());
-            round.setStatus(GameRound.RoundStatus.WAITING);
-            session.getRounds().add(round);
-
-            gameSessionService.save(session);
-
-            playedSongIds.add(song.getId());
-            httpSession.setAttribute("guessPlayedSongIds", playedSongIds);
-
-            result.put("success", true);
-            result.put("roundNumber", roundNumber);
-
-        } catch (Exception e) {
+        GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
+        if (session == null) {
             result.put("success", false);
-            result.put("message", "장르 선택 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("message", "게임을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
         }
+
+        @SuppressWarnings("unchecked")
+        List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("guessPlayedSongIds");
+        if (playedSongIds == null) {
+            playedSongIds = new ArrayList<>();
+        }
+
+        // YouTube 사전 검증 포함
+        SongService.ValidatedSongResult validatedResult =
+                songService.getValidatedSongByGenre(genreId, playedSongIds);
+        Song song = validatedResult.getSong();
+
+        if (song == null) {
+            result.put("success", false);
+            result.put("message", "해당 장르에 사용 가능한 노래가 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        GameRound round = new GameRound();
+        round.setGameSession(session);
+        round.setRoundNumber(roundNumber);
+        round.setSong(song);
+        round.setGenre(song.getGenre());
+        round.setPlayStartTime(song.getStartTime());
+        round.setPlayDuration(song.getPlayDuration());
+        round.setStatus(GameRound.RoundStatus.WAITING);
+        session.getRounds().add(round);
+
+        gameSessionService.save(session);
+
+        playedSongIds.add(song.getId());
+        httpSession.setAttribute("guessPlayedSongIds", playedSongIds);
+
+        result.put("success", true);
+        result.put("roundNumber", roundNumber);
 
         return ResponseEntity.ok(result);
     }
@@ -378,56 +366,50 @@ public class GameGuessController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            String artist = (String) request.get("artist");
-            int roundNumber = (int) request.get("roundNumber");
+        String artist = (String) request.get("artist");
+        int roundNumber = (int) request.get("roundNumber");
 
-            GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
-            if (session == null) {
-                result.put("success", false);
-                result.put("message", "게임을 찾을 수 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            @SuppressWarnings("unchecked")
-            List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("guessPlayedSongIds");
-            if (playedSongIds == null) {
-                playedSongIds = new ArrayList<>();
-            }
-
-            // YouTube 사전 검증 포함
-            SongService.ValidatedSongResult validatedResult =
-                    songService.getValidatedSongByArtist(artist, playedSongIds);
-            Song song = validatedResult.getSong();
-
-            if (song == null) {
-                result.put("success", false);
-                result.put("message", "해당 아티스트의 사용 가능한 노래가 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            GameRound round = new GameRound();
-            round.setGameSession(session);
-            round.setRoundNumber(roundNumber);
-            round.setSong(song);
-            round.setGenre(song.getGenre());
-            round.setPlayStartTime(song.getStartTime());
-            round.setPlayDuration(song.getPlayDuration());
-            round.setStatus(GameRound.RoundStatus.WAITING);
-            session.getRounds().add(round);
-
-            gameSessionService.save(session);
-
-            playedSongIds.add(song.getId());
-            httpSession.setAttribute("guessPlayedSongIds", playedSongIds);
-
-            result.put("success", true);
-            result.put("roundNumber", roundNumber);
-
-        } catch (Exception e) {
+        GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
+        if (session == null) {
             result.put("success", false);
-            result.put("message", "아티스트 선택 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("message", "게임을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
         }
+
+        @SuppressWarnings("unchecked")
+        List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("guessPlayedSongIds");
+        if (playedSongIds == null) {
+            playedSongIds = new ArrayList<>();
+        }
+
+        // YouTube 사전 검증 포함
+        SongService.ValidatedSongResult validatedResult =
+                songService.getValidatedSongByArtist(artist, playedSongIds);
+        Song song = validatedResult.getSong();
+
+        if (song == null) {
+            result.put("success", false);
+            result.put("message", "해당 아티스트의 사용 가능한 노래가 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        GameRound round = new GameRound();
+        round.setGameSession(session);
+        round.setRoundNumber(roundNumber);
+        round.setSong(song);
+        round.setGenre(song.getGenre());
+        round.setPlayStartTime(song.getStartTime());
+        round.setPlayDuration(song.getPlayDuration());
+        round.setStatus(GameRound.RoundStatus.WAITING);
+        session.getRounds().add(round);
+
+        gameSessionService.save(session);
+
+        playedSongIds.add(song.getId());
+        httpSession.setAttribute("guessPlayedSongIds", playedSongIds);
+
+        result.put("success", true);
+        result.put("roundNumber", roundNumber);
 
         return ResponseEntity.ok(result);
     }
@@ -447,56 +429,50 @@ public class GameGuessController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            Integer year = (Integer) request.get("year");
-            int roundNumber = (int) request.get("roundNumber");
+        Integer year = (Integer) request.get("year");
+        int roundNumber = (int) request.get("roundNumber");
 
-            GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
-            if (session == null) {
-                result.put("success", false);
-                result.put("message", "게임을 찾을 수 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            @SuppressWarnings("unchecked")
-            List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("guessPlayedSongIds");
-            if (playedSongIds == null) {
-                playedSongIds = new ArrayList<>();
-            }
-
-            // YouTube 사전 검증 포함
-            SongService.ValidatedSongResult validatedResult =
-                    songService.getValidatedSongByYear(year, playedSongIds);
-            Song song = validatedResult.getSong();
-
-            if (song == null) {
-                result.put("success", false);
-                result.put("message", "해당 연도의 사용 가능한 노래가 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            GameRound round = new GameRound();
-            round.setGameSession(session);
-            round.setRoundNumber(roundNumber);
-            round.setSong(song);
-            round.setGenre(song.getGenre());
-            round.setPlayStartTime(song.getStartTime());
-            round.setPlayDuration(song.getPlayDuration());
-            round.setStatus(GameRound.RoundStatus.WAITING);
-            session.getRounds().add(round);
-
-            gameSessionService.save(session);
-
-            playedSongIds.add(song.getId());
-            httpSession.setAttribute("guessPlayedSongIds", playedSongIds);
-
-            result.put("success", true);
-            result.put("roundNumber", roundNumber);
-
-        } catch (Exception e) {
+        GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
+        if (session == null) {
             result.put("success", false);
-            result.put("message", "연도 선택 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("message", "게임을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
         }
+
+        @SuppressWarnings("unchecked")
+        List<Long> playedSongIds = (List<Long>) httpSession.getAttribute("guessPlayedSongIds");
+        if (playedSongIds == null) {
+            playedSongIds = new ArrayList<>();
+        }
+
+        // YouTube 사전 검증 포함
+        SongService.ValidatedSongResult validatedResult =
+                songService.getValidatedSongByYear(year, playedSongIds);
+        Song song = validatedResult.getSong();
+
+        if (song == null) {
+            result.put("success", false);
+            result.put("message", "해당 연도의 사용 가능한 노래가 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        GameRound round = new GameRound();
+        round.setGameSession(session);
+        round.setRoundNumber(roundNumber);
+        round.setSong(song);
+        round.setGenre(song.getGenre());
+        round.setPlayStartTime(song.getStartTime());
+        round.setPlayDuration(song.getPlayDuration());
+        round.setStatus(GameRound.RoundStatus.WAITING);
+        session.getRounds().add(round);
+
+        gameSessionService.save(session);
+
+        playedSongIds.add(song.getId());
+        httpSession.setAttribute("guessPlayedSongIds", playedSongIds);
+
+        result.put("success", true);
+        result.put("roundNumber", roundNumber);
 
         return ResponseEntity.ok(result);
     }
@@ -569,189 +545,183 @@ public class GameGuessController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            int roundNumber = (int) request.get("roundNumber");
-            String userAnswer = (String) request.get("answer");
-            boolean isSkip = request.get("isSkip") != null && (boolean) request.get("isSkip");
+        int roundNumber = (int) request.get("roundNumber");
+        String userAnswer = (String) request.get("answer");
+        boolean isSkip = request.get("isSkip") != null && (boolean) request.get("isSkip");
 
-            GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
-            if (session == null) {
-                result.put("success", false);
-                result.put("message", "게임을 찾을 수 없습니다.");
-                return ResponseEntity.ok(result);
-            }
+        GameSession session = gameSessionService.findByIdWithRounds(sessionId).orElse(null);
+        if (session == null) {
+            result.put("success", false);
+            result.put("message", "게임을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
 
-            GameRound round = session.getRounds().stream()
-                    .filter(r -> r.getRoundNumber() == roundNumber)
-                    .findFirst()
-                    .orElse(null);
+        GameRound round = session.getRounds().stream()
+                .filter(r -> r.getRoundNumber() == roundNumber)
+                .findFirst()
+                .orElse(null);
 
-            if (round == null) {
-                result.put("success", false);
-                result.put("message", "라운드를 찾을 수 없습니다.");
-                return ResponseEntity.ok(result);
-            }
+        if (round == null) {
+            result.put("success", false);
+            result.put("message", "라운드를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
 
-            Song song = round.getSong();
+        Song song = round.getSong();
 
-            // 시간 기반 점수 계산 (초 단위)
-            // 5초까지: 100점, 8초까지: 90점, 12초까지: 80점, 15초까지: 70점, 이후: 60점
-            Double answerTimeSec = request.get("answerTime") != null ?
-                    Double.parseDouble(request.get("answerTime").toString()) : null;
-            int maxAttempts = 3;
+        // 시간 기반 점수 계산 (초 단위)
+        // 5초까지: 100점, 8초까지: 90점, 12초까지: 80점, 15초까지: 70점, 이후: 60점
+        Double answerTimeSec = request.get("answerTime") != null ?
+                Double.parseDouble(request.get("answerTime").toString()) : null;
+        int maxAttempts = 3;
 
-            if (isSkip) {
-                // 스킵 처리
-                round.setStatus(GameRound.RoundStatus.SKIPPED);
+        if (isSkip) {
+            // 스킵 처리
+            round.setStatus(GameRound.RoundStatus.SKIPPED);
+            round.setIsCorrect(false);
+            session.setSkipCount(session.getSkipCount() + 1);
+            session.setCompletedRounds(session.getCompletedRounds() + 1);
+
+            result.put("isCorrect", false);
+            result.put("isRoundOver", true);
+            result.put("remainingAttempts", 0);
+
+        } else {
+            // 시도 횟수 증가
+            int currentAttempt = (round.getAttemptCount() == null ? 0 : round.getAttemptCount()) + 1;
+            round.setAttemptCount(currentAttempt);
+
+            // 정답 체크
+            boolean isCorrect = songService.checkAnswer(song.getId(), userAnswer);
+
+            // 시도 기록 저장
+            GameRoundAttempt attempt = new GameRoundAttempt(round, currentAttempt, userAnswer, isCorrect);
+            round.getAttempts().add(attempt);
+
+            if (isCorrect) {
+                // 정답!
+                round.setStatus(GameRound.RoundStatus.ANSWERED);
+                round.setUserAnswer(userAnswer);
+                round.setIsCorrect(true);
+
+                // 시간 기반 점수 계산
+                int earnedScore = calculateScoreByTime(answerTimeSec);
+                round.setScore(earnedScore);
+                if (answerTimeSec != null) {
+                    round.setAnswerTimeMs((long) (answerTimeSec * 1000));
+                }
+                session.setCorrectCount(session.getCorrectCount() + 1);
+                session.setTotalScore(session.getTotalScore() + earnedScore);
+                session.setCompletedRounds(session.getCompletedRounds() + 1);
+
+                result.put("isCorrect", true);
+                result.put("isRoundOver", true);
+                result.put("earnedScore", earnedScore);
+                result.put("answerTime", answerTimeSec);
+                result.put("attemptCount", currentAttempt);
+
+            } else if (currentAttempt >= maxAttempts) {
+                // 3번 모두 실패
+                round.setStatus(GameRound.RoundStatus.ANSWERED);
+                round.setUserAnswer(userAnswer);
                 round.setIsCorrect(false);
-                session.setSkipCount(session.getSkipCount() + 1);
+                round.setScore(0);
                 session.setCompletedRounds(session.getCompletedRounds() + 1);
 
                 result.put("isCorrect", false);
                 result.put("isRoundOver", true);
                 result.put("remainingAttempts", 0);
+                result.put("attemptCount", currentAttempt);
 
             } else {
-                // 시도 횟수 증가
-                int currentAttempt = (round.getAttemptCount() == null ? 0 : round.getAttemptCount()) + 1;
-                round.setAttemptCount(currentAttempt);
-
-                // 정답 체크
-                boolean isCorrect = songService.checkAnswer(song.getId(), userAnswer);
-
-                // 시도 기록 저장
-                GameRoundAttempt attempt = new GameRoundAttempt(round, currentAttempt, userAnswer, isCorrect);
-                round.getAttempts().add(attempt);
-
-                if (isCorrect) {
-                    // 정답!
-                    round.setStatus(GameRound.RoundStatus.ANSWERED);
-                    round.setUserAnswer(userAnswer);
-                    round.setIsCorrect(true);
-
-                    // 시간 기반 점수 계산
-                    int earnedScore = calculateScoreByTime(answerTimeSec);
-                    round.setScore(earnedScore);
-                    if (answerTimeSec != null) {
-                        round.setAnswerTimeMs((long) (answerTimeSec * 1000));
-                    }
-                    session.setCorrectCount(session.getCorrectCount() + 1);
-                    session.setTotalScore(session.getTotalScore() + earnedScore);
-                    session.setCompletedRounds(session.getCompletedRounds() + 1);
-
-                    result.put("isCorrect", true);
-                    result.put("isRoundOver", true);
-                    result.put("earnedScore", earnedScore);
-                    result.put("answerTime", answerTimeSec);
-                    result.put("attemptCount", currentAttempt);
-
-                } else if (currentAttempt >= maxAttempts) {
-                    // 3번 모두 실패
-                    round.setStatus(GameRound.RoundStatus.ANSWERED);
-                    round.setUserAnswer(userAnswer);
-                    round.setIsCorrect(false);
-                    round.setScore(0);
-                    session.setCompletedRounds(session.getCompletedRounds() + 1);
-
-                    result.put("isCorrect", false);
-                    result.put("isRoundOver", true);
-                    result.put("remainingAttempts", 0);
-                    result.put("attemptCount", currentAttempt);
-
-                } else {
-                    // 아직 기회 남음
-                    result.put("isCorrect", false);
-                    result.put("isRoundOver", false);
-                    result.put("remainingAttempts", maxAttempts - currentAttempt);
-                    result.put("attemptCount", currentAttempt);
-                }
+                // 아직 기회 남음
+                result.put("isCorrect", false);
+                result.put("isRoundOver", false);
+                result.put("remainingAttempts", maxAttempts - currentAttempt);
+                result.put("attemptCount", currentAttempt);
             }
+        }
 
-            // 게임 종료 체크
-            if (session.getCompletedRounds() >= session.getTotalRounds()) {
-                session.setStatus(GameSession.GameStatus.COMPLETED);
-                session.setEndedAt(LocalDateTime.now());
+        // 게임 종료 체크
+        if (session.getCompletedRounds() >= session.getTotalRounds()) {
+            session.setStatus(GameSession.GameStatus.COMPLETED);
+            session.setEndedAt(LocalDateTime.now());
 
-                // 회원인 경우 Solo Guess 통계 업데이트
-                if (session.getMember() != null) {
-                    // 최고기록 랭킹 대상 여부 확인
-                    // 조건: 전체랜덤 모드 + 모든 필터 미적용 (장르/아티스트/연도/솔로그룹)
-                    GameSettings settings = gameSessionService.parseSettings(session.getSettings());
-                    boolean isRandomMode = session.getGameMode() == GameSession.GameMode.RANDOM;
-                    boolean allArtistTypes = !Boolean.TRUE.equals(settings.getSoloOnly())
-                                           && !Boolean.TRUE.equals(settings.getGroupOnly());
-                    boolean noGenreFilter = settings.getFixedGenreId() == null;
-                    boolean noArtistFilter = (settings.getSelectedArtists() == null || settings.getSelectedArtists().isEmpty())
-                                           && (settings.getFixedArtistName() == null || settings.getFixedArtistName().isEmpty());
-                    boolean noYearFilter = settings.getSelectedYears() == null || settings.getSelectedYears().isEmpty();
-                    boolean isEligibleForBestScore = isRandomMode && allArtistTypes && noGenreFilter && noArtistFilter && noYearFilter;
+            // 회원인 경우 Solo Guess 통계 업데이트
+            if (session.getMember() != null) {
+                // 최고기록 랭킹 대상 여부 확인
+                // 조건: 전체랜덤 모드 + 모든 필터 미적용 (장르/아티스트/연도/솔로그룹)
+                GameSettings settings = gameSessionService.parseSettings(session.getSettings());
+                boolean isRandomMode = session.getGameMode() == GameSession.GameMode.RANDOM;
+                boolean allArtistTypes = !Boolean.TRUE.equals(settings.getSoloOnly())
+                                       && !Boolean.TRUE.equals(settings.getGroupOnly());
+                boolean noGenreFilter = settings.getFixedGenreId() == null;
+                boolean noArtistFilter = (settings.getSelectedArtists() == null || settings.getSelectedArtists().isEmpty())
+                                       && (settings.getFixedArtistName() == null || settings.getFixedArtistName().isEmpty());
+                boolean noYearFilter = settings.getSelectedYears() == null || settings.getSelectedYears().isEmpty();
+                boolean isEligibleForBestScore = isRandomMode && allArtistTypes && noGenreFilter && noArtistFilter && noYearFilter;
 
-                    memberService.addGuessGameResult(
+                memberService.addGuessGameResult(
+                        session.getMember().getId(),
+                        session.getTotalScore(),
+                        session.getCorrectCount(),
+                        session.getCompletedRounds(),
+                        session.getSkipCount(),
+                        isEligibleForBestScore
+                );
+
+                // 30곡 최고점 랭킹 갱신 (30곡 게임만 대상)
+                if (session.getTotalRounds() == Member.RANKING_ROUNDS) {
+                    boolean updated = memberService.update30SongBestScore(
                             session.getMember().getId(),
+                            session.getTotalScore()
+                    );
+                    if (updated) {
+                        result.put("best30Updated", true);
+                    }
+                }
+
+                // 뱃지 체크 및 획득
+                Member member = memberService.findById(session.getMember().getId()).orElse(null);
+                if (member != null) {
+                    List<Badge> newBadges = badgeService.checkBadgesAfterGuessGame(
+                            member,
                             session.getTotalScore(),
                             session.getCorrectCount(),
-                            session.getCompletedRounds(),
-                            session.getSkipCount(),
-                            isEligibleForBestScore
+                            session.getCompletedRounds()
                     );
-
-                    // 30곡 최고점 랭킹 갱신 (30곡 게임만 대상)
-                    if (session.getTotalRounds() == Member.RANKING_ROUNDS) {
-                        boolean updated = memberService.update30SongBestScore(
-                                session.getMember().getId(),
-                                session.getTotalScore()
-                        );
-                        if (updated) {
-                            result.put("best30Updated", true);
-                        }
-                    }
-
-                    // 뱃지 체크 및 획득
-                    Member member = memberService.findById(session.getMember().getId()).orElse(null);
-                    if (member != null) {
-                        List<Badge> newBadges = badgeService.checkBadgesAfterGuessGame(
-                                member,
-                                session.getTotalScore(),
-                                session.getCorrectCount(),
-                                session.getCompletedRounds()
-                        );
-                        if (!newBadges.isEmpty()) {
-                            result.put("newBadges", newBadges.stream()
-                                    .map(b -> Map.of(
-                                            "name", b.getName(),
-                                            "emoji", b.getEmoji(),
-                                            "rarity", b.getRarity().name(),
-                                            "rarityColor", b.getRarity().getColor()
-                                    ))
-                                    .toList());
-                        }
+                    if (!newBadges.isEmpty()) {
+                        result.put("newBadges", newBadges.stream()
+                                .map(b -> Map.of(
+                                        "name", b.getName(),
+                                        "emoji", b.getEmoji(),
+                                        "rarity", b.getRarity().name(),
+                                        "rarityColor", b.getRarity().getColor()
+                                ))
+                                .toList());
                     }
                 }
             }
+        }
 
-            gameSessionService.save(session);
+        gameSessionService.save(session);
 
-            result.put("success", true);
-            result.put("isGameOver", session.getStatus() == GameSession.GameStatus.COMPLETED);
-            result.put("completedRounds", session.getCompletedRounds());
-            result.put("totalScore", session.getTotalScore());
+        result.put("success", true);
+        result.put("isGameOver", session.getStatus() == GameSession.GameStatus.COMPLETED);
+        result.put("completedRounds", session.getCompletedRounds());
+        result.put("totalScore", session.getTotalScore());
 
-            // 라운드 종료 시 정답 정보 반환
-            boolean isRoundOver = (boolean) result.get("isRoundOver");
-            if (isRoundOver) {
-                Map<String, Object> answerInfo = new HashMap<>();
-                answerInfo.put("title", song.getTitle());
-                answerInfo.put("artist", song.getArtist());
-                answerInfo.put("releaseYear", song.getReleaseYear());
-                if (song.getGenre() != null) {
-                    answerInfo.put("genre", song.getGenre().getName());
-                }
-                result.put("answer", answerInfo);
+        // 라운드 종료 시 정답 정보 반환
+        boolean isRoundOver = (boolean) result.get("isRoundOver");
+        if (isRoundOver) {
+            Map<String, Object> answerInfo = new HashMap<>();
+            answerInfo.put("title", song.getTitle());
+            answerInfo.put("artist", song.getArtist());
+            answerInfo.put("releaseYear", song.getReleaseYear());
+            if (song.getGenre() != null) {
+                answerInfo.put("genre", song.getGenre().getName());
             }
-
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "처리 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("answer", answerInfo);
         }
 
         return ResponseEntity.ok(result);

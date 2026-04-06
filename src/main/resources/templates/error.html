@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/fragments/head :: clientHead('오류 - Song Quiz')}"></head>
+<body class="client-page">
+<div class="client-container">
+    <div class="error-page-wrapper">
+        <div class="error-page-icon">⚠</div>
+        <h1 class="error-page-title">오류가 발생했습니다</h1>
+        <p class="error-page-message" th:text="${errorMessage ?: '요청을 처리하는 중 문제가 발생했습니다.'}">
+            요청을 처리하는 중 문제가 발생했습니다.
+        </p>
+        <div class="error-page-status" th:if="${status}">
+            <span th:text="'HTTP ' + ${status}">HTTP 500</span>
+        </div>
+        <div class="error-page-actions">
+            <a th:href="@{/}" class="btn btn-primary">홈으로 이동</a>
+            <button class="btn btn-secondary" onclick="history.back()">이전 페이지</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ========================================
+       에러 페이지 - 기본 스타일 (라이트 모드 + PC)
+       ======================================== */
+    .error-page-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        padding: 2rem;
+        text-align: center;
+    }
+    .error-page-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+    .error-page-title {
+        font-size: 1.5rem;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+    }
+    .error-page-message {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        max-width: 30rem;
+        line-height: 1.6;
+    }
+    .error-page-status {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+    .error-page-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    .error-page-actions .btn {
+        padding: 0.625rem 1.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: opacity 0.2s;
+    }
+    .error-page-actions .btn:hover {
+        opacity: 0.85;
+    }
+    .error-page-actions .btn-primary {
+        background: var(--accent-primary);
+        color: white;
+    }
+    .error-page-actions .btn-secondary {
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+
+    /* ========================================
+       에러 페이지 - 태블릿 (768px 이하)
+       ======================================== */
+    @media (max-width: 768px) {
+        .error-page-wrapper {
+            padding: 1.5rem;
+        }
+        .error-page-icon {
+            font-size: 3rem;
+        }
+        .error-page-title {
+            font-size: 1.25rem;
+        }
+    }
+
+    /* ========================================
+       에러 페이지 - 모바일 (480px 이하)
+       ======================================== */
+    @media (max-width: 480px) {
+        .error-page-wrapper {
+            padding: 1rem;
+        }
+        .error-page-icon {
+            font-size: 2.5rem;
+        }
+        .error-page-title {
+            font-size: 1.1rem;
+        }
+        .error-page-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+        .error-page-actions .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+</body>
+</html>

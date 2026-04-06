@@ -1,6 +1,7 @@
 package com.kh.game.service;
 
 import com.kh.game.dto.GameSettings;
+import com.kh.game.exception.BusinessException;
 import com.kh.game.entity.*;
 import com.kh.game.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,21 +41,21 @@ public class MultiGameService {
     @Transactional
     public void startGame(GameRoom room, Member host) {
         if (!room.isHost(host)) {
-            throw new IllegalStateException("방장만 게임을 시작할 수 있습니다.");
+            throw new BusinessException("방장만 게임을 시작할 수 있습니다.");
         }
 
         if (room.getStatus() != GameRoom.RoomStatus.WAITING) {
-            throw new IllegalStateException("이미 게임이 진행중입니다.");
+            throw new BusinessException("이미 게임이 진행중입니다.");
         }
 
         List<GameRoomParticipant> participants = participantRepository.findActiveParticipants(room);
         if (participants.size() < 2) {
-            throw new IllegalStateException("최소 2명 이상 필요합니다.");
+            throw new BusinessException("최소 2명 이상 필요합니다.");
         }
 
         boolean allReady = participants.stream().allMatch(GameRoomParticipant::getIsReady);
         if (!allReady) {
-            throw new IllegalStateException("모든 참가자가 준비되지 않았습니다.");
+            throw new BusinessException("모든 참가자가 준비되지 않았습니다.");
         }
 
         // 게임 상태 변경

@@ -110,96 +110,88 @@ public class GameFanChallengeController {
 
         Map<String, Object> result = new HashMap<>();
 
-        try {
-            String nickname = (String) request.get("nickname");
-            String artist = (String) request.get("artist");
-            String difficultyStr = (String) request.get("difficulty");
-            Integer stageLevel = request.get("stageLevel") != null
-                    ? ((Number) request.get("stageLevel")).intValue() : 1;
+        String nickname = (String) request.get("nickname");
+        String artist = (String) request.get("artist");
+        String difficultyStr = (String) request.get("difficulty");
+        Integer stageLevel = request.get("stageLevel") != null
+                ? ((Number) request.get("stageLevel")).intValue() : 1;
 
-            // 난이도 파싱 (기본값: NORMAL)
-            FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
+        // 난이도 파싱 (기본값: NORMAL)
+        FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
 
-            if (nickname == null || nickname.trim().isEmpty()) {
-                result.put("success", false);
-                result.put("message", "닉네임을 입력해주세요");
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            if (artist == null || artist.trim().isEmpty()) {
-                result.put("success", false);
-                result.put("message", "아티스트를 선택해주세요");
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            // 곡 수 확인
-            int songCount = songService.getSongCountByArtist(artist);
-
-            // NORMAL 모드: 20곡 고정
-            // HARDCORE 모드: 단계별 곡 수 확인
-            int requiredSongs;
-            if (difficulty == FanChallengeDifficulty.NORMAL) {
-                requiredSongs = FanChallengeService.CHALLENGE_SONG_COUNT;
-                stageLevel = 1; // NORMAL은 항상 1단계
-            } else {
-                // 단계 설정 조회
-                FanChallengeStageConfig stageConfig = stageService.getStageConfig(stageLevel)
-                        .orElse(null);
-                if (stageConfig == null || !Boolean.TRUE.equals(stageConfig.getIsActive())) {
-                    result.put("success", false);
-                    result.put("message", "유효하지 않은 단계입니다.");
-                    return ResponseEntity.badRequest().body(result);
-                }
-                requiredSongs = stageConfig.getRequiredSongs();
-            }
-
-            if (songCount < requiredSongs) {
-                result.put("success", false);
-                result.put("message", String.format("이 아티스트는 %d단계(%d곡)에 도전할 수 없습니다 (현재 %d곡)",
-                        stageLevel, requiredSongs, songCount));
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            // 로그인 회원 확인
-            Member member = null;
-            Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
-            if (memberId != null) {
-                member = memberService.findById(memberId).orElse(null);
-            }
-
-            // 게임 세션 생성 (난이도 + 단계 포함)
-            GameSession session = fanChallengeService.startChallenge(member, nickname.trim(), artist, difficulty, stageLevel);
-
-            // HTTP 세션에 저장
-            httpSession.setAttribute("fanChallengeSessionId", session.getId());
-            httpSession.setAttribute("fanChallengeNickname", nickname.trim());
-            httpSession.setAttribute("fanChallengeArtist", artist);
-            httpSession.setAttribute("fanChallengeDifficulty", difficulty.name());
-            httpSession.setAttribute("fanChallengeStageLevel", stageLevel);
-
-            result.put("success", true);
-            result.put("sessionId", session.getId());
-            result.put("artist", artist);
-            result.put("totalRounds", session.getTotalRounds());
-            result.put("remainingLives", session.getRemainingLives());
-
-            // 난이도 설정 정보 추가
-            result.put("difficulty", difficulty.name());
-            result.put("playTimeMs", difficulty.getPlayTimeMs());
-            result.put("answerTimeMs", difficulty.getAnswerTimeMs());
-            result.put("initialLives", difficulty.getInitialLives());
-            result.put("showChosungHint", difficulty.isShowChosungHint());
-            result.put("isRanked", difficulty.isRanked());
-            result.put("stageLevel", stageLevel);
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception e) {
-            log.error("팬 챌린지 시작 오류", e);
+        if (nickname == null || nickname.trim().isEmpty()) {
             result.put("success", false);
-            result.put("message", "게임 시작 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(result);
+            result.put("message", "닉네임을 입력해주세요");
+            return ResponseEntity.badRequest().body(result);
         }
+
+        if (artist == null || artist.trim().isEmpty()) {
+            result.put("success", false);
+            result.put("message", "아티스트를 선택해주세요");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 곡 수 확인
+        int songCount = songService.getSongCountByArtist(artist);
+
+        // NORMAL 모드: 20곡 고정
+        // HARDCORE 모드: 단계별 곡 수 확인
+        int requiredSongs;
+        if (difficulty == FanChallengeDifficulty.NORMAL) {
+            requiredSongs = FanChallengeService.CHALLENGE_SONG_COUNT;
+            stageLevel = 1; // NORMAL은 항상 1단계
+        } else {
+            // 단계 설정 조회
+            FanChallengeStageConfig stageConfig = stageService.getStageConfig(stageLevel)
+                    .orElse(null);
+            if (stageConfig == null || !Boolean.TRUE.equals(stageConfig.getIsActive())) {
+                result.put("success", false);
+                result.put("message", "유효하지 않은 단계입니다.");
+                return ResponseEntity.badRequest().body(result);
+            }
+            requiredSongs = stageConfig.getRequiredSongs();
+        }
+
+        if (songCount < requiredSongs) {
+            result.put("success", false);
+            result.put("message", String.format("이 아티스트는 %d단계(%d곡)에 도전할 수 없습니다 (현재 %d곡)",
+                    stageLevel, requiredSongs, songCount));
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 로그인 회원 확인
+        Member member = null;
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
+        if (memberId != null) {
+            member = memberService.findById(memberId).orElse(null);
+        }
+
+        // 게임 세션 생성 (난이도 + 단계 포함)
+        GameSession session = fanChallengeService.startChallenge(member, nickname.trim(), artist, difficulty, stageLevel);
+
+        // HTTP 세션에 저장
+        httpSession.setAttribute("fanChallengeSessionId", session.getId());
+        httpSession.setAttribute("fanChallengeNickname", nickname.trim());
+        httpSession.setAttribute("fanChallengeArtist", artist);
+        httpSession.setAttribute("fanChallengeDifficulty", difficulty.name());
+        httpSession.setAttribute("fanChallengeStageLevel", stageLevel);
+
+        result.put("success", true);
+        result.put("sessionId", session.getId());
+        result.put("artist", artist);
+        result.put("totalRounds", session.getTotalRounds());
+        result.put("remainingLives", session.getRemainingLives());
+
+        // 난이도 설정 정보 추가
+        result.put("difficulty", difficulty.name());
+        result.put("playTimeMs", difficulty.getPlayTimeMs());
+        result.put("answerTimeMs", difficulty.getAnswerTimeMs());
+        result.put("initialLives", difficulty.getInitialLives());
+        result.put("showChosungHint", difficulty.isShowChosungHint());
+        result.put("isRanked", difficulty.isRanked());
+        result.put("stageLevel", stageLevel);
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -251,66 +243,58 @@ public class GameFanChallengeController {
             return ResponseEntity.badRequest().body(result);
         }
 
-        try {
-            GameSession session = fanChallengeService.getSession(sessionId);
-            if (session == null) {
-                result.put("success", false);
-                result.put("message", "세션을 찾을 수 없습니다");
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            GameRound round = session.getRounds().stream()
-                    .filter(r -> r.getRoundNumber() == roundNumber)
-                    .findFirst()
-                    .orElse(null);
-
-            if (round == null) {
-                result.put("success", false);
-                result.put("message", "라운드를 찾을 수 없습니다");
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            // 난이도 정보 가져오기
-            FanChallengeDifficulty difficulty = fanChallengeService.getDifficultyFromSession(session);
-
-            result.put("success", true);
-            result.put("roundNumber", roundNumber);
-            result.put("totalRounds", session.getTotalRounds());
-            result.put("remainingLives", session.getRemainingLives());
-            result.put("correctCount", session.getCorrectCount());
-            result.put("initialLives", difficulty.getInitialLives());
-
-            // 난이도 설정
-            result.put("playTimeMs", difficulty.getPlayTimeMs());
-            result.put("answerTimeMs", difficulty.getAnswerTimeMs());
-            result.put("showChosungHint", difficulty.isShowChosungHint());
-
-            // 노래 정보
-            Map<String, Object> songInfo = new HashMap<>();
-            if (round.getSong().getYoutubeVideoId() != null) {
-                songInfo.put("youtubeVideoId", round.getSong().getYoutubeVideoId());
-            }
-            if (round.getSong().getFilePath() != null) {
-                songInfo.put("filePath", round.getSong().getFilePath());
-            }
-            songInfo.put("startTime", round.getPlayStartTime() != null ? round.getPlayStartTime() : 0);
-            songInfo.put("playDuration", round.getPlayDuration() != null ? round.getPlayDuration() : 30);
-
-            // 초성 힌트 (입문 모드일 때만)
-            if (difficulty.isShowChosungHint()) {
-                songInfo.put("chosungHint", fanChallengeService.extractChosung(round.getSong().getTitle()));
-            }
-
-            result.put("song", songInfo);
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception e) {
-            log.error("라운드 정보 조회 오류", e);
+        GameSession session = fanChallengeService.getSession(sessionId);
+        if (session == null) {
             result.put("success", false);
-            result.put("message", "라운드 정보 조회 중 오류가 발생했습니다");
-            return ResponseEntity.internalServerError().body(result);
+            result.put("message", "세션을 찾을 수 없습니다");
+            return ResponseEntity.badRequest().body(result);
         }
+
+        GameRound round = session.getRounds().stream()
+                .filter(r -> r.getRoundNumber() == roundNumber)
+                .findFirst()
+                .orElse(null);
+
+        if (round == null) {
+            result.put("success", false);
+            result.put("message", "라운드를 찾을 수 없습니다");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 난이도 정보 가져오기
+        FanChallengeDifficulty difficulty = fanChallengeService.getDifficultyFromSession(session);
+
+        result.put("success", true);
+        result.put("roundNumber", roundNumber);
+        result.put("totalRounds", session.getTotalRounds());
+        result.put("remainingLives", session.getRemainingLives());
+        result.put("correctCount", session.getCorrectCount());
+        result.put("initialLives", difficulty.getInitialLives());
+
+        // 난이도 설정
+        result.put("playTimeMs", difficulty.getPlayTimeMs());
+        result.put("answerTimeMs", difficulty.getAnswerTimeMs());
+        result.put("showChosungHint", difficulty.isShowChosungHint());
+
+        // 노래 정보
+        Map<String, Object> songInfo = new HashMap<>();
+        if (round.getSong().getYoutubeVideoId() != null) {
+            songInfo.put("youtubeVideoId", round.getSong().getYoutubeVideoId());
+        }
+        if (round.getSong().getFilePath() != null) {
+            songInfo.put("filePath", round.getSong().getFilePath());
+        }
+        songInfo.put("startTime", round.getPlayStartTime() != null ? round.getPlayStartTime() : 0);
+        songInfo.put("playDuration", round.getPlayDuration() != null ? round.getPlayDuration() : 30);
+
+        // 초성 힌트 (입문 모드일 때만)
+        if (difficulty.isShowChosungHint()) {
+            songInfo.put("chosungHint", fanChallengeService.extractChosung(round.getSong().getTitle()));
+        }
+
+        result.put("song", songInfo);
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -331,51 +315,43 @@ public class GameFanChallengeController {
             return ResponseEntity.badRequest().body(result);
         }
 
-        try {
-            int roundNumber = ((Number) request.get("roundNumber")).intValue();
-            String answer = (String) request.get("answer");
-            long answerTimeMs = ((Number) request.get("answerTimeMs")).longValue();
+        int roundNumber = ((Number) request.get("roundNumber")).intValue();
+        String answer = (String) request.get("answer");
+        long answerTimeMs = ((Number) request.get("answerTimeMs")).longValue();
 
-            FanChallengeService.AnswerResult answerResult =
-                    fanChallengeService.processAnswer(sessionId, roundNumber, answer, answerTimeMs);
+        FanChallengeService.AnswerResult answerResult =
+                fanChallengeService.processAnswer(sessionId, roundNumber, answer, answerTimeMs);
 
-            result.put("success", true);
-            result.put("isCorrect", answerResult.isCorrect());
-            result.put("isTimeout", answerResult.isTimeout());
-            result.put("correctAnswer", answerResult.correctAnswer());
-            result.put("remainingLives", answerResult.remainingLives());
-            result.put("correctCount", answerResult.correctCount());
-            result.put("completedRounds", answerResult.completedRounds());
-            result.put("totalRounds", answerResult.totalRounds());
-            result.put("isGameOver", answerResult.isGameOver());
-            result.put("gameOverReason", answerResult.gameOverReason());
+        result.put("success", true);
+        result.put("isCorrect", answerResult.isCorrect());
+        result.put("isTimeout", answerResult.isTimeout());
+        result.put("correctAnswer", answerResult.correctAnswer());
+        result.put("remainingLives", answerResult.remainingLives());
+        result.put("correctCount", answerResult.correctCount());
+        result.put("completedRounds", answerResult.completedRounds());
+        result.put("totalRounds", answerResult.totalRounds());
+        result.put("isGameOver", answerResult.isGameOver());
+        result.put("gameOverReason", answerResult.gameOverReason());
 
-            // 게임 종료 시 결과 페이지용 데이터 추가
-            if (answerResult.isGameOver()) {
-                String artist = (String) httpSession.getAttribute("fanChallengeArtist");
-                String difficultyStr = (String) httpSession.getAttribute("fanChallengeDifficulty");
-                FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
-                GameSession session = fanChallengeService.getSession(sessionId);
+        // 게임 종료 시 결과 페이지용 데이터 추가
+        if (answerResult.isGameOver()) {
+            String artist = (String) httpSession.getAttribute("fanChallengeArtist");
+            String difficultyStr = (String) httpSession.getAttribute("fanChallengeDifficulty");
+            FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
+            GameSession session = fanChallengeService.getSession(sessionId);
 
-                result.put("resultData", Map.of(
-                    "artist", artist != null ? artist : "",
-                    "difficulty", difficulty.name(),
-                    "difficultyName", difficulty.getDisplayName(),
-                    "difficultyEmoji", difficulty.getBadgeEmoji(),
-                    "isRanked", difficulty.isRanked(),
-                    "playTimeSeconds", session != null ? session.getPlayTimeSeconds() : 0,
-                    "isPerfectClear", answerResult.correctCount() == answerResult.totalRounds()
-                ));
-            }
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception e) {
-            log.error("정답 제출 오류", e);
-            result.put("success", false);
-            result.put("message", "정답 처리 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(result);
+            result.put("resultData", Map.of(
+                "artist", artist != null ? artist : "",
+                "difficulty", difficulty.name(),
+                "difficultyName", difficulty.getDisplayName(),
+                "difficultyEmoji", difficulty.getBadgeEmoji(),
+                "isRanked", difficulty.isRanked(),
+                "playTimeSeconds", session != null ? session.getPlayTimeSeconds() : 0,
+                "isPerfectClear", answerResult.correctCount() == answerResult.totalRounds()
+            ));
         }
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -396,49 +372,41 @@ public class GameFanChallengeController {
             return ResponseEntity.badRequest().body(result);
         }
 
-        try {
-            int roundNumber = ((Number) request.get("roundNumber")).intValue();
+        int roundNumber = ((Number) request.get("roundNumber")).intValue();
 
-            FanChallengeService.AnswerResult answerResult =
-                    fanChallengeService.processTimeout(sessionId, roundNumber);
+        FanChallengeService.AnswerResult answerResult =
+                fanChallengeService.processTimeout(sessionId, roundNumber);
 
-            result.put("success", true);
-            result.put("isCorrect", false);
-            result.put("isTimeout", true);
-            result.put("correctAnswer", answerResult.correctAnswer());
-            result.put("remainingLives", answerResult.remainingLives());
-            result.put("correctCount", answerResult.correctCount());
-            result.put("completedRounds", answerResult.completedRounds());
-            result.put("totalRounds", answerResult.totalRounds());
-            result.put("isGameOver", answerResult.isGameOver());
-            result.put("gameOverReason", answerResult.gameOverReason());
+        result.put("success", true);
+        result.put("isCorrect", false);
+        result.put("isTimeout", true);
+        result.put("correctAnswer", answerResult.correctAnswer());
+        result.put("remainingLives", answerResult.remainingLives());
+        result.put("correctCount", answerResult.correctCount());
+        result.put("completedRounds", answerResult.completedRounds());
+        result.put("totalRounds", answerResult.totalRounds());
+        result.put("isGameOver", answerResult.isGameOver());
+        result.put("gameOverReason", answerResult.gameOverReason());
 
-            // 게임 종료 시 결과 페이지용 데이터 추가
-            if (answerResult.isGameOver()) {
-                String artist = (String) httpSession.getAttribute("fanChallengeArtist");
-                String difficultyStr = (String) httpSession.getAttribute("fanChallengeDifficulty");
-                FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
-                GameSession session = fanChallengeService.getSession(sessionId);
+        // 게임 종료 시 결과 페이지용 데이터 추가
+        if (answerResult.isGameOver()) {
+            String artist = (String) httpSession.getAttribute("fanChallengeArtist");
+            String difficultyStr = (String) httpSession.getAttribute("fanChallengeDifficulty");
+            FanChallengeDifficulty difficulty = FanChallengeDifficulty.fromString(difficultyStr);
+            GameSession session = fanChallengeService.getSession(sessionId);
 
-                result.put("resultData", Map.of(
-                    "artist", artist != null ? artist : "",
-                    "difficulty", difficulty.name(),
-                    "difficultyName", difficulty.getDisplayName(),
-                    "difficultyEmoji", difficulty.getBadgeEmoji(),
-                    "isRanked", difficulty.isRanked(),
-                    "playTimeSeconds", session != null ? session.getPlayTimeSeconds() : 0,
-                    "isPerfectClear", answerResult.correctCount() == answerResult.totalRounds()
-                ));
-            }
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception e) {
-            log.error("시간 초과 처리 오류", e);
-            result.put("success", false);
-            result.put("message", "시간 초과 처리 중 오류가 발생했습니다");
-            return ResponseEntity.internalServerError().body(result);
+            result.put("resultData", Map.of(
+                "artist", artist != null ? artist : "",
+                "difficulty", difficulty.name(),
+                "difficultyName", difficulty.getDisplayName(),
+                "difficultyEmoji", difficulty.getBadgeEmoji(),
+                "isRanked", difficulty.isRanked(),
+                "playTimeSeconds", session != null ? session.getPlayTimeSeconds() : 0,
+                "isPerfectClear", answerResult.correctCount() == answerResult.totalRounds()
+            ));
         }
+
+        return ResponseEntity.ok(result);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.kh.game.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.kh.game.exception.BusinessException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kh.game.entity.*;
 import com.kh.game.repository.FanChallengeRecordRepository;
@@ -79,7 +80,7 @@ public class FanChallengeService {
 
             // 단계 활성화 확인
             if (!Boolean.TRUE.equals(stageConfig.getIsActive())) {
-                throw new IllegalArgumentException("아직 개방되지 않은 단계입니다: " + effectiveStageLevel + "단계");
+                throw new BusinessException("아직 개방되지 않은 단계입니다: " + effectiveStageLevel + "단계");
             }
 
             requiredSongs = stageConfig.getRequiredSongs();
@@ -89,7 +90,7 @@ public class FanChallengeService {
         List<Song> allSongs = songService.getAllValidatedSongsByArtist(artist);
 
         if (allSongs.size() < requiredSongs) {
-            throw new IllegalArgumentException(
+            throw new BusinessException(
                 String.format("이 아티스트는 %d단계(%d곡)에 도전할 수 없습니다. (현재 %d곡)",
                     effectiveStageLevel, requiredSongs, allSongs.size()));
         }
@@ -159,7 +160,7 @@ public class FanChallengeService {
                 .orElseThrow(() -> new IllegalArgumentException("세션을 찾을 수 없습니다"));
 
         if (session.getStatus() != GameSession.GameStatus.PLAYING) {
-            throw new IllegalStateException("게임이 진행 중이 아닙니다");
+            throw new BusinessException("게임이 진행 중이 아닙니다");
         }
 
         GameRound round = session.getRounds().stream()

@@ -100,23 +100,13 @@ public class AdminBadWordController {
             @RequestParam(required = false) String replacement,
             @RequestParam(required = false, defaultValue = "true") Boolean isActive) {
 
-        Map<String, Object> result = new HashMap<>();
-        try {
-            if (id != null) {
-                // 수정
-                badWordService.updateBadWord(id, word, replacement, isActive);
-                result.put("message", "수정되었습니다.");
-            } else {
-                // 신규 등록
-                badWordService.addBadWord(word, replacement);
-                result.put("message", "등록되었습니다.");
-            }
-            result.put("success", true);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+        if (id != null) {
+            badWordService.updateBadWord(id, word, replacement, isActive);
+            return ResponseEntity.ok(Map.of("success", true, "message", "수정되었습니다."));
+        } else {
+            badWordService.addBadWord(word, replacement);
+            return ResponseEntity.ok(Map.of("success", true, "message", "등록되었습니다."));
         }
-        return ResponseEntity.ok(result);
     }
 
     /**
@@ -125,16 +115,8 @@ public class AdminBadWordController {
     @PostMapping("/delete/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            badWordService.deleteBadWord(id);
-            result.put("success", true);
-            result.put("message", "삭제되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "삭제 중 오류가 발생했습니다: " + e.getMessage());
-        }
-        return ResponseEntity.ok(result);
+        badWordService.deleteBadWord(id);
+        return ResponseEntity.ok(Map.of("success", true, "message", "삭제되었습니다."));
     }
 
     /**
@@ -143,16 +125,8 @@ public class AdminBadWordController {
     @PostMapping("/toggle/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggle(@PathVariable Long id) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            badWordService.toggleActive(id);
-            result.put("success", true);
-            result.put("message", "상태가 변경되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "상태 변경 중 오류가 발생했습니다: " + e.getMessage());
-        }
-        return ResponseEntity.ok(result);
+        badWordService.toggleActive(id);
+        return ResponseEntity.ok(Map.of("success", true, "message", "상태가 변경되었습니다."));
     }
 
     /**
@@ -161,20 +135,15 @@ public class AdminBadWordController {
     @PostMapping("/test")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> testFilter(@RequestParam String message) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            String filtered = badWordService.filterMessage(message);
-            boolean hasBadWord = badWordService.containsBadWord(message);
+        String filtered = badWordService.filterMessage(message);
+        boolean hasBadWord = badWordService.containsBadWord(message);
 
-            result.put("success", true);
-            result.put("original", message);
-            result.put("filtered", filtered);
-            result.put("hasBadWord", hasBadWord);
-            result.put("foundWords", badWordService.findBadWords(message));
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "테스트 중 오류가 발생했습니다: " + e.getMessage());
-        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("original", message);
+        result.put("filtered", filtered);
+        result.put("hasBadWord", hasBadWord);
+        result.put("foundWords", badWordService.findBadWords(message));
         return ResponseEntity.ok(result);
     }
 
@@ -184,16 +153,8 @@ public class AdminBadWordController {
     @PostMapping("/reload-cache")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> reloadCache() {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            badWordService.reloadCache();
-            result.put("success", true);
-            result.put("message", "캐시가 갱신되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "캐시 갱신 중 오류가 발생했습니다: " + e.getMessage());
-        }
-        return ResponseEntity.ok(result);
+        badWordService.reloadCache();
+        return ResponseEntity.ok(Map.of("success", true, "message", "캐시가 갱신되었습니다."));
     }
 
     /**
@@ -202,32 +163,27 @@ public class AdminBadWordController {
     @PostMapping("/bulk-add")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> bulkAdd(@RequestParam String words) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            String[] wordArray = words.split("\n");
-            int success = 0;
-            int fail = 0;
+        String[] wordArray = words.split("\n");
+        int successCount = 0;
+        int failCount = 0;
 
-            for (String word : wordArray) {
-                word = word.trim();
-                if (!word.isEmpty()) {
-                    try {
-                        badWordService.addBadWord(word, null);
-                        success++;
-                    } catch (Exception e) {
-                        fail++;
-                    }
+        for (String word : wordArray) {
+            word = word.trim();
+            if (!word.isEmpty()) {
+                try {
+                    badWordService.addBadWord(word, null);
+                    successCount++;
+                } catch (Exception e) {
+                    failCount++;
                 }
             }
-
-            result.put("success", true);
-            result.put("message", String.format("등록 완료 (성공: %d, 실패: %d)", success, fail));
-            result.put("successCount", success);
-            result.put("failCount", fail);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "일괄 등록 중 오류가 발생했습니다: " + e.getMessage());
         }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", String.format("등록 완료 (성공: %d, 실패: %d)", successCount, failCount));
+        result.put("successCount", successCount);
+        result.put("failCount", failCount);
         return ResponseEntity.ok(result);
     }
 }

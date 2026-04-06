@@ -1,6 +1,7 @@
 package com.kh.game.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.kh.game.exception.BusinessException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kh.game.entity.*;
 import com.kh.game.repository.GenreChallengeRecordRepository;
@@ -55,7 +56,7 @@ public class GenreChallengeService {
         List<Song> allSongs = songService.getAllValidatedSongsByGenreCode(genreCode);
 
         if (allSongs.size() < MIN_SONG_COUNT) {
-            throw new IllegalArgumentException(
+            throw new BusinessException(
                 String.format("장르 챌린지는 %d곡 이상의 장르만 가능합니다. (현재 %d곡)",
                     MIN_SONG_COUNT, allSongs.size()));
         }
@@ -127,7 +128,7 @@ public class GenreChallengeService {
                 .orElseThrow(() -> new IllegalArgumentException("세션을 찾을 수 없습니다"));
 
         if (session.getStatus() != GameSession.GameStatus.PLAYING) {
-            throw new IllegalStateException("게임이 진행 중이 아닙니다");
+            throw new BusinessException("게임이 진행 중이 아닙니다");
         }
 
         GameRound round = session.getRounds().stream()

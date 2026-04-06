@@ -207,6 +207,27 @@ window.fetch = async function(input, init = {}) {
         }
     }
 
+    // 4xx/5xx JSON 에러 응답을 200으로 변환 (기존 코드 호환성 유지)
+    // GlobalExceptionHandler가 {success: false, message: "..."} JSON을 반환하므로
+    // 기존 JS 코드가 response.json() → data.success 패턴으로 처리 가능하도록 함
+    if (!response.ok && response.status !== 401) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            try {
+                const body = await response.clone().json();
+                if (body.success !== undefined) {
+                    // {success, message} 형식의 JSON이면 200 Response로 래핑
+                    return new Response(JSON.stringify(body), {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
+            } catch (e) {
+                // JSON 파싱 실패 시 원본 응답 반환
+            }
+        }
+    }
+
     return response;
 };
 

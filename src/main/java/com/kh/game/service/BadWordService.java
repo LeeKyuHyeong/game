@@ -1,6 +1,7 @@
 package com.kh.game.service;
 
 import com.kh.game.entity.BadWord;
+import com.kh.game.exception.BusinessException;
 import com.kh.game.repository.BadWordRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -118,7 +119,7 @@ public class BadWordService {
     @Transactional
     public BadWord addBadWord(String word, String replacement) {
         if (badWordRepository.existsByWord(word.toLowerCase())) {
-            throw new IllegalArgumentException("이미 등록된 금지어입니다.");
+            throw new BusinessException("이미 등록된 금지어입니다.");
         }
 
         BadWord badWord = new BadWord(word.toLowerCase(), replacement);
@@ -134,7 +135,7 @@ public class BadWordService {
 
         if (word != null && !word.equals(badWord.getWord())) {
             if (badWordRepository.existsByWord(word.toLowerCase())) {
-                throw new IllegalArgumentException("이미 등록된 금지어입니다.");
+                throw new BusinessException("이미 등록된 금지어입니다.");
             }
             badWord.setWord(word.toLowerCase());
         }

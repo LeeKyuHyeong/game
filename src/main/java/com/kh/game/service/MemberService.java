@@ -1,6 +1,7 @@
 package com.kh.game.service;
 
 import com.kh.game.entity.GameRoom;
+import com.kh.game.exception.BusinessException;
 import com.kh.game.entity.GameRoomParticipant;
 import com.kh.game.entity.Member;
 import com.kh.game.entity.MemberLoginHistory;
@@ -40,7 +41,7 @@ public class MemberService {
     public Member register(String email, String password, String nickname, String username) {
         // 이메일 중복 체크
         if (memberRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new BusinessException("이미 사용 중인 이메일입니다.");
         }
 
         // 닉네임 중복 시 번호 자동 추가
@@ -136,7 +137,7 @@ public class MemberService {
     public void updateNickname(Long memberId, String nickname) {
         Member member = memberRepository.findById(memberId).orElseThrow();
         if (memberRepository.existsByNickname(nickname) && !member.getNickname().equals(nickname)) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            throw new BusinessException("이미 사용 중인 닉네임입니다.");
         }
         member.setNickname(nickname);
     }
@@ -145,7 +146,7 @@ public class MemberService {
     public void updatePassword(Long memberId, String currentPassword, String newPassword) {
         Member member = memberRepository.findById(memberId).orElseThrow();
         if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
-            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+            throw new BusinessException("현재 비밀번호가 일치하지 않습니다.");
         }
         member.setPassword(passwordEncoder.encode(newPassword));
     }
@@ -187,7 +188,7 @@ public class MemberService {
             loginHistoryRepository.save(MemberLoginHistory.fail(
                     email, MemberLoginHistory.LoginResult.FAIL_NOT_FOUND,
                     "존재하지 않는 이메일", ipAddress, userAgent));
-            throw new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다.");
+            throw new BusinessException("이메일 또는 비밀번호가 일치하지 않습니다.");
         }
 
         Member member = memberOpt.get();
@@ -197,14 +198,14 @@ public class MemberService {
             loginHistoryRepository.save(MemberLoginHistory.fail(
                     email, MemberLoginHistory.LoginResult.FAIL_BANNED,
                     "정지된 계정", ipAddress, userAgent));
-            throw new IllegalArgumentException("정지된 계정입니다.");
+            throw new BusinessException("정지된 계정입니다.");
         }
 
         if (member.getStatus() == Member.MemberStatus.INACTIVE) {
             loginHistoryRepository.save(MemberLoginHistory.fail(
                     email, MemberLoginHistory.LoginResult.FAIL_INACTIVE,
                     "비활성 계정", ipAddress, userAgent));
-            throw new IllegalArgumentException("비활성 계정입니다.");
+            throw new BusinessException("비활성 계정입니다.");
         }
 
         // 비밀번호 체크
@@ -212,7 +213,7 @@ public class MemberService {
             loginHistoryRepository.save(MemberLoginHistory.fail(
                     email, MemberLoginHistory.LoginResult.FAIL_PASSWORD,
                     "비밀번호 불일치", ipAddress, userAgent));
-            throw new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다.");
+            throw new BusinessException("이메일 또는 비밀번호가 일치하지 않습니다.");
         }
 
         // 로그인 성공

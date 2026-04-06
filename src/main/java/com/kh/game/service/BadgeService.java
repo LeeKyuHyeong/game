@@ -1,6 +1,7 @@
 package com.kh.game.service;
 
 import com.kh.game.entity.Badge;
+import com.kh.game.exception.BusinessException;
 import com.kh.game.entity.FanChallengeDifficulty;
 import com.kh.game.entity.FanChallengeRecord;
 import com.kh.game.entity.FanChallengeStageConfig;
@@ -479,7 +480,7 @@ public class BadgeService {
 
             // 회원이 해당 뱃지를 보유하고 있는지 확인
             if (!memberBadgeRepository.existsByMemberAndBadge(member, badge)) {
-                throw new IllegalArgumentException("보유하지 않은 뱃지입니다.");
+                throw new BusinessException("보유하지 않은 뱃지입니다.");
             }
 
             member.setSelectedBadge(badge);

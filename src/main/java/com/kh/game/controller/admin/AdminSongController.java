@@ -122,50 +122,40 @@ public class AdminSongController {
             @RequestParam(required = false) Boolean isPopular,
             @RequestParam String useYn) {
 
-        Map<String, Object> result = new HashMap<>();
-        try {
-            Song song;
-            if (id != null) {
-                song = songService.findById(id).orElse(new Song());
-            } else {
-                song = new Song();
-            }
-
-            song.setTitle(title);
-            song.setArtist(artist);
-            song.setStartTime(startTime != null ? startTime : 0);
-            song.setPlayDuration(playDuration != null ? playDuration : 10);
-            song.setReleaseYear(releaseYear);
-            song.setIsSolo(isSolo);
-            song.setIsPopular(isPopular != null ? isPopular : true);
-            song.setUseYn(useYn);
-
-            if (genreId != null) {
-                genreService.findById(genreId).ifPresent(song::setGenre);
-            } else {
-                song.setGenre(null);
-            }
-
-            // YouTube URL 처리
-            if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
-                String videoId = extractYoutubeVideoId(youtubeUrl.trim());
-                if (videoId != null) {
-                    song.setYoutubeVideoId(videoId);
-                } else {
-                    result.put("success", false);
-                    result.put("message", "유효하지 않은 YouTube URL입니다.");
-                    return ResponseEntity.ok(result);
-                }
-            }
-
-            songService.save(song);
-            result.put("success", true);
-            result.put("message", "저장되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "저장 중 오류가 발생했습니다: " + e.getMessage());
+        Song song;
+        if (id != null) {
+            song = songService.findById(id).orElse(new Song());
+        } else {
+            song = new Song();
         }
-        return ResponseEntity.ok(result);
+
+        song.setTitle(title);
+        song.setArtist(artist);
+        song.setStartTime(startTime != null ? startTime : 0);
+        song.setPlayDuration(playDuration != null ? playDuration : 10);
+        song.setReleaseYear(releaseYear);
+        song.setIsSolo(isSolo);
+        song.setIsPopular(isPopular != null ? isPopular : true);
+        song.setUseYn(useYn);
+
+        if (genreId != null) {
+            genreService.findById(genreId).ifPresent(song::setGenre);
+        } else {
+            song.setGenre(null);
+        }
+
+        // YouTube URL 처리
+        if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
+            String videoId = extractYoutubeVideoId(youtubeUrl.trim());
+            if (videoId != null) {
+                song.setYoutubeVideoId(videoId);
+            } else {
+                return ResponseEntity.ok(Map.of("success", false, "message", "유효하지 않은 YouTube URL입니다."));
+            }
+        }
+
+        songService.save(song);
+        return ResponseEntity.ok(Map.of("success", true, "message", "저장되었습니다."));
     }
 
     /**
@@ -199,54 +189,38 @@ public class AdminSongController {
     @PostMapping("/delete/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            songService.findById(id).ifPresent(song -> {
-                if (song.getFilePath() != null) {
-                    songService.deleteFile(song.getFilePath());
-                }
-            });
-            songService.deleteById(id);
-            result.put("success", true);
-            result.put("message", "삭제되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "삭제 중 오류가 발생했습니다.");
-        }
-        return ResponseEntity.ok(result);
+        songService.findById(id).ifPresent(song -> {
+            if (song.getFilePath() != null) {
+                songService.deleteFile(song.getFilePath());
+            }
+        });
+        songService.deleteById(id);
+        return ResponseEntity.ok(Map.of("success", true, "message", "삭제되었습니다."));
     }
 
     @PostMapping("/toggle/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggleUseYn(@PathVariable Long id) {
+        songService.toggleUseYn(id);
+        Song song = songService.findById(id).orElse(null);
+
         Map<String, Object> result = new HashMap<>();
-        try {
-            songService.toggleUseYn(id);
-            Song song = songService.findById(id).orElse(null);
-            result.put("success", true);
-            result.put("useYn", song != null ? song.getUseYn() : null);
-            result.put("message", song != null && "Y".equals(song.getUseYn()) ? "사용으로 변경되었습니다." : "미사용으로 변경되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "상태 변경 중 오류가 발생했습니다.");
-        }
+        result.put("success", true);
+        result.put("useYn", song != null ? song.getUseYn() : null);
+        result.put("message", song != null && "Y".equals(song.getUseYn()) ? "사용으로 변경되었습니다." : "미사용으로 변경되었습니다.");
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/togglePopular/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> togglePopular(@PathVariable Long id) {
+        songService.togglePopular(id);
+        Song song = songService.findById(id).orElse(null);
+
         Map<String, Object> result = new HashMap<>();
-        try {
-            songService.togglePopular(id);
-            Song song = songService.findById(id).orElse(null);
-            result.put("success", true);
-            result.put("isPopular", song != null ? song.getIsPopular() : null);
-            result.put("message", song != null && Boolean.TRUE.equals(song.getIsPopular()) ? "대중곡으로 변경되었습니다." : "매니악으로 변경되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "상태 변경 중 오류가 발생했습니다.");
-        }
+        result.put("success", true);
+        result.put("isPopular", song != null ? song.getIsPopular() : null);
+        result.put("message", song != null && Boolean.TRUE.equals(song.getIsPopular()) ? "대중곡으로 변경되었습니다." : "매니악으로 변경되었습니다.");
         return ResponseEntity.ok(result);
     }
 }

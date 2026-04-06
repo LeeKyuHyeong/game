@@ -84,83 +84,75 @@ public class GameGenreChallengeController {
 
         Map<String, Object> result = new HashMap<>();
 
-        try {
-            String nickname = (String) request.get("nickname");
-            String genreCode = (String) request.get("genreCode");
-            String difficultyStr = (String) request.get("difficulty");
+        String nickname = (String) request.get("nickname");
+        String genreCode = (String) request.get("genreCode");
+        String difficultyStr = (String) request.get("difficulty");
 
-            // 난이도 파싱 (기본값: NORMAL)
-            GenreChallengeDifficulty difficulty = GenreChallengeDifficulty.fromString(difficultyStr);
+        // 난이도 파싱 (기본값: NORMAL)
+        GenreChallengeDifficulty difficulty = GenreChallengeDifficulty.fromString(difficultyStr);
 
-            if (nickname == null || nickname.trim().isEmpty()) {
-                result.put("success", false);
-                result.put("message", "닉네임을 입력해주세요");
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            if (genreCode == null || genreCode.trim().isEmpty()) {
-                result.put("success", false);
-                result.put("message", "장르를 선택해주세요");
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            // 장르 존재 확인
-            Genre genre = genreRepository.findByCode(genreCode).orElse(null);
-            if (genre == null) {
-                result.put("success", false);
-                result.put("message", "존재하지 않는 장르입니다");
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            // 곡 수 확인 (최소 50곡 필요)
-            int songCount = songService.getSongCountByGenreCode(genreCode);
-            if (songCount < GenreChallengeService.MIN_SONG_COUNT) {
-                result.put("success", false);
-                result.put("message", String.format("장르 챌린지는 %d곡 이상의 장르만 가능합니다 (현재 %d곡)",
-                    GenreChallengeService.MIN_SONG_COUNT, songCount));
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            // 로그인 회원 확인
-            Member member = null;
-            Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
-            if (memberId != null) {
-                member = memberService.findById(memberId).orElse(null);
-            }
-
-            // 게임 세션 생성 (난이도 포함)
-            GameSession session = genreChallengeService.startChallenge(member, nickname.trim(), genreCode, difficulty);
-
-            // HTTP 세션에 저장
-            httpSession.setAttribute("genreChallengeSessionId", session.getId());
-            httpSession.setAttribute("genreChallengeNickname", nickname.trim());
-            httpSession.setAttribute("genreChallengeGenreCode", genreCode);
-            httpSession.setAttribute("genreChallengeGenreName", genre.getName());
-            httpSession.setAttribute("genreChallengeDifficulty", difficulty.name());
-
-            result.put("success", true);
-            result.put("sessionId", session.getId());
-            result.put("genreCode", genreCode);
-            result.put("genreName", genre.getName());
-            result.put("totalRounds", session.getTotalRounds());
-            result.put("remainingLives", session.getRemainingLives());
-
-            // 난이도 설정 정보 추가
-            result.put("difficulty", difficulty.name());
-            result.put("playTimeMs", difficulty.getPlayTimeMs());
-            result.put("answerTimeMs", difficulty.getAnswerTimeMs());
-            result.put("totalTimeMs", difficulty.getTotalTimeMs());
-            result.put("initialLives", difficulty.getInitialLives());
-            result.put("isRanked", difficulty.isRanked());
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception e) {
-            log.error("장르 챌린지 시작 오류", e);
+        if (nickname == null || nickname.trim().isEmpty()) {
             result.put("success", false);
-            result.put("message", "게임 시작 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(result);
+            result.put("message", "닉네임을 입력해주세요");
+            return ResponseEntity.badRequest().body(result);
         }
+
+        if (genreCode == null || genreCode.trim().isEmpty()) {
+            result.put("success", false);
+            result.put("message", "장르를 선택해주세요");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 장르 존재 확인
+        Genre genre = genreRepository.findByCode(genreCode).orElse(null);
+        if (genre == null) {
+            result.put("success", false);
+            result.put("message", "존재하지 않는 장르입니다");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 곡 수 확인 (최소 50곡 필요)
+        int songCount = songService.getSongCountByGenreCode(genreCode);
+        if (songCount < GenreChallengeService.MIN_SONG_COUNT) {
+            result.put("success", false);
+            result.put("message", String.format("장르 챌린지는 %d곡 이상의 장르만 가능합니다 (현재 %d곡)",
+                GenreChallengeService.MIN_SONG_COUNT, songCount));
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 로그인 회원 확인
+        Member member = null;
+        Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
+        if (memberId != null) {
+            member = memberService.findById(memberId).orElse(null);
+        }
+
+        // 게임 세션 생성 (난이도 포함)
+        GameSession session = genreChallengeService.startChallenge(member, nickname.trim(), genreCode, difficulty);
+
+        // HTTP 세션에 저장
+        httpSession.setAttribute("genreChallengeSessionId", session.getId());
+        httpSession.setAttribute("genreChallengeNickname", nickname.trim());
+        httpSession.setAttribute("genreChallengeGenreCode", genreCode);
+        httpSession.setAttribute("genreChallengeGenreName", genre.getName());
+        httpSession.setAttribute("genreChallengeDifficulty", difficulty.name());
+
+        result.put("success", true);
+        result.put("sessionId", session.getId());
+        result.put("genreCode", genreCode);
+        result.put("genreName", genre.getName());
+        result.put("totalRounds", session.getTotalRounds());
+        result.put("remainingLives", session.getRemainingLives());
+
+        // 난이도 설정 정보 추가
+        result.put("difficulty", difficulty.name());
+        result.put("playTimeMs", difficulty.getPlayTimeMs());
+        result.put("answerTimeMs", difficulty.getAnswerTimeMs());
+        result.put("totalTimeMs", difficulty.getTotalTimeMs());
+        result.put("initialLives", difficulty.getInitialLives());
+        result.put("isRanked", difficulty.isRanked());
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -214,63 +206,55 @@ public class GameGenreChallengeController {
             return ResponseEntity.badRequest().body(result);
         }
 
-        try {
-            GameSession session = genreChallengeService.getSession(sessionId);
-            if (session == null) {
-                result.put("success", false);
-                result.put("message", "세션을 찾을 수 없습니다");
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            GameRound round = session.getRounds().stream()
-                    .filter(r -> r.getRoundNumber() == roundNumber)
-                    .findFirst()
-                    .orElse(null);
-
-            if (round == null) {
-                result.put("success", false);
-                result.put("message", "라운드를 찾을 수 없습니다");
-                return ResponseEntity.badRequest().body(result);
-            }
-
-            // 난이도 정보 가져오기
-            GenreChallengeDifficulty difficulty = genreChallengeService.getDifficultyFromSession(session);
-
-            result.put("success", true);
-            result.put("roundNumber", roundNumber);
-            result.put("totalRounds", session.getTotalRounds());
-            result.put("remainingLives", session.getRemainingLives());
-            result.put("correctCount", session.getCorrectCount());
-            result.put("currentCombo", session.getCurrentCombo() != null ? session.getCurrentCombo() : 0);
-            result.put("maxCombo", session.getMaxCombo() != null ? session.getMaxCombo() : 0);
-            result.put("initialLives", difficulty.getInitialLives());
-
-            // 난이도 설정
-            result.put("playTimeMs", difficulty.getPlayTimeMs());
-            result.put("answerTimeMs", difficulty.getAnswerTimeMs());
-            result.put("totalTimeMs", difficulty.getTotalTimeMs());
-
-            // 노래 정보
-            Map<String, Object> songInfo = new HashMap<>();
-            if (round.getSong().getYoutubeVideoId() != null) {
-                songInfo.put("youtubeVideoId", round.getSong().getYoutubeVideoId());
-            }
-            if (round.getSong().getFilePath() != null) {
-                songInfo.put("filePath", round.getSong().getFilePath());
-            }
-            songInfo.put("startTime", round.getPlayStartTime() != null ? round.getPlayStartTime() : 0);
-            songInfo.put("playDuration", round.getPlayDuration() != null ? round.getPlayDuration() : 30);
-
-            result.put("song", songInfo);
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception e) {
-            log.error("라운드 정보 조회 오류", e);
+        GameSession session = genreChallengeService.getSession(sessionId);
+        if (session == null) {
             result.put("success", false);
-            result.put("message", "라운드 정보 조회 중 오류가 발생했습니다");
-            return ResponseEntity.internalServerError().body(result);
+            result.put("message", "세션을 찾을 수 없습니다");
+            return ResponseEntity.badRequest().body(result);
         }
+
+        GameRound round = session.getRounds().stream()
+                .filter(r -> r.getRoundNumber() == roundNumber)
+                .findFirst()
+                .orElse(null);
+
+        if (round == null) {
+            result.put("success", false);
+            result.put("message", "라운드를 찾을 수 없습니다");
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        // 난이도 정보 가져오기
+        GenreChallengeDifficulty difficulty = genreChallengeService.getDifficultyFromSession(session);
+
+        result.put("success", true);
+        result.put("roundNumber", roundNumber);
+        result.put("totalRounds", session.getTotalRounds());
+        result.put("remainingLives", session.getRemainingLives());
+        result.put("correctCount", session.getCorrectCount());
+        result.put("currentCombo", session.getCurrentCombo() != null ? session.getCurrentCombo() : 0);
+        result.put("maxCombo", session.getMaxCombo() != null ? session.getMaxCombo() : 0);
+        result.put("initialLives", difficulty.getInitialLives());
+
+        // 난이도 설정
+        result.put("playTimeMs", difficulty.getPlayTimeMs());
+        result.put("answerTimeMs", difficulty.getAnswerTimeMs());
+        result.put("totalTimeMs", difficulty.getTotalTimeMs());
+
+        // 노래 정보
+        Map<String, Object> songInfo = new HashMap<>();
+        if (round.getSong().getYoutubeVideoId() != null) {
+            songInfo.put("youtubeVideoId", round.getSong().getYoutubeVideoId());
+        }
+        if (round.getSong().getFilePath() != null) {
+            songInfo.put("filePath", round.getSong().getFilePath());
+        }
+        songInfo.put("startTime", round.getPlayStartTime() != null ? round.getPlayStartTime() : 0);
+        songInfo.put("playDuration", round.getPlayDuration() != null ? round.getPlayDuration() : 30);
+
+        result.put("song", songInfo);
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -291,54 +275,46 @@ public class GameGenreChallengeController {
             return ResponseEntity.badRequest().body(result);
         }
 
-        try {
-            int roundNumber = ((Number) request.get("roundNumber")).intValue();
-            String answer = (String) request.get("answer");
-            long answerTimeMs = ((Number) request.get("answerTimeMs")).longValue();
+        int roundNumber = ((Number) request.get("roundNumber")).intValue();
+        String answer = (String) request.get("answer");
+        long answerTimeMs = ((Number) request.get("answerTimeMs")).longValue();
 
-            GenreChallengeService.AnswerResult answerResult =
-                    genreChallengeService.processAnswer(sessionId, roundNumber, answer, answerTimeMs);
+        GenreChallengeService.AnswerResult answerResult =
+                genreChallengeService.processAnswer(sessionId, roundNumber, answer, answerTimeMs);
 
-            result.put("success", true);
-            result.put("isCorrect", answerResult.isCorrect());
-            result.put("isTimeout", answerResult.isTimeout());
-            result.put("correctAnswer", answerResult.correctAnswer());
-            result.put("remainingLives", answerResult.remainingLives());
-            result.put("correctCount", answerResult.correctCount());
-            result.put("completedRounds", answerResult.completedRounds());
-            result.put("totalRounds", answerResult.totalRounds());
-            result.put("currentCombo", answerResult.currentCombo());
-            result.put("maxCombo", answerResult.maxCombo());
-            result.put("isGameOver", answerResult.isGameOver());
-            result.put("gameOverReason", answerResult.gameOverReason());
+        result.put("success", true);
+        result.put("isCorrect", answerResult.isCorrect());
+        result.put("isTimeout", answerResult.isTimeout());
+        result.put("correctAnswer", answerResult.correctAnswer());
+        result.put("remainingLives", answerResult.remainingLives());
+        result.put("correctCount", answerResult.correctCount());
+        result.put("completedRounds", answerResult.completedRounds());
+        result.put("totalRounds", answerResult.totalRounds());
+        result.put("currentCombo", answerResult.currentCombo());
+        result.put("maxCombo", answerResult.maxCombo());
+        result.put("isGameOver", answerResult.isGameOver());
+        result.put("gameOverReason", answerResult.gameOverReason());
 
-            // 게임 종료 시 결과 페이지용 데이터 추가
-            if (answerResult.isGameOver()) {
-                String genreCode = (String) httpSession.getAttribute("genreChallengeGenreCode");
-                String genreName = (String) httpSession.getAttribute("genreChallengeGenreName");
-                String difficultyStr = (String) httpSession.getAttribute("genreChallengeDifficulty");
-                GenreChallengeDifficulty difficulty = GenreChallengeDifficulty.fromString(difficultyStr);
-                GameSession session = genreChallengeService.getSession(sessionId);
+        // 게임 종료 시 결과 페이지용 데이터 추가
+        if (answerResult.isGameOver()) {
+            String genreCode = (String) httpSession.getAttribute("genreChallengeGenreCode");
+            String genreName = (String) httpSession.getAttribute("genreChallengeGenreName");
+            String difficultyStr = (String) httpSession.getAttribute("genreChallengeDifficulty");
+            GenreChallengeDifficulty difficulty = GenreChallengeDifficulty.fromString(difficultyStr);
+            GameSession session = genreChallengeService.getSession(sessionId);
 
-                result.put("resultData", Map.of(
-                    "genreCode", genreCode != null ? genreCode : "",
-                    "genreName", genreName != null ? genreName : "",
-                    "difficulty", difficulty.name(),
-                    "difficultyName", difficulty.getDisplayName(),
-                    "difficultyEmoji", difficulty.getBadgeEmoji(),
-                    "isRanked", difficulty.isRanked(),
-                    "playTimeSeconds", session != null ? session.getPlayTimeSeconds() : 0
-                ));
-            }
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception e) {
-            log.error("정답 제출 오류", e);
-            result.put("success", false);
-            result.put("message", "정답 처리 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(result);
+            result.put("resultData", Map.of(
+                "genreCode", genreCode != null ? genreCode : "",
+                "genreName", genreName != null ? genreName : "",
+                "difficulty", difficulty.name(),
+                "difficultyName", difficulty.getDisplayName(),
+                "difficultyEmoji", difficulty.getBadgeEmoji(),
+                "isRanked", difficulty.isRanked(),
+                "playTimeSeconds", session != null ? session.getPlayTimeSeconds() : 0
+            ));
         }
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -359,52 +335,44 @@ public class GameGenreChallengeController {
             return ResponseEntity.badRequest().body(result);
         }
 
-        try {
-            int roundNumber = ((Number) request.get("roundNumber")).intValue();
+        int roundNumber = ((Number) request.get("roundNumber")).intValue();
 
-            GenreChallengeService.AnswerResult answerResult =
-                    genreChallengeService.processTimeout(sessionId, roundNumber);
+        GenreChallengeService.AnswerResult answerResult =
+                genreChallengeService.processTimeout(sessionId, roundNumber);
 
-            result.put("success", true);
-            result.put("isCorrect", false);
-            result.put("isTimeout", true);
-            result.put("correctAnswer", answerResult.correctAnswer());
-            result.put("remainingLives", answerResult.remainingLives());
-            result.put("correctCount", answerResult.correctCount());
-            result.put("completedRounds", answerResult.completedRounds());
-            result.put("totalRounds", answerResult.totalRounds());
-            result.put("currentCombo", answerResult.currentCombo());
-            result.put("maxCombo", answerResult.maxCombo());
-            result.put("isGameOver", answerResult.isGameOver());
-            result.put("gameOverReason", answerResult.gameOverReason());
+        result.put("success", true);
+        result.put("isCorrect", false);
+        result.put("isTimeout", true);
+        result.put("correctAnswer", answerResult.correctAnswer());
+        result.put("remainingLives", answerResult.remainingLives());
+        result.put("correctCount", answerResult.correctCount());
+        result.put("completedRounds", answerResult.completedRounds());
+        result.put("totalRounds", answerResult.totalRounds());
+        result.put("currentCombo", answerResult.currentCombo());
+        result.put("maxCombo", answerResult.maxCombo());
+        result.put("isGameOver", answerResult.isGameOver());
+        result.put("gameOverReason", answerResult.gameOverReason());
 
-            // 게임 종료 시 결과 페이지용 데이터 추가
-            if (answerResult.isGameOver()) {
-                String genreCode = (String) httpSession.getAttribute("genreChallengeGenreCode");
-                String genreName = (String) httpSession.getAttribute("genreChallengeGenreName");
-                String difficultyStr = (String) httpSession.getAttribute("genreChallengeDifficulty");
-                GenreChallengeDifficulty difficulty = GenreChallengeDifficulty.fromString(difficultyStr);
-                GameSession session = genreChallengeService.getSession(sessionId);
+        // 게임 종료 시 결과 페이지용 데이터 추가
+        if (answerResult.isGameOver()) {
+            String genreCode = (String) httpSession.getAttribute("genreChallengeGenreCode");
+            String genreName = (String) httpSession.getAttribute("genreChallengeGenreName");
+            String difficultyStr = (String) httpSession.getAttribute("genreChallengeDifficulty");
+            GenreChallengeDifficulty difficulty = GenreChallengeDifficulty.fromString(difficultyStr);
+            GameSession session = genreChallengeService.getSession(sessionId);
 
-                result.put("resultData", Map.of(
-                    "genreCode", genreCode != null ? genreCode : "",
-                    "genreName", genreName != null ? genreName : "",
-                    "difficulty", difficulty.name(),
-                    "difficultyName", difficulty.getDisplayName(),
-                    "difficultyEmoji", difficulty.getBadgeEmoji(),
-                    "isRanked", difficulty.isRanked(),
-                    "playTimeSeconds", session != null ? session.getPlayTimeSeconds() : 0
-                ));
-            }
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception e) {
-            log.error("시간 초과 처리 오류", e);
-            result.put("success", false);
-            result.put("message", "시간 초과 처리 중 오류가 발생했습니다");
-            return ResponseEntity.internalServerError().body(result);
+            result.put("resultData", Map.of(
+                "genreCode", genreCode != null ? genreCode : "",
+                "genreName", genreName != null ? genreName : "",
+                "difficulty", difficulty.name(),
+                "difficultyName", difficulty.getDisplayName(),
+                "difficultyEmoji", difficulty.getBadgeEmoji(),
+                "isRanked", difficulty.isRanked(),
+                "playTimeSeconds", session != null ? session.getPlayTimeSeconds() : 0
+            ));
         }
+
+        return ResponseEntity.ok(result);
     }
 
     /**

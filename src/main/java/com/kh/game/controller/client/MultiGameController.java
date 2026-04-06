@@ -168,14 +168,9 @@ public class MultiGameController {
             }
         }
 
-        try {
-            gameRoomService.joinRoom(roomCode, member);
-            result.put("success", true);
-            result.put("roomCode", roomCode);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
+        gameRoomService.joinRoom(roomCode, member);
+        result.put("success", true);
+        result.put("roomCode", roomCode);
 
         return ResponseEntity.ok(result);
     }
@@ -447,7 +442,7 @@ public class MultiGameController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> createRoom(
             @RequestBody GameSettings settings,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws com.fasterxml.jackson.core.JsonProcessingException {
 
         Map<String, Object> result = new HashMap<>();
         Long memberId = userDetails != null ? userDetails.getMember().getId() : null;
@@ -465,24 +460,18 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            String settingsJson = objectMapper.writeValueAsString(settings);
-            GameRoom room = gameRoomService.createRoom(
-                    member,
-                    settings.getRoomName(),
-                    settings.getMaxPlayers(),
-                    settings.getTotalRounds(),
-                    settings.isPrivateRoom(),
-                    settingsJson
-            );
+        String settingsJson = objectMapper.writeValueAsString(settings);
+        GameRoom room = gameRoomService.createRoom(
+                member,
+                settings.getRoomName(),
+                settings.getMaxPlayers(),
+                settings.getTotalRounds(),
+                settings.isPrivateRoom(),
+                settingsJson
+        );
 
-            result.put("success", true);
-            result.put("roomCode", room.getRoomCode());
-
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
+        result.put("success", true);
+        result.put("roomCode", room.getRoomCode());
 
         return ResponseEntity.ok(result);
     }
@@ -523,13 +512,8 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            gameRoomService.joinRoom(roomCode, member);
-            result.put("success", true);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
+        gameRoomService.joinRoom(roomCode, member);
+        result.put("success", true);
 
         return ResponseEntity.ok(result);
     }
@@ -561,18 +545,13 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            // 종료된 게임에서는 나가기 무시 (sendBeacon으로 인한 자동 호출 방지)
-            // 참가자 상태를 LEFT로 바꾸면 결과 화면에 안 나오고, 재시작도 불가능해짐
-            // 실제 나가기는 cleanupStaleParticipations()에서 자동 처리됨
-            if (room.getStatus() != GameRoom.RoomStatus.FINISHED) {
-                gameRoomService.leaveRoom(room, member);
-            }
-            result.put("success", true);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
+        // 종료된 게임에서는 나가기 무시 (sendBeacon으로 인한 자동 호출 방지)
+        // 참가자 상태를 LEFT로 바꾸면 결과 화면에 안 나오고, 재시작도 불가능해짐
+        // 실제 나가기는 cleanupStaleParticipations()에서 자동 처리됨
+        if (room.getStatus() != GameRoom.RoomStatus.FINISHED) {
+            gameRoomService.leaveRoom(room, member);
         }
+        result.put("success", true);
 
         return ResponseEntity.ok(result);
     }
@@ -641,14 +620,9 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            boolean isReady = gameRoomService.toggleReady(room, member);
-            result.put("success", true);
-            result.put("isReady", isReady);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
+        boolean isReady = gameRoomService.toggleReady(room, member);
+        result.put("success", true);
+        result.put("isReady", isReady);
 
         return ResponseEntity.ok(result);
     }
@@ -688,14 +662,9 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            gameRoomService.kickParticipant(room, member, targetMember);
-            result.put("success", true);
-            result.put("message", targetMember.getNickname() + "님이 강퇴되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
+        gameRoomService.kickParticipant(room, member, targetMember);
+        result.put("success", true);
+        result.put("message", targetMember.getNickname() + "님이 강퇴되었습니다.");
 
         return ResponseEntity.ok(result);
     }
@@ -785,14 +754,9 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            gameRoomService.restartRoom(room, member);
-            result.put("success", true);
-            result.put("roomCode", roomCode);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
+        gameRoomService.restartRoom(room, member);
+        result.put("success", true);
+        result.put("roomCode", roomCode);
 
         return ResponseEntity.ok(result);
     }
@@ -826,13 +790,8 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            multiGameService.startGame(room, member);
-            result.put("success", true);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
+        multiGameService.startGame(room, member);
+        result.put("success", true);
 
         return ResponseEntity.ok(result);
     }
@@ -1114,17 +1073,12 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            int count = gameRoomService.resetMyParticipation(member);
-            result.put("success", true);
-            result.put("message", count > 0
-                    ? count + "개의 방 참가 정보가 초기화되었습니다."
-                    : "초기화할 참가 정보가 없습니다.");
-            result.put("count", count);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "초기화 중 오류가 발생했습니다: " + e.getMessage());
-        }
+        int count = gameRoomService.resetMyParticipation(member);
+        result.put("success", true);
+        result.put("message", count > 0
+                ? count + "개의 방 참가 정보가 초기화되었습니다."
+                : "초기화할 참가 정보가 없습니다.");
+        result.put("count", count);
 
         return ResponseEntity.ok(result);
     }
@@ -1149,33 +1103,27 @@ public class MultiGameController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            Long songId = request.get("songId") != null ? ((Number) request.get("songId")).longValue() : null;
-            Object errorCodeObj = request.get("errorCode");
-            final Integer finalErrorCode = (errorCodeObj instanceof Number) ? ((Number) errorCodeObj).intValue() : null;
+        Long songId = request.get("songId") != null ? ((Number) request.get("songId")).longValue() : null;
+        Object errorCodeObj = request.get("errorCode");
+        final Integer finalErrorCode = (errorCodeObj instanceof Number) ? ((Number) errorCodeObj).intValue() : null;
 
-            if (songId == null) {
-                result.put("success", false);
-                result.put("message", "곡 정보가 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            // 곡의 YouTube 유효성 플래그 업데이트
-            songService.findById(songId).ifPresent(song -> {
-                song.setIsYoutubeValid(false);
-                song.setYoutubeCheckedAt(java.time.LocalDateTime.now());
-                song.setYoutubeErrorCode(finalErrorCode);
-                songService.save(song);
-            });
-
-            result.put("success", true);
-            result.put("message", "재생 오류가 보고되었습니다.");
-            result.put("songId", songId);
-
-        } catch (Exception e) {
+        if (songId == null) {
             result.put("success", false);
-            result.put("message", "오류 보고 실패: " + e.getMessage());
+            result.put("message", "곡 정보가 없습니다.");
+            return ResponseEntity.ok(result);
         }
+
+        // 곡의 YouTube 유효성 플래그 업데이트
+        songService.findById(songId).ifPresent(song -> {
+            song.setIsYoutubeValid(false);
+            song.setYoutubeCheckedAt(java.time.LocalDateTime.now());
+            song.setYoutubeErrorCode(finalErrorCode);
+            songService.save(song);
+        });
+
+        result.put("success", true);
+        result.put("message", "재생 오류가 보고되었습니다.");
+        result.put("songId", songId);
 
         return ResponseEntity.ok(result);
     }

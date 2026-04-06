@@ -87,16 +87,8 @@ public class AdminChatController {
     @PostMapping("/delete/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            chatRepository.deleteById(id);
-            result.put("success", true);
-            result.put("message", "채팅이 삭제되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "삭제 중 오류가 발생했습니다: " + e.getMessage());
-        }
-        return ResponseEntity.ok(result);
+        chatRepository.deleteById(id);
+        return ResponseEntity.ok(Map.of("success", true, "message", "채팅이 삭제되었습니다."));
     }
 
     /**
@@ -105,16 +97,8 @@ public class AdminChatController {
     @PostMapping("/delete-selected")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteSelected(@RequestBody List<Long> ids) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            chatRepository.deleteAllById(ids);
-            result.put("success", true);
-            result.put("message", ids.size() + "개의 채팅이 삭제되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "삭제 중 오류가 발생했습니다: " + e.getMessage());
-        }
-        return ResponseEntity.ok(result);
+        chatRepository.deleteAllById(ids);
+        return ResponseEntity.ok(Map.of("success", true, "message", ids.size() + "개의 채팅이 삭제되었습니다."));
     }
 
     /**
@@ -123,19 +107,11 @@ public class AdminChatController {
     @PostMapping("/delete-by-member/{memberId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteByMember(@PathVariable Long memberId) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
 
-            chatRepository.deleteByMember(member);
-            result.put("success", true);
-            result.put("message", "해당 회원의 모든 채팅이 삭제되었습니다.");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "삭제 중 오류가 발생했습니다: " + e.getMessage());
-        }
-        return ResponseEntity.ok(result);
+        chatRepository.deleteByMember(member);
+        return ResponseEntity.ok(Map.of("success", true, "message", "해당 회원의 모든 채팅이 삭제되었습니다."));
     }
 
     /**
@@ -145,15 +121,10 @@ public class AdminChatController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getStats() {
         Map<String, Object> result = new HashMap<>();
-        try {
-            result.put("success", true);
-            result.put("totalChats", chatRepository.count());
-            result.put("todayChats", chatRepository.countTodayChats());
-            result.put("chatTypeStats", chatRepository.countByMessageType());
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "통계 조회 중 오류가 발생했습니다.");
-        }
+        result.put("success", true);
+        result.put("totalChats", chatRepository.count());
+        result.put("todayChats", chatRepository.countTodayChats());
+        result.put("chatTypeStats", chatRepository.countByMessageType());
         return ResponseEntity.ok(result);
     }
 

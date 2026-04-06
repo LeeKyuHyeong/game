@@ -57,35 +57,25 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request) {
         Map<String, Object> result = new HashMap<>();
 
-        try {
-            String email = request.get("email");
-            String password = request.get("password");
-            String nickname = request.get("nickname");
-            String username = request.get("username");
+        String email = request.get("email");
+        String password = request.get("password");
+        String nickname = request.get("nickname");
+        String username = request.get("username");
 
-            if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                throw new IllegalArgumentException("올바른 이메일 형식이 아닙니다.");
-            }
-            if (password == null || password.length() < 4) {
-                throw new IllegalArgumentException("비밀번호는 4자 이상이어야 합니다.");
-            }
-            if (nickname == null || nickname.length() < 2 || nickname.length() > 20) {
-                throw new IllegalArgumentException("닉네임은 2~20자 이내로 입력해주세요.");
-            }
-
-            memberService.register(email, password, nickname, username);
-
-            result.put("success", true);
-            result.put("message", "회원가입이 완료되었습니다.");
-
-        } catch (IllegalArgumentException e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "회원가입 처리 중 오류가 발생했습니다.");
+        if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new IllegalArgumentException("올바른 이메일 형식이 아닙니다.");
+        }
+        if (password == null || password.length() < 4) {
+            throw new IllegalArgumentException("비밀번호는 4자 이상이어야 합니다.");
+        }
+        if (nickname == null || nickname.length() < 2 || nickname.length() > 20) {
+            throw new IllegalArgumentException("닉네임은 2~20자 이내로 입력해주세요.");
         }
 
+        memberService.register(email, password, nickname, username);
+
+        result.put("success", true);
+        result.put("message", "회원가입이 완료되었습니다.");
         return ResponseEntity.ok(result);
     }
 

@@ -103,30 +103,15 @@ public class AdminBatchController {
     @PostMapping("/run/{batchId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> runBatch(@PathVariable String batchId) {
-        Map<String, Object> result = new HashMap<>();
+        BatchConfig config = batchService.findById(batchId)
+                .orElseThrow(() -> new IllegalArgumentException("배치를 찾을 수 없습니다."));
 
-        try {
-            BatchConfig config = batchService.findById(batchId)
-                    .orElseThrow(() -> new IllegalArgumentException("배치를 찾을 수 없습니다."));
-
-            if (!config.getImplemented()) {
-                result.put("success", false);
-                result.put("message", "아직 구현되지 않은 배치입니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            // 배치 실행
-            batchScheduler.executeManually(batchId);
-
-            result.put("success", true);
-            result.put("message", config.getName() + " 배치가 실행되었습니다.");
-
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "배치 실행 중 오류: " + e.getMessage());
+        if (!config.getImplemented()) {
+            return ResponseEntity.ok(Map.of("success", false, "message", "아직 구현되지 않은 배치입니다."));
         }
 
-        return ResponseEntity.ok(result);
+        batchScheduler.executeManually(batchId);
+        return ResponseEntity.ok(Map.of("success", true, "message", config.getName() + " 배치가 실행되었습니다."));
     }
 
     /**
@@ -140,33 +125,15 @@ public class AdminBatchController {
             @RequestParam(required = false) String scheduleText,
             @RequestParam(required = false) Boolean enabled) {
 
-        Map<String, Object> result = new HashMap<>();
-
-        try {
-            // Cron 표현식 유효성 검사
-            if (cronExpression != null && !cronExpression.isEmpty()) {
-                if (!isValidCronExpression(cronExpression)) {
-                    result.put("success", false);
-                    result.put("message", "유효하지 않은 Cron 표현식입니다.");
-                    return ResponseEntity.ok(result);
-                }
+        if (cronExpression != null && !cronExpression.isEmpty()) {
+            if (!isValidCronExpression(cronExpression)) {
+                return ResponseEntity.ok(Map.of("success", false, "message", "유효하지 않은 Cron 표현식입니다."));
             }
-
-            // 설정 업데이트
-            batchService.updateConfig(batchId, cronExpression, scheduleText, enabled);
-
-            // 스케줄 갱신
-            batchScheduler.refreshSchedule(batchId);
-
-            result.put("success", true);
-            result.put("message", "배치 설정이 수정되었습니다.");
-
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "설정 수정 중 오류: " + e.getMessage());
         }
 
-        return ResponseEntity.ok(result);
+        batchService.updateConfig(batchId, cronExpression, scheduleText, enabled);
+        batchScheduler.refreshSchedule(batchId);
+        return ResponseEntity.ok(Map.of("success", true, "message", "배치 설정이 수정되었습니다."));
     }
 
     /**
@@ -175,23 +142,13 @@ public class AdminBatchController {
     @PostMapping("/toggle/{batchId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggleEnabled(@PathVariable String batchId) {
+        boolean enabled = batchService.toggleEnabled(batchId);
+        batchScheduler.refreshSchedule(batchId);
+
         Map<String, Object> result = new HashMap<>();
-
-        try {
-            boolean enabled = batchService.toggleEnabled(batchId);
-
-            // 스케줄 갱신
-            batchScheduler.refreshSchedule(batchId);
-
-            result.put("success", true);
-            result.put("enabled", enabled);
-            result.put("message", enabled ? "배치가 활성화되었습니다." : "배치가 비활성화되었습니다.");
-
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "상태 변경 중 오류: " + e.getMessage());
-        }
-
+        result.put("success", true);
+        result.put("enabled", enabled);
+        result.put("message", enabled ? "배치가 활성화되었습니다." : "배치가 비활성화되었습니다.");
         return ResponseEntity.ok(result);
     }
 
@@ -201,20 +158,12 @@ public class AdminBatchController {
     @PostMapping("/refresh-schedules")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> refreshSchedules() {
+        batchScheduler.refreshAllSchedules();
+
         Map<String, Object> result = new HashMap<>();
-
-        try {
-            batchScheduler.refreshAllSchedules();
-
-            result.put("success", true);
-            result.put("scheduledCount", batchScheduler.getScheduledCount());
-            result.put("message", "스케줄이 새로고침되었습니다.");
-
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", "스케줄 새로고침 중 오류: " + e.getMessage());
-        }
-
+        result.put("success", true);
+        result.put("scheduledCount", batchScheduler.getScheduledCount());
+        result.put("message", "스케줄이 새로고침되었습니다.");
         return ResponseEntity.ok(result);
     }
 

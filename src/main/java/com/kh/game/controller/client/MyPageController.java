@@ -71,18 +71,12 @@ public class MyPageController {
             return ResponseEntity.ok(result);
         }
 
-        try {
-            Long badgeId = request.get("badgeId") != null
-                    ? Long.valueOf(request.get("badgeId").toString())
-                    : null;
+        Long badgeId = request.get("badgeId") != null
+                ? Long.valueOf(request.get("badgeId").toString())
+                : null;
 
-            badgeService.selectBadge(memberId, badgeId);
-            result.put("success", true);
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-        }
-
+        badgeService.selectBadge(memberId, badgeId);
+        result.put("success", true);
         return ResponseEntity.ok(result);
     }
 

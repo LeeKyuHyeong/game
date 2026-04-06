@@ -123,45 +123,38 @@ public class AdminAnswerController {
     public ResponseEntity<Map<String, Object>> addAnswer(@RequestBody Map<String, Object> request) {
         Map<String, Object> result = new HashMap<>();
 
-        try {
-            Long songId = Long.valueOf(request.get("songId").toString());
-            String answerText = (String) request.get("answer");
-            Boolean isPrimary = request.get("isPrimary") != null && (Boolean) request.get("isPrimary");
+        Long songId = Long.valueOf(request.get("songId").toString());
+        String answerText = (String) request.get("answer");
+        Boolean isPrimary = request.get("isPrimary") != null && (Boolean) request.get("isPrimary");
 
-            if (answerText == null || answerText.trim().isEmpty()) {
-                result.put("success", false);
-                result.put("message", "정답을 입력해주세요.");
-                return ResponseEntity.ok(result);
-            }
-
-            Song song = songService.findById(songId).orElse(null);
-            if (song == null) {
-                result.put("success", false);
-                result.put("message", "노래를 찾을 수 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            if (isPrimary) {
-                List<SongAnswer> existingAnswers = songAnswerRepository.findBySongId(songId);
-                for (SongAnswer existing : existingAnswers) {
-                    if (Boolean.TRUE.equals(existing.getIsPrimary())) {
-                        existing.setIsPrimary(false);
-                        songAnswerRepository.save(existing);
-                    }
-                }
-            }
-
-            SongAnswer answer = new SongAnswer(song, answerText.trim(), isPrimary);
-            songAnswerRepository.save(answer);
-
-            result.put("success", true);
-            result.put("message", "정답이 추가되었습니다.");
-
-        } catch (Exception e) {
+        if (answerText == null || answerText.trim().isEmpty()) {
             result.put("success", false);
-            result.put("message", "정답 추가 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("message", "정답을 입력해주세요.");
+            return ResponseEntity.ok(result);
         }
 
+        Song song = songService.findById(songId).orElse(null);
+        if (song == null) {
+            result.put("success", false);
+            result.put("message", "노래를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
+        }
+
+        if (isPrimary) {
+            List<SongAnswer> existingAnswers = songAnswerRepository.findBySongId(songId);
+            for (SongAnswer existing : existingAnswers) {
+                if (Boolean.TRUE.equals(existing.getIsPrimary())) {
+                    existing.setIsPrimary(false);
+                    songAnswerRepository.save(existing);
+                }
+            }
+        }
+
+        SongAnswer answer = new SongAnswer(song, answerText.trim(), isPrimary);
+        songAnswerRepository.save(answer);
+
+        result.put("success", true);
+        result.put("message", "정답이 추가되었습니다.");
         return ResponseEntity.ok(result);
     }
 
@@ -173,42 +166,35 @@ public class AdminAnswerController {
 
         Map<String, Object> result = new HashMap<>();
 
-        try {
-            String answerText = (String) request.get("answer");
-            Boolean isPrimary = request.get("isPrimary") != null && (Boolean) request.get("isPrimary");
+        String answerText = (String) request.get("answer");
+        Boolean isPrimary = request.get("isPrimary") != null && (Boolean) request.get("isPrimary");
 
-            SongAnswer answer = songAnswerRepository.findById(answerId).orElse(null);
-            if (answer == null) {
-                result.put("success", false);
-                result.put("message", "정답을 찾을 수 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            if (answerText != null && !answerText.trim().isEmpty()) {
-                answer.setAnswer(answerText.trim());
-            }
-
-            if (isPrimary && !Boolean.TRUE.equals(answer.getIsPrimary())) {
-                List<SongAnswer> existingAnswers = songAnswerRepository.findBySongId(answer.getSong().getId());
-                for (SongAnswer existing : existingAnswers) {
-                    if (Boolean.TRUE.equals(existing.getIsPrimary())) {
-                        existing.setIsPrimary(false);
-                        songAnswerRepository.save(existing);
-                    }
-                }
-            }
-            answer.setIsPrimary(isPrimary);
-
-            songAnswerRepository.save(answer);
-
-            result.put("success", true);
-            result.put("message", "정답이 수정되었습니다.");
-
-        } catch (Exception e) {
+        SongAnswer answer = songAnswerRepository.findById(answerId).orElse(null);
+        if (answer == null) {
             result.put("success", false);
-            result.put("message", "정답 수정 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("message", "정답을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
         }
 
+        if (answerText != null && !answerText.trim().isEmpty()) {
+            answer.setAnswer(answerText.trim());
+        }
+
+        if (isPrimary && !Boolean.TRUE.equals(answer.getIsPrimary())) {
+            List<SongAnswer> existingAnswers = songAnswerRepository.findBySongId(answer.getSong().getId());
+            for (SongAnswer existing : existingAnswers) {
+                if (Boolean.TRUE.equals(existing.getIsPrimary())) {
+                    existing.setIsPrimary(false);
+                    songAnswerRepository.save(existing);
+                }
+            }
+        }
+        answer.setIsPrimary(isPrimary);
+
+        songAnswerRepository.save(answer);
+
+        result.put("success", true);
+        result.put("message", "정답이 수정되었습니다.");
         return ResponseEntity.ok(result);
     }
 
@@ -217,24 +203,17 @@ public class AdminAnswerController {
     public ResponseEntity<Map<String, Object>> deleteAnswer(@PathVariable Long answerId) {
         Map<String, Object> result = new HashMap<>();
 
-        try {
-            SongAnswer answer = songAnswerRepository.findById(answerId).orElse(null);
-            if (answer == null) {
-                result.put("success", false);
-                result.put("message", "정답을 찾을 수 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            songAnswerRepository.delete(answer);
-
-            result.put("success", true);
-            result.put("message", "정답이 삭제되었습니다.");
-
-        } catch (Exception e) {
+        SongAnswer answer = songAnswerRepository.findById(answerId).orElse(null);
+        if (answer == null) {
             result.put("success", false);
-            result.put("message", "정답 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("message", "정답을 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
         }
 
+        songAnswerRepository.delete(answer);
+
+        result.put("success", true);
+        result.put("message", "정답이 삭제되었습니다.");
         return ResponseEntity.ok(result);
     }
 
@@ -246,57 +225,41 @@ public class AdminAnswerController {
     public ResponseEntity<Map<String, Object>> autoGenerateAnswers(@PathVariable Long songId) {
         Map<String, Object> result = new HashMap<>();
 
-        try {
-            Song song = songService.findById(songId).orElse(null);
-            if (song == null) {
-                result.put("success", false);
-                result.put("message", "노래를 찾을 수 없습니다.");
-                return ResponseEntity.ok(result);
-            }
-
-            // 이미 등록된 정답들 조회
-            List<SongAnswer> existingAnswers = songAnswerRepository.findBySongId(songId);
-            Set<String> existingNormalized = existingAnswers.stream()
-                    .map(a -> normalizeForComparison(a.getAnswer()))
-                    .collect(Collectors.toSet());
-
-            // 정답 변형 생성
-            Set<String> variants = AnswerGeneratorUtil.generateAnswerVariants(song.getTitle());
-
-            int count = 0;
-            boolean isFirst = existingAnswers.isEmpty();
-
-            for (String variant : variants) {
-                String normalized = normalizeForComparison(variant);
-
-                // 중복 체크
-                if (existingNormalized.contains(normalized)) {
-                    continue;
-                }
-
-                // 저장
-                SongAnswer answer = new SongAnswer(song, variant, isFirst);
-                songAnswerRepository.save(answer);
-                existingNormalized.add(normalized);
-
-                count++;
-                isFirst = false;
-            }
-
-            if (count == 0) {
-                result.put("success", true);
-                result.put("message", "추가할 새로운 정답 변형이 없습니다.");
-            } else {
-                result.put("success", true);
-                result.put("message", count + "개의 정답이 자동 생성되었습니다.");
-            }
-            result.put("count", count);
-
-        } catch (Exception e) {
+        Song song = songService.findById(songId).orElse(null);
+        if (song == null) {
             result.put("success", false);
-            result.put("message", "자동 생성 중 오류가 발생했습니다: " + e.getMessage());
+            result.put("message", "노래를 찾을 수 없습니다.");
+            return ResponseEntity.ok(result);
         }
 
+        List<SongAnswer> existingAnswers = songAnswerRepository.findBySongId(songId);
+        Set<String> existingNormalized = existingAnswers.stream()
+                .map(a -> normalizeForComparison(a.getAnswer()))
+                .collect(Collectors.toSet());
+
+        Set<String> variants = AnswerGeneratorUtil.generateAnswerVariants(song.getTitle());
+
+        int count = 0;
+        boolean isFirst = existingAnswers.isEmpty();
+
+        for (String variant : variants) {
+            String normalized = normalizeForComparison(variant);
+
+            if (existingNormalized.contains(normalized)) {
+                continue;
+            }
+
+            SongAnswer answer = new SongAnswer(song, variant, isFirst);
+            songAnswerRepository.save(answer);
+            existingNormalized.add(normalized);
+
+            count++;
+            isFirst = false;
+        }
+
+        result.put("success", true);
+        result.put("message", count == 0 ? "추가할 새로운 정답 변형이 없습니다." : count + "개의 정답이 자동 생성되었습니다.");
+        result.put("count", count);
         return ResponseEntity.ok(result);
     }
 

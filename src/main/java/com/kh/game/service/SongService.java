@@ -1,6 +1,7 @@
 package com.kh.game.service;
 
 import com.kh.game.dto.GameSettings;
+import com.kh.game.exception.BusinessException;
 import com.kh.game.entity.Song;
 import com.kh.game.entity.SongAnswer;
 import com.kh.game.repository.BadgeRepository;
@@ -123,7 +124,7 @@ public class SongService {
     @Transactional
     public Song saveWithDuplicateCheck(Song song) {
         if (isDuplicate(song.getArtist(), song.getTitle())) {
-            throw new IllegalArgumentException(
+            throw new BusinessException(
                 String.format("이미 등록된 곡입니다: %s - %s", song.getArtist(), song.getTitle()));
         }
         return songRepository.save(song);
@@ -1193,13 +1194,13 @@ public class SongService {
     @Transactional
     public ArtistMergeResult mergeArtist(String fromArtist, String toArtist) {
         if (fromArtist == null || fromArtist.trim().isEmpty()) {
-            throw new IllegalArgumentException("변경할 아티스트명을 입력해주세요.");
+            throw new BusinessException("변경할 아티스트명을 입력해주세요.");
         }
         if (toArtist == null || toArtist.trim().isEmpty()) {
-            throw new IllegalArgumentException("새 아티스트명을 입력해주세요.");
+            throw new BusinessException("새 아티스트명을 입력해주세요.");
         }
         if (fromArtist.equals(toArtist)) {
-            throw new IllegalArgumentException("동일한 아티스트명으로는 변경할 수 없습니다.");
+            throw new BusinessException("동일한 아티스트명으로는 변경할 수 없습니다.");
         }
 
         // 1. Song 테이블 업데이트

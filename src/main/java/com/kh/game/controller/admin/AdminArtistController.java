@@ -79,32 +79,21 @@ public class AdminArtistController {
             @RequestParam String toArtist) {
         Map<String, Object> result = new HashMap<>();
 
-        try {
-            SongService.ArtistMergeResult mergeResult = songService.mergeArtist(fromArtist, toArtist);
+        SongService.ArtistMergeResult mergeResult = songService.mergeArtist(fromArtist, toArtist);
 
-            result.put("success", true);
-            result.put("message", String.format("'%s' → '%s' 병합 완료", fromArtist, toArtist));
-            result.put("fromArtist", mergeResult.getFromArtist());
-            result.put("toArtist", mergeResult.getToArtist());
-            result.put("songCount", mergeResult.getSongCount());
-            result.put("fanChallengeCount", mergeResult.getFanChallengeCount());
-            result.put("badgeCount", mergeResult.getBadgeCount());
-            result.put("totalCount", mergeResult.getTotalCount());
+        result.put("success", true);
+        result.put("message", String.format("'%s' → '%s' 병합 완료", fromArtist, toArtist));
+        result.put("fromArtist", mergeResult.getFromArtist());
+        result.put("toArtist", mergeResult.getToArtist());
+        result.put("songCount", mergeResult.getSongCount());
+        result.put("fanChallengeCount", mergeResult.getFanChallengeCount());
+        result.put("badgeCount", mergeResult.getBadgeCount());
+        result.put("totalCount", mergeResult.getTotalCount());
 
-            log.info("아티스트 병합 성공: {} → {} (총 {}건)",
-                    fromArtist, toArtist, mergeResult.getTotalCount());
+        log.info("아티스트 병합 성공: {} → {} (총 {}건)",
+                fromArtist, toArtist, mergeResult.getTotalCount());
 
-            return ResponseEntity.ok(result);
-        } catch (IllegalArgumentException e) {
-            result.put("success", false);
-            result.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(result);
-        } catch (Exception e) {
-            log.error("아티스트 병합 실패: {} → {}", fromArtist, toArtist, e);
-            result.put("success", false);
-            result.put("message", "병합 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(result);
-        }
+        return ResponseEntity.ok(result);
     }
 
     /**
