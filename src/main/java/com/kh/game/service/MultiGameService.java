@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -30,8 +31,11 @@ public class MultiGameService {
     private final BadgeService badgeService;
     private final ObjectMapper objectMapper;
 
-    // 이미 출제된 노래 ID를 방별로 관리
-    private final Map<Long, Set<Long>> usedSongsByRoom = new HashMap<>();
+    // 이미 출제된 노래 ID를 방별로 관리 (스레드 안전)
+    private final ConcurrentHashMap<Long, Set<Long>> usedSongsByRoom = new ConcurrentHashMap<>();
+
+    // 방 단위 락 (메서드 레벨 synchronized 대체)
+    private final ConcurrentHashMap<Long, Object> roomLocks = new ConcurrentHashMap<>();
 
     // ========== 게임 진행 ==========
 
@@ -69,8 +73,8 @@ public class MultiGameService {
             p.resetScore();
         }
 
-        // 사용된 노래 목록 초기화
-        usedSongsByRoom.put(room.getId(), new HashSet<>());
+        // 사용된 노래 목록 초기화 (스레드 안전한 Set)
+        usedSongsByRoom.put(room.getId(), ConcurrentHashMap.newKeySet());
 
         // 시스템 메시지
         addSystemMessage(room, host, "🎮 게임이 시작되었습니다! 방장이 라운드를 시작하면 노래가 재생됩니다.");
@@ -135,9 +139,6 @@ public class MultiGameService {
         // 오디오 바로 재생
         room.setAudioPlaying(true);
         room.setAudioPlayedAt(System.currentTimeMillis());
-
-        // 사용된 노래 기록
-        usedSongsByRoom.computeIfAbsent(room.getId(), k -> new HashSet<>()).add(song.getId());
 
         // 시스템 메시지
         addSystemMessage(room, host, "🎵 라운드 " + room.getCurrentRound() + " - 노래를 맞춰보세요!");
@@ -210,7 +211,8 @@ public class MultiGameService {
      * PREPARING 또는 PLAYING 상태에서 호출 가능
      */
     @Transactional
-    public synchronized Map<String, Object> skipCurrentSong(GameRoom room, Member host, Long songId) {
+    public Map<String, Object> skipCurrentSong(GameRoom room, Member host, Long songId) {
+        synchronized (roomLocks.computeIfAbsent(room.getId(), k -> new Object())) {
         Map<String, Object> result = new HashMap<>();
 
         if (!room.isHost(host)) {
@@ -251,9 +253,6 @@ public class MultiGameService {
             return result;
         }
 
-        // 새 노래 사용 기록
-        usedSongsByRoom.computeIfAbsent(room.getId(), k -> new HashSet<>()).add(newSong.getId());
-
         // 노래 교체 및 바로 재생
         room.setCurrentSong(newSong);
         room.setRoundPhase(GameRoom.RoundPhase.PLAYING);
@@ -269,6 +268,7 @@ public class MultiGameService {
         result.put("currentRound", room.getCurrentRound());
 
         return result;
+        } // synchronized
     }
 
     /**
@@ -428,9 +428,6 @@ public class MultiGameService {
         room.setAudioPlaying(true);
         room.setAudioPlayedAt(System.currentTimeMillis());
 
-        // 사용된 노래 기록
-        usedSongsByRoom.computeIfAbsent(room.getId(), k -> new HashSet<>()).add(song.getId());
-
         // 시스템 메시지
         addSystemMessage(room, host, "🎵 라운드 " + room.getCurrentRound() + " - 노래를 맞춰보세요!");
 
@@ -502,41 +499,43 @@ public class MultiGameService {
     }
 
     /**
-     * 정답 처리 (동시 제출 방지를 위한 synchronized)
+     * 정답 처리 (방 단위 락으로 동시 제출 방지)
      * @return 정답 처리 성공 여부 (이미 정답자가 있으면 false)
      */
-    private synchronized boolean handleCorrectAnswer(GameRoom room, Member member, GameRoomParticipant participant, String answer) {
-        // 이미 정답자가 있으면 무시 (동시 제출 방지)
-        if (room.getWinner() != null) {
-            return false;
+    private boolean handleCorrectAnswer(GameRoom room, Member member, GameRoomParticipant participant, String answer) {
+        synchronized (roomLocks.computeIfAbsent(room.getId(), k -> new Object())) {
+            // 이미 정답자가 있으면 무시 (동시 제출 방지)
+            if (room.getWinner() != null) {
+                return false;
+            }
+
+            // 정답자 설정
+            room.setWinner(member);
+
+            // 오디오 정지
+            room.setAudioPlaying(false);
+            room.setAudioPlayedAt(null);
+
+            // 라운드 결과로 전환
+            room.setRoundPhase(GameRoom.RoundPhase.RESULT);
+
+            // 점수 추가 (100점 고정)
+            participant.addScore(100);
+            participant.incrementCorrect();
+
+            // 정답 채팅 저장
+            GameRoomChat correctChat = GameRoomChat.correctAnswer(room, member, answer, room.getCurrentRound());
+            chatRepository.save(correctChat);
+
+            // 정답 정보 시스템 메시지 (song null 체크)
+            Song song = room.getCurrentSong();
+            if (song != null) {
+                String answerMessage = String.format("🎉 정답: %s - %s", song.getArtist(), song.getTitle());
+                addSystemMessage(room, member, answerMessage);
+            }
+
+            return true;
         }
-
-        // 정답자 설정
-        room.setWinner(member);
-
-        // 오디오 정지
-        room.setAudioPlaying(false);
-        room.setAudioPlayedAt(null);
-
-        // 라운드 결과로 전환
-        room.setRoundPhase(GameRoom.RoundPhase.RESULT);
-
-        // 점수 추가 (100점 고정)
-        participant.addScore(100);
-        participant.incrementCorrect();
-
-        // 정답 채팅 저장
-        GameRoomChat correctChat = GameRoomChat.correctAnswer(room, member, answer, room.getCurrentRound());
-        chatRepository.save(correctChat);
-
-        // 정답 정보 시스템 메시지 (song null 체크)
-        Song song = room.getCurrentSong();
-        if (song != null) {
-            String answerMessage = String.format("🎉 정답: %s - %s", song.getArtist(), song.getTitle());
-            addSystemMessage(room, member, answerMessage);
-        }
-
-        return true;
     }
 
     /**
@@ -733,16 +732,23 @@ public class MultiGameService {
     // ========== 내부 헬퍼 ==========
 
     /**
-     * 노래 선택 (YouTube 사전 검증 포함)
+     * 노래 선택 + 사용 기록을 원자적으로 수행 (중복 선택 방지)
      */
     private Song selectSong(GameRoom room) {
-        Set<Long> usedSongs = usedSongsByRoom.getOrDefault(room.getId(), new HashSet<>());
+        Set<Long> usedSongs = usedSongsByRoom.getOrDefault(room.getId(), Collections.emptySet());
 
         // GameSettings 파싱
         GameSettings settings = parseGameSettings(room);
 
         // YouTube 검증 포함된 메서드 사용
-        return songService.getValidatedRandomSongWithSettings(settings, usedSongs);
+        Song song = songService.getValidatedRandomSongWithSettings(settings, usedSongs);
+
+        // 선택된 곡을 즉시 사용 기록에 추가 (원자적)
+        if (song != null) {
+            usedSongsByRoom.computeIfAbsent(room.getId(), k -> ConcurrentHashMap.newKeySet()).add(song.getId());
+        }
+
+        return song;
     }
 
     /**
@@ -808,6 +814,7 @@ public class MultiGameService {
     @Transactional
     public void cleanupRoom(GameRoom room) {
         usedSongsByRoom.remove(room.getId());
+        roomLocks.remove(room.getId());
         room.setStatus(GameRoom.RoomStatus.FINISHED);
     }
 
@@ -819,6 +826,7 @@ public class MultiGameService {
     public List<MultiTierService.LpChangeResult> finishGame(GameRoom room) {
         room.setStatus(GameRoom.RoomStatus.FINISHED);
         usedSongsByRoom.remove(room.getId());
+        roomLocks.remove(room.getId());
 
         // 모든 참가자의 통계를 Member에 반영
         List<GameRoomParticipant> participants = participantRepository.findGameParticipants(room);

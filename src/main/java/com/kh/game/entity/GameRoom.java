@@ -22,6 +22,9 @@ public class GameRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Column(nullable = false, unique = true, length = 6)
     private String roomCode;  // 6자리 참가 코드
 
