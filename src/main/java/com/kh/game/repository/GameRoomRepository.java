@@ -69,6 +69,12 @@ public interface GameRoomRepository extends JpaRepository<GameRoom, Long> {
     // 상태별 카운트
     long countByStatus(GameRoom.RoomStatus status);
 
+    // 기간별 생성된 방 수 (배치용)
+    long countByCreatedAtBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
+
+    // 기간별 종료된 게임 수 (배치용)
+    long countByStatusAndUpdatedAtBetween(GameRoom.RoomStatus status, java.time.LocalDateTime start, java.time.LocalDateTime end);
+
     // 오래된 대기 방 조회 (정리용)
     @Query("SELECT r FROM GameRoom r WHERE r.status = 'WAITING' " +
             "AND r.updatedAt < :threshold")

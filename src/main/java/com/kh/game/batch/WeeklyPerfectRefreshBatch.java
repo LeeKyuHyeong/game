@@ -64,9 +64,9 @@ public class WeeklyPerfectRefreshBatch {
             }
             log.info("현재 아티스트 수: {}개", currentSongCounts.size());
 
-            // 2. 모든 퍼펙트 기록 조회 (isPerfectClear 또는 isCurrentPerfect가 true인 것)
-            List<FanChallengeRecord> allRecords = fanChallengeRecordRepository.findAll();
-            log.info("전체 기록 수: {}개", allRecords.size());
+            // 2. 퍼펙트 플래그가 있는 기록만 조회 (isPerfectClear 또는 isCurrentPerfect가 true인 것)
+            List<FanChallengeRecord> allRecords = fanChallengeRecordRepository.findRecordsWithPerfectFlags();
+            log.info("퍼펙트 플래그 기록 수: {}개", allRecords.size());
 
             // 3. 각 기록 검사 및 갱신
             for (FanChallengeRecord record : allRecords) {

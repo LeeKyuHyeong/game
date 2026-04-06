@@ -91,6 +91,10 @@ public interface FanChallengeRecordRepository extends JpaRepository<FanChallenge
     @Query("SELECT r FROM FanChallengeRecord r WHERE r.isPerfectClear = true")
     List<FanChallengeRecord> findAllPerfectRecords();
 
+    // 퍼펙트 플래그가 있는 기록 조회 (주간 갱신 배치용)
+    @Query("SELECT r FROM FanChallengeRecord r WHERE r.isPerfectClear = true OR r.isCurrentPerfect = true")
+    List<FanChallengeRecord> findRecordsWithPerfectFlags();
+
     // ========== 관리자 페이지용 쿼리 ==========
 
     // 전체 기록 조회 (페이징, Member JOIN)

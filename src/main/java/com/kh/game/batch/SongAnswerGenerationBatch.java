@@ -43,11 +43,8 @@ public class SongAnswerGenerationBatch {
         try {
             log.info("[{}] 배치 실행 시작 - 정답 미생성 곡에 정답 변형 자동 생성", BATCH_ID);
 
-            // 활성화된 곡 중 SongAnswer가 없는 곡 조회
-            List<Song> songsWithoutAnswers = songRepository.findAll().stream()
-                    .filter(song -> "Y".equals(song.getUseYn()))
-                    .filter(song -> !songAnswerRepository.existsBySongId(song.getId()))
-                    .toList();
+            // 활성화된 곡 중 SongAnswer가 없는 곡 조회 (단일 쿼리, N+1 방지)
+            List<Song> songsWithoutAnswers = songRepository.findSongsWithoutAnswers("Y");
 
             log.info("정답 미생성 곡 수: {}개", songsWithoutAnswers.size());
 

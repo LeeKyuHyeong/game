@@ -46,4 +46,17 @@ public interface MemberLoginHistoryRepository extends JpaRepository<MemberLoginH
     @Query("SELECT DATE(h.createdAt), h.result, COUNT(h) FROM MemberLoginHistory h " +
             "WHERE h.createdAt >= :since GROUP BY DATE(h.createdAt), h.result ORDER BY DATE(h.createdAt) DESC")
     List<Object[]> getDailyLoginStats(@Param("since") LocalDateTime since);
+
+    // 기간별 고유 활성 사용자 수 (배치용)
+    @Query("SELECT COUNT(DISTINCT h.member.id) FROM MemberLoginHistory h " +
+            "WHERE h.createdAt >= :start AND h.createdAt < :end AND h.result = 'SUCCESS'")
+    long countDistinctActiveMembersBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    // 특정 시점 이후 로그인 수 (배치용)
+    long countByCreatedAtAfter(LocalDateTime threshold);
+
+    // 특정 시점 이전 이력 삭제 (배치용)
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("DELETE FROM MemberLoginHistory h WHERE h.createdAt < :threshold")
+    int deleteByCreatedAtBefore(@Param("threshold") LocalDateTime threshold);
 }

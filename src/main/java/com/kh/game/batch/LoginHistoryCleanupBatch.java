@@ -2,7 +2,6 @@ package com.kh.game.batch;
 
 import com.kh.game.entity.BatchConfig;
 import com.kh.game.entity.BatchExecutionHistory;
-import com.kh.game.entity.MemberLoginHistory;
 import com.kh.game.repository.MemberLoginHistoryRepository;
 import com.kh.game.service.BatchService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -32,15 +30,11 @@ public class LoginHistoryCleanupBatch {
         try {
             log.info("[{}] 배치 실행 시작", BATCH_ID);
 
-            // 90일이 지난 로그인 이력 삭제
+            // 90일이 지난 로그인 이력 삭제 (단일 DELETE 쿼리)
             LocalDateTime threshold = LocalDateTime.now().minusDays(90);
-            List<MemberLoginHistory> oldHistories = loginHistoryRepository.findAll().stream()
-                    .filter(h -> h.getCreatedAt() != null && h.getCreatedAt().isBefore(threshold))
-                    .toList();
+            totalAffected = loginHistoryRepository.deleteByCreatedAtBefore(threshold);
 
-            if (!oldHistories.isEmpty()) {
-                loginHistoryRepository.deleteAll(oldHistories);
-                totalAffected = oldHistories.size();
+            if (totalAffected > 0) {
                 resultMessage.append(String.format("90일 지난 로그인 이력 %d건 삭제.", totalAffected));
             } else {
                 resultMessage.append("삭제할 로그인 이력이 없습니다.");

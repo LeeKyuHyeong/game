@@ -37,11 +37,9 @@ public class SystemReportBatch {
         try {
             log.info("[{}] 배치 실행 시작", BATCH_ID);
 
-            // 회원 통계
+            // 회원 통계 (DB 레벨 카운트)
             long totalMembers = memberRepository.count();
-            long activeMembers = memberRepository.findAll().stream()
-                    .filter(m -> m.getStatus() == Member.MemberStatus.ACTIVE)
-                    .count();
+            long activeMembers = memberRepository.countByStatus(Member.MemberStatus.ACTIVE);
 
             // 노래 통계
             long totalSongs = songRepository.count();
@@ -57,11 +55,9 @@ public class SystemReportBatch {
             long totalChats = chatRepository.count();
             long todayChats = chatRepository.countTodayChats();
 
-            // 로그인 통계 (최근 24시간)
+            // 로그인 통계 (최근 24시간, DB 레벨 카운트)
             LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-            long recentLogins = loginHistoryRepository.findAll().stream()
-                    .filter(h -> h.getCreatedAt() != null && h.getCreatedAt().isAfter(yesterday))
-                    .count();
+            long recentLogins = loginHistoryRepository.countByCreatedAtAfter(yesterday);
 
             // 디스크 공간 (uploads 폴더)
             File uploadsDir = new File("uploads/songs");

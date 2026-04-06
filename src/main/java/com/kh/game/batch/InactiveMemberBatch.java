@@ -32,20 +32,9 @@ public class InactiveMemberBatch {
         try {
             log.info("[{}] 배치 실행 시작", BATCH_ID);
 
-            // 6개월 이상 미접속 회원을 휴면 상태로 전환
+            // 6개월 이상 미접속 회원을 휴면 상태로 전환 (DB 레벨 필터링)
             LocalDateTime threshold = LocalDateTime.now().minusMonths(6);
-            List<Member> inactiveMembers = memberRepository.findAll().stream()
-                    .filter(m -> m.getStatus() == Member.MemberStatus.ACTIVE)
-                    .filter(m -> m.getRole() != Member.MemberRole.ADMIN) // 관리자는 제외
-                    .filter(m -> {
-                        LocalDateTime lastLogin = m.getLastLoginAt();
-                        if (lastLogin == null) {
-                            // 로그인 기록이 없으면 가입일 기준
-                            return m.getCreatedAt() != null && m.getCreatedAt().isBefore(threshold);
-                        }
-                        return lastLogin.isBefore(threshold);
-                    })
-                    .toList();
+            List<Member> inactiveMembers = memberRepository.findInactiveMembers(threshold);
 
             for (Member member : inactiveMembers) {
                 member.setStatus(Member.MemberStatus.INACTIVE);

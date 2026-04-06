@@ -288,6 +288,11 @@ public interface SongRepository extends JpaRepository<Song, Long> {
 
     long countByUseYn(String useYn);
 
+    // SongAnswer가 없는 활성 곡 조회 (배치용 - N+1 방지)
+    @Query("SELECT s FROM Song s WHERE s.useYn = :useYn " +
+           "AND NOT EXISTS (SELECT 1 FROM SongAnswer sa WHERE sa.song = s)")
+    List<Song> findSongsWithoutAnswers(@Param("useYn") String useYn);
+
     // ========== 아티스트 관리 (병합) ==========
 
     /**

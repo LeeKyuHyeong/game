@@ -278,6 +278,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // 상태별 회원 수
     long countByStatus(Member.MemberStatus status);
 
+    // 기간별 가입자 수 (배치용)
+    long countByCreatedAtBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
+
     // 권한별 회원 수
     long countByRole(Member.MemberRole role);
 
@@ -292,4 +295,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.loginStreak > 0 " +
            "AND (m.lastLoginDate IS NULL OR m.lastLoginDate < :yesterday)")
     List<Member> findMembersToResetLoginStreak(@org.springframework.data.repository.query.Param("yesterday") java.time.LocalDate yesterday);
+
+    // 휴면 전환 대상: ACTIVE 상태, 관리자 제외, 마지막 로그인이 threshold 이전 (배치용)
+    @Query("SELECT m FROM Member m WHERE m.status = 'ACTIVE' AND m.role <> 'ADMIN' " +
+           "AND ((m.lastLoginAt IS NOT NULL AND m.lastLoginAt < :threshold) " +
+           "OR (m.lastLoginAt IS NULL AND m.createdAt < :threshold))")
+    List<Member> findInactiveMembers(@org.springframework.data.repository.query.Param("threshold") java.time.LocalDateTime threshold);
 }

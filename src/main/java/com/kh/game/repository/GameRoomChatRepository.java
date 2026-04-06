@@ -64,6 +64,9 @@ public interface GameRoomChatRepository extends JpaRepository<GameRoomChat, Long
     @Query("SELECT COUNT(c) FROM GameRoomChat c WHERE c.createdAt >= CURRENT_DATE")
     long countTodayChats();
 
+    // 기간별 채팅 수 (배치용)
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
     // 메시지 타입별 통계
     @Query("SELECT c.messageType, COUNT(c) FROM GameRoomChat c GROUP BY c.messageType")
     List<Object[]> countByMessageType();

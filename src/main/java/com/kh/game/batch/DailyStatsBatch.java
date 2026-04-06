@@ -4,7 +4,6 @@ import com.kh.game.entity.BatchConfig;
 import com.kh.game.entity.BatchExecutionHistory;
 import com.kh.game.entity.DailyStats;
 import com.kh.game.entity.GameRoom;
-import com.kh.game.entity.Member;
 import com.kh.game.repository.*;
 import com.kh.game.service.BatchService;
 import lombok.RequiredArgsConstructor;
@@ -47,47 +46,25 @@ public class DailyStatsBatch {
             DailyStats stats = dailyStatsRepository.findByStatDate(yesterday)
                     .orElse(new DailyStats(yesterday));
 
-            // 게임 방 통계
-            long totalRooms = gameRoomRepository.findAll().stream()
-                    .filter(r -> r.getCreatedAt() != null &&
-                            !r.getCreatedAt().isBefore(startOfDay) &&
-                            r.getCreatedAt().isBefore(endOfDay))
-                    .count();
+            // 게임 방 통계 (DB 레벨 카운트)
+            long totalRooms = gameRoomRepository.countByCreatedAtBetween(startOfDay, endOfDay);
             stats.setTotalRooms((int) totalRooms);
 
-            // 종료된 게임 수
-            long finishedGames = gameRoomRepository.findByStatus(GameRoom.RoomStatus.FINISHED).stream()
-                    .filter(r -> r.getUpdatedAt() != null &&
-                            !r.getUpdatedAt().isBefore(startOfDay) &&
-                            r.getUpdatedAt().isBefore(endOfDay))
-                    .count();
+            // 종료된 게임 수 (DB 레벨 카운트)
+            long finishedGames = gameRoomRepository.countByStatusAndUpdatedAtBetween(
+                    GameRoom.RoomStatus.FINISHED, startOfDay, endOfDay);
             stats.setTotalGames((int) finishedGames);
 
-            // 채팅 수 (전일)
-            long chatCount = chatRepository.findAll().stream()
-                    .filter(c -> c.getCreatedAt() != null &&
-                            !c.getCreatedAt().isBefore(startOfDay) &&
-                            c.getCreatedAt().isBefore(endOfDay))
-                    .count();
+            // 채팅 수 (DB 레벨 카운트)
+            long chatCount = chatRepository.countByCreatedAtBetween(startOfDay, endOfDay);
             stats.setTotalChats((int) chatCount);
 
-            // 신규 가입자 수
-            long newMembers = memberRepository.findAll().stream()
-                    .filter(m -> m.getCreatedAt() != null &&
-                            !m.getCreatedAt().isBefore(startOfDay) &&
-                            m.getCreatedAt().isBefore(endOfDay))
-                    .count();
+            // 신규 가입자 수 (DB 레벨 카운트)
+            long newMembers = memberRepository.countByCreatedAtBetween(startOfDay, endOfDay);
             stats.setNewMembers((int) newMembers);
 
-            // 활성 사용자 (전일 로그인)
-            long activeMembers = loginHistoryRepository.findAll().stream()
-                    .filter(h -> h.getCreatedAt() != null &&
-                            !h.getCreatedAt().isBefore(startOfDay) &&
-                            h.getCreatedAt().isBefore(endOfDay))
-                    .filter(h -> h.getResult() == com.kh.game.entity.MemberLoginHistory.LoginResult.SUCCESS)
-                    .map(h -> h.getMember() != null ? h.getMember().getId() : null)
-                    .distinct()
-                    .count();
+            // 활성 사용자 - 전일 로그인 성공한 고유 회원 수 (DB 레벨 카운트)
+            long activeMembers = loginHistoryRepository.countDistinctActiveMembersBetween(startOfDay, endOfDay);
             stats.setActiveMembers((int) activeMembers);
 
             dailyStatsRepository.save(stats);

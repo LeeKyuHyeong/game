@@ -1,52 +1,50 @@
 # Daily Dev Mission — game
 
-> 생성일: 2026-03-24 | 프로젝트: game
+> 생성일: 2026-03-25 | 프로젝트: game
 
 ---
 
-## 미션: Batch 전체 테이블 스캔(findAll) → DB 레벨 쿼리 최적화
+## 미션: MultiGameService 동시성 버그 수정 — HashMap → ConcurrentHashMap + synchronized 제거
 
-- **영역**: 배치 성능 최적화 / JPA 쿼리 튜닝
+- **영역**: 동시성(Concurrency) / 스레드 안전성
 - **난이도**: 중급
 
 ### 문제점
 
-여러 배치 잡에서 `findAll()`로 전체 테이블을 메모리에 로드한 뒤 Java Stream으로 필터링하고 있어, 데이터 증가 시 OOM 및 심각한 성능 저하 위험이 있음.
-
-**문제 파일 및 위치:**
-- `DailyStatsBatch.java` — `gameRoomRepository.findAll()`, `chatRepository.findAll()`, `memberRepository.findAll()`, `loginHistoryRepository.findAll()` 4회 전체 스캔 후 날짜 필터링
-- `SystemReportBatch.java` — `memberRepository.findAll()` 후 `stream().filter(status == ACTIVE).count()`
-- `InactiveMemberBatch.java` — `memberRepository.findAll()` 후 status, role, lastLogin 조건 Java 필터링
-- `SongAnswerGenerationBatch.java` — `songRepository.findAll()` 후 `useYn` 필터링 (이미 `findByUseYn("Y")` 메서드가 존재함)
+`MultiGameService`의 `usedSongsByRoom` 필드가 일반 `HashMap`으로 선언되어 있어, 멀티플레이어 방 여러 개가 동시에 게임을 진행할 때 **Race Condition**이 발생할 수 있다. 여러 스레드가 동시에 `put`/`get`/`remove`를 호출하면 데이터 손실이나 `ConcurrentModificationException`이 발생한다. 또한 `skipCurrentSong()` 메서드에 `synchronized` 키워드가 서비스 인스턴스 전체를 잠가, 관계없는 다른 방의 요청까지 블로킹하는 성능 병목이 존재한다.
 
 ### 왜 면접 강점이 되는가
 
-"전체 로드 후 애플리케이션 필터링 vs DB 레벨 쿼리" 최적화는 실무에서 가장 흔하게 마주치는 성능 병목이며, N+1 문제와 함께 JPA 면접 단골 주제다. 프로덕션 배치에서 실제로 개선한 경험은 강력한 어필 포인트.
+와디즈/빗썸 같은 테크 스타트업은 동시 접속 환경에서의 데이터 정합성을 중시한다. "실제 멀티플레이어 서비스에서 Race Condition을 발견하고, `ConcurrentHashMap` + 방 단위 락(또는 Optimistic Locking)으로 해결했다"는 경험은 **단순 CRUD 개발자와 차별화**되는 강력한 이력이다.
 
 ### 구현 가이드
 
-1. **Repository에 전용 쿼리 메서드 추가** — 각 배치에서 필요한 조건을 `@Query` 또는 Spring Data 메서드 쿼리로 정의
-   - 예: `memberRepository.countByStatus(MemberStatus.ACTIVE)` → `SystemReportBatch` 개선
-   - 예: `memberRepository.findByStatusAndRoleNotAndLastLoginBefore(...)` → `InactiveMemberBatch` 개선
-   - 예: `DailyStatsBatch`용 날짜 범위 카운트 쿼리 (`countByCreatedAtBetween`)
-
-2. **DailyStatsBatch 집중 리팩터링** — 4개의 `findAll()` 호출을 각각 `COUNT` 또는 집계 쿼리로 교체
-   ```java
-   // Before: gameRoomRepository.findAll().stream().filter(날짜).count()
-   // After:  gameRoomRepository.countByCreatedAtBetween(startOfDay, endOfDay)
-   ```
-
-3. **SongAnswerGenerationBatch 즉시 수정** — 이미 존재하는 `findByUseYn("Y")` 메서드로 교체 (가장 간단)
-
-4. **검증** — 배치 실행 시간을 `BatchExecutionHistory`의 `duration` 필드로 before/after 비교하여 개선 효과 측정
+1. **`MultiGameService.usedSongsByRoom`을 `ConcurrentHashMap`으로 교체** — `new HashMap<>()` → `new ConcurrentHashMap<>()`으로 변경. `computeIfAbsent()` 호출 시 value인 `Set`도 `ConcurrentHashMap.newKeySet()`으로 스레드 안전하게 생성
+2. **`skipCurrentSong()` 메서드의 `synchronized` 제거** — 메서드 레벨 `synchronized` 대신, `GameRoom` 엔티티에 `@Version` 필드를 추가하여 Optimistic Locking 적용. 충돌 시 `OptimisticLockException`을 잡아 재시도 또는 사용자에게 안내
+3. **방 단위 락이 필요한 구간 식별** — `selectSong()` → `usedSongsByRoom.add()` 사이의 원자성이 필요한 구간에 `ConcurrentHashMap.compute()`를 활용하여 단일 원자적 연산으로 통합
+4. **동시성 테스트 작성** — `ExecutorService`와 `CountDownLatch`를 사용해 10개 스레드가 동시에 같은 방에서 `selectSong()`을 호출하는 테스트 작성. 중복 곡 선택이 발생하지 않는지 검증
 
 ### 면접 질문 3선
 
-**Q1.** JPA에서 `findAll()` 후 Java Stream 필터링과 `@Query`로 DB 필터링의 차이점은? 각각 언제 적합한가?
-> 핵심 키워드: 네트워크 I/O, 메모리 사용량, DB 인덱스 활용, 페이징
+**Q1.** `ConcurrentHashMap`과 `Collections.synchronizedMap()`의 차이를 설명하고, 이 프로젝트에서 `ConcurrentHashMap`을 선택한 이유는?
+> 핵심 키워드: 세그먼트 락(Segment Lock), 읽기 무잠금(Lock-Free Read), 처리량(Throughput)
 
-**Q2.** 대량 데이터를 처리하는 배치에서 `@Transactional` 범위가 너무 넓으면 어떤 문제가 발생하는가?
-> 핵심 키워드: 영속성 컨텍스트 비대화, 커넥션 점유, 롤백 범위, 청크 단위 처리
+**Q2.** 메서드 레벨 `synchronized` 대신 Optimistic Locking(`@Version`)을 적용했을 때의 트레이드오프는?
+> 핵심 키워드: 낙관적 동시성 제어, `OptimisticLockException`, 재시도 전략(Retry)
 
-**Q3.** Spring Data JPA의 메서드 쿼리 vs `@Query` vs Specification — 각각의 장단점과 선택 기준은?
-> 핵심 키워드: 타입 안전성, 동적 쿼리, 가독성, 복잡도 임계점
+**Q3.** 멀티플레이어 게임에서 인메모리 상태(`Map`)와 DB 상태가 불일치할 수 있는 시나리오와 해결 방법은?
+> 핵심 키워드: 단일 진실 공급원(Single Source of Truth), 트랜잭션 경계, 서버 재시작 시 상태 유실
+
+---
+
+## 이전 미션 기록
+
+### GlobalExceptionHandler 도입으로 예외 처리 일원화
+
+- **영역**: 예외 처리 아키텍처 / Spring MVC 에러 핸들링
+- **난이도**: 중급
+
+### Batch 전체 테이블 스캔(findAll) → DB 레벨 쿼리 최적화
+
+- **영역**: 배치 성능 최적화 / JPA 쿼리 튜닝
+- **난이도**: 중급
