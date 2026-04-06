@@ -5,6 +5,7 @@ import com.kh.game.entity.GameRoom;
 import com.kh.game.entity.GameRoomParticipant;
 import com.kh.game.entity.Member;
 import com.kh.game.security.CustomUserDetails;
+import com.kh.game.service.GameBroadcastService;
 import com.kh.game.service.GameRoomService;
 import com.kh.game.service.GenreService;
 import com.kh.game.service.MemberService;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,7 @@ public class MultiGameController {
     private final GenreService genreService;
     private final SongService songService;
     private final ObjectMapper objectMapper;
+    private final GameBroadcastService gameBroadcastService;
 
     // ========== 페이지 ==========
 
@@ -171,6 +174,8 @@ public class MultiGameController {
         gameRoomService.joinRoom(roomCode, member);
         result.put("success", true);
         result.put("roomCode", roomCode);
+
+        gameBroadcastService.broadcastRoomUpdate(roomCode, buildRoomStatus(room));
 
         return ResponseEntity.ok(result);
     }
@@ -515,6 +520,8 @@ public class MultiGameController {
         gameRoomService.joinRoom(roomCode, member);
         result.put("success", true);
 
+        gameBroadcastService.broadcastRoomUpdate(roomCode, buildRoomStatus(room));
+
         return ResponseEntity.ok(result);
     }
 
@@ -553,6 +560,12 @@ public class MultiGameController {
         }
         result.put("success", true);
 
+        // 방이 아직 존재하면 브로드캐스트
+        GameRoom updatedRoom = gameRoomService.findByRoomCode(roomCode).orElse(null);
+        if (updatedRoom != null) {
+            gameBroadcastService.broadcastRoomUpdate(roomCode, buildRoomStatus(updatedRoom));
+        }
+
         return ResponseEntity.ok(result);
     }
 
@@ -586,6 +599,12 @@ public class MultiGameController {
             // 명시적 로비 이동 - FINISHED 상태에서도 LEFT 처리
             gameRoomService.leaveFinishedRoom(room, member);
             result.put("success", true);
+
+            // 방이 아직 존재하면 브로드캐스트
+            GameRoom updatedRoom = gameRoomService.findByRoomCode(roomCode).orElse(null);
+            if (updatedRoom != null) {
+                gameBroadcastService.broadcastRoomUpdate(roomCode, buildRoomStatus(updatedRoom));
+            }
         } catch (Exception e) {
             result.put("success", true);  // 오류가 나도 로비 이동은 허용
         }
@@ -623,6 +642,8 @@ public class MultiGameController {
         boolean isReady = gameRoomService.toggleReady(room, member);
         result.put("success", true);
         result.put("isReady", isReady);
+
+        gameBroadcastService.broadcastRoomUpdate(roomCode, buildRoomStatus(room));
 
         return ResponseEntity.ok(result);
     }
@@ -666,6 +687,9 @@ public class MultiGameController {
         result.put("success", true);
         result.put("message", targetMember.getNickname() + "님이 강퇴되었습니다.");
 
+        gameBroadcastService.broadcastKick(roomCode, targetMemberId, targetMember.getNickname());
+        gameBroadcastService.broadcastRoomUpdate(roomCode, buildRoomStatus(room));
+
         return ResponseEntity.ok(result);
     }
 
@@ -698,31 +722,7 @@ public class MultiGameController {
         }
 
         result.put("success", true);
-        result.put("status", room.getStatus().name());
-        result.put("roomName", room.getRoomName());
-        result.put("hostId", room.getHost().getId());
-        result.put("hostNickname", room.getHost().getNickname());
-        result.put("maxPlayers", room.getMaxPlayers());
-        result.put("totalRounds", room.getTotalRounds());
-        result.put("isPrivate", room.getIsPrivate());
-
-        List<Map<String, Object>> participants = room.getParticipants().stream()
-                .filter(p -> p.getStatus() != GameRoomParticipant.ParticipantStatus.LEFT)
-                .map(p -> {
-                    Map<String, Object> pInfo = new HashMap<>();
-                    pInfo.put("memberId", p.getMember().getId());
-                    pInfo.put("nickname", p.getMember().getNickname());
-                    pInfo.put("isReady", p.getIsReady());
-                    pInfo.put("isHost", room.isHost(p.getMember()));
-                    return pInfo;
-                })
-                .collect(Collectors.toList());
-
-        result.put("participants", participants);
-
-        // 모두 준비 완료 여부
-        boolean allReady = gameRoomService.isAllReady(room);
-        result.put("allReady", allReady);
+        result.putAll(buildRoomStatus(room));
 
         return ResponseEntity.ok(result);
     }
@@ -757,6 +757,8 @@ public class MultiGameController {
         gameRoomService.restartRoom(room, member);
         result.put("success", true);
         result.put("roomCode", roomCode);
+
+        gameBroadcastService.broadcastRestart(roomCode);
 
         return ResponseEntity.ok(result);
     }
@@ -793,6 +795,8 @@ public class MultiGameController {
         multiGameService.startGame(room, member);
         result.put("success", true);
 
+        gameBroadcastService.broadcastGameStart(roomCode);
+
         return ResponseEntity.ok(result);
     }
 
@@ -825,6 +829,12 @@ public class MultiGameController {
 
         Map<String, Object> roundResult = multiGameService.startRound(room, member);
         result.putAll(roundResult);
+
+        if (Boolean.TRUE.equals(roundResult.get("isGameOver"))) {
+            gameBroadcastService.broadcastGameFinish(roomCode);
+        } else if (Boolean.TRUE.equals(roundResult.get("success"))) {
+            gameBroadcastService.broadcastRoundUpdate(roomCode, multiGameService.getCurrentRoundInfo(room));
+        }
 
         return ResponseEntity.ok(result);
     }
@@ -859,6 +869,12 @@ public class MultiGameController {
         Map<String, Object> roundResult = multiGameService.nextRound(room, member);
         result.putAll(roundResult);
 
+        if (Boolean.TRUE.equals(roundResult.get("isGameOver"))) {
+            gameBroadcastService.broadcastGameFinish(roomCode);
+        } else if (Boolean.TRUE.equals(roundResult.get("success"))) {
+            gameBroadcastService.broadcastRoundUpdate(roomCode, multiGameService.getCurrentRoundInfo(room));
+        }
+
         return ResponseEntity.ok(result);
     }
 
@@ -891,6 +907,10 @@ public class MultiGameController {
 
         Map<String, Object> readyResult = multiGameService.setRoundReady(room, member);
         result.putAll(readyResult);
+
+        if (Boolean.TRUE.equals(readyResult.get("success"))) {
+            gameBroadcastService.broadcastRoundUpdate(roomCode, multiGameService.getCurrentRoundInfo(room));
+        }
 
         return ResponseEntity.ok(result);
     }
@@ -929,6 +949,14 @@ public class MultiGameController {
         Map<String, Object> skipResult = multiGameService.skipCurrentSong(room, member, songId);
         result.putAll(skipResult);
 
+        if (Boolean.TRUE.equals(skipResult.get("success"))) {
+            if (Boolean.TRUE.equals(skipResult.get("isGameOver"))) {
+                gameBroadcastService.broadcastGameFinish(roomCode);
+            } else {
+                gameBroadcastService.broadcastRoundUpdate(roomCode, multiGameService.getCurrentRoundInfo(room));
+            }
+        }
+
         return ResponseEntity.ok(result);
     }
 
@@ -961,6 +989,10 @@ public class MultiGameController {
 
         Map<String, Object> voteResult = multiGameService.voteSkipRound(room, member);
         result.putAll(voteResult);
+
+        if (Boolean.TRUE.equals(voteResult.get("success"))) {
+            gameBroadcastService.broadcastRoundUpdate(roomCode, multiGameService.getCurrentRoundInfo(room));
+        }
 
         return ResponseEntity.ok(result);
     }
@@ -1019,6 +1051,21 @@ public class MultiGameController {
         String message = request.get("message");
         Map<String, Object> chatResult = multiGameService.sendChat(room, member, message);
         result.putAll(chatResult);
+
+        if (Boolean.TRUE.equals(chatResult.get("success"))) {
+            // 채팅 브로드캐스트
+            Map<String, Object> chatData = new HashMap<>();
+            chatData.put("nickname", member.getNickname());
+            chatData.put("message", message);
+            chatData.put("messageType", Boolean.TRUE.equals(chatResult.get("isCorrect")) ? "CORRECT" : "CHAT");
+            chatData.put("createdAt", LocalDateTime.now().toString());
+            gameBroadcastService.broadcastChat(roomCode, chatData);
+
+            // 정답인 경우 라운드 업데이트도 브로드캐스트
+            if (Boolean.TRUE.equals(chatResult.get("isCorrect"))) {
+                gameBroadcastService.broadcastRoundUpdate(roomCode, multiGameService.getCurrentRoundInfo(room));
+            }
+        }
 
         return ResponseEntity.ok(result);
     }
@@ -1126,5 +1173,40 @@ public class MultiGameController {
         result.put("songId", songId);
 
         return ResponseEntity.ok(result);
+    }
+
+    // ========== Private Helper ==========
+
+    /**
+     * 방 상태 정보를 Map으로 빌드 (getRoomStatus와 브로드캐스트 공용)
+     */
+    private Map<String, Object> buildRoomStatus(GameRoom room) {
+        Map<String, Object> status = new HashMap<>();
+        status.put("status", room.getStatus().name());
+        status.put("roomName", room.getRoomName());
+        status.put("hostId", room.getHost().getId());
+        status.put("hostNickname", room.getHost().getNickname());
+        status.put("maxPlayers", room.getMaxPlayers());
+        status.put("totalRounds", room.getTotalRounds());
+        status.put("isPrivate", room.getIsPrivate());
+
+        List<Map<String, Object>> participants = room.getParticipants().stream()
+                .filter(p -> p.getStatus() != GameRoomParticipant.ParticipantStatus.LEFT)
+                .map(p -> {
+                    Map<String, Object> pInfo = new HashMap<>();
+                    pInfo.put("memberId", p.getMember().getId());
+                    pInfo.put("nickname", p.getMember().getNickname());
+                    pInfo.put("isReady", p.getIsReady());
+                    pInfo.put("isHost", room.isHost(p.getMember()));
+                    return pInfo;
+                })
+                .collect(Collectors.toList());
+
+        status.put("participants", participants);
+
+        boolean allReady = gameRoomService.isAllReady(room);
+        status.put("allReady", allReady);
+
+        return status;
     }
 }

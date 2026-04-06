@@ -8,13 +8,14 @@ let videoReady = false;  // YouTube 영상 로드 완료 여부 (CUED 상태)
 let pendingPlay = false; // 서버에서 재생 요청이 왔지만 영상 로드 대기 중
 let mySkipVoted = false;  // 내가 스킵 투표했는지
 
-// 폴링 관련
+// 폴링 관련 (WebSocket fallback용)
 let roundPollingInterval = null;
 let chatPollingInterval = null;
 let progressInterval = null;
 let lastChatId = 0;
 let networkErrorCount = 0;  // 연속 네트워크 오류 횟수
 const MAX_NETWORK_ERRORS = 5;  // 최대 연속 오류 허용 횟수
+let usingWebSocket = false;  // WebSocket 활성 여부
 
 // 오디오 동기화
 let lastAudioPlaying = false;
@@ -78,7 +79,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         showYouTubeInitError();
     }
 
-    startPolling();
+    // 초기 데이터 로드 (페이지 진입 시 즉시)
+    fetchRoundInfo();
+    fetchChats();
+
+    // WebSocket 연결 시도 (polling fallback 포함)
+    connectWebSocket();
 
     // Enter 키로 채팅 전송
     document.getElementById('chatInput').addEventListener('keydown', function(e) {
@@ -90,6 +96,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // 페이지 떠날 때 정리 및 방 나가기
 window.addEventListener('beforeunload', function() {
+    disconnectWebSocket();
     stopPolling();
     // sendBeacon으로 방 나가기 요청 (페이지 언로드되어도 전송 보장)
     navigator.sendBeacon('/game/multi/room/' + roomCode + '/leave');
@@ -97,15 +104,61 @@ window.addEventListener('beforeunload', function() {
 
 // 뒤로가기/앞으로가기 시에도 나가기 처리
 window.addEventListener('pagehide', function() {
+    disconnectWebSocket();
     stopPolling();
     navigator.sendBeacon('/game/multi/room/' + roomCode + '/leave');
 });
 
-// ========== 폴링 ==========
+// ========== WebSocket ==========
+
+function connectWebSocket() {
+    if (typeof GameWebSocket === 'undefined') {
+        console.warn('[multi-play] GameWebSocket not available, using polling fallback');
+        startPolling();
+        return;
+    }
+
+    GameWebSocket.connect(roomCode, {
+        ROUND_UPDATE: function(payload) {
+            processRoundData(payload);
+        },
+        ROUND_RESULT: function(payload) {
+            processRoundData(payload);
+        },
+        CHAT: function(payload) {
+            // 단건 채팅 메시지 수신
+            appendChatMessage(payload);
+            if (payload.id) {
+                lastChatId = Math.max(lastChatId, payload.id);
+            }
+            var container = document.getElementById('chatMessages');
+            container.scrollTop = container.scrollHeight;
+        },
+        GAME_FINISH: function() {
+            disconnectWebSocket();
+            stopPolling();
+            window.location.href = '/game/multi/room/' + roomCode + '/result';
+        }
+    }, function() {
+        // fallback: WebSocket 연결 실패 시 polling으로 전환
+        usingWebSocket = false;
+        startPolling();
+    });
+
+    usingWebSocket = true;
+}
+
+function disconnectWebSocket() {
+    if (typeof GameWebSocket !== 'undefined') {
+        GameWebSocket.disconnect();
+    }
+    usingWebSocket = false;
+}
+
+// ========== 폴링 (WebSocket fallback) ==========
 
 function startPolling() {
-    fetchRoundInfo();
-    fetchChats();
+    if (usingWebSocket) return;  // WS 활성 중이면 폴링 시작 안 함
     roundPollingInterval = setInterval(fetchRoundInfo, 1000);
     chatPollingInterval = setInterval(fetchChats, 500);  // 채팅은 더 빠르게
 }
@@ -122,7 +175,84 @@ function stopPolling() {
     stopProgressUpdate();
 }
 
-// ========== 라운드 정보 조회 ==========
+// ========== 라운드 정보 처리 ==========
+
+/**
+ * 라운드 데이터 처리 (polling 응답 및 WebSocket 메시지 공통)
+ * @param {Object} result - 라운드 정보 객체
+ */
+function processRoundData(result) {
+    // 게임 종료 체크
+    if (result.status === 'FINISHED') {
+        disconnectWebSocket();
+        stopPolling();
+        window.location.href = '/game/multi/room/' + roomCode + '/result';
+        return;
+    }
+
+    // 라운드 변경 감지
+    if (result.currentRound !== currentRound) {
+        currentRound = result.currentRound;
+        document.getElementById('currentRound').textContent = currentRound;
+        // 라운드 변경 시 스킵 투표 상태 초기화
+        mySkipVoted = false;
+        resetSkipVoteUI();
+    }
+
+    // 페이즈 변경 감지
+    var newPhase = result.roundPhase;
+    if (newPhase !== currentPhase) {
+        currentPhase = newPhase;
+        updatePhaseUI();
+    }
+
+    // 노래 정보 업데이트
+    if (result.song && (!currentSong || currentSong.id !== result.song.id)) {
+        currentSong = result.song;
+        loadSong(currentSong);
+    }
+
+    // 서버 시간 오프셋 업데이트 (서버 시간 - 클라이언트 시간)
+    if (result.serverTime) {
+        serverTimeOffset = result.serverTime - Date.now();
+    }
+
+    // 오디오 동기화
+    syncAudio(result.audioPlaying, result.audioPlayedAt);
+
+    // 스코어보드 업데이트
+    if (result.participants) {
+        updateScoreboard(result.participants);
+        // 내 스킵 투표 상태 확인
+        var myParticipant = result.participants.find(function(p) {
+            return p.memberId === myMemberId;
+        });
+        if (myParticipant && myParticipant.skipVote) {
+            mySkipVoted = true;
+            updateSkipVoteButton();
+        }
+    }
+
+    // 스킵 투표 현황 업데이트
+    if (result.skipVoteStatus && currentPhase === 'PLAYING') {
+        updateSkipVoteStatus(result.skipVoteStatus);
+    }
+
+    // 결과 단계일 때 정답/정답자 표시
+    if (currentPhase === 'RESULT') {
+        if (result.answer) {
+            showAnswer(result.answer);
+        }
+        if (result.winnerNickname) {
+            showWinner(result.winnerNickname);
+        } else {
+            // 정답자가 없는 경우 (모두 포기)
+            showNoWinner();
+        }
+    }
+}
+
+// ========== 라운드 정보 조회 (초기 로드 + polling fallback) ==========
 
 async function fetchRoundInfo() {
     try {
@@ -137,73 +267,7 @@ async function fetchRoundInfo() {
             return;
         }
 
-        // 게임 종료 체크
-        if (result.status === 'FINISHED') {
-            stopPolling();
-            window.location.href = '/game/multi/room/' + roomCode + '/result';
-            return;
-        }
-
-        // 라운드 변경 감지
-        if (result.currentRound !== currentRound) {
-            currentRound = result.currentRound;
-            document.getElementById('currentRound').textContent = currentRound;
-            // 라운드 변경 시 스킵 투표 상태 초기화
-            mySkipVoted = false;
-            resetSkipVoteUI();
-        }
-
-        // 페이즈 변경 감지
-        var newPhase = result.roundPhase;
-        if (newPhase !== currentPhase) {
-            currentPhase = newPhase;
-            updatePhaseUI();
-        }
-
-        // 노래 정보 업데이트
-        if (result.song && (!currentSong || currentSong.id !== result.song.id)) {
-            currentSong = result.song;
-            loadSong(currentSong);
-        }
-
-        // 서버 시간 오프셋 업데이트 (서버 시간 - 클라이언트 시간)
-        if (result.serverTime) {
-            serverTimeOffset = result.serverTime - Date.now();
-        }
-
-        // 오디오 동기화
-        syncAudio(result.audioPlaying, result.audioPlayedAt);
-
-        // 스코어보드 업데이트
-        if (result.participants) {
-            updateScoreboard(result.participants);
-            // 내 스킵 투표 상태 확인
-            var myParticipant = result.participants.find(function(p) {
-                return p.memberId === myMemberId;
-            });
-            if (myParticipant && myParticipant.skipVote) {
-                mySkipVoted = true;
-                updateSkipVoteButton();
-            }
-        }
-
-        // 스킵 투표 현황 업데이트
-        if (result.skipVoteStatus && currentPhase === 'PLAYING') {
-            updateSkipVoteStatus(result.skipVoteStatus);
-        }
-
-        // 결과 단계일 때 정답/정답자 표시
-        if (currentPhase === 'RESULT') {
-            if (result.answer) {
-                showAnswer(result.answer);
-            }
-            if (result.winnerNickname) {
-                showWinner(result.winnerNickname);
-            } else {
-                // 정답자가 없는 경우 (모두 포기)
-                showNoWinner();
-            }
-        }
+        processRoundData(result);
 
     } catch (error) {
         // console.error('라운드 정보 조회 오류:', error);
@@ -249,7 +313,13 @@ function showNetworkErrorNotice() {
  */
 function reconnect() {
     networkErrorCount = 0;
-    startPolling();
+
+    // WebSocket 재연결 시도 (실패 시 내부에서 polling fallback)
+    connectWebSocket();
+
+    // 즉시 최신 데이터 로드
+    fetchRoundInfo();
+    fetchChats();
 
     // 알림 메시지 제거
     var notices = document.querySelectorAll('.playback-error-notice');
@@ -603,7 +673,7 @@ async function sendChat() {
         if (!result.success) {
             showToast(result.message || '메시지 전송 실패');
         }
-        // 정답이든 아니든 채팅 폴링에서 자동으로 표시됨
+        // 정답이든 아니든 WS push(또는 polling fallback)에서 자동으로 표시됨
 
     } catch (error) {
         // console.error('채팅 전송 오류:', error);
@@ -945,7 +1015,7 @@ async function skipUnplayableSong(songId) {
                 // 게임 종료
                 window.location.href = '/game/multi/room/' + roomCode + '/result';
             }
-            // 성공 시 폴링에서 새 곡 정보를 받아옴
+            // 성공 시 WS push(또는 polling fallback)에서 새 곡 정보를 받아옴
         } else {
             showToast(result.message || '스킵에 실패했습니다.');
         }

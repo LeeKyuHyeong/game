@@ -41,6 +41,7 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/images/**"),
                                 new AntPathRequestMatcher("/uploads/**"),
                                 new AntPathRequestMatcher("/favicon.svg")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/ws/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/admin/login"),
                                 new AntPathRequestMatcher("/admin/login-process"),

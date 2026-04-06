@@ -4,17 +4,39 @@ let lastStatus = null;
 let lastChatId = 0;
 let lastHostId = null;  // 방장 변경 감지용
 let isReloading = false;  // 새로고침 중 플래그 (leave 방지)
+let usingWebSocket = false;  // WebSocket 사용 중 여부
 
-// 페이지 로드 시 폴링 시작
+// 페이지 로드 시 WebSocket 연결 시도 (초기 데이터는 fetch로 가져옴)
 document.addEventListener('DOMContentLoaded', function() {
-    startPolling();
-    startChatPolling();
+    // 초기 데이터 로드 (첫 렌더링용)
+    fetchRoomStatus();
+    fetchChats();
+
+    // WebSocket 연결 시도
+    if (typeof GameWebSocket !== 'undefined') {
+        GameWebSocket.connect(roomCode, {
+            ROOM_UPDATE: handleRoomUpdate,
+            CHAT: handleChatMessage,
+            GAME_START: handleGameStart,
+            KICKED: handleKicked
+        }, startPollingFallback);
+        usingWebSocket = true;
+    } else {
+        // ws-client.js 로드 실패 시 폴링으로 폴백
+        startPollingFallback();
+    }
 });
 
-// 페이지 떠날 때 폴링 중지 및 방 나가기
+// WebSocket 실패 시 기존 폴링으로 폴백
+function startPollingFallback() {
+    usingWebSocket = false;
+    startPolling();
+    startChatPolling();
+}
+
+// 페이지 떠날 때 정리 및 방 나가기
 window.addEventListener('beforeunload', function() {
-    stopPolling();
-    stopChatPolling();
+    cleanup();
     // 새로고침 중이면 leave 요청 안 보냄 (방장 위임 후 새로고침 시)
     if (!isReloading) {
         navigator.sendBeacon(`/game/multi/room/${roomCode}/leave`);
@@ -23,16 +45,106 @@ window.addEventListener('beforeunload', function() {
 
 // 뒤로가기/앞으로가기 시에도 나가기 처리
 window.addEventListener('pagehide', function() {
-    stopPolling();
-    stopChatPolling();
+    cleanup();
     if (!isReloading) {
         navigator.sendBeacon(`/game/multi/room/${roomCode}/leave`);
     }
 });
 
+// 리소스 정리 (WebSocket + 폴링)
+function cleanup() {
+    stopPolling();
+    stopChatPolling();
+    if (usingWebSocket && typeof GameWebSocket !== 'undefined') {
+        GameWebSocket.disconnect();
+    }
+}
+
+// === WebSocket 메시지 핸들러 ===
+
+// ROOM_UPDATE 핸들러 — 서버가 보내는 payload는 fetchRoomStatus 응답과 같은 구조
+function handleRoomUpdate(payload) {
+    if (!payload.success) {
+        showToast('방이 종료되었습니다.');
+        window.location.href = '/game/multi';
+        return;
+    }
+
+    if (payload.status === 'PLAYING') {
+        cleanup();
+        window.location.href = `/game/multi/room/${roomCode}/play`;
+        return;
+    }
+
+    // 방장 변경 감지
+    if (lastHostId !== null && lastHostId !== payload.hostId) {
+        const newHost = payload.participants.find(p => p.memberId === payload.hostId);
+        const newHostName = newHost ? newHost.nickname : '알 수 없음';
+
+        if (payload.hostId === myMemberId) {
+            showToast(`🎉 ${newHostName}님이 새 방장이 되었습니다!`, 'success');
+            isReloading = true;
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+            return;
+        } else {
+            showToast(`👑 ${newHostName}님이 새 방장이 되었습니다`, 'info');
+        }
+    }
+    lastHostId = payload.hostId;
+
+    updateParticipantsList(payload.participants, payload.hostId);
+
+    if (isHost) {
+        updateStartButton(payload.allReady, payload.participants.length);
+    }
+}
+
+// CHAT 핸들러 — 단일 채팅 메시지 수신
+function handleChatMessage(payload) {
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message';
+
+    if (payload.messageType === 'SYSTEM') {
+        msgDiv.classList.add('system');
+        msgDiv.innerHTML = `<span class="system-text">${escapeHtml(payload.message)}</span>`;
+    } else {
+        const isMe = payload.memberId === myMemberId;
+        if (isMe) msgDiv.classList.add('mine');
+
+        msgDiv.innerHTML = `
+            <span class="chat-nickname ${isMe ? 'me' : ''}">${escapeHtml(payload.nickname)}</span>
+            <span class="chat-text">${escapeHtml(payload.message)}</span>
+        `;
+    }
+
+    container.appendChild(msgDiv);
+    container.scrollTop = container.scrollHeight;
+}
+
+// GAME_START 핸들러 — 게임 시작, 플레이 페이지로 이동
+function handleGameStart(payload) {
+    cleanup();
+    window.location.href = `/game/multi/room/${roomCode}/play`;
+}
+
+// KICKED 핸들러 — 자신이 강퇴당한 경우 로비로 이동
+function handleKicked(payload) {
+    if (payload.targetMemberId === myMemberId) {
+        cleanup();
+        showToast('방에서 강퇴되었습니다.');
+        window.location.href = '/game/multi';
+    }
+}
+
+// === 폴링 (초기 로드 + 폴백용) ===
+
 // 폴링 시작
 function startPolling() {
-    fetchRoomStatus();
     pollingInterval = setInterval(fetchRoomStatus, 2000);
 }
 
@@ -46,7 +158,6 @@ function stopPolling() {
 
 // 채팅 폴링 시작
 function startChatPolling() {
-    fetchChats();
     chatPollingInterval = setInterval(fetchChats, 1000);
 }
 
@@ -72,16 +183,14 @@ async function fetchRoomStatus() {
 
         // 강퇴 여부 확인
         if (result.kicked) {
-            stopPolling();
-            stopChatPolling();
+            cleanup();
             showToast('방에서 강퇴되었습니다.');
             window.location.href = '/game/multi';
             return;
         }
 
         if (result.status === 'PLAYING') {
-            stopPolling();
-            stopChatPolling();
+            cleanup();
             window.location.href = `/game/multi/room/${roomCode}/play`;
             return;
         }
@@ -131,7 +240,7 @@ async function fetchChats() {
     }
 }
 
-// 채팅 메시지 추가
+// 채팅 메시지 추가 (배열 — 초기 로드 및 폴링용)
 function appendChats(chats) {
     const container = document.getElementById('chatMessages');
     if (!container) return;
@@ -162,6 +271,8 @@ function appendChats(chats) {
 
     container.scrollTop = container.scrollHeight;
 }
+
+// === POST 요청 (변경 없음) ===
 
 // 채팅 전송
 async function sendChat() {
@@ -279,8 +390,7 @@ async function leaveRoom() {
         const result = await response.json();
 
         if (result.success) {
-            stopPolling();
-            stopChatPolling();
+            cleanup();
             window.location.href = '/game/multi';
         } else {
             showToast(result.message || '나가기에 실패했습니다.');

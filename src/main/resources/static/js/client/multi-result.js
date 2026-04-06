@@ -1,19 +1,41 @@
 /**
  * client/game/multi/result.html - 멀티게임 결과
  *
- * 주의: roomCode, isHost 변수는 HTML에서 Thymeleaf로 설정해야 함
+ * 주의: roomCode, isHost, myMemberId 변수는 HTML에서 Thymeleaf로 설정해야 함
  */
 
 let pollingInterval = null;
 
-// 페이지 로드 시 폴링 시작 (비방장만)
+// 페이지 로드 시 WebSocket 연결 (비방장만)
 document.addEventListener('DOMContentLoaded', function() {
     if (!isHost) {
-        startRestartPolling();
+        connectResultWebSocket();
     }
 });
 
-// 재시작 감지 폴링 시작
+// WebSocket 연결 (polling fallback 포함)
+function connectResultWebSocket() {
+    GameWebSocket.connect(roomCode, {
+        RESTART: function(payload) {
+            showRestartNotice();
+            setTimeout(function() {
+                window.location.href = '/game/multi/room/' + roomCode;
+            }, 1500);
+        },
+        KICKED: function(payload) {
+            if (payload && payload.targetMemberId === myMemberId) {
+                GameWebSocket.disconnect();
+                stopRestartPolling();
+                window.location.href = '/game/multi';
+            }
+        }
+    }, function() {
+        // fallback: WebSocket 연결 실패 시 polling 사용
+        startRestartPolling();
+    });
+}
+
+// 재시작 감지 폴링 시작 (fallback)
 function startRestartPolling() {
     pollingInterval = setInterval(checkRoomStatus, 2000);
 }
@@ -26,18 +48,18 @@ function stopRestartPolling() {
     }
 }
 
-// 방 상태 확인
+// 방 상태 확인 (fallback polling)
 async function checkRoomStatus() {
     try {
-        const response = await fetch(`/game/multi/room/${roomCode}/status`);
+        const response = await fetch('/game/multi/room/' + roomCode + '/status');
         const result = await response.json();
 
         // 방이 WAITING 상태면 재시작됨 → 대기실로 이동
         if (result.status === 'WAITING') {
             stopRestartPolling();
             showRestartNotice();
-            setTimeout(() => {
-                window.location.href = `/game/multi/room/${roomCode}`;
+            setTimeout(function() {
+                window.location.href = '/game/multi/room/' + roomCode;
             }, 1500);
         }
 
@@ -70,7 +92,7 @@ async function restartGame() {
     }
 
     try {
-        const response = await fetch(`/game/multi/room/${roomCode}/restart`, {
+        const response = await fetch('/game/multi/room/' + roomCode + '/restart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -79,7 +101,7 @@ async function restartGame() {
 
         if (result.success) {
             // 대기실로 이동
-            window.location.href = `/game/multi/room/${roomCode}`;
+            window.location.href = '/game/multi/room/' + roomCode;
         } else {
             showToast(result.message || '게임 재시작에 실패했습니다.');
         }
@@ -90,10 +112,11 @@ async function restartGame() {
 }
 
 async function goToLobby() {
+    GameWebSocket.disconnect();
     stopRestartPolling();
     // 명시적 로비 이동 - 재시작 대상에서 제외하기 위해 별도 엔드포인트 사용
     try {
-        await fetch(`/game/multi/room/${roomCode}/leave-to-lobby`, {
+        await fetch('/game/multi/room/' + roomCode + '/leave-to-lobby', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
