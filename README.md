@@ -10,7 +10,7 @@
 
 **YouTube 기반 멀티플레이어 음악 퀴즈 플랫폼**
 
-노래를 듣고 제목을 맞추는 실시간 대전 게임 · 솔로/멀티/팬챌린지 등 5가지 게임 모드
+노래를 듣고 제목을 맞추는 실시간 대전 게임 · 솔로/멀티/팬 챌린지 등 6가지 게임 모드
 
 [🎮 플레이하기](https://game.kyuhyeong.com)
 
@@ -34,11 +34,11 @@
 
 | 영역 | 기술 |
 |------|------|
-| **Backend** | Spring Boot 3.4.1, Spring Data JPA, Spring Security |
+| **Backend** | Spring Boot 3.4.1, Spring Data JPA, Spring Security, Spring WebSocket (STOMP) |
 | **Frontend** | Thymeleaf (SSR), Vanilla JavaScript, CSS3 |
-| **Database** | MariaDB 10.11 |
+| **Database** | MariaDB 11.8 |
 | **Infra / DevOps** | Docker, Docker Compose, GitHub Actions CI/CD, Nginx, Let's Encrypt |
-| **Testing** | JUnit 5, Playwright (E2E) |
+| **Testing** | JUnit 5, Spring Boot Test |
 | **Tooling** | MCP 기반 데이터 관리 도구 3종 (Python) |
 
 ---
@@ -54,21 +54,21 @@
                     │         Spring Boot Application              │
                     │                                              │
                     │  Controller (MVC + REST API)                 │
-                    │       ├── client/ (사용자 40개)               │
-                    │       └── admin/ (관리자 16개)                │
+                    │       ├── client/ (사용자 13개)               │
+                    │       └── admin/ (관리자 25개)                │
                     │           ↓                                  │
-                    │  Service (비즈니스 로직 22개)                  │
+                    │  Service (비즈니스 로직 23개)                  │
                     │       ├── GameSessionService (게임 세션)      │
                     │       ├── AnswerValidationService (정답 검증) │
                     │       ├── MultiTierService (ELO 레이팅)      │
-                    │       └── BatchScheduler (배치 27개)          │
+                    │       └── BatchScheduler (배치 25종)          │
                     │           ↓                                  │
                     │  Repository (Spring Data JPA 29개)           │
                     └──────────────┬───────────────────────────────┘
                                    │
                     ┌──────────────▼──────────────┐
                     │  MariaDB (Docker Container)  │
-                    │  26개 테이블, utf8mb4         │
+                    │  29개 테이블, utf8mb4         │
                     └──────────────────────────────┘
 ```
 
@@ -78,8 +78,8 @@
 
 ### 1. 실시간 멀티플레이어 게임 시스템
 
-- **Polling 기반 실시간 통신**: 채팅과 게임 상태를 HTTP Polling으로 동기화
-- **게임 라이프사이클 관리**: `WAITING → PREPARING → PLAYING → FINISHED` 상태 머신으로 게임 흐름 제어
+- **WebSocket 기반 실시간 통신**: STOMP over SockJS로 채팅과 게임 상태를 서버 → 클라이언트 push. 연결 실패 시 지수 백오프 재연결(최대 5회) 후 HTTP Polling으로 fallback
+- **게임 라이프사이클 관리**: 방 상태(`WAITING → PLAYING → FINISHED`)와 라운드 단계(`PREPARING → PLAYING → RESULT`) 2단 상태 머신으로 게임 흐름 제어
 - **동시성 제어**: 최대 8인 동시 접속 시 정답 판정의 원자성 보장
 
 ### 2. ELO 기반 LP 티어 시스템
@@ -99,15 +99,15 @@
 - **2단계 검증 파이프라인**: oEmbed API 응답 확인 → 썸네일 이미지 크기 분석
 - 삭제/비공개 영상 자동 감지, 배치 작업으로 주기적 전수 검사
 
-### 5. 27개 스케줄링 배치 시스템
+### 5. 스케줄링 배치 시스템 (배치 클래스 27개 · 스케줄러 등록 25종)
 
 - DB 기반 Cron 표현식으로 **런타임 스케줄 변경** 가능
 - 관리자 페이지에서 개별 배치 활성화/비활성화, 실행 이력 조회
-- 카테고리: 데이터 정리(9개), 통계/랭킹(5개), 회원 관리(4개), 곡 무결성(5개), 팬챌린지(2개), 시스템(1개)
+- 카테고리: 데이터 정리(9개), 통계/랭킹(4개), 회원 관리(4개), 곡 무결성(5개), 팬 챌린지(4개), 시스템(1개)
 
 ### 6. 관리자 시스템
 
-- 16개 관리 모듈: 곡/장르/회원/게임방/채팅/신고/배치/통계 등 전 영역 관리
+- 25개 관리 모듈: 곡/장르/회원/게임방/채팅/신고/배치/통계/챌린지/랭킹 등 전 영역 관리
 - `AdminInterceptor`를 통한 관리자 경로 일괄 인증
 - 탭 네비게이션 간 검색 상태 유지 (히스토리 API 활용)
 
@@ -124,9 +124,10 @@
 |------|------|-----------|
 | **솔로 맞추기** | 노래를 듣고 제목 맞추기 (3회 시도) | 시간 기반 점수 계산, 장르/아티스트/연도 필터링 |
 | **솔로 문제내기** | 호스트가 곡을 틀고 참가자가 맞추기 | 차등 점수 지급 (100→70→50) |
-| **멀티플레이어** | 최대 8인 실시간 대전 | Polling 기반 동기화, ELO 레이팅 |
-| **팬 챌린지** | 특정 아티스트 30곡 도전 | 2단계 난이도(노말 7s+6s / 하드코어 5s+5s), 퍼펙트 클리어 추적 |
-| **레트로 게임** | 2000년 이전 곡 전용 모드 | 연도 기반 필터링 |
+| **멀티플레이어** | 최대 8인 실시간 대전 | WebSocket(STOMP/SockJS) push 동기화, ELO 레이팅 |
+| **팬 챌린지** | 특정 아티스트 곡 도전 (노말 20곡 / 하드코어 단계별) | 2단계 난이도(노말 7s+6s / 하드코어 5s+5s), 라이프 3개, 퍼펙트 클리어 추적 |
+| **장르 챌린지** | 특정 장르 50곡 도전 | 2단계 난이도(노말 7s+6s / 하드코어 5s+5s), 라이프 5개, 하드코어만 랭킹 반영 |
+| **레트로 게임** | 2000년 이전 곡 + RETRO 장르 전용 모드 | 연도/장르 기반 필터링 |
 
 ---
 
@@ -137,15 +138,17 @@
 ```
 Push to main → GitHub Actions
                   ├── Maven Build & Test
-                  ├── Docker Image Build & Push (Docker Hub)
-                  └── SSH Deploy to Production Server
-                        ├── docker-compose pull
-                        └── docker-compose up -d (무중단)
+                  ├── Docker Image Build & Push (Docker Hub, 커밋 SHA 태그)
+                  └── SSH Deploy to Production Server (blue-green)
+                        ├── 유휴 색(blue/green) 컨테이너 기동
+                        ├── /actuator/health 헬스체크 (최대 90초)
+                        ├── 성공 시 Nginx upstream 재작성 + reload
+                        └── 실패 시 전환 없이 중단 (기존 버전 유지)
 ```
 
 ### 인프라 구성
 
-- **Docker Compose**: Spring Boot 앱(512MB) + MariaDB(256MB) 컨테이너 오케스트레이션
+- **Docker Compose**: Spring Boot 앱(640MB, blue/green 2슬롯) + MariaDB(256MB) 컨테이너 오케스트레이션
 - **Nginx**: 리버스 프록시 + Let's Encrypt SSL 인증서 자동 갱신
 - **모니터링**: `SystemReportBatch`를 통한 일일 시스템 리포트, `DailyStatsBatch`로 일별 통계 수집
 
@@ -163,8 +166,8 @@ Push to main → GitHub Actions
 
 ## 테스트
 
-- **단위 테스트**: JUnit 5 (30개 테스트 클래스, 8,400+ 라인)
-- **E2E 테스트**: Playwright 기반 브라우저 자동화 테스트
+- **단위 테스트**: JUnit 5 (30개 테스트 클래스, 8,100+ 라인)
+- **CI 연동**: GitHub Actions에서 `./mvnw clean test` 실행, Surefire 리포트를 아티팩트로 보관
 - **TDD 적용**: 게임 타입 설정 등 핵심 비즈니스 로직에 TDD 방식 적용
 
 ---
@@ -172,23 +175,23 @@ Push to main → GitHub Actions
 ## 프로젝트 구조
 
 ```
-src/main/java/com/kh/quiz/
+src/main/java/com/kh/game/
 ├── controller/           # MVC + REST 컨트롤러
-│   ├── client/           #   사용자 기능 (24개)
-│   └── admin/            #   관리자 기능 (16개)
-├── service/              # 비즈니스 로직 (22개)
+│   ├── client/           #   사용자 기능 (13개)
+│   └── admin/            #   관리자 기능 (25개)
+├── service/              # 비즈니스 로직 (23개)
 ├── repository/           # Spring Data JPA (29개)
-├── entity/               # JPA 엔티티 (26개)
+├── entity/               # JPA 엔티티 (29개)
 ├── dto/                  # 데이터 전송 객체
-├── batch/                # 스케줄링 배치 (27개)
-├── config/               # 설정 (Security, Web, Scheduler)
+├── batch/                # 스케줄링 배치 (27개, 스케줄러 등록 25종)
+├── config/               # 설정 (Security, Web, WebSocket, Scheduler)
 ├── interceptor/          # 인증 인터셉터
 └── util/                 # 유틸리티 (영→한 발음 변환 등)
 
 src/main/resources/
-├── templates/            # Thymeleaf 템플릿 (77개)
-├── static/               # CSS(40) · JS(43) · 이미지
-└── application.yml       # 환경별 설정 (dev/prod)
+├── templates/            # Thymeleaf 템플릿 (76개)
+├── static/               # CSS(39) · JS(43) · 이미지
+└── application*.properties  # 환경별 설정 (dev/prod)
 
 tools/                    # MCP 기반 운영 도구 (Python)
 .github/workflows/        # CI/CD 파이프라인
@@ -230,6 +233,6 @@ docker-compose up -d
 
 <div align="center">
 
-📝 **License:** MIT
+📝 **License:** [MIT](LICENSE)
 
 </div>
